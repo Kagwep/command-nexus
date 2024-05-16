@@ -50,7 +50,7 @@ const BattleRoomList: React.FC<BattleRoomProps> = ({ rooms }) => {
 
     return (
         <>
-        {room ? (
+        {/* {room ? (
             <Canvas
               room={room}
               orientation={orientation}
@@ -61,7 +61,10 @@ const BattleRoomList: React.FC<BattleRoomProps> = ({ rooms }) => {
               cleanup={cleanup}
             />
           ) : (
-            <div className="max-w-screen-lg mx-auto  shadow-lg rounded-lg p-4">
+
+
+          )} */}
+          <div className="max-w-screen-lg mx-auto  shadow-lg rounded-lg p-4">
             <h2 className="text-xl font-bold text-slate-100 mb-4 ">Battle Rooms</h2>
             <div className="bg-cover bg-center" style={{ backgroundImage: 'url("https://res.cloudinary.com/dydj8hnhz/image/upload/v1714890212/hggdym2eguf38jws7lib.jpg")' }}>
                 {rooms.map((room) => (
@@ -78,8 +81,6 @@ const BattleRoomList: React.FC<BattleRoomProps> = ({ rooms }) => {
                 ))}
             </div>
         </div>
-
-          )}
         </>
     );
 };

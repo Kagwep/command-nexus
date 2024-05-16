@@ -22,7 +22,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
                 {players.map((player) => (
                     <li key={player.id} className="p-4 flex justify-between items-center">
                         <div className="flex items-center">
-                            <img className="h-10 w-10 rounded-full " src={player.avatarUrl} alt={`Avatar of ${player.name}`} />
+                            {/* <img className="h-10 w-10 rounded-full " src={player.avatarUrl} alt={`Avatar of ${player.name}`} /> */}
                             <span className="ml-4 font-medium text-2xl">{player.name}</span>
                         </div>
                         <span className="font-medium text-indigo-600 text-2xl">{player.points} pts</span>

@@ -16,7 +16,7 @@ const MarketplacePage = () => {
         <Navbar />
            < MarketplaceHero />
            <Steps /> 
-           <Banners />
+           {/* <Banners /> */}
            <CTA />
         <Footer />
     </div>

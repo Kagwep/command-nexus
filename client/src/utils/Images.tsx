@@ -4,7 +4,7 @@ import BackgroundHero1 from '../assets/images/bgone.jfif';
 import BackgroundHero2 from '../assets/images/bgtwo.jfif';
 import BackgroundQuotes from '../assets/images/quote.jfif';
 import BackgroundRequirement from '../assets/images/requirements.jfif';
-import Newsletter from '../assets/images/footer.jfif';
+import Newsletter from '../assets/images/boottomnav.jpg';
 import SliderImage1 from '../assets/images/im1.jpg';
 import SliderImage2 from '../assets/images/im2.jpg';
 import SliderImage3 from '../assets/images/im3.jpg';

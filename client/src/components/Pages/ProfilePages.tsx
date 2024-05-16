@@ -21,7 +21,7 @@ const ProfilesPage = () => {
               }} /> </button>
               </Link>
            </div>
-          <ProfileHeader />
+          {/* <ProfileHeader /> */}
           <Footer />
         </>
   );

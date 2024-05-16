@@ -4,16 +4,18 @@ import Scroll from 'react-scroll';
 import '../css/Header.scss';
 import '../css/Navbar.scss';
 import logo from '../assets/images/logo.png'
-import { useWallet } from '../contexts/WalletContex';
+import { useAppContext } from "../providers/AppProvider";
 
 const Navbar = () => {
 
-    const { provider, account, connectWallet, disconnectWallet } = useWallet();
+    const { address, connection, handleConnetWalletBtnClick, contract,handleWalletDisconnect,disconnectWallet} = useAppContext()
+
 
     const [toggleMenu, setToggleMenu] = useState(false);
     const [toggleLang, setToggleLang] = useState(false);
     const [toggleMenuScroll, setToggleMenuScroll] = useState(false);
     const [toggleSkewMenu, settoggleSkewMenu] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const ScrollLink = Scroll.Link;
     const handleToggleMenu = () =>{
         setToggleMenu(!toggleMenu);
@@ -32,6 +34,15 @@ const Navbar = () => {
             setToggleMenuScroll(false);
         }
     });
+
+    const handleDisconnect = () => {
+        // Perform the logic to disconnect the wallet here
+        // For example: disconnectWallet();
+        console.log('Disconnecting wallet...');
+        // Close the modal after performing the disconnect action
+        setShowModal(false);
+        disconnectWallet();
+      };
 
     return (
         <div className="nav-container m-auto">
@@ -96,13 +107,13 @@ const Navbar = () => {
                 </div>
 
                 <div>
-                    {account ? (
+                    {connection ? (
                         <>
                             {/* <p>Connected Account: {account}</p> */}
-                            <button onClick={disconnectWallet} className="bg-emerald-950 hover:bg-emerald-800 text-white text-xl font-bold py-2 px-4  rounded">Disconnect Wallet</button>
+                            <button onClick={() => {setShowModal(true); handleDisconnect();}} className="bg-amber-500 hover:bg-amber-300 text-white text-xl font-bold py-2 px-4 border border-amber-500 rounded">Disconnect Wallet</button>
                         </>
                     ) : (
-                        <button onClick={connectWallet} className="bg-emerald-950 hover:bg-emerald-800 text-white text-xl font-bold py-2 px-4  rounded">Connect Wallet</button>
+                        <button onClick={handleConnetWalletBtnClick} className="bg-amber-600 hover:bg-amber-300 text-white text-xl font-bold py-2 px-4 border border-amber-700 rounded">Connect Wallet</button>
                     )}
                     {/* Your React component content here */}
                 </div>

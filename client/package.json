@@ -13,6 +13,9 @@
     "@babylonjs/core": "^7.5.0",
     "@babylonjs/gui": "^7.6.1",
     "@babylonjs/loaders": "^7.6.0",
+    "@mantine/core": "^7.5.2",
+    "@mantine/hooks": "^7.5.2",
+    "@mantine/modals": "^7.5.2",
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@metamask/providers": "^14.0.2",
@@ -22,6 +25,7 @@
     "@mui/system": "^5.15.5",
     "@vitejs/plugin-react-swc": "^3.6.0",
     "babylonjs-gui": "^6.39.0",
+    "bignumber.js": "^4.0.4",
     "ethers": "^5.7.2",
     "framer-motion": "^11.1.7",
     "react": "^18.2.0",
@@ -35,6 +39,8 @@
     "sass": "^1.70.0",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.7.5",
+    "starknet": "^6.7.0",
+    "starknetkit": "^1.0.21",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

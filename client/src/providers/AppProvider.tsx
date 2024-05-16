@@ -62,7 +62,7 @@ const AppProvider = ({ children }: IAppProvider) => {
     const connectWallet = async () => {
         const connection = await connect({
             webWalletUrl: "https://web.argent.xyz",
-            dappName: "Stark Pay",
+            dappName: "Command Nexus",
         });
 
         console.log(connection.wallet)
@@ -103,12 +103,7 @@ const AppProvider = ({ children }: IAppProvider) => {
 
 
     const makeContractConnection = () => {
-        if (account) {
-            const contract = new Contract(CONTRACT_ABI, CONTRACT_ADDRESS, account)
-            const pragma_contract = new Contract(PRAGMA_ABI, PRAGMA_CONTRACT_ADDRESS, account)
-            setPragmaContract(pragma_contract)
-            setContract(contract)
-        }
+
     }
 
     const handleConnetWalletBtnClick = () => {

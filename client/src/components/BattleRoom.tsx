@@ -1,5 +1,7 @@
-import React from 'react';
-
+import React, { useEffect,useState, useCallback}from 'react';
+import socket from '../socket';
+import { Players } from '../utils/commonGame';
+import Canvas from './Game/Logic/CommandNexus';
 
 // Define TypeScript interface for a Battle Room
 interface BattleRoom {
@@ -16,8 +18,50 @@ interface BattleRoomProps {
 }
 
 const BattleRoomList: React.FC<BattleRoomProps> = ({ rooms }) => {
+
+
+    const [username, setUsername] = useState("");
+    const [usernameSubmitted, setUsernameSubmitted] = useState(false);
+  
+    const [room, setRoom] = useState("sdsd");
+    const [orientation, setOrientation] = useState("");
+    const [players, setPlayers] = useState<Players[]>([]);
+    const [players_identity, setPlayersIdentity] = useState<string>("");
+
+  
+    // resets the states responsible for initializing a game
+    const cleanup = useCallback(() => {
+      setRoom("");
+      setOrientation("");
+      setPlayers([]);
+      setPlayersIdentity("");
+    }, []);
+  
+    useEffect(() => {
+      // const username = prompt("Username");
+      // setUsername(username);
+      // socket.emit("username", username);
+  
+      socket.on("opponentJoined", (roomData) => {
+        console.log("roomData", roomData)
+        setPlayers(roomData.players);
+      });
+    }, []);
+
     return (
-        <div className="max-w-screen-lg mx-auto  shadow-lg rounded-lg p-4">
+        <>
+        {room ? (
+            <Canvas
+              room={room}
+              orientation={orientation}
+              username={username}
+              players={players}
+              player_identity={players_identity}
+              // the cleanup function will be used by Game to reset the state when a game is over
+              cleanup={cleanup}
+            />
+          ) : (
+            <div className="max-w-screen-lg mx-auto  shadow-lg rounded-lg p-4">
             <h2 className="text-xl font-bold text-slate-100 mb-4 ">Battle Rooms</h2>
             <div className="bg-cover bg-center" style={{ backgroundImage: 'url("https://res.cloudinary.com/dydj8hnhz/image/upload/v1714890212/hggdym2eguf38jws7lib.jpg")' }}>
                 {rooms.map((room) => (
@@ -34,6 +78,9 @@ const BattleRoomList: React.FC<BattleRoomProps> = ({ rooms }) => {
                 ))}
             </div>
         </div>
+
+          )}
+        </>
     );
 };
 

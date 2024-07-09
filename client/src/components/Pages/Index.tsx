@@ -16,9 +16,6 @@ const HomePage = () => {
   return (
         <>
           <Header />
-          <About />  
-          <Requirement/>
-          <NewsletterSection/>
           <Footer/>
         </>
   );

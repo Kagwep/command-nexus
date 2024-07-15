@@ -17,6 +17,8 @@ struct Infantry {
 struct InfantryAccessories {
     ammunition: u32,
     first_aid_kit: u32,
+    molotov: u32,
+    grenade: u32,
 }
 
 #[derive(Copy, Drop, Serde)]

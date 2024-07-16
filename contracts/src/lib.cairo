@@ -1,12 +1,16 @@
-mod systems {
-    mod actions;
-}
+// mod systems {
+//     mod actions;
+// }
 
 mod models {
-    mod moves;
+    mod infantry;
+    mod ship;
+    mod transportation;
+    mod game;
+    mod player;
     mod position;
 }
 
-mod tests {
-    mod test_world;
-}
+// mod tests {
+//     mod test_world;
+// }

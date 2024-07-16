@@ -1,0 +1,20 @@
+kind = "DojoModel"
+class_hash = "0x66c7bfc40a1759b04218487a7148b0dd9919fc9fa8b24a6c33384135121cf77"
+original_class_hash = "0x66c7bfc40a1759b04218487a7148b0dd9919fc9fa8b24a6c33384135121cf77"
+abi = "manifests/dev/abis/base/models/bootcamp_models_infantry_infantry_health.json"
+name = "bootcamp::models::infantry::infantry_health"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "shield_strength"
+type = "u32"
+key = false

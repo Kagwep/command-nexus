@@ -1,7 +1,7 @@
 [package]
-cairo-version = "2.6.3"
-name = "dojo_starter"
-version = "0.7.0"
+cairo-version = "2.5.4"
+name = "contracts"
+version = "0.6.0"
 
 [cairo]
 sierra-replace-ids = true
@@ -9,10 +9,10 @@ sierra-replace-ids = true
 [scripts]
 migrate = "sozo build && sozo migrate apply"
 spawn = "./scripts/spawn.sh"
-move = "./scripts/move.sh"
+move = "./scripts/paint.sh"
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.3" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.0-alpha.5" }
 
 [[target.dojo]]
 

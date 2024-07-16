@@ -1,0 +1,20 @@
+kind = "DojoModel"
+class_hash = "0x23d1be981dca1001712f1880c21d9dbc53f058340793bbd05f559933dd3fdf4"
+original_class_hash = "0x23d1be981dca1001712f1880c21d9dbc53f058340793bbd05f559933dd3fdf4"
+abi = "manifests/dev/abis/base/models/contracts_models_player_player.json"
+name = "contracts::models::player::player"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "address"
+type = "starknet::ContractAddress"
+key = true
+
+[[members]]
+name = "last_action"
+type = "u64"
+key = false

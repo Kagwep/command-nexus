@@ -18,13 +18,23 @@ struct Ship {
 }
 
 #[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct ShipAccessories {
+    #[key]
+    game_id: u32,
+    #[key]
+    player_id: u32,
     fuel: u32,
     ammunition: u32,
 }
 
 #[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct ShipHealth {
+    #[key]
+    game_id: u32,
+    #[key]
+    player_id: u32,
     hull_integrity: u32,
     shield_strength: u32,
 }

@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x4f889e2a421a1e5a9bbe476f937c04d73f1c85d97c3499e1b0ac4ffa459d355"
+original_class_hash = "0x4f889e2a421a1e5a9bbe476f937c04d73f1c85d97c3499e1b0ac4ffa459d355"
+abi = "manifests/dev/abis/base/models/contracts_models_infantry_infantry_accessories.json"
+name = "contracts::models::infantry::infantry_accessories"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "ammunition"
+type = "u32"
+key = false
+
+[[members]]
+name = "first_aid_kit"
+type = "u32"
+key = false
+
+[[members]]
+name = "molotov"
+type = "u32"
+key = false
+
+[[members]]
+name = "grenade"
+type = "u32"
+key = false

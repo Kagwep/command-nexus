@@ -319,34 +319,34 @@
   },
   {
     "type": "impl",
-    "name": "playerImpl",
-    "interface_name": "contracts::models::player::Iplayer"
+    "name": "amored_accessoriesImpl",
+    "interface_name": "contracts::models::amored::Iamored_accessories"
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::Player",
+    "name": "contracts::models::amored::AmoredAccessories",
     "members": [
       {
         "name": "game_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "address",
+        "name": "player_id",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "last_action",
-        "type": "core::integer::u64"
+        "name": "fuel",
+        "type": "core::integer::u32"
       },
       {
-        "name": "rank",
-        "type": "core::integer::u8"
+        "name": "ammunition",
+        "type": "core::integer::u32"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::player::Iplayer",
+    "name": "contracts::models::amored::Iamored_accessories",
     "items": [
       {
         "type": "function",
@@ -354,7 +354,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::player::Player"
+            "type": "contracts::models::amored::AmoredAccessories"
           }
         ],
         "outputs": [],
@@ -364,7 +364,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::player::player::Event",
+    "name": "contracts::models::amored::amored_accessories::Event",
     "kind": "enum",
     "variants": []
   }

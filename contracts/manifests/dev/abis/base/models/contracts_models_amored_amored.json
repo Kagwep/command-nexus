@@ -319,34 +319,122 @@
   },
   {
     "type": "impl",
-    "name": "playerImpl",
-    "interface_name": "contracts::models::player::Iplayer"
+    "name": "amoredImpl",
+    "interface_name": "contracts::models::amored::Iamored"
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::Player",
+    "name": "contracts::models::amored::AmoredAccessories",
     "members": [
       {
         "name": "game_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "address",
+        "name": "player_id",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "last_action",
+        "name": "fuel",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "ammunition",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::amored::AmoredHealth",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "player_id",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "shield_strength",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::position::Vec2",
+    "members": [
+      {
+        "name": "player",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "x",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "y",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::position::Position",
+    "members": [
+      {
+        "name": "player",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "vec",
+        "type": "contracts::models::position::Vec2"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::amored::Amored",
+    "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "player_id",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "accuracy",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "firepower",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "range",
         "type": "core::integer::u64"
       },
       {
-        "name": "rank",
-        "type": "core::integer::u8"
+        "name": "accessories",
+        "type": "contracts::models::amored::AmoredAccessories"
+      },
+      {
+        "name": "Amored_health",
+        "type": "contracts::models::amored::AmoredHealth"
+      },
+      {
+        "name": "position",
+        "type": "contracts::models::position::Position"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::player::Iplayer",
+    "name": "contracts::models::amored::Iamored",
     "items": [
       {
         "type": "function",
@@ -354,7 +442,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::player::Player"
+            "type": "contracts::models::amored::Amored"
           }
         ],
         "outputs": [],
@@ -364,7 +452,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::player::player::Event",
+    "name": "contracts::models::amored::amored::Event",
     "kind": "enum",
     "variants": []
   }

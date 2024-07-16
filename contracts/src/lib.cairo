@@ -9,6 +9,7 @@ mod models {
     mod game;
     mod player;
     mod position;
+    mod amored;
 }
 
 // mod tests {

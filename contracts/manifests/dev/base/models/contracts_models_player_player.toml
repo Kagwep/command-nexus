@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x23d1be981dca1001712f1880c21d9dbc53f058340793bbd05f559933dd3fdf4"
-original_class_hash = "0x23d1be981dca1001712f1880c21d9dbc53f058340793bbd05f559933dd3fdf4"
+class_hash = "0x2707246567dcfdb55f4a9172f726d858a1a448009f8089d0573b70c5a62f859"
+original_class_hash = "0x2707246567dcfdb55f4a9172f726d858a1a448009f8089d0573b70c5a62f859"
 abi = "manifests/dev/abis/base/models/contracts_models_player_player.json"
 name = "contracts::models::player::player"
 
@@ -17,4 +17,9 @@ key = true
 [[members]]
 name = "last_action"
 type = "u64"
+key = false
+
+[[members]]
+name = "rank"
+type = "u8"
 key = false

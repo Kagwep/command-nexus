@@ -6,5 +6,6 @@ struct Player {
     #[key]
     address: starknet::ContractAddress,
     last_action:u64,
+    rank: u8,
    
 }

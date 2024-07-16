@@ -14,6 +14,8 @@ struct Game {
 struct GameData {
     #[key]
     game_id: u32,
-    number_of_players: u8
+    number_of_players: u8,
+    clock: u64,
+    over: bool
 }
 

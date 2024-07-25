@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x1e442513882b71427a9254e4ca9cc317e92d508ecf49a620a8bb68a4c0bef21"
+original_class_hash = "0x1e442513882b71427a9254e4ca9cc317e92d508ecf49a620a8bb68a4c0bef21"
+abi = "manifests/dev/abis/base/models/contracts_models_ship_ship_health.json"
+name = "contracts::models::ship::ship_health"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "hull_integrity"
+type = "u32"
+key = false
+
+[[members]]
+name = "shield_strength"
+type = "u32"
+key = false

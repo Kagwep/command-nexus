@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x365bbbbd3baa886e452ddd1d59f9a6cda376e93e182ce01fd1b773a1c06298d"
+original_class_hash = "0x365bbbbd3baa886e452ddd1d59f9a6cda376e93e182ce01fd1b773a1c06298d"
+abi = "manifests/dev/abis/base/models/contracts_models_transportation_transportation.json"
+name = "contracts::models::transportation::transportation"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "airport"
+type = "Airport"
+key = false
+
+[[members]]
+name = "seaport"
+type = "Seaport"
+key = false
+
+[[members]]
+name = "railway_station"
+type = "RailwayStation"
+key = false
+
+[[members]]
+name = "depot"
+type = "Depot"
+key = false

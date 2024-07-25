@@ -1,0 +1,45 @@
+kind = "DojoModel"
+class_hash = "0x339ad9684729bbef4b140b901f6d16e4d356ee28782c2b33f6db402a97c5865"
+original_class_hash = "0x339ad9684729bbef4b140b901f6d16e4d356ee28782c2b33f6db402a97c5865"
+abi = "manifests/dev/abis/base/models/bootcamp_models_infantry_infantry.json"
+name = "bootcamp::models::infantry::infantry"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "range"
+type = "u64"
+key = false
+
+[[members]]
+name = "firepower"
+type = "u32"
+key = false
+
+[[members]]
+name = "accuracy"
+type = "u8"
+key = false
+
+[[members]]
+name = "accessories"
+type = "InfantryAccessories"
+key = false
+
+[[members]]
+name = "health"
+type = "InfantryHealth"
+key = false
+
+[[members]]
+name = "position"
+type = "Position"
+key = false

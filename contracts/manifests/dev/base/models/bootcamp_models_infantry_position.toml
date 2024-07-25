@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x4c2414b88afa87e668e878a27efacd3381694617cf87af1608914f1eeec9dfc"
+original_class_hash = "0x4c2414b88afa87e668e878a27efacd3381694617cf87af1608914f1eeec9dfc"
+abi = "manifests/dev/abis/base/models/bootcamp_models_infantry_position.json"
+name = "bootcamp::models::infantry::position"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "x_coordinate"
+type = "u32"
+key = false
+
+[[members]]
+name = "y_coordinate"
+type = "u32"
+key = false

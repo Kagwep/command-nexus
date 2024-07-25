@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
-struct Position {
+pub struct Position {
     #[key]
     player: ContractAddress,
     vec: Vec3,

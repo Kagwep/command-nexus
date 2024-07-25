@@ -5,11 +5,12 @@ use starknet::ContractAddress;
 struct Position {
     #[key]
     player: ContractAddress,
-    vec: Vec2,
+    vec: Vec3,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct Vec2 {
+struct Vec3 {
     x: u32,
-    y: u32
+    y: u32,
+    z: u32
 }

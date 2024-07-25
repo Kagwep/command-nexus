@@ -9,3 +9,15 @@ struct Player {
     rank: u8,
    
 }
+
+
+#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+struct PlayerScore {
+    #[key]
+    game_id: u32,
+    player: Player,
+    score: u32,
+    kills: u16,
+    deaths: u16,
+    assists: u16,
+}

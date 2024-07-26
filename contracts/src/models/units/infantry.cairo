@@ -1,3 +1,5 @@
+use contracts::models::battlefield::BattlefieldName;
+
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
 struct Infantry {
@@ -10,7 +12,8 @@ struct Infantry {
     accuracy: u8,
     accessories: InfantryAccessories,
     health: InfantryHealth,
-    position: Position
+    position: Position,
+    battlefield_name:BattlefieldName,
 }
 
 #[derive(Copy, Drop, Serde)]

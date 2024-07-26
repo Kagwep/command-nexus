@@ -1,6 +1,8 @@
 use starknet::ContractAddress;
 
 use contracts::models::position::Position;
+use contracts::models::battlefield::BattlefieldName;
+
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
@@ -14,7 +16,8 @@ struct Ship {
     accuracy: u8,
     ship_accessories: ShipAccessories,
     ship_health: ShipHealth,
-    position: Position
+    position: Position,
+    battlefield_name:BattlefieldName,
 }
 
 #[derive(Copy, Drop, Serde)]

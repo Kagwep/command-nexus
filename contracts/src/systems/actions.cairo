@@ -1,5 +1,4 @@
-use dojo_starter::models::moves::Direction;
-use dojo_starter::models::position::Position;
+
 
 // define the interface
 #[dojo::interface]

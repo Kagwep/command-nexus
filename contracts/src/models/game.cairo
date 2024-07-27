@@ -70,7 +70,7 @@ impl GameImpl of GameTrait {
         // [Return] Default game
         Game {
             game_id: u32,
-            next_to_move: Zero::zero(),
+            next_to_move: Zeroable::zero(),
             minimum_moves: 0,
             over: false,
             player_count: 0,
@@ -79,7 +79,7 @@ impl GameImpl of GameTrait {
             clock: 0,
             penalty,
             limit: 0,
-            winner: Zero::zero(),
+            winner: Zeroable::zero(),
             host
         }
     }
@@ -322,7 +322,7 @@ impl ZeroableGame of core::Zeroable<Game> {
     fn zero() -> Game {
         Game {
             game_id: 0,
-            next_to_move: Zero::zero(),
+            next_to_move: Zeroable::zero(),
             minimum_moves: 0,
             over: false,
             player_count: 0,
@@ -331,14 +331,14 @@ impl ZeroableGame of core::Zeroable<Game> {
             clock: 0,
             penalty: 0,
             limit: 0,
-            winner: Zero::zero(),
-            host: Zero::zero(),
+            winner: Zeroable::zero(),
+            host: Zeroable::zero(),
         }
     }
 
     #[inline(always)]
     fn is_zero(self: Game) -> bool {
-        Zero::zero() == self.host
+        Zeroable::zero() == self.host
     }
 
     #[inline(always)]

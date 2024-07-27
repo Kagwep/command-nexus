@@ -1,3 +1,5 @@
+use core::zeroable::Zeroable;
+
 mod errors {
     const PLAYER_INVALID_RANK: felt252 = 'Player: invalid rank';
     const PLAYER_NOT_EXISTS: felt252 = 'Player: does not exist';
@@ -14,28 +16,47 @@ struct Player {
     index: u32,
     address: starknet::ContractAddress,
     name: felt252,
+    supply: UnitsSupply,
     last_action:u64,
     rank: u8,
+    player_score: PlayerScore,
    
 }
 
 
 #[derive(Component, Copy, Drop, Serde, SerdeLen)]
 struct PlayerScore {
-    #[key]
-    game_id: u32,
-    player: Player,
     score: u32,
     kills: u16,
     deaths: u16,
     assists: u16,
 }
 
+#[derive(Copy, Drop, Serde)]
+struct UnitsSupply {
+    infantry: u32,
+    armored: u32,
+    air: u32,
+    naval: u32,
+    cyber: u32,
+}
+
 #[generate_trait]
 impl PlayerImpl of PlayerTrait {
     #[inline(always)]
-    fn new(game_id: u32, index: u32, address: felt252, name: felt252) -> Player {
-        Player { game_id, index, address, name, supply: 0, cards: 0, conqueror: false, rank: 0 }
+    fn new(game_id: u32, index: u32, address: ContractAddress, name: felt252) -> Player {
+        Player { game_id, index, address, name,supply: UnitsSupply { 
+            infantry: 5,
+            armored: 4,
+            air: 2,
+            naval: 3,
+            cyber: 1,
+        }, cards: 0, last_action: 0, rank: 0, player_score:  PlayerScore {
+            score: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0,
+        }}
     }
 
     #[inline(always)]
@@ -52,12 +73,22 @@ impl PlayerImpl of PlayerTrait {
 
     #[inline(always)]
     fn nullify(ref self: Player) {
-        self.address = 0;
+        self.address = Zeroable::zero();
         self.name = 0;
-        self.supply = 0;
-        self.cards = 0;
-        self.conqueror = false;
+        self.supply = UnitsSupply { 
+            infantry: 0,
+            armored: 0,
+            air: 0,
+            naval: 0,
+            cyber: 0,
+        };
         self.rank = 0;
+        self.player_score =  PlayerScore {
+            score: 0,
+            kills: 0,
+            deaths: 0,
+            assists: 0,
+        }
     }
 }
 
@@ -80,18 +111,29 @@ impl ZeroablePlayer of Zeroable<Player> {
         Player {
             game_id: 0,
             index: 0,
-            address: 0,
+            address: Zeroable::zero(),
             name: 0,
-            supply: 0,
-            cards: 0,
-            conqueror: false,
+            supply: UnitsSupply { 
+                infantry: 0,
+                armored: 0,
+                air: 0,
+                naval: 0,
+                cyber: 0,
+            },
             rank: 0,
+            last_action: 0,
+            player_score:  PlayerScore {
+                score: 0,
+                kills: 0,
+                deaths: 0,
+                assists: 0,
+            }
         }
     }
 
     #[inline(always)]
     fn is_zero(self: Player) -> bool {
-        self.address == 0
+        self.address == Zeroable::zero()
     }
 
     #[inline(always)]

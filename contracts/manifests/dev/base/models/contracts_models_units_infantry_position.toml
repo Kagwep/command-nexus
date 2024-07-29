@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x5957ff5142750d15ada8f3954ee20132d6da376588f4adfd7fc526eb51bed04"
+original_class_hash = "0x5957ff5142750d15ada8f3954ee20132d6da376588f4adfd7fc526eb51bed04"
+abi = "manifests/dev/abis/base/models/contracts_models_units_infantry_position.json"
+name = "contracts::models::units::infantry::position"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "x_coordinate"
+type = "u32"
+key = false
+
+[[members]]
+name = "y_coordinate"
+type = "u32"
+key = false

@@ -12,7 +12,7 @@ spawn = "./scripts/spawn.sh"
 move = "./scripts/paint.sh"
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.0-alpha.5" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.4" }
 
 [[target.dojo]]
 

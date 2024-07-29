@@ -1,0 +1,50 @@
+kind = "DojoModel"
+class_hash = "0x60ad2c114f48492bdc70b578ea8be24fbd4076a46c6dd55b09e3920db5b187"
+original_class_hash = "0x60ad2c114f48492bdc70b578ea8be24fbd4076a46c6dd55b09e3920db5b187"
+abi = "manifests/dev/abis/base/models/contracts_models_units_amored_amored.json"
+name = "contracts::models::units::amored::amored"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "accuracy"
+type = "u8"
+key = false
+
+[[members]]
+name = "firepower"
+type = "u32"
+key = false
+
+[[members]]
+name = "range"
+type = "u64"
+key = false
+
+[[members]]
+name = "accessories"
+type = "AmoredAccessories"
+key = false
+
+[[members]]
+name = "Amored_health"
+type = "AmoredHealth"
+key = false
+
+[[members]]
+name = "position"
+type = "Position"
+key = false
+
+[[members]]
+name = "battlefield_name"
+type = "BattlefieldName"
+key = false

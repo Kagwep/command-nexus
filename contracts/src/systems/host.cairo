@@ -8,8 +8,8 @@ trait IHost {
     ) -> u32;
     fn join(ref world: IWorldDispatcher,game_id: u32, player_name: felt252);
     fn leave(ref world: IWorldDispatcher, game_id: u32);
-    // fn delete(game_id: u32);
-    // fn kick(game_id: u32, index: u32);
+    fn delete(ref world: IWorldDispatcher, game_id: u32);
+    fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32);
 }
 
 
@@ -78,7 +78,7 @@ mod host {
     }
 
     #[abi(embed_v0)]
-    impl Host of IHost<ContractState> {
+    impl HostImpl of IHost<ContractState> {
         fn create(
             ref world: IWorldDispatcher,
             player_name: felt252,
@@ -142,7 +142,10 @@ mod host {
             let mut game = get!(world, game_id, (Game));
             let caller = get_caller_address();
 
-            let mut player = self._find_player(world,game, caller);
+            let mut player = match self._find_player(world,game, caller) {
+                Option::Some(player) => player,
+                Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
+            };
                      
             // [Effect] Update Game
             let last_index = game.leave(caller);
@@ -151,8 +154,7 @@ mod host {
 
             // [Effect] Update Player
             
-
-            let mut last_player = get!(world, (game.game_id, index), (Player));
+            let mut last_player = get!(world, (game.game_id, last_index), (Player));
             
             if last_player.index != player.index {
                 last_player.index = player.index;
@@ -164,54 +166,54 @@ mod host {
             set!(world, (player));
         }
 
-        // fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32) {
+        fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32) {
 
-        //     // [Check] Caller is the host
-        //     let mut game = get!(world, game_id, (Game));
-        //     let caller = get_caller_address();
-        //     game.assert_is_host(caller.into());
+            // [Check] Caller is the host
+            let mut game = get!(world, game_id, (Game));
+            let caller = get_caller_address();
+            game.assert_is_host(caller.into());
 
-        //     // [Check] Player exists
-        //     let mut player = get!(world, (game.game_id, index), (Player));
-        //     player.assert_exists();
+            // [Check] Player exists
+            let mut player = get!(world, (game.game_id, index), (Player));
+            player.assert_exists();
 
-        //     // [Effect] Update Game
-        //     let last_index = game.kick(player.address);
-        //     set!(world, (game));
+            // [Effect] Update Game
+            let last_index = game.kick(player.address);
+            set!(world, (game));
 
-        //     // [Effect] Update last Player
-        //     let mut last_player = get!(world, (game.game_id, index), (Player));
-        //     if last_player.index != player.index {
-        //         last_player.index = player.index;
-        //         set!(world, (last_player));
-        //     }
+            // [Effect] Update last Player
+            let mut last_player = get!(world, (game.game_id, last_index), (Player));
+            if last_player.index != player.index {
+                last_player.index = player.index;
+                set!(world, (last_player));
+            }
 
-        //     // [Effect] Update Player
-        //     player.nullify();
-        //     set!(world, (player));
-        // }
+            // [Effect] Update Player
+            player.nullify();
+            set!(world, (player));
+        }
 
-        // fn delete(world: IWorldDispatcher, game_id: u32) {
+        fn delete(ref world: IWorldDispatcher, game_id: u32) {
 
 
-        //     // [Check] Player exists
-        //     let mut game = get!(world, game_id, (Game));
-        //     let caller = get_caller_address();
-        //     let mut player = self._find_player(world,game, caller);
-        //     player.assert_exists();
+            // [Check] Player exists
+            let mut game = get!(world, game_id, (Game));
+            let caller = get_caller_address();
+            let mut player = match self._find_player(world,game, caller) {
+                Option::Some(player) => player,
+                Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
+            };
+            player.assert_exists();
 
-        //     // [Interaction] Refund
-        //     let address = player.address;
-        //     self._refund(world, address, game.price);
 
-        //     // [Effect] Update Game
-        //     game.delete(player.address);
-        //     set!(world, (game));
+            // [Effect] Update Game
+            game.delete(player.address);
+            set!(world, (game));
 
-        //     // [Effect] Update Player
-        //     player.nullify();
-        //     set!(world, (player));
-        // }
+            // [Effect] Update Player
+            player.nullify();
+            set!(world, (player));
+        }
 
         // fn start(self: @ContractState, world: IWorldDispatcher, game_id: u32, round_count: u32) {
 

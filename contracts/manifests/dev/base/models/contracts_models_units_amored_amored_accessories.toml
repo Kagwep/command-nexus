@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x393b052696f54d17694204c3487385c771fc9fd1edeb4c01b9704e40a67d90b"
+original_class_hash = "0x393b052696f54d17694204c3487385c771fc9fd1edeb4c01b9704e40a67d90b"
+abi = "manifests/dev/abis/base/models/contracts_models_units_amored_amored_accessories.json"
+name = "contracts::models::units::amored::amored_accessories"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "fuel"
+type = "u32"
+key = false
+
+[[members]]
+name = "ammunition"
+type = "u32"
+key = false

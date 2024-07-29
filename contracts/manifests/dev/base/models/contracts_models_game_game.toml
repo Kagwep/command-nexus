@@ -1,0 +1,70 @@
+kind = "DojoModel"
+class_hash = "0x783c1596dd7fd34f3e8577692ab33abfa685d6aef157c9070b87f1dff299e25"
+original_class_hash = "0x783c1596dd7fd34f3e8577692ab33abfa685d6aef157c9070b87f1dff299e25"
+abi = "manifests/dev/abis/base/models/contracts_models_game_game.json"
+name = "contracts::models::game::game"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "next_to_move"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "minimum_moves"
+type = "u8"
+key = false
+
+[[members]]
+name = "over"
+type = "bool"
+key = false
+
+[[members]]
+name = "player_count"
+type = "u8"
+key = false
+
+[[members]]
+name = "nonce"
+type = "u32"
+key = false
+
+[[members]]
+name = "price"
+type = "u256"
+key = false
+
+[[members]]
+name = "clock"
+type = "u64"
+key = false
+
+[[members]]
+name = "penalty"
+type = "u64"
+key = false
+
+[[members]]
+name = "limit"
+type = "u32"
+key = false
+
+[[members]]
+name = "winner"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "host"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "seed"
+type = "felt252"
+key = false

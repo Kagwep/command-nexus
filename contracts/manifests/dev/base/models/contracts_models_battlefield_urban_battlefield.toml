@@ -1,0 +1,30 @@
+kind = "DojoModel"
+class_hash = "0x308520e3dea8927f41b5a80b75354f523e26ebc06876b5a173ccde9c75beb05"
+original_class_hash = "0x308520e3dea8927f41b5a80b75354f523e26ebc06876b5a173ccde9c75beb05"
+abi = "manifests/dev/abis/base/models/contracts_models_battlefield_urban_battlefield.json"
+name = "contracts::models::battlefield::urban_battlefield"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "name"
+type = "BattlefieldName"
+key = false
+
+[[members]]
+name = "size"
+type = "Vec3"
+key = false
+
+[[members]]
+name = "weather"
+type = "WeatherCondition"
+key = false

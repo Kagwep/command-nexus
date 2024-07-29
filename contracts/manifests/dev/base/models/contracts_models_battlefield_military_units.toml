@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x4de5ce2ef207e35000ba817765456eb484c756756498fec92baa84c16b5646e"
+original_class_hash = "0x4de5ce2ef207e35000ba817765456eb484c756756498fec92baa84c16b5646e"
+abi = "manifests/dev/abis/base/models/contracts_models_battlefield_military_units.json"
+name = "contracts::models::battlefield::military_units"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "position_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "infantry"
+type = "u16"
+key = false
+
+[[members]]
+name = "special_forces"
+type = "u16"
+key = false
+
+[[members]]
+name = "drones"
+type = "u16"
+key = false

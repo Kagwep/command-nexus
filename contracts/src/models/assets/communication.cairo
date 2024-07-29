@@ -1,5 +1,5 @@
 #[derive(Model, Copy, Drop, Serde)]
-// #[dojo::model]
+#[dojo::model]
 struct Communication {
     #[key]
     game_id: u32,
@@ -13,6 +13,7 @@ struct Communication {
 }
 
 #[derive(Model, Copy, Drop, Serde)]
+#[dojo::model]
 struct Cable {
     #[key]
     game_id: u32,
@@ -25,6 +26,7 @@ struct Cable {
 }
 
 #[derive(Model, Copy, Drop, Serde)]
+#[dojo::model]
 struct CommunicationTower {
     #[key]
     game_id: u32,
@@ -37,6 +39,7 @@ struct CommunicationTower {
 }
 
 #[derive(Model, Copy, Drop, Serde)]
+#[dojo::model]
 struct SatelliteDish {
     #[key]
     game_id: u32,
@@ -49,6 +52,7 @@ struct SatelliteDish {
 }
 
 #[derive(Model, Copy, Drop, Serde)]
+#[dojo::model]
 struct RelayStation {
     #[key]
     game_id: u32,
@@ -61,6 +65,7 @@ struct RelayStation {
 }
 
 #[derive(Model, Copy, Drop, Serde)]
+#[dojo::model]
 struct ControlCenter {
     #[key]
     game_id: u32,

@@ -11,6 +11,7 @@ enum BannerLevel {
 
 
 #[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[dojo::model]
 struct Banner {
     #[key]
     id: u32,

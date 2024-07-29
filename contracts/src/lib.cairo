@@ -1,15 +1,15 @@
-// mod systems {
-//     mod actions;
-// }
+mod systems {
+    mod host;
+}
 
 mod models {
-    mod infantry;
-    mod ship;
-    mod transportation;
+    mod units;
+    mod assets;
     mod game;
     mod player;
     mod position;
-    mod amored;
+    mod battlefield;
+
 }
 
 // mod tests {

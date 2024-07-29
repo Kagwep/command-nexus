@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 
-#[derive(Enum, Copy, Drop, Serde, SerdeLen)]
+#[derive(Serde, Drop, Copy, PartialEq, Introspect)]
 enum BattlefieldName {
     None,
     RadiantShores,
@@ -10,7 +10,8 @@ enum BattlefieldName {
     SavageCoast,
 }
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct UrbanBattlefield {
     #[key]
     game_id: u32,
@@ -21,7 +22,8 @@ struct UrbanBattlefield {
     weather: WeatherCondition,
 }
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct Scoreboard {
     #[key]
     game_id: u32,
@@ -32,7 +34,8 @@ struct Scoreboard {
     last_updated: u64,  
 }
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct MilitaryPosition {
     #[key]
     game_id: u32,
@@ -45,14 +48,16 @@ struct MilitaryPosition {
     control_level: u8,
 }
 
-#[derive(Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct Vec3 {
     x: u32,
     y: u32,
     z: u32,
 }
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct MilitaryUnits {
     #[key]
     game_id: u32,
@@ -64,7 +69,7 @@ struct MilitaryUnits {
     drones: u16,
 }
 
-#[derive(Enum, Copy, Drop, Serde, SerdeLen)]
+#[derive(Serde, Drop, Copy, PartialEq, Introspect)]
 enum WeatherCondition {
     None,
     Clear,
@@ -73,7 +78,8 @@ enum WeatherCondition {
     Stormy,
 }
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
 struct WeatherEffect {
     #[key]
     game_id: u32,

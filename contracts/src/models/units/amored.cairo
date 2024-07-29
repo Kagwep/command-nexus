@@ -3,8 +3,8 @@ use starknet::ContractAddress;
 use contracts::models::position::Position;
 use contracts::models::battlefield::BattlefieldName;
 
-#[derive(Model, Copy, Drop, Serde)]
-// #[dojo::model]
+#[derive( Copy, Drop, Serde)]
+#[dojo::model]
 struct Amored {
     #[key]
     game_id: u32,
@@ -19,8 +19,8 @@ struct Amored {
     battlefield_name:BattlefieldName,
 }
 
-#[derive(Model, Copy, Drop, Serde)]
-// #[dojo::model]
+#[derive( Copy, Drop, Serde)]
+#[dojo::model]
 struct AmoredAccessories {
     #[key]
     game_id: u32,
@@ -30,8 +30,8 @@ struct AmoredAccessories {
     ammunition: u32,
 }
 
-#[derive(Model, Copy, Drop, Serde)]
-// #[dojo::model]
+#[derive( Copy, Drop, Serde)]
+#[dojo::model]
 struct AmoredHealth {
     #[key]
     game_id: u32,

@@ -1,6 +1,9 @@
 use starknet::ContractAddress;
 use core::Zeroable;
 
+use core::hash::HashStateTrait;
+use core::poseidon::PoseidonTrait;
+
 const MINIMUM_PLAYER_COUNT: u8 = 2;
 const MAXIMUM_PLAYER_COUNT: u8 = 4;
 const TURN_COUNT: u32 = 3;
@@ -65,11 +68,11 @@ impl GameImpl of GameTrait {
     #[inline(always)]
     fn new(game_id: u32, host: ContractAddress, price: u256, penalty: u64) -> Game {
         // [Check] Host is valid
-        assert(host != 0, errors::GAME_INVALID_HOST);
+        assert(host != Zeroable::zero(), errors::GAME_INVALID_HOST);
 
         // [Return] Default game
         Game {
-            game_id: u32,
+            game_id: 0,
             next_to_move: Zeroable::zero(),
             minimum_moves: 0,
             over: false,
@@ -174,7 +177,7 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn transfer(ref self: Game, host: ContractAddress) {
-        assert(host != 0, errors::GAME_INVALID_HOST);
+        assert(host != Zeroable::zero(), errors::GAME_INVALID_HOST);
         self.assert_not_host(host);
         self.host = host;
     }
@@ -188,7 +191,7 @@ impl GameImpl of GameTrait {
 
         // [Effect] Compute seed
         let mut state = PoseidonTrait::new();
-        state = state.update(self.id.into());
+        state = state.update(self.game_id.into());
         loop {
             match players.pop_front() {
                 Option::Some(player) => { state = state.update(player); },

@@ -10,6 +10,7 @@ const TURN_COUNT: u32 = 3;
 
 
 #[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[dojo::model]
 struct Game {
     #[key]
     game_id: u32,

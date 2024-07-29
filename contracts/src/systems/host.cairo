@@ -28,22 +28,22 @@ mod host {
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
 
-    mod errors {
-        const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
-        const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
-        const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
-        const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
-        const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
-        const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the host';
-        const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
-        const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
-    }
+    // mod errors {
+    //     const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
+    //     const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
+    //     const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
+    //     const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
+    //     const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
+    //     const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the host';
+    //     const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
+    //     const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
+    // }
 
 
     #[abi(embed_v0)]
-    impl Host of IHost<ContractState> {
+    impl HostImpl of IHost<ContractState> {
         fn create(
-            ref world: IWorldDispatcher,
+            world: IWorldDispatcher,
             player_name: felt252,
             price: u256,
             penalty: u64
@@ -73,7 +73,7 @@ mod host {
             game_id
         }
 
-        fn join(ref world: IWorldDispatcher, game_id: u32, player_name: felt252) {
+        fn join(world: IWorldDispatcher, game_id: u32, player_name: felt252) {
 
             // [Check] Player not in lobby
             let mut game = get!(world, game_id, (Game));
@@ -104,7 +104,7 @@ mod host {
         }
 
 
-        fn leave(ref  world: IWorldDispatcher, game_id: u32,) {
+        fn leave(world: IWorldDispatcher, game_id: u32,) {
 
             // [Check] Player in lobby
             let mut game = get!(world, game_id, (Game));
@@ -130,7 +130,7 @@ mod host {
             set!(world, (player));
         }
 
-        fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32) {
+        fn kick(world: IWorldDispatcher, game_id: u32, index: u32) {
 
             // [Check] Caller is the host
             let mut game = get!(world, game_id, (Game));
@@ -157,7 +157,7 @@ mod host {
             set!(world, (player));
         }
 
-        fn delete(ref  world: IWorldDispatcher, game_id: u32) {
+        fn delete(world: IWorldDispatcher, game_id: u32) {
 
 
             // [Check] Player exists
@@ -271,7 +271,7 @@ mod host {
     #[generate_trait]
     impl InternalImpl of InternalTrait {
 
-        fn _find_player(ref world: IWorldDispatcher, game: Game, account: ContractAddress) -> Option<Player> {
+        fn _find_player(world: IWorldDispatcher, game: Game, account: ContractAddress) -> Option<Player> {
             let mut index: u32 = game.player_count.into();
             loop {
                 index -= 1;
@@ -288,7 +288,7 @@ mod host {
 
 
 
-        fn _find_ranked_player(ref world: IWorldDispatcher, game: Game, rank: u8) -> Option<Player> {
+        fn _find_ranked_player(world: IWorldDispatcher, game: Game, rank: u8) -> Option<Player> {
             let mut index: u32 = game.player_count.into();
             loop {
                 index -= 1;

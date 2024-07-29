@@ -24,6 +24,7 @@ struct Game {
     limit: u32,
     winner: ContractAddress,
     host: ContractAddress,
+    seed: felt252,
 
 }
 
@@ -78,6 +79,7 @@ impl GameImpl of GameTrait {
             over: false,
             player_count: 0,
             nonce: 0,
+            seed: 0,
             price,
             clock: 0,
             penalty,
@@ -216,7 +218,7 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn nullify(ref self: Game) {
-        self.host = 0;
+        self.host = Zeroable::zero();
         self.over = false;
         self.seed = 0;
         self.player_count = 0;
@@ -329,6 +331,7 @@ impl ZeroableGame of core::Zeroable<Game> {
             minimum_moves: 0,
             over: false,
             player_count: 0,
+            seed: 0,
             nonce: 0,
             price: 0,
             clock: 0,

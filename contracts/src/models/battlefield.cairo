@@ -48,8 +48,7 @@ struct MilitaryPosition {
     control_level: u8,
 }
 
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct Vec3 {
     x: u32,
     y: u32,

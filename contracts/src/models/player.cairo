@@ -1,4 +1,5 @@
 use core::zeroable::Zeroable;
+use starknet::ContractAddress;
 
 mod errors {
     const PLAYER_INVALID_RANK: felt252 = 'Player: invalid rank';
@@ -24,7 +25,7 @@ struct Player {
 }
 
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct PlayerScore {
     score: u32,
     kills: u16,
@@ -32,7 +33,7 @@ struct PlayerScore {
     assists: u16,
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct UnitsSupply {
     infantry: u32,
     armored: u32,
@@ -51,7 +52,7 @@ impl PlayerImpl of PlayerTrait {
             air: 2,
             naval: 3,
             cyber: 1,
-        }, cards: 0, last_action: 0, rank: 0, player_score:  PlayerScore {
+        }, last_action: 0, rank: 0, player_score:  PlayerScore {
             score: 0,
             kills: 0,
             deaths: 0,

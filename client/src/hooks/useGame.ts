@@ -14,7 +14,10 @@ export const useGame = () => {
 
   const { game_id } = useElementStore((state) => state);
 
-  const gameComponentValue = useComponentValue(Game, useEntityQuery([HasValue(Game, { id: game_id })]));
+  const gameEntitity = useEntityQuery([HasValue(Game, { game_id: game_id })]);
+  const gameEntity = gameEntitity.length > 0 ? gameEntitity[0] : undefined;
+  
+  const gameComponentValue = useComponentValue(Game, gameEntity);
 
   const sanitizedGame = useMemo(
     () => (gameComponentValue === undefined ? undefined : sanitizeGame(gameComponentValue)),

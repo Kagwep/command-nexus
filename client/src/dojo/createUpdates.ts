@@ -1,5 +1,6 @@
 import { DEFEND_EVENT, FORTIFY_EVENT, SUPPLY_EVENT, EMOTE_EVENT } from '../constants';
 import { createEventSubscription } from './createEventSubscription';
+import { Components } from '@dojoengine/recs';
 
 export const createUpdates = async (components: Components) => {
   const eventUpdates = {

@@ -24,8 +24,14 @@ const MainMenu: React.FC = () => {
     account: { account },
   } = useDojo();
 
-  const game = useComponentValue(Game, useEntityQuery([HasValue(Game, { host: BigInt(account.address) })]));
-  const player = useComponentValue(Player, useEntityQuery([HasValue(Player, { address: BigInt(account.address) })]));
+  const gameEntities_ = useEntityQuery([HasValue(Game, { host: BigInt(account.address) })]);
+  const gameEntity = gameEntities_.length > 0 ? gameEntities_[0] : undefined;
+  const game = useComponentValue(Game, gameEntity);
+  
+  const playerEntities = useEntityQuery([HasValue(Player, { address: BigInt(account.address) })]);
+  const playerEntity = playerEntities.length > 0 ? playerEntities[0] : undefined;
+  const player = useComponentValue(Player, playerEntity);
+  
 
   const [hours, setHours] = useState<number | null>(null);
   const [minutes, setMinutes] = useState(5);

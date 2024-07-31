@@ -1,4 +1,4 @@
-import { Event } from '@/utils/events';
+import { Event } from '../utils/events';
 import { GraphQLClient } from 'graphql-request';
 
 const client = new GraphQLClient(import.meta.env.VITE_PUBLIC_TORII + '/graphql');

@@ -55,27 +55,27 @@ const Lobby: React.FC = () => {
     return host === removeLeadingZeros(address);
   };
 
-  const startGame = async () => {
-    if (game_id === undefined) {
-      console.error('Game id not defined');
-      toast({
-        variant: 'destructive',
-        description: <code className="text-white text-xs">{'Game id not defined'}</code>,
-      });
-      return;
-    }
-    try {
-      setStartLoading(true);
-      await host.start(account, game_id, round_limit);
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        description: <code className="text-white text-xs">{error.message}</code>,
-      });
-    } finally {
-      setStartLoading(false);
-    }
-  };
+  // const startGame = async () => {
+  //   if (game_id === undefined) {
+  //     console.error('Game id not defined');
+  //     toast({
+  //       variant: 'destructive',
+  //       description: <code className="text-white text-xs">{'Game id not defined'}</code>,
+  //     });
+  //     return;
+  //   }
+  //   try {
+  //     setStartLoading(true);
+  //     await host.start(account, game_id, round_limit);
+  //   } catch (error: any) {
+  //     toast({
+  //       variant: 'destructive',
+  //       description: <code className="text-white text-xs">{error.message}</code>,
+  //     });
+  //   } finally {
+  //     setStartLoading(false);
+  //   }
+  // };
 
   const leaveGame = async (game_id: number) => {
     try {
@@ -112,23 +112,23 @@ const Lobby: React.FC = () => {
     }
   };
 
-  const transferHost = async (player_index: number, game_id: number) => {
-    try {
-      setTransferLoading(true);
-      await host.transfer(account, game_id, player_index);
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        description: <code className="text-white text-xs">{error.message}</code>,
-      });
-    } finally {
-      setTransferLoading(false);
-    }
-  };
+  // const transferHost = async (player_index: number, game_id: number) => {
+  //   try {
+  //     setTransferLoading(true);
+  //     await host.transfer(account, game_id, player_index);
+  //   } catch (error: any) {
+  //     toast({
+  //       variant: 'destructive',
+  //       description: <code className="text-white text-xs">{error.message}</code>,
+  //     });
+  //   } finally {
+  //     setTransferLoading(false);
+  //   }
+  // };
 
-  if (!game || !me || !players) {
-    return;
-  }
+  // if (!game || !me || !players) {
+  //   return;
+  // }
 
   return (
     <div className="font-vt323">
@@ -202,7 +202,7 @@ const Lobby: React.FC = () => {
                                 >
                                   Kick
                                 </Button>
-                                <Button
+                                {/* <Button
                                   isLoading={transferLoading}
                                   isDisabled={transferLoading}
                                   size="sm"
@@ -213,7 +213,7 @@ const Lobby: React.FC = () => {
                                   }}
                                 >
                                   Give Host
-                                </Button>
+                                </Button> */}
                               </>
                             )}
                           </div>
@@ -225,7 +225,7 @@ const Lobby: React.FC = () => {
               </TableBody>
             </Table>
           )}
-          {isHost(game.host, account.address) && (
+          {/* {isHost(game.host, account.address) && (
             <Button
               isLoading={startLoading}
               isDisabled={startLoading}
@@ -235,7 +235,7 @@ const Lobby: React.FC = () => {
             >
               Start the Game
             </Button>
-          )}
+          )} */}
         </div>
         {!isHost(game.host, account.address) && <Loading text="Waiting for the game to start" />}
       </div>

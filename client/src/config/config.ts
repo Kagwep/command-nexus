@@ -1,4 +1,4 @@
-import { connect, disconnect } from 'starknetkit'
+
 
 import { Abi } from 'starknet'
 
@@ -15,14 +15,6 @@ const PRAGMA_CONTRACT_ADDRESS = "0x06df335982dddce41008e4c03f2546fa27276567b5274
 
 
 
-async function connectWallet() {
-    return await connect({ webWalletUrl: "https://web.argent.xyz" })
-}
-
-async function disconnectWallet() {
-    await disconnect()
-}
 
 // export {contract, provider, account}
-export { ACCOUNT_ADDRESS, CONTRACT_ADDRESS, disconnectWallet, CONTRACT_ABI, ERC20_ABI, PRAGMA_ABI, PRAGMA_CONTRACT_ADDRESS }
-export default connectWallet 
+export { ACCOUNT_ADDRESS, CONTRACT_ADDRESS,  CONTRACT_ABI, ERC20_ABI, PRAGMA_ABI, PRAGMA_CONTRACT_ADDRESS }

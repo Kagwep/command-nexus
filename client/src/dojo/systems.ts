@@ -1,7 +1,8 @@
 /* previously called generated.ts */
 
 import { DojoProvider } from '@dojoengine/core';
-import { AccountInterface, RevertedTransactionReceiptResponse, cairo } from 'starknet';
+import { AccountInterface, GetTransactionReceiptResponse, cairo } from 'starknet';
+
 
 const tryBetterErrorMsg = (msg: string): string => {
   const failureReasonIndex = msg.indexOf('Failure reason');
@@ -26,13 +27,13 @@ const tryBetterErrorMsg = (msg: string): string => {
 export async function setupWorld(provider: DojoProvider) {
   // Transaction execution and checking wrapper
   const executeAndCheck = async (account: AccountInterface, contractName: string, methodName: string, args: any[]) => {
-    const ret = await provider.execute(account, contractName, methodName, args);
+    const ret = await provider.execute(account, {contractName, entrypoint: methodName, calldata: args});
     const receipt = await account.waitForTransaction(ret.transaction_hash, {
       retryInterval: 100,
     });
 
     // Add any additional checks or logic here based on the receipt
-    if (receipt.status === 'REJECTED') {
+    if (receipt.revert_reason === 'REJECTED') {
       console.log('Transaction Rejected');
       throw new Error('[Tx REJECTED] ');
     }
@@ -41,7 +42,7 @@ export async function setupWorld(provider: DojoProvider) {
       // The receipt is of a type that includes execution_status
       if (receipt.execution_status === 'REVERTED') {
         const errorMessage = tryBetterErrorMsg(
-          (receipt as RevertedTransactionReceiptResponse).revert_reason || 'Transaction Reverted'
+          (receipt as GetTransactionReceiptResponse).revert_reason || 'Transaction Reverted'
         );
         console.log('ERROR KATANA', errorMessage);
         throw new Error('[Tx REVERTED] ' + errorMessage);

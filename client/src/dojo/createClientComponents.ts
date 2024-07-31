@@ -1,5 +1,5 @@
 import { overridableComponent } from "@dojoengine/recs";
-import { ContractComponents } from "./generated/contractComponents";
+import { ContractComponents } from './generated/contractComponents';
 
 export type ClientComponents = ReturnType<typeof createClientComponents>;
 
@@ -10,7 +10,8 @@ export function createClientComponents({
 }) {
     return {
         ...contractComponents,
+        Game: overridableComponent(contractComponents.Game),
         Player: overridableComponent(contractComponents.Player),
-        Tile: overridableComponent(contractComponents.Tile),
+        
     };
 }

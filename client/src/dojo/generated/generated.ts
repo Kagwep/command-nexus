@@ -243,12 +243,12 @@ export function defineContractComponents(world: World) {
     Position: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, player_id: RecsType.Number, x_coordinate: RecsType.Number, y_coordinate: RecsType.Number },
+        { player: RecsType.BigInt, vec: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } },
         {
           metadata: {
             name: "Position",
-            types: ["u32","u32","u32","u32"],
-            customTypes: [],
+            types: ["contractaddress","u32","u32","u32"],
+            customTypes: ["Vec3"],
           },
         }
       );
@@ -295,12 +295,12 @@ export function defineContractComponents(world: World) {
     Infantry: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, accessories: { game_id: RecsType.Number, player_id: RecsType.Number, ammunition: RecsType.Number, first_aid_kit: RecsType.Number, molotov: RecsType.Number, grenade: RecsType.Number }, health: { game_id: RecsType.Number, player_id: RecsType.Number, shield_strength: RecsType.Number }, position: { game_id: RecsType.Number, player_id: RecsType.Number, x_coordinate: RecsType.Number, y_coordinate: RecsType.Number }, battlefield_name: RecsType.Number },
+        { game_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, accessories: { game_id: RecsType.Number, player_id: RecsType.Number, ammunition: RecsType.Number, first_aid_kit: RecsType.Number, molotov: RecsType.Number, grenade: RecsType.Number }, health: { game_id: RecsType.Number, player_id: RecsType.Number, shield_strength: RecsType.Number }, position: { player: RecsType.BigInt, vec: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } }, battlefield_name: RecsType.Number },
         {
           metadata: {
             name: "Infantry",
-            types: ["u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u32","u32","u32","u32","u32","u32","u32","enum"],
-            customTypes: ["InfantryAccessories","InfantryHealth","Position","BattlefieldName"],
+            types: ["u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u32","u32","u32","contractaddress","u32","u32","u32","enum"],
+            customTypes: ["InfantryAccessories","InfantryHealth","Position","Vec3","BattlefieldName"],
           },
         }
       );
@@ -326,19 +326,6 @@ export function defineContractComponents(world: World) {
           metadata: {
             name: "InfantryHealth",
             types: ["u32","u32","u32"],
-            customTypes: [],
-          },
-        }
-      );
-    })(),
-    Position: (() => {
-      return defineComponent(
-        world,
-        { game_id: RecsType.Number, player_id: RecsType.Number, x_coordinate: RecsType.Number, y_coordinate: RecsType.Number },
-        {
-          metadata: {
-            name: "Position",
-            types: ["u32","u32","u32","u32"],
             customTypes: [],
           },
         }

@@ -1,87 +1,71 @@
-import { useState,useCallback,useEffect } from "react";
+import React,{ useState,useCallback,useEffect } from "react";
 import { TextField } from "@mui/material";
 import Canvas from "./components/Game/Logic/CommandNexus";
 import socket from './socket';
 import CustomDialog from "./components/Customs/CustomDialog";
 import InitGame from "./InitGame";
-import { Players } from "./utils/commonGame";
+import { useGetPlayers } from './hooks/useGetPlayers';
+import { useElementStore } from './utils/nexus';
+import MainMenu from "./components/MainMenu";
+import { useMe } from "./hooks/useMe";
+import { SpeedInsights } from '@vercel/speed-insights/react';
+import GameState from './utils/gamestate';
+import Lobby from './components/Lobby';
+import { dojoConfig } from '../dojoConfig';
+import { setup, SetupResult } from './dojo/generated/setup';
+import { DojoProvider } from './dojo/DojoContext';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { AudioSettingsProvider } from './contexts/AudioContext';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Loading from './components/Loading';
+
 
 
 function Game() {
 
-    const [username, setUsername] = useState("");
-    const [usernameSubmitted, setUsernameSubmitted] = useState(false);
-  
-    const [room, setRoom] = useState("");
-    const [orientation, setOrientation] = useState("");
-    const [players, setPlayers] = useState<Players[]>([]);
-    const [players_identity, setPlayersIdentity] = useState<string>("");
+  const [setupResult, setSetupResult] = useState<SetupResult | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  
-    // resets the states responsible for initializing a game
-    const cleanup = useCallback(() => {
-      setRoom("");
-      setOrientation("");
-      setPlayers([]);
-      setPlayersIdentity("");
-    }, []);
-  
-    useEffect(() => {
-      // const username = prompt("Username");
-      // setUsername(username);
-      // socket.emit("username", username);
-  
-      socket.on("opponentJoined", (roomData) => {
-        console.log("roomData", roomData)
-        setPlayers(roomData.players);
-      });
-    }, []);
-  
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const result = await setup(dojoConfig);
+        console.log("This is the result",result)
+        setSetupResult(result);
+      } catch (error) {
+        console.error('Setup failed', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initialize();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div 
+        className="font-vt323 w-full relative h-screen bg-cover bg-center"
+        style={{ backgroundImage: "url('https://res.cloudinary.com/dydj8hnhz/image/upload/v1722350662/p1qgfdio6sv1khctclnq.webp')" }}
+      >
+        <div className="absolute left-1/2 transform -translate-x-1/2 top-8 w-96 rounded-lg uppercase text-white text-4xl bg-stone-500 bg-opacity-80 text-center py-2">
+          Command Nexus
+        </div>
+        <div className="h-full flex pt-16 justify-center items-center backdrop-blur-sm bg-black bg-opacity-30">
+          <Loading text="Preparing the battlefield" />
+        </div>
+      </div>
+    );
+  }  
     return  (
         <>
-          <CustomDialog
-            open={!usernameSubmitted}
-            handleClose={() => setUsernameSubmitted(true)}
-            title="Pick a username"
-            contentText="Please select a username"
-            handleContinue={() => {
-              if (!username) return;
-              socket.emit("username", username);
-              setUsernameSubmitted(true);
-            }}
-          >
-            <TextField
-              autoFocus
-              margin="dense"
-              id="username"
-              label="Username"
-              name="username"
-              value={username}
-              required
-              onChange={(e) => setUsername(e.target.value)}
-              type="text"
-              fullWidth
-              variant="standard"
-            />
-          </CustomDialog>
-          {room ? (
-            <Canvas
-              room={room}
-              orientation={orientation}
-              username={username}
-              players={players}
-              player_identity={players_identity}
-              // the cleanup function will be used by Game to reset the state when a game is over
-              cleanup={cleanup}
-            />
-          ) : (
-            <InitGame
-              setRoom={setRoom}
-              setOrientation={setOrientation}
-              setPlayers={setPlayers}
-              setPlayersIdentity={setPlayersIdentity}
-            />
-          )}
+       <DojoProvider value={setupResult}>
+          <TooltipProvider>
+            <AudioSettingsProvider>
+                <InitGame />
+            </AudioSettingsProvider>
+          </TooltipProvider>
+        </DojoProvider>
         </>
       );
 }

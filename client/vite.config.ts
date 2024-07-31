@@ -2,6 +2,8 @@ import path from "path"
 import react from "@vitejs/plugin-react-swc"
 import { defineConfig } from "vite"
 import { PluginOption } from 'vite';
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
 const fixRecastPlugin: PluginOption = {
   name: 'fix-recast',
@@ -15,7 +17,7 @@ const fixRecastPlugin: PluginOption = {
 };
 
 export default defineConfig({
-  plugins: [react(),fixRecastPlugin],
+  plugins: [react(),wasm(),topLevelAwait(),fixRecastPlugin],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

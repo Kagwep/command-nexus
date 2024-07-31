@@ -37,7 +37,6 @@ export function createSystemCalls(
         ]) as Entity;
 
 
-
         try {
             const { transaction_hash } = await client.actions.paint({
                 account,

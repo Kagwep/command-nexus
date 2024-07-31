@@ -4,14 +4,14 @@ class_hash = "0x3f63cecdc4964acafb921ba2934c6507d1b3c344edb64c2762cf08053169ab9"
 original_class_hash = "0x3f63cecdc4964acafb921ba2934c6507d1b3c344edb64c2762cf08053169ab9"
 abi = "manifests/dev/abis/deployments/dojo_world_world.json"
 address = "0x6019ff874cb7cf5f8ac22d824f37dcece028bfc1e634fd0150e5bae5186e17e"
-transaction_hash = "0x7071c79b293ef70e515b5c4e011448d7c349858df1607447b73fb8540fe0f3e"
+transaction_hash = "0x5d81047e0acd3d0b9ccc5c78d131e672ff414e26ea1640cf758a20abe876ec5"
 block_number = 3
 seed = "contracts"
 name = "dojo::world::world"
 
 [world.metadata]
 profile_name = "dev"
-rpc_url = "http://localhost:5050/"
+rpc_url = "https://api.cartridge.gg/x/command-nexus-demo/katana"
 
 [base]
 kind = "Class"
@@ -823,8 +823,8 @@ key = false
 
 [[models]]
 kind = "DojoModel"
-class_hash = "0x2fae8ff05216c40dc3f993214c0920454f5379d4330aa5708fda99d1026bce0"
-original_class_hash = "0x2fae8ff05216c40dc3f993214c0920454f5379d4330aa5708fda99d1026bce0"
+class_hash = "0x37f2b04a7f74c398c6243dc5f09ad86b7170637a933baf289bfae1d003a75ff"
+original_class_hash = "0x37f2b04a7f74c398c6243dc5f09ad86b7170637a933baf289bfae1d003a75ff"
 abi = "manifests/dev/abis/deployments/models/contracts_models_units_infantry_infantry.json"
 name = "contracts::models::units::infantry::infantry"
 
@@ -929,33 +929,6 @@ key = true
 
 [[models.members]]
 name = "shield_strength"
-type = "u32"
-key = false
-
-[[models]]
-kind = "DojoModel"
-class_hash = "0x5957ff5142750d15ada8f3954ee20132d6da376588f4adfd7fc526eb51bed04"
-original_class_hash = "0x5957ff5142750d15ada8f3954ee20132d6da376588f4adfd7fc526eb51bed04"
-abi = "manifests/dev/abis/deployments/models/contracts_models_units_infantry_position.json"
-name = "contracts::models::units::infantry::position"
-
-[[models.members]]
-name = "game_id"
-type = "u32"
-key = true
-
-[[models.members]]
-name = "player_id"
-type = "u32"
-key = true
-
-[[models.members]]
-name = "x_coordinate"
-type = "u32"
-key = false
-
-[[models.members]]
-name = "y_coordinate"
 type = "u32"
 key = false
 

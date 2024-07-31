@@ -21,7 +21,7 @@ const Navbar = () => {
           </Link>
         </div>
         {/* Button */}
-        <Link to="/" className="bg-amber-700 text-white py-2 px-4 rounded-full">
+        <Link to="/play" className="bg-amber-700 text-white py-2 px-4 rounded-full">
             Play now
         </Link>
         {/* Hamburger Icon */}

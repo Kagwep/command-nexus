@@ -1,0 +1,1037 @@
+[world]
+kind = "WorldContract"
+class_hash = "0x3f63cecdc4964acafb921ba2934c6507d1b3c344edb64c2762cf08053169ab9"
+original_class_hash = "0x3f63cecdc4964acafb921ba2934c6507d1b3c344edb64c2762cf08053169ab9"
+abi = "manifests/sepolia/abis/deployments/dojo_world_world.json"
+address = "0x21cc3925e3837c1c174aaa524d0493337ee0269d252b7debe5ea41879452071"
+seed = "contracts"
+name = "dojo::world::world"
+
+[world.metadata]
+profile_name = "sepolia"
+rpc_url = "https://starknet-sepolia.public.blastapi.io/"
+
+[base]
+kind = "Class"
+class_hash = "0x22f3e55b61d86c2ac5239fa3b3b8761f26b9a5c0b5f61ddbd5d756ced498b46"
+original_class_hash = "0x22f3e55b61d86c2ac5239fa3b3b8761f26b9a5c0b5f61ddbd5d756ced498b46"
+name = "dojo::base::base"
+
+[[contracts]]
+kind = "DojoContract"
+address = "0x580708d76f6084470e240f32a6ed5025796ae4a8c4ee97d19f7f51dcd9dff8e"
+class_hash = "0x2d8cb9b63b9ab8a2a4ba5a92df0e14ade83c50887bdf862e18d518852dcf0eb"
+original_class_hash = "0x2d8cb9b63b9ab8a2a4ba5a92df0e14ade83c50887bdf862e18d518852dcf0eb"
+base_class_hash = "0x22f3e55b61d86c2ac5239fa3b3b8761f26b9a5c0b5f61ddbd5d756ced498b46"
+abi = "manifests/sepolia/abis/deployments/contracts/contracts_systems_host_host.json"
+reads = []
+writes = []
+computed = []
+init_calldata = []
+name = "contracts::systems::host::host"
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x43c1754a7ed3955ac0dcadad25dcb16b676714772cccd09f38892e3c2ea3548"
+original_class_hash = "0x43c1754a7ed3955ac0dcadad25dcb16b676714772cccd09f38892e3c2ea3548"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_communication_cable.json"
+name = "contracts::models::assets::communication::cable"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "cable_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "cable_name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "length"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "status"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x4a54d60cf3d7e639535aec4c3c57a8a9d1e9d35635fb482b92cdb63f67eab64"
+original_class_hash = "0x4a54d60cf3d7e639535aec4c3c57a8a9d1e9d35635fb482b92cdb63f67eab64"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_communication_communication.json"
+name = "contracts::models::assets::communication::communication"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "cable"
+type = "Cable"
+key = false
+
+[[models.members]]
+name = "communication_tower"
+type = "CommunicationTower"
+key = false
+
+[[models.members]]
+name = "satellite_dish"
+type = "SatelliteDish"
+key = false
+
+[[models.members]]
+name = "relay_station"
+type = "RelayStation"
+key = false
+
+[[models.members]]
+name = "control_center"
+type = "ControlCenter"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x165b72754ece2bd0a77aabe9ac62976f166283236f915a9fa39aaad833dd3bf"
+original_class_hash = "0x165b72754ece2bd0a77aabe9ac62976f166283236f915a9fa39aaad833dd3bf"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_communication_communication_tower.json"
+name = "contracts::models::assets::communication::communication_tower"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "tower_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "tower_name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "height"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "status"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x7c864c99cbeb904980ea7c47ba9f147fa2b3d2b2348405035268ff9f50eb2ad"
+original_class_hash = "0x7c864c99cbeb904980ea7c47ba9f147fa2b3d2b2348405035268ff9f50eb2ad"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_communication_control_center.json"
+name = "contracts::models::assets::communication::control_center"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "center_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "center_name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "location"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "status"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x6adc9f4fbc84d0b64c58e88c8e8a1a79c8eb481a8133114b3edfbf6d135fb1d"
+original_class_hash = "0x6adc9f4fbc84d0b64c58e88c8e8a1a79c8eb481a8133114b3edfbf6d135fb1d"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_communication_relay_station.json"
+name = "contracts::models::assets::communication::relay_station"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "station_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "station_name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "capacity"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "status"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x6ea72f89d699986cd96b596a7f18244e565727eb0150413c83eb0eb40bb52b"
+original_class_hash = "0x6ea72f89d699986cd96b596a7f18244e565727eb0150413c83eb0eb40bb52b"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_communication_satellite_dish.json"
+name = "contracts::models::assets::communication::satellite_dish"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "dish_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "dish_name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "diameter"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "status"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x4c83bc9511ffea3b1f5645fc5ee6a0cd2b53dd77045d688a3781ff8c747fa87"
+original_class_hash = "0x4c83bc9511ffea3b1f5645fc5ee6a0cd2b53dd77045d688a3781ff8c747fa87"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_transportation_airport.json"
+name = "contracts::models::assets::transportation::airport"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "airport_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "airport_name"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x7498881329435dd7579357ef2cbfebc50f1d4afa2982526450cb76b7e510a4f"
+original_class_hash = "0x7498881329435dd7579357ef2cbfebc50f1d4afa2982526450cb76b7e510a4f"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_transportation_depot.json"
+name = "contracts::models::assets::transportation::depot"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "depot_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "depot_name"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x46a091130946a439af9a217cda5600850f39ec6afd4aaab9634f20f069ed880"
+original_class_hash = "0x46a091130946a439af9a217cda5600850f39ec6afd4aaab9634f20f069ed880"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_transportation_railway_station.json"
+name = "contracts::models::assets::transportation::railway_station"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "station_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "station_name"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0xefe1682acca4133ea13b82981ae298b7458f2b1ad9a9aa0ee6ca8e3545cfe4"
+original_class_hash = "0xefe1682acca4133ea13b82981ae298b7458f2b1ad9a9aa0ee6ca8e3545cfe4"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_transportation_seaport.json"
+name = "contracts::models::assets::transportation::seaport"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "seaport_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "seaport_name"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x59225831bc3a18b2cd2912afcd2d64b08385d8766c9a7d24ddf082b21499b68"
+original_class_hash = "0x59225831bc3a18b2cd2912afcd2d64b08385d8766c9a7d24ddf082b21499b68"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_assets_transportation_transportation.json"
+name = "contracts::models::assets::transportation::transportation"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "airport"
+type = "Airport"
+key = false
+
+[[models.members]]
+name = "seaport"
+type = "Seaport"
+key = false
+
+[[models.members]]
+name = "railway_station"
+type = "RailwayStation"
+key = false
+
+[[models.members]]
+name = "depot"
+type = "Depot"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x3e6ab8c2eb67b3598ee60306a070176b777152ac4037eebb6e82e65e91165b5"
+original_class_hash = "0x3e6ab8c2eb67b3598ee60306a070176b777152ac4037eebb6e82e65e91165b5"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_battlefield_military_position.json"
+name = "contracts::models::battlefield::military_position"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "battlefield_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "faction"
+type = "ContractAddress"
+key = false
+
+[[models.members]]
+name = "name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "location"
+type = "Vec3"
+key = false
+
+[[models.members]]
+name = "control_level"
+type = "u8"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x4de5ce2ef207e35000ba817765456eb484c756756498fec92baa84c16b5646e"
+original_class_hash = "0x4de5ce2ef207e35000ba817765456eb484c756756498fec92baa84c16b5646e"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_battlefield_military_units.json"
+name = "contracts::models::battlefield::military_units"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "position_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "infantry"
+type = "u16"
+key = false
+
+[[models.members]]
+name = "special_forces"
+type = "u16"
+key = false
+
+[[models.members]]
+name = "drones"
+type = "u16"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x3ed57666ce5fb068050ca5714424116ee7f8e959c5dffd239ab8cda92321e63"
+original_class_hash = "0x3ed57666ce5fb068050ca5714424116ee7f8e959c5dffd239ab8cda92321e63"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_battlefield_scoreboard.json"
+name = "contracts::models::battlefield::scoreboard"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "player_count"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "top_score"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "last_updated"
+type = "u64"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x308520e3dea8927f41b5a80b75354f523e26ebc06876b5a173ccde9c75beb05"
+original_class_hash = "0x308520e3dea8927f41b5a80b75354f523e26ebc06876b5a173ccde9c75beb05"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_battlefield_urban_battlefield.json"
+name = "contracts::models::battlefield::urban_battlefield"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "name"
+type = "BattlefieldName"
+key = false
+
+[[models.members]]
+name = "size"
+type = "Vec3"
+key = false
+
+[[models.members]]
+name = "weather"
+type = "WeatherCondition"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x4d3d4c0f02ec01064af9ad5eaefc2fae8c6489f47415bea400772c9452b2479"
+original_class_hash = "0x4d3d4c0f02ec01064af9ad5eaefc2fae8c6489f47415bea400772c9452b2479"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_battlefield_weather_effect.json"
+name = "contracts::models::battlefield::weather_effect"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "battlefield_id"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "visibility"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "movement_penalty"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "comms_interference"
+type = "u8"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x783c1596dd7fd34f3e8577692ab33abfa685d6aef157c9070b87f1dff299e25"
+original_class_hash = "0x783c1596dd7fd34f3e8577692ab33abfa685d6aef157c9070b87f1dff299e25"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_game_game.json"
+name = "contracts::models::game::game"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "next_to_move"
+type = "ContractAddress"
+key = false
+
+[[models.members]]
+name = "minimum_moves"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "over"
+type = "bool"
+key = false
+
+[[models.members]]
+name = "player_count"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "nonce"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "price"
+type = "u256"
+key = false
+
+[[models.members]]
+name = "clock"
+type = "u64"
+key = false
+
+[[models.members]]
+name = "penalty"
+type = "u64"
+key = false
+
+[[models.members]]
+name = "limit"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "winner"
+type = "ContractAddress"
+key = false
+
+[[models.members]]
+name = "host"
+type = "ContractAddress"
+key = false
+
+[[models.members]]
+name = "seed"
+type = "felt252"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x606e631945cdf20ecd398841ab5b7548abe4fdfe32912c120560338cea6c29c"
+original_class_hash = "0x606e631945cdf20ecd398841ab5b7548abe4fdfe32912c120560338cea6c29c"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_player_player.json"
+name = "contracts::models::player::player"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "index"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "address"
+type = "starknet::ContractAddress"
+key = false
+
+[[models.members]]
+name = "name"
+type = "felt252"
+key = false
+
+[[models.members]]
+name = "supply"
+type = "UnitsSupply"
+key = false
+
+[[models.members]]
+name = "last_action"
+type = "u64"
+key = false
+
+[[models.members]]
+name = "rank"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "player_score"
+type = "PlayerScore"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x53f9a0bcc9c37aad9e420cd835b4356ee23e2d91d64740844162de3190ca5c8"
+original_class_hash = "0x53f9a0bcc9c37aad9e420cd835b4356ee23e2d91d64740844162de3190ca5c8"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_position_position.json"
+name = "contracts::models::position::position"
+
+[[models.members]]
+name = "player"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "vec"
+type = "Vec3"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x60ad2c114f48492bdc70b578ea8be24fbd4076a46c6dd55b09e3920db5b187"
+original_class_hash = "0x60ad2c114f48492bdc70b578ea8be24fbd4076a46c6dd55b09e3920db5b187"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_amored_amored.json"
+name = "contracts::models::units::amored::amored"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "accuracy"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "firepower"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "range"
+type = "u64"
+key = false
+
+[[models.members]]
+name = "accessories"
+type = "AmoredAccessories"
+key = false
+
+[[models.members]]
+name = "Amored_health"
+type = "AmoredHealth"
+key = false
+
+[[models.members]]
+name = "position"
+type = "Position"
+key = false
+
+[[models.members]]
+name = "battlefield_name"
+type = "BattlefieldName"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x393b052696f54d17694204c3487385c771fc9fd1edeb4c01b9704e40a67d90b"
+original_class_hash = "0x393b052696f54d17694204c3487385c771fc9fd1edeb4c01b9704e40a67d90b"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_amored_amored_accessories.json"
+name = "contracts::models::units::amored::amored_accessories"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "fuel"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "ammunition"
+type = "u32"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x659d46750279faeb0433d6a13ebe9658b6a03ca91cc7c6c39df154a9c07d35a"
+original_class_hash = "0x659d46750279faeb0433d6a13ebe9658b6a03ca91cc7c6c39df154a9c07d35a"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_amored_amored_health.json"
+name = "contracts::models::units::amored::amored_health"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "shield_strength"
+type = "u32"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x37f2b04a7f74c398c6243dc5f09ad86b7170637a933baf289bfae1d003a75ff"
+original_class_hash = "0x37f2b04a7f74c398c6243dc5f09ad86b7170637a933baf289bfae1d003a75ff"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_infantry_infantry.json"
+name = "contracts::models::units::infantry::infantry"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "range"
+type = "u64"
+key = false
+
+[[models.members]]
+name = "firepower"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "accuracy"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "accessories"
+type = "InfantryAccessories"
+key = false
+
+[[models.members]]
+name = "health"
+type = "InfantryHealth"
+key = false
+
+[[models.members]]
+name = "position"
+type = "Position"
+key = false
+
+[[models.members]]
+name = "battlefield_name"
+type = "BattlefieldName"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x56818adac47b5f45140ccebad5cb0d22e13fbe00f77fe7a565ec90bb62befa3"
+original_class_hash = "0x56818adac47b5f45140ccebad5cb0d22e13fbe00f77fe7a565ec90bb62befa3"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_infantry_infantry_accessories.json"
+name = "contracts::models::units::infantry::infantry_accessories"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "ammunition"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "first_aid_kit"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "molotov"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "grenade"
+type = "u32"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x4ff50a39c8d7cff3ad9a0877a4cc0609fa057d1b781dd8d3eb7708b4840ed9b"
+original_class_hash = "0x4ff50a39c8d7cff3ad9a0877a4cc0609fa057d1b781dd8d3eb7708b4840ed9b"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_infantry_infantry_health.json"
+name = "contracts::models::units::infantry::infantry_health"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "shield_strength"
+type = "u32"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x1c11a34dc890069ceefba36500162e652827ae8bb77c94f198d92e1e0295ee2"
+original_class_hash = "0x1c11a34dc890069ceefba36500162e652827ae8bb77c94f198d92e1e0295ee2"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_ship_ship.json"
+name = "contracts::models::units::ship::ship"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player"
+type = "ContractAddress"
+key = true
+
+[[models.members]]
+name = "range"
+type = "u64"
+key = false
+
+[[models.members]]
+name = "firepower"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "accuracy"
+type = "u8"
+key = false
+
+[[models.members]]
+name = "ship_accessories"
+type = "ShipAccessories"
+key = false
+
+[[models.members]]
+name = "ship_health"
+type = "ShipHealth"
+key = false
+
+[[models.members]]
+name = "position"
+type = "Position"
+key = false
+
+[[models.members]]
+name = "battlefield_name"
+type = "BattlefieldName"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x75c92120c915547d0f170aaf7d1cedb18f34922ae3000c55ea22029c0530c47"
+original_class_hash = "0x75c92120c915547d0f170aaf7d1cedb18f34922ae3000c55ea22029c0530c47"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_ship_ship_accessories.json"
+name = "contracts::models::units::ship::ship_accessories"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "fuel"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "ammunition"
+type = "u32"
+key = false
+
+[[models]]
+kind = "DojoModel"
+class_hash = "0x46384f77afdf6d58d389c22b3837afb9afd83e599e76bee77d2057d8be498fe"
+original_class_hash = "0x46384f77afdf6d58d389c22b3837afb9afd83e599e76bee77d2057d8be498fe"
+abi = "manifests/sepolia/abis/deployments/models/contracts_models_units_ship_ship_health.json"
+name = "contracts::models::units::ship::ship_health"
+
+[[models.members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[models.members]]
+name = "hull_integrity"
+type = "u32"
+key = false
+
+[[models.members]]
+name = "shield_strength"
+type = "u32"
+key = false

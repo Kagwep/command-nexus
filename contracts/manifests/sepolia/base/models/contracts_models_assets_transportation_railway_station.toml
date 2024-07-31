@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x46a091130946a439af9a217cda5600850f39ec6afd4aaab9634f20f069ed880"
+original_class_hash = "0x46a091130946a439af9a217cda5600850f39ec6afd4aaab9634f20f069ed880"
+abi = "manifests/sepolia/abis/base/models/contracts_models_assets_transportation_railway_station.json"
+name = "contracts::models::assets::transportation::railway_station"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "station_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "station_name"
+type = "felt252"
+key = false

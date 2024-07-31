@@ -5,7 +5,7 @@ import { createClientComponents } from "../createClientComponents";
 import { createSystemCalls } from "../createSystemCalls";
 import { defineContractComponents } from "./contractComponents";
 import { world } from "./world";
-import { setupWorld } from "./generated";
+import { setupWorld } from "../systems";
 import { Account, WeierstrassSignatureType, TypedData,RpcProvider } from "starknet";
 import { BurnerManager } from "@dojoengine/create-burner";
 
@@ -18,7 +18,7 @@ export async function setup({ ...config }: DojoConfig) {
     console.log(config.toriiUrl)
 
     // torii client
-    const toriiClient = await torii.createClient([], {
+    const toriiClient = await torii.createClient({
         rpcUrl: config.rpcUrl,
         toriiUrl: config.toriiUrl,
         relayUrl: "",
@@ -37,7 +37,7 @@ export async function setup({ ...config }: DojoConfig) {
     const sync = await getSyncEntities(
         toriiClient,
         contractComponents as any,
-        []
+        undefined
     );
 
  

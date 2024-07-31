@@ -319,12 +319,86 @@
   },
   {
     "type": "impl",
-    "name": "positionImpl",
-    "interface_name": "contracts::models::units::infantry::Iposition"
+    "name": "urban_battlefieldImpl",
+    "interface_name": "contracts::models::battlefield::Iurban_battlefield"
+  },
+  {
+    "type": "enum",
+    "name": "contracts::models::battlefield::BattlefieldName",
+    "variants": [
+      {
+        "name": "None",
+        "type": "()"
+      },
+      {
+        "name": "RadiantShores",
+        "type": "()"
+      },
+      {
+        "name": "Ironforge",
+        "type": "()"
+      },
+      {
+        "name": "Skullcrag",
+        "type": "()"
+      },
+      {
+        "name": "NovaWarhound",
+        "type": "()"
+      },
+      {
+        "name": "SavageCoast",
+        "type": "()"
+      }
+    ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::units::infantry::Position",
+    "name": "contracts::models::battlefield::Vec3",
+    "members": [
+      {
+        "name": "x",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "y",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "z",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "contracts::models::battlefield::WeatherCondition",
+    "variants": [
+      {
+        "name": "None",
+        "type": "()"
+      },
+      {
+        "name": "Clear",
+        "type": "()"
+      },
+      {
+        "name": "Rainy",
+        "type": "()"
+      },
+      {
+        "name": "Foggy",
+        "type": "()"
+      },
+      {
+        "name": "Stormy",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::battlefield::UrbanBattlefield",
     "members": [
       {
         "name": "game_id",
@@ -332,21 +406,25 @@
       },
       {
         "name": "player_id",
-        "type": "core::integer::u32"
+        "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "x_coordinate",
-        "type": "core::integer::u32"
+        "name": "name",
+        "type": "contracts::models::battlefield::BattlefieldName"
       },
       {
-        "name": "y_coordinate",
-        "type": "core::integer::u32"
+        "name": "size",
+        "type": "contracts::models::battlefield::Vec3"
+      },
+      {
+        "name": "weather",
+        "type": "contracts::models::battlefield::WeatherCondition"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::units::infantry::Iposition",
+    "name": "contracts::models::battlefield::Iurban_battlefield",
     "items": [
       {
         "type": "function",
@@ -354,7 +432,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::units::infantry::Position"
+            "type": "contracts::models::battlefield::UrbanBattlefield"
           }
         ],
         "outputs": [],
@@ -364,7 +442,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::units::infantry::position::Event",
+    "name": "contracts::models::battlefield::urban_battlefield::Event",
     "kind": "enum",
     "variants": []
   }

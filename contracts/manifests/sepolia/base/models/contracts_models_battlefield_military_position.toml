@@ -1,0 +1,40 @@
+kind = "DojoModel"
+class_hash = "0x3e6ab8c2eb67b3598ee60306a070176b777152ac4037eebb6e82e65e91165b5"
+original_class_hash = "0x3e6ab8c2eb67b3598ee60306a070176b777152ac4037eebb6e82e65e91165b5"
+abi = "manifests/sepolia/abis/base/models/contracts_models_battlefield_military_position.json"
+name = "contracts::models::battlefield::military_position"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "battlefield_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "faction"
+type = "ContractAddress"
+key = false
+
+[[members]]
+name = "name"
+type = "felt252"
+key = false
+
+[[members]]
+name = "location"
+type = "Vec3"
+key = false
+
+[[members]]
+name = "control_level"
+type = "u8"
+key = false

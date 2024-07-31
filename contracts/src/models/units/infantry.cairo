@@ -1,4 +1,5 @@
 use contracts::models::battlefield::BattlefieldName;
+use contracts::models::position::Position;
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
@@ -37,17 +38,6 @@ struct InfantryHealth {
     #[key]
     player_id: u32,
     shield_strength: u32,
-}
-
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
-struct Position {
-    #[key]
-    game_id: u32,
-    #[key]
-    player_id: u32,
-    x_coordinate: u32,
-    y_coordinate: u32,
 }
 
 

@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x4d3d4c0f02ec01064af9ad5eaefc2fae8c6489f47415bea400772c9452b2479"
+original_class_hash = "0x4d3d4c0f02ec01064af9ad5eaefc2fae8c6489f47415bea400772c9452b2479"
+abi = "manifests/sepolia/abis/base/models/contracts_models_battlefield_weather_effect.json"
+name = "contracts::models::battlefield::weather_effect"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "battlefield_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "visibility"
+type = "u8"
+key = false
+
+[[members]]
+name = "movement_penalty"
+type = "u8"
+key = false
+
+[[members]]
+name = "comms_interference"
+type = "u8"
+key = false

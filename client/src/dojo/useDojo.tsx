@@ -8,6 +8,8 @@ export const useDojo = () => {
             "The `useDojo` hook must be used within a `DojoProvider`"
         );
 
+        console.log(context)
+
     return {
         setup: context,
         account: context.account,

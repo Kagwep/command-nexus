@@ -4,11 +4,9 @@ import Scroll from 'react-scroll';
 import '../css/Header.scss';
 import '../css/Navbar.scss';
 import logo from '../assets/images/logo.png'
-import { useAppContext } from "../providers/AppProvider";
+
 
 const Navbar = () => {
-
-    const { address, connection, handleConnetWalletBtnClick, contract,handleWalletDisconnect,disconnectWallet} = useAppContext()
 
 
     const [toggleMenu, setToggleMenu] = useState(false);
@@ -35,14 +33,7 @@ const Navbar = () => {
         }
     });
 
-    const handleDisconnect = () => {
-        // Perform the logic to disconnect the wallet here
-        // For example: disconnectWallet();
-        console.log('Disconnecting wallet...');
-        // Close the modal after performing the disconnect action
-        setShowModal(false);
-        disconnectWallet();
-      };
+
 
     return (
         <div className="nav-container m-auto">
@@ -106,27 +97,8 @@ const Navbar = () => {
                     </div>
                 </div>
 
-                <div>
-                    {connection ? (
-                        <>
-                            {/* <p>Connected Account: {account}</p> */}
-                            <button onClick={() => {setShowModal(true); handleDisconnect();}} className="bg-amber-500 hover:bg-amber-300 text-white text-xl font-bold py-2 px-4 border border-amber-500 rounded">Disconnect Wallet</button>
-                        </>
-                    ) : (
-                        <button onClick={handleConnetWalletBtnClick} className="bg-amber-600 hover:bg-amber-300 text-white text-xl font-bold py-2 px-4 border border-amber-700 rounded">Connect Wallet</button>
-                    )}
-                    {/* Your React component content here */}
-                </div>
 
-                {/* <div className="container-sponsor">
-                    <Link to="#">
-                        <img src={XboxIcon} alt=""/>
-                    </Link>
-                    <Link to="#">
-                        <img src={Steam} alt=""/>
-                    </Link>
 
-                </div> */}
 
 
                 

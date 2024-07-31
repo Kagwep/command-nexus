@@ -1,0 +1,10 @@
+kind = "DojoContract"
+class_hash = "0x2d8cb9b63b9ab8a2a4ba5a92df0e14ade83c50887bdf862e18d518852dcf0eb"
+original_class_hash = "0x2d8cb9b63b9ab8a2a4ba5a92df0e14ade83c50887bdf862e18d518852dcf0eb"
+base_class_hash = "0x0"
+abi = "manifests/sepolia/abis/base/contracts/contracts_systems_host_host.json"
+reads = []
+writes = []
+computed = []
+init_calldata = []
+name = "contracts::systems::host::host"

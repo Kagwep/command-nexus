@@ -12,7 +12,7 @@ const CallToAction = () => {
         {/* Button */}
         <div>
           <Link
-            to='#'
+            to='/play'
             className='p-3 px-6 pt-2 text-white bg-gray-900 rounded-full shadow-2xl baseline hover:bg-gray-900 '
           >
             Get Started

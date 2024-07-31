@@ -1,109 +1,51 @@
-import { Button, Stack, TextField } from "@mui/material";
-import React,{ useState } from "react";
-import CustomDialog from "./components/Customs/CustomDialog";
+import React,{ useState,useCallback,useEffect } from "react";
+import { TextField } from "@mui/material";
+import Canvas from "./components/Game/Logic/CommandNexus";
 import socket from './socket';
-import { Players } from "./utils/commonGame";
+import CustomDialog from "./components/Customs/CustomDialog";
+import { useGetPlayers } from './hooks/useGetPlayers';
+import { useElementStore } from './utils/nexus';
+import MainMenu from "./components/MainMenu";
+import { useMe } from "./hooks/useMe";
+import { SpeedInsights } from '@vercel/speed-insights/react';
+import GameState from './utils/gamestate';
+import Lobby from './components/Lobby';
+import { dojoConfig } from '../dojoConfig';
+import { setup, SetupResult } from './dojo/generated/setup';
+import { DojoProvider } from './dojo/DojoContext';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
+import { AudioSettingsProvider } from './contexts/AudioContext';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Loading from './components/Loading';
 
 
 
 export interface ServerJoinRoomResponse {
-  error?: any;
-  message?: string;
-  roomId?: string;
-  players?: string[];
+
 }
 
 
 export interface InitGameProps {
-    setRoom:React.Dispatch<React.SetStateAction<string>>;
-    setOrientation:React.Dispatch<React.SetStateAction<string>>;
-    setPlayers:React.Dispatch<React.SetStateAction<Players[]>>;
-    setPlayersIdentity:React.Dispatch<React.SetStateAction<string>>;
+
     
 }
 
-const InitGame: React.FC<InitGameProps> = ({ setRoom, setOrientation, setPlayers,setPlayersIdentity }) => {
-
-  const [roomDialogOpen, setRoomDialogOpen] = useState(false);
-  const [roomInput, setRoomInput] = useState(''); // input state
-  const [roomError, setRoomError] = useState('');
- 
+const InitGame = () => {
+  const { game_state, battleReport, setBattleReport } = useElementStore((state) => state);
 
 
-  const handleCreateRoom = () => {
-    socket.emit("createRoom", (r: React.SetStateAction<string>) => {
-      console.log(r);
-      setRoom(r);
-      setOrientation("white");
-      setPlayersIdentity('player-1')
+  const { players } = useGetPlayers();
+  const { me } = useMe();
 
-    });
-  };
-
+  console.log(" Lets see whats happening ",players, me)
 
 
   return (
-    <Stack
-      justifyContent="center"
-      alignItems="center"
-      sx={{ py: 1, height: "100vh" }}
-    >
-      <CustomDialog
-        open={roomDialogOpen}
-        handleClose={() => setRoomDialogOpen(false)}
-        title="Select Room to Join"
-        contentText="Enter a valid room ID to join the room"
-        handleContinue={() => {
-            // join a room
-            if (!roomInput) return; // if given room input is valid, do nothing.
-            socket.emit("joinRoom", { roomId: roomInput }, (r: { error: any; message: React.SetStateAction<string>; roomId: React.SetStateAction<string>; players: React.SetStateAction<Players[]>; }) => {
-              // r is the response from the server
-              if (r.error) return setRoomError(r.message); // if an error is returned in the response set roomError to the error message and exit
-              console.log("response:", r);
-              setRoom(r?.roomId); // set room to the room ID
-              setPlayers(r?.players); // set players array to the array of players in the room
-              setOrientation("black"); // set orientation as black
-              setRoomDialogOpen(false); // close dialog
-              setPlayersIdentity('player-2')
-            });
-          }}
-      >
-        <TextField
-          autoFocus
-          margin="dense"
-          id="room"
-          label="Room ID"
-          name="room"
-          value={roomInput}
-          required
-          onChange={(e) => setRoomInput(e.target.value)}
-          type="text"
-          fullWidth
-          variant="standard"
-          error={Boolean(roomError)}
-          helperText={!roomError ? 'Enter a room ID' : `Invalid room ID: ${roomError}` }
-        />
-      </CustomDialog>
-      {/* Button for starting a game */}
-      <Button
-        variant="contained"
-        onClick={handleCreateRoom
-        }
-      >
-        Start a game
-      </Button>
-      {/* Button for joining a game */}
-      <Button
-        onClick={() => {
-          setRoomDialogOpen(true)
-        }}
-      >
-        Join a game
-      </Button>
-
-     
-
-    </Stack>
+    <>
+    {game_state === GameState.MainMenu && <MainMenu />}
+    {game_state === GameState.Lobby && <Lobby />}
+    
+    </>
   );
 }
 

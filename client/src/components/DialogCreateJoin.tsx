@@ -53,7 +53,7 @@ export function DialogCreateJoin({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="tertiary" className="bg-white  hover:bg-green-600">
+        <Button variant="tertiary" className="bg-white text-black  hover:bg-green-600">
           {buttonTextDisplayed}
         </Button>
       </DialogTrigger>
@@ -124,7 +124,7 @@ export function DialogCreateJoin({
             isDisabled={loading}
             onClick={handleClick}
             variant="tertiary"
-            className="hover:bg-green-600"
+            className="bg-slate-100 hover:bg-green-600"
           >
             {buttonText}
           </Button>

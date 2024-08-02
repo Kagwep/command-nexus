@@ -4,10 +4,20 @@ export interface Player {
     address: string;
     name: string;
     supply: number;
-    conqueror: boolean;
+    last_Action: number;
     rank: number;
   }
-  
+  export type BurnerStorage = {
+    [address: string]: {
+      privateKey: string;
+      publicKey: string;
+      deployTx: string;
+      active: boolean;
+      masterAccount: string;
+      masterAccountProvider: string;
+      gameContract: string;
+    };
+  };
   export type Tile = {
     game_id: number;
     id: number;

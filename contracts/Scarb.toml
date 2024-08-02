@@ -22,9 +22,9 @@ initializer_class_hash = "0xbeef"
 [tool.dojo.env]
 rpc_url = "https://api.cartridge.gg/x/command-nexus-demo/katana"
 # Default account for katana with seed = 0
-account_address = ""
-private_key = "0x827dbb41d4060e1ffed6d3e639c9facc428e8f007eb61aaacee0dadde686a4"
-#world_address = "0xb4079627ebab1cd3cf9fd075dda1ad2454a7a448bf659591f259efa2519b18"  # Uncomment and update this line with your world address.
+account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
+private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"
+world_address = "0x6019ff874cb7cf5f8ac22d824f37dcece028bfc1e634fd0150e5bae5186e17e"  # Uncomment and update this line with your world address.
 
 [profile.sepolia.tool.dojo.env]
 rpc_url = "https://starknet-sepolia.public.blastapi.io"

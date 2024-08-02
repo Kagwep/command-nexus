@@ -5,7 +5,21 @@ import { SetupResult } from "./generated/setup";
 
 interface DojoContextType extends SetupResult {
     masterAccount: Account;
-    account: BurnerAccount;
+    account: {
+        create: typeof useBurnerManager.prototype.create;
+        list: typeof useBurnerManager.prototype.list;
+        get: typeof useBurnerManager.prototype.get;
+        select: typeof useBurnerManager.prototype.select;
+        deselect: typeof useBurnerManager.prototype.deselect;
+        remove: typeof useBurnerManager.prototype.remove;
+        clear: typeof useBurnerManager.prototype.clear;
+        count: typeof useBurnerManager.prototype.count;
+        account: BurnerAccount | Account;
+        isDeploying: boolean;
+        checkIsDeployed: typeof useBurnerManager.prototype.checkIsDeployed;
+        copyToClipboard: typeof useBurnerManager.prototype.copyToClipboard;
+        applyFromClipboard: typeof useBurnerManager.prototype.applyFromClipboard;
+      };
 }
 
 export const DojoContext = createContext<DojoContextType | null>(null);

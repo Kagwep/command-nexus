@@ -9,10 +9,11 @@ import { useDojo } from '../dojo/useDojo';
 import { toast } from './UI/use-toast';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import { useGetPlayersForGame } from '../hooks/useGetPlayersForGame';
+import { useNetworkAccount } from '../contexts/WalletContex';
 
 interface GameRowProps {
   game: {
-    id: number;
+    game_id: number;
     host: any;
     player_count: number;
     slots: number;
@@ -25,15 +26,16 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
     setup: {
       client: { host },
       clientComponents: { Player },
-    },
-    account: { account },
+    }
   } = useDojo();
+
+  const { account, address, status, isConnected } = useNetworkAccount();
 
   const { set_game_state, set_game_id, player_name } = useElementStore((state) => state);
 
-  const playerId = useEntityQuery([HasValue(Player, { game_id: game.id, index: 0 })], { updateOnValueChange: true });
+  const playerId = useEntityQuery([HasValue(Player, { game_id: game.game_id, index: 0 })], { updateOnValueChange: true });
   const player = useComponentValue(Player, playerId[0]);
-  const { players } = useGetPlayersForGame(game.id);
+  const { players } = useGetPlayersForGame(game.game_id);
 
   const joinGame = async (gameid: number) => {
     if (!player_name) {
@@ -56,21 +58,21 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
   };
 
   return (
-    <TableRow key={game.id}>
+    <TableRow key={game.game_id}>
       <TableCell>{player ? feltToStr(player.name) : ''}</TableCell>
-      <TableCell>{game.id}</TableCell>
+      <TableCell>{game.game_id}</TableCell>
       <TableCell>
         <div className="flex items-center justify-center">
-          <div className="px-2 rounded-full bg-stone-400">{`${players.length}/6`}</div>
+          <div className="px-2 rounded-full bg-green-950">{`${players.length}/4`}</div>
         </div>
       </TableCell>
       <TableCell>
         <div className="flex justify-end">
           <DialogCreateJoin
-            onClick={() => joinGame(game.id)}
+            onClick={() => joinGame(game.game_id)}
             playerName={player_name}
             setPlayerName={setPlayerName}
-            dialogTitle={`Join Game ${game.id}`}
+            dialogTitle={`Join Game ${game.game_id}`}
             buttonText="Join Game"
             buttonTextDisplayed="Join Game"
             isCreating={false}

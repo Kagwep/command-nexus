@@ -74,7 +74,7 @@ impl GameImpl of GameTrait {
 
         // [Return] Default game
         Game {
-            game_id: 0,
+            game_id: game_id,
             next_to_move: Zeroable::zero(),
             minimum_moves: 0,
             over: false,

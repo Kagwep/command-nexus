@@ -10,15 +10,8 @@ import { useMe } from "./hooks/useMe";
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import GameState from './utils/gamestate';
 import Lobby from './components/Lobby';
-import { dojoConfig } from '../dojoConfig';
-import { setup, SetupResult } from './dojo/generated/setup';
-import { DojoProvider } from './dojo/DojoContext';
-import { TooltipProvider } from '@radix-ui/react-tooltip';
-import { AudioSettingsProvider } from './contexts/AudioContext';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Loading from './components/Loading';
-
-
+import useNetworkAccount from "./hooks/useNetworkAccount";
+import { useAccount } from "@starknet-react/core";
 
 export interface ServerJoinRoomResponse {
 
@@ -31,21 +24,31 @@ export interface InitGameProps {
 }
 
 const InitGame = () => {
+
+  const { account, address, status, isConnected } = useNetworkAccount();
+  
   const { game_state, battleReport, setBattleReport } = useElementStore((state) => state);
 
-
-  const { players } = useGetPlayers();
-  const { me } = useMe();
-
-  console.log(" Lets see whats happening ",players, me)
-
-
   return (
+
     <>
+
+    {account ? (
+
+    <div className="bg-black pb-4">
     {game_state === GameState.MainMenu && <MainMenu />}
     {game_state === GameState.Lobby && <Lobby />}
+
+    </div>
+    ):(
+
+      <p> waiting for account </p>
+    )}
+    
+    
     
     </>
+
   );
 }
 

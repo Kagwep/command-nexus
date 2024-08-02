@@ -7,9 +7,6 @@ export const useDojo = () => {
         throw new Error(
             "The `useDojo` hook must be used within a `DojoProvider`"
         );
-
-        console.log(context)
-
     return {
         setup: context,
         account: context.account,

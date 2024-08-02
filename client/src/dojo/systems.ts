@@ -27,7 +27,10 @@ const tryBetterErrorMsg = (msg: string): string => {
 export async function setupWorld(provider: DojoProvider) {
   // Transaction execution and checking wrapper
   const executeAndCheck = async (account: AccountInterface, contractName: string, methodName: string, args: any[]) => {
+    
     const ret = await provider.execute(account, {contractName, entrypoint: methodName, calldata: args});
+
+
     const receipt = await account.waitForTransaction(ret.transaction_hash, {
       retryInterval: 100,
     });
@@ -53,11 +56,10 @@ export async function setupWorld(provider: DojoProvider) {
   };
 
   function host() {
-    const contractName = 'contracts::systems::host::host';
+    const contractName = 'host';
     const create = async (account: AccountInterface, playerName: string, price: bigint, penalty: number) => {
       try {
         return await executeAndCheck(account, contractName, 'create', [
-          provider.getWorldAddress(),
           playerName,
           cairo.uint256(price),
           penalty,
@@ -70,7 +72,7 @@ export async function setupWorld(provider: DojoProvider) {
 
     const join = async (account: AccountInterface, gameId: number, playerName: string) => {
       try {
-        return await executeAndCheck(account, contractName, 'join', [provider.getWorldAddress(), gameId, playerName]);
+        return await executeAndCheck(account, contractName, 'join', [ gameId, playerName]);
       } catch (error) {
         console.error('Error executing join:', error);
         throw error;
@@ -97,7 +99,7 @@ export async function setupWorld(provider: DojoProvider) {
 
     const kick = async (account: AccountInterface, gameId: number, playerIndex: number) => {
       try {
-        return await executeAndCheck(account, contractName, 'kick', [provider.getWorldAddress(), gameId, playerIndex]);
+        return await executeAndCheck(account, contractName, 'kick', [gameId, playerIndex]);
       } catch (error) {
         console.error('Error executing kick:', error);
         throw error;

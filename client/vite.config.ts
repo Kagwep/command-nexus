@@ -4,6 +4,7 @@ import { defineConfig } from "vite"
 import { PluginOption } from 'vite';
 import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
+import svgr from 'vite-plugin-svgr';
 
 const fixRecastPlugin: PluginOption = {
   name: 'fix-recast',
@@ -17,7 +18,7 @@ const fixRecastPlugin: PluginOption = {
 };
 
 export default defineConfig({
-  plugins: [react(),wasm(),topLevelAwait(),fixRecastPlugin],
+  plugins: [react(),wasm(),topLevelAwait(),svgr(),fixRecastPlugin],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

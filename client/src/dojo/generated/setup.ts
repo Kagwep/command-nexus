@@ -7,14 +7,20 @@ import { createClientComponents } from '../createClientComponents';
 import { defineContractComponents } from '../generated/contractComponents';
 import { world } from './world';
 import { setupWorld } from '../systems';
-import { Account } from 'starknet';
+import { Account, RpcProvider } from 'starknet';
 import { BurnerManager } from '@dojoengine/create-burner';
 import { createUpdates } from '../createUpdates';
 import { TypedData, WeierstrassSignatureType } from 'starknet';
+import { Network } from '../../utils/nexus';
 
 export type SetupResult = Awaited<ReturnType<typeof setup>>;
 
-export async function setup({ ...config }: DojoConfig) {
+interface SetupProps {
+  network: Network;
+  setCreateBurner: (createBurner: boolean) => void;
+}
+
+export async function setup({ network, setCreateBurner, ...config }: SetupProps & DojoConfig) {
     
   // torii client
   const toriiClient = await torii.createClient({
@@ -46,19 +52,28 @@ export async function setup({ ...config }: DojoConfig) {
   // create updates manager
   const updates = await createUpdates(clientComponents);
 
+  const newProvider = new RpcProvider({
+    nodeUrl: config.rpcUrl,
+  });
+
   // create burner manager
   const burnerManager = new BurnerManager({
-    masterAccount: new Account(dojoProvider.provider, config.masterAddress, config.masterPrivateKey),
+    masterAccount: new Account(newProvider, config.masterAddress, config.masterPrivateKey),
     accountClassHash: config.accountClassHash,
-    feeTokenAddress: config.feeTokenAddress,
-    rpcProvider: dojoProvider.provider,
+    rpcProvider: newProvider,
+    feeTokenAddress: "0x0",
   });
 
   await burnerManager.init();
 
-  if (burnerManager.list().length === 0) {
+  if (
+    burnerManager.list().length === 0 &&
+    (network === "localKatana" || network === "katana")
+  ) {
     try {
+      setCreateBurner(true);
       await burnerManager.create();
+      setCreateBurner(false);
     } catch (e) {
       console.error(e);
     }
@@ -81,3 +96,5 @@ export async function setup({ ...config }: DojoConfig) {
     world,
   };
 }
+
+

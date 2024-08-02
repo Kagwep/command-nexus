@@ -22,7 +22,7 @@ const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes
   ({ className, ...props }, ref) => (
     <tbody
       ref={ref}
-      className={cn('overflow-hidden text-white rounded-lg w-full border border-stone-400', className)}
+      className={cn('overflow-hidden text-white rounded-lg w-full border bg-green-950', className)}
       {...props}
     />
   )
@@ -41,7 +41,7 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
     <tr
       ref={ref}
       className={cn(
-        'rounded-lg border border-stone-400 transition-colorshover:bg-muted/50 data-[state=selected]:bg-muted',
+        'rounded-lg border bg-green-950 transition-colorshover:bg-muted/50 data-[state=selected]:bg-muted',
         className
       )}
       {...props}

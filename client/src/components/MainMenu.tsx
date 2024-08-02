@@ -9,6 +9,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from './UI/table';
 import GameRow from './GameRow';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import WalletButton from './WalletButton';
+import { useNetworkAccount } from '../contexts/WalletContex';
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -21,8 +22,10 @@ const MainMenu: React.FC = () => {
       client: { host },
       clientComponents: { Game, Player },
     },
-    account: { account },
   } = useDojo();
+
+  const { account, address, status, isConnected } = useNetworkAccount();
+
 
   const gameEntities_ = useEntityQuery([HasValue(Game, { host: BigInt(account.address) })]);
   const gameEntity = gameEntities_.length > 0 ? gameEntities_[0] : undefined;
@@ -82,7 +85,7 @@ const MainMenu: React.FC = () => {
 <div className="font-vt323">
   <div className="flex flex-col justify-center items-center gap-6">
     <div className="w-full relative h-16">
-      <div className="absolute left-1/2 transform -translate-x-1/2 w-96 rounded-lg uppercase text-white text-4xl bg-deep-green text-center">
+      <div className="absolute left-1/2 transform -translate-x-1/2 w-96 rounded-lg uppercase text-white text-4xl p-4 bg-deep-green text-center">
         Command Nexus
       </div>
       <div className="absolute right-0">
@@ -107,7 +110,7 @@ const MainMenu: React.FC = () => {
       />
     )}
     {games.length > 0 && (
-      <div className="flex flex-col w-5/6 max-w-4xl bg-dark-gray p-7 pt-4 rounded-lg">
+      <div className=" flex flex-col w-5/6 max-w-4xl bg-dark-gray p-7 pt-4 rounded-lg" style={{backgroundImage: "url('https://res.cloudinary.com/dydj8hnhz/image/upload/v1722350662/p1qgfdio6sv1khctclnq.webp')"}}>
         <Table className="text-lg">
           <TableHeader>
             <TableRow>

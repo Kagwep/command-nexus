@@ -4,14 +4,14 @@ class_hash = "0x3f63cecdc4964acafb921ba2934c6507d1b3c344edb64c2762cf08053169ab9"
 original_class_hash = "0x3f63cecdc4964acafb921ba2934c6507d1b3c344edb64c2762cf08053169ab9"
 abi = "manifests/dev/abis/deployments/dojo_world_world.json"
 address = "0x6019ff874cb7cf5f8ac22d824f37dcece028bfc1e634fd0150e5bae5186e17e"
-transaction_hash = "0x5d81047e0acd3d0b9ccc5c78d131e672ff414e26ea1640cf758a20abe876ec5"
+transaction_hash = "0x7071c79b293ef70e515b5c4e011448d7c349858df1607447b73fb8540fe0f3e"
 block_number = 3
 seed = "contracts"
 name = "dojo::world::world"
 
 [world.metadata]
 profile_name = "dev"
-rpc_url = "https://api.cartridge.gg/x/command-nexus-demo/katana"
+rpc_url = "http://0.0.0.0:5050/"
 
 [base]
 kind = "Class"
@@ -22,8 +22,8 @@ name = "dojo::base::base"
 [[contracts]]
 kind = "DojoContract"
 address = "0x5d4e85a26a33bfd9fd3602bbdeb66d0553a56720e2e45e5476ad781077dc5fd"
-class_hash = "0x2d8cb9b63b9ab8a2a4ba5a92df0e14ade83c50887bdf862e18d518852dcf0eb"
-original_class_hash = "0x2d8cb9b63b9ab8a2a4ba5a92df0e14ade83c50887bdf862e18d518852dcf0eb"
+class_hash = "0x65023afaf3693c3350580854af1fe0cf050fa795ff5008981cfb074f168314e"
+original_class_hash = "0x65023afaf3693c3350580854af1fe0cf050fa795ff5008981cfb074f168314e"
 base_class_hash = "0x22f3e55b61d86c2ac5239fa3b3b8761f26b9a5c0b5f61ddbd5d756ced498b46"
 abi = "manifests/dev/abis/deployments/contracts/contracts_systems_host_host.json"
 reads = []

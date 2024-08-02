@@ -10,7 +10,7 @@ import '../css/item.css'
 import creator from '../assets/images/player.png'
 import item from '../assets/images/item.jfif'
 import WalletAddress from './Customs/WAlletAddress';
-import { useWallet } from '../contexts/WalletContex';
+
 import { ethers } from 'ethers';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -100,7 +100,7 @@ const ProfileHeader = () => {
     ]
   };
 
-  const { provider, account, connectWallet, disconnectWallet,contract,signer } = useWallet();
+
 
 
   const[playerInfo , setPlayerInfo] = useState<Player[] >([]);
@@ -114,43 +114,14 @@ const ProfileHeader = () => {
     setValue(newValue);
   };
 
-
-      useEffect(() => {
-        const fetchData = async () => {
-          console.log(contract,account)
-            if (account && contract) {
-              
-                const playerAddress = ethers.utils.getAddress(account[0]);
-                const players_info = await contract.getAllPlayers();
-                const player_info = players_info.find((player_info: { address: string; }) => player_info.address === playerAddress);
-                
-                setPlayersInfo(players_info);
-                if (player_info){
-                    setPlayerInfo(player_info);
-                }
-
-                const tokenBalances = await contract.getBalanceOf(playerAddress);
-
-                setTokenBalances(tokenBalances);
-               // console.log("token balances",tokenBalances);
-               
-               //console.log("hello");
-                
-              
-
-            }
-        };
-
-        fetchData(); // Call the function inside useEffect
-
-    }, [contract,account]); 
+ 
 
     //console.log("token balances",tokenBalance);
 
 
   return (
     <>
-    <div className='item section__padding'>
+    {/* <div className='item section__padding'>
         <div className="item-image">
           <img src={item} alt="item" />
         </div>
@@ -284,7 +255,7 @@ const ProfileHeader = () => {
         </TabPanel>
       </TabContext>
     </Box>
-    </div>
+    </div> */}
     </>
   )
 }

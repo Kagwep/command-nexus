@@ -20,8 +20,7 @@ import { useNetworkAccount } from '../contexts/WalletContex';
 const Lobby: React.FC = () => {
   const {
     setup: {
-      client: { host },
-      clientComponents: { Game, Player },
+      client: { host }
     },
   } = useDojo();
 
@@ -31,6 +30,8 @@ const Lobby: React.FC = () => {
 
 
   const game = useGame();
+
+  console.log(game)
 
   const { players } = useGetPlayersForGame(game_id);
 

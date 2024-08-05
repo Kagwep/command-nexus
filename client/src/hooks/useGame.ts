@@ -16,6 +16,8 @@ export const useGame = () => {
 
   const gameEntitity = useEntityQuery([HasValue(Game, { game_id: game_id })]);
   const gameEntity = gameEntitity.length > 0 ? gameEntitity[0] : undefined;
+
+  console.log(gameEntitity)
   
   const gameComponentValue = useComponentValue(Game, gameEntity);
 
@@ -23,6 +25,7 @@ export const useGame = () => {
     () => (gameComponentValue === undefined ? undefined : sanitizeGame(gameComponentValue)),
     [gameComponentValue]
   );
+
 
   const current_turn = sanitizedGame ? Math.floor(sanitizedGame.nonce / (3 * sanitizedGame.player_count) + 1) : 0;
   const number_max_turns = sanitizedGame ? Math.floor(sanitizedGame.limit / (3 * sanitizedGame.player_count)) : 0;

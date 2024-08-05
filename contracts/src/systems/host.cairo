@@ -276,7 +276,7 @@ mod host {
         //         player.index = player_index;
         //         if player_index == 0 {
         //             let player_score = map.player_score(player_index.into());
-        //             player.supply = if player_score < 12 {
+        //             player.supply = if command-nexus < 12 {
         //                 3
         //             } else {
         //                 player_score / 3

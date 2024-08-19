@@ -20,7 +20,7 @@ import { useNetworkAccount } from '../contexts/WalletContex';
 const Lobby: React.FC = () => {
   const {
     setup: {
-      client: { host }
+      client: { arena }
     },
   } = useDojo();
 
@@ -69,39 +69,39 @@ const Lobby: React.FC = () => {
     }
   }, [game?.seed]);
 
-  const isHost = (host: string, address: string) => {
-    return host === removeLeadingZeros(address);
+  const isHost = (arena: string, address: string) => {
+    return arena === removeLeadingZeros(address);
   };
 
-  // const startGame = async () => {
-  //   if (game_id === undefined) {
-  //     console.error('Game id not defined');
-  //     toast({
-  //       variant: 'destructive',
-  //       description: <code className="text-white text-xs">{'Game id not defined'}</code>,
-  //     });
-  //     return;
-  //   }
-  //   try {
-  //     setStartLoading(true);
-  //     await host.start(account, game_id, round_limit);
-  //   } catch (error: any) {
-  //     toast({
-  //       variant: 'destructive',
-  //       description: <code className="text-white text-xs">{error.message}</code>,
-  //     });
-  //   } finally {
-  //     setStartLoading(false);
-  //   }
-  // };
+  const startGame = async () => {
+    if (game_id === undefined) {
+      console.error('Game id not defined');
+      toast({
+        variant: 'destructive',
+        description: <code className="text-white text-xs">{'Game id not defined'}</code>,
+      });
+      return;
+    }
+    try {
+      setStartLoading(true);
+      await arena.start(account, game_id, round_limit);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        description: <code className="text-white text-xs">{error.message}</code>,
+      });
+    } finally {
+      setStartLoading(false);
+    }
+  };
 
   const leaveGame = async (game_id: number) => {
     try {
       setLeaveLoading(true);
-      if (isHost(game.host, account.address)) {
-        await host.delete_game(account, game.id);
+      if (isHost(game.arena, account.address)) {
+        await arena.delete_game(account, game.id);
       } else {
-        await host.leave(account, game_id);
+        await arena.leave(account, game_id);
       }
 
       set_game_id(0);
@@ -119,7 +119,7 @@ const Lobby: React.FC = () => {
   const kickPlayer = async (player_index: number, game_id: number) => {
     try {
       setKickLoading(true);
-      await host.kick(account, game_id, player_index);
+      await arena.kick(account, game_id, player_index);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -133,7 +133,7 @@ const Lobby: React.FC = () => {
   // const transferHost = async (player_index: number, game_id: number) => {
   //   try {
   //     setTransferLoading(true);
-  //     await host.transfer(account, game_id, player_index);
+  //     await arena.transfer(account, game_id, player_index);
   //   } catch (error: any) {
   //     toast({
   //       variant: 'destructive',
@@ -197,7 +197,7 @@ const Lobby: React.FC = () => {
                   <TableRow key={player.address}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        {isHost(game.host, player.address) && <FaFire  color='red' />}
+                        {isHost(game.arena, player.address) && <FaFire  color='red' />}
                         {player.name}
                       </div>
                     </TableCell>
@@ -206,7 +206,7 @@ const Lobby: React.FC = () => {
                         <div className="flex gap-8 items-center justify-between">
                           <span>{player.address} </span>{' '}
                           <div className="flex gap-6">
-                            {isHost(game.host, me.address) && player.address !== me.address && (
+                            {isHost(game.arena, me.address) && player.address !== me.address && (
                               <>
                                 <Button
                                   isLoading={kickLoading}
@@ -243,7 +243,7 @@ const Lobby: React.FC = () => {
               </TableBody>
             </Table>
           )}
-          {/* {isHost(game.host, account.address) && (
+          {isHost(game.arena, account.address) && (
             <Button
               isLoading={startLoading}
               isDisabled={startLoading}
@@ -253,9 +253,9 @@ const Lobby: React.FC = () => {
             >
               Start the Game
             </Button>
-          )} */}
+          )}
         </div>
-        {!isHost(game.host, account.address) && <Loading text="Waiting for the game to start" />}
+        {!isHost(game.arena, account.address) && <Loading text="Waiting for the game to start" />}
       </div>
     </div>
   );

@@ -7,4 +7,4 @@ reads = []
 writes = []
 computed = []
 init_calldata = []
-name = "contracts::systems::host::host"
+name = "contracts::systems::arena::arena"

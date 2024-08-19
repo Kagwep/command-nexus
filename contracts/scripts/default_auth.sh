@@ -7,13 +7,13 @@ PROFILE=${1:-sepolia}
 
 export WORLD_ADDRESS=$(cat ./manifests/$PROFILE/manifest.json | jq -r '.world.address')
 
-export HOST_ADDRESS=$(cat ./manifests/$PROFILE/manifest.json | jq -r '.contracts[] | select(.name == "contracts::systems::host::host" ).address')
+export HOST_ADDRESS=$(cat ./manifests/$PROFILE/manifest.json | jq -r '.contracts[] | select(.name == "contracts::systems::arena::arena" ).address')
 
 
 echo "---------------------------------------------------------------------------"
 echo world : $WORLD_ADDRESS
 echo " "
-echo host : $HOST_ADDRESS
+echo arena : $HOST_ADDRESS
 
 echo "---------------------------------------------------------------------------"
 

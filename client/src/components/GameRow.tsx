@@ -14,7 +14,7 @@ import { useNetworkAccount } from '../contexts/WalletContex';
 interface GameRowProps {
   game: {
     game_id: number;
-    host: any;
+    arena: any;
     player_count: number;
     slots: number;
   };
@@ -24,7 +24,7 @@ interface GameRowProps {
 const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
   const {
     setup: {
-      client: { host },
+      client: { arena },
       clientComponents: { Player },
     }
   } = useDojo();
@@ -46,7 +46,7 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
       return;
     }
     try {
-      await host.join(account, gameid, player_name);
+      await arena.join(account, gameid, player_name);
       set_game_id(gameid);
       set_game_state(GameState.Lobby);
     } catch (error: any) {

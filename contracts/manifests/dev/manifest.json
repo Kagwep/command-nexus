@@ -1081,7 +1081,7 @@
         {
           "type": "impl",
           "name": "HostImpl",
-          "interface_name": "contracts::systems::host::IHost"
+          "interface_name": "contracts::systems::arena::IHost"
         },
         {
           "type": "struct",
@@ -1099,7 +1099,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::systems::host::IHost",
+          "name": "contracts::systems::arena::IHost",
           "items": [
             {
               "type": "function",
@@ -1186,11 +1186,11 @@
         {
           "type": "impl",
           "name": "IDojoInitImpl",
-          "interface_name": "contracts::systems::host::host::IDojoInit"
+          "interface_name": "contracts::systems::arena::arena::IDojoInit"
         },
         {
           "type": "interface",
-          "name": "contracts::systems::host::host::IDojoInit",
+          "name": "contracts::systems::arena::arena::IDojoInit",
           "items": [
             {
               "type": "function",
@@ -1250,7 +1250,7 @@
         },
         {
           "type": "event",
-          "name": "contracts::systems::host::host::Event",
+          "name": "contracts::systems::arena::arena::Event",
           "kind": "enum",
           "variants": [
             {
@@ -1265,7 +1265,7 @@
       "writes": [],
       "computed": [],
       "init_calldata": [],
-      "name": "contracts::systems::host::host"
+      "name": "contracts::systems::arena::arena"
     }
   ],
   "models": [
@@ -8258,7 +8258,7 @@
           "key": false
         },
         {
-          "name": "host",
+          "name": "arena",
           "type": "ContractAddress",
           "key": false
         },
@@ -8671,7 +8671,7 @@
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
-              "name": "host",
+              "name": "arena",
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {

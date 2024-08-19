@@ -217,7 +217,7 @@ export function defineContractComponents(world: World) {
     Game: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, next_to_move: RecsType.BigInt, minimum_moves: RecsType.Number, over: RecsType.Boolean, player_count: RecsType.Number, nonce: RecsType.Number, price: RecsType.BigInt, clock: RecsType.BigInt, penalty: RecsType.BigInt, limit: RecsType.Number, winner: RecsType.BigInt, host: RecsType.BigInt, seed: RecsType.BigInt },
+        { game_id: RecsType.Number, next_to_move: RecsType.BigInt, minimum_moves: RecsType.Number, over: RecsType.Boolean, player_count: RecsType.Number, nonce: RecsType.Number, price: RecsType.BigInt, clock: RecsType.BigInt, penalty: RecsType.BigInt, limit: RecsType.Number, winner: RecsType.BigInt, arena: RecsType.BigInt, seed: RecsType.BigInt },
         {
           metadata: {
             name: "Game",

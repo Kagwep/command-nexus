@@ -60,7 +60,7 @@ type = "ContractAddress"
 key = false
 
 [[members]]
-name = "host"
+name = "arena"
 type = "ContractAddress"
 key = false
 

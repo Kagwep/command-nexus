@@ -19,7 +19,7 @@ const MainMenu: React.FC = () => {
 
   const {
     setup: {
-      client: { host },
+      client: { arena },
       clientComponents: { Game, Player },
     },
   } = useDojo();
@@ -27,7 +27,7 @@ const MainMenu: React.FC = () => {
   const { account, address, status, isConnected } = useNetworkAccount();
 
 
-  const gameEntities_ = useEntityQuery([HasValue(Game, { host: BigInt(account.address) })]);
+  const gameEntities_ = useEntityQuery([HasValue(Game, { arena: BigInt(account.address) })]);
   const gameEntity = gameEntities_.length > 0 ? gameEntities_[0] : undefined;
   const game = useComponentValue(Game, gameEntity);
   
@@ -39,7 +39,7 @@ const MainMenu: React.FC = () => {
   const [hours, setHours] = useState<number | null>(null);
   const [minutes, setMinutes] = useState(5);
 
-  // if player is host of a game, go to the lobby
+  // if player is arena of a game, go to the lobby
   useEffect(() => {
     if (player) {
       set_game_id(player.game_id);
@@ -61,7 +61,7 @@ const MainMenu: React.FC = () => {
 
     try {
       const totalSeconds = hours ? hours * 3600 + minutes * 60 : minutes * 60;
-      await host.create(account, player_name, /* price */ BigInt(0), /* penalty*/ totalSeconds);
+      await arena.create(account, player_name, /* price */ BigInt(0), /* penalty*/ totalSeconds);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -76,7 +76,7 @@ const MainMenu: React.FC = () => {
       gameEntities
         .map((id: any) => getComponentValue(Game, id))
         .sort((a: any, b: any) => b.id - a.id)
-        .filter((game: any) => game.host !== 0n),
+        .filter((game: any) => game.arena !== 0n),
     [gameEntities, Game]
   );
 

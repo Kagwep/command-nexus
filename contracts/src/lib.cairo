@@ -1,5 +1,5 @@
 mod systems {
-    mod host;
+    mod arena;
 }
 
 mod models {

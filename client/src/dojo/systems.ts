@@ -55,8 +55,8 @@ export async function setupWorld(provider: DojoProvider) {
     return receipt;
   };
 
-  function host() {
-    const contractName = 'host';
+  function arena() {
+    const contractName = 'arena';
     const create = async (account: AccountInterface, playerName: string, price: bigint, penalty: number) => {
       try {
         return await executeAndCheck(account, contractName, 'create', [
@@ -147,6 +147,6 @@ export async function setupWorld(provider: DojoProvider) {
   }
 
   return {
-    host: host(),
+    arena: arena(),
   };
 }

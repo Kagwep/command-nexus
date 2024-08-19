@@ -5,7 +5,7 @@ import { Player } from './types';
 export const sanitizeGame = (game: any) => {
   return {
     ...game,
-    host: bigIntAddressToString(game.host),
+    arena: bigIntAddressToString(game.arena),
     player_count: game.player_count,
   };
 };

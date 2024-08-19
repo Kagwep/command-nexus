@@ -1,6 +1,6 @@
 
 #[dojo::interface]
-trait IHost {
+trait IArena {
     fn create( ref world: IWorldDispatcher,
         player_name: felt252,
         price: u256,
@@ -8,6 +8,7 @@ trait IHost {
     ) -> u32;
     fn join(ref world: IWorldDispatcher,game_id: u32, player_name: felt252);
     fn leave(ref world: IWorldDispatcher, game_id: u32);
+    fn start(ref world: IWorldDispatcher, game_id: u32, round_count: u32);
     fn delete(ref world: IWorldDispatcher, game_id: u32);
     fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32);
 }
@@ -17,10 +18,10 @@ trait IHost {
 // System implementation
 
 #[dojo::contract]
-mod host {
+mod Arena {
     // Starknet imports
 
-    use super::{IHost};
+    use super::{IArena};
 
     use starknet::{
         ContractAddress, get_caller_address, get_contract_address, get_block_timestamp,
@@ -36,7 +37,7 @@ mod host {
         const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
         const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
         const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
-        const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the host';
+        const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
         const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
         const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
     }
@@ -75,10 +76,23 @@ mod host {
                 };
             }
         }
+
+        fn _players(self: @ContractState,world: IWorldDispatcher, game: Game) -> Array<Player> {
+            let mut index = game.player_count;
+            let mut players: Array<Player> = array![];
+            loop {
+                if index == 0 {
+                    break;
+                };
+                index -= 1;
+                players.append(self.player(game, index.into()));
+            };
+            players
+        }
     }
 
     #[abi(embed_v0)]
-    impl HostImpl of IHost<ContractState> {
+    impl ArenaImpl of IArena<ContractState> {
         fn create(
             ref world: IWorldDispatcher,
             player_name: felt252,
@@ -92,7 +106,7 @@ mod host {
             // [Effect] Game
             let game_id = world.uuid();
             let mut game = GameTrait::new(
-                game_id: game_id, host: caller, price: price, penalty: penalty
+                game_id: game_id, arena: caller, price: price, penalty: penalty
             );
 
             let player_index: u32 = game.join().into();
@@ -168,7 +182,7 @@ mod host {
 
         fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32) {
 
-            // [Check] Caller is the host
+            // [Check] Caller is the arena
             let mut game = get!(world, game_id, (Game));
             let caller = get_caller_address();
             game.assert_is_host(caller.into());
@@ -215,93 +229,31 @@ mod host {
             set!(world, (player));
         }
 
-        // fn start(self: @ContractState, world: IWorldDispatcher, game_id: u32, round_count: u32) {
+        fn start(ref world: IWorldDispatcher, game_id: u32, round_count: u32) {
 
-        //     // [Check] Caller is the host
-        //     let mut game = get!(world, game_id, (Game));
-        //     let caller = get_caller_address();
-        //     game.assert_is_host(caller.into());
+            // [Check] Caller is the arena
+            let mut game = get!(world, game_id, (Game));
+            let caller = get_caller_address();
+            game.assert_is_host(caller);
 
-        //     // [Effect] Start game
-        //     let mut addresses = array![];
-        //     let mut players = store.players(game);
-        //     loop {
-        //         match players.pop_front() {
-        //             Option::Some(player) => { addresses.append(player.address); },
-        //             Option::None => { break; },
-        //         };
-        //     };
+            // [Effect] Start game
+            let mut addresses = array![];
+            let mut players = self._players(world,game);
+            loop {
+                match players.pop_front() {
+                    Option::Some(player) => { addresses.append(player.address); },
+                    Option::None => { break; },
+                };
+            };
 
-        //     // [Effect] Update Game
-        //     let time = get_block_timestamp();
-        //     game.start(time, round_count, addresses);
-        //     store.set_game(game);
+            // [Effect] Update Game
+            let time = get_block_timestamp();
+            game.start(time, round_count, addresses);
+        
+            set!(world, (game))
 
-        //     // [Effect] Update Tiles
-        //     let army_count = start_supply(game.player_count);
-        //     let mut map = MapTrait::new(
-        //         game_id: game.id,
-        //         seed: game.seed,
-        //         player_count: game.player_count.into(),
-        //         tile_count: TILE_NUMBER,
-        //         army_count: army_count,
-        //     );
-        //     let mut player_index = 0;
-        //     loop {
-        //         if player_index == game.player_count {
-        //             break;
-        //         }
-        //         let mut player_tiles = map.player_tiles(player_index.into());
-        //         loop {
-        //             match player_tiles.pop_front() {
-        //                 Option::Some(tile) => { store.set_tile(*tile); },
-        //                 Option::None => { break; },
-        //             };
-        //         };
-        //         player_index += 1;
-        //     };
+        }
 
-        //     // [Effect] Update Players
-        //     // Use the deck mechanism to define the player order
-        //     // First player got his supply set
-        //     let mut deck = DeckTrait::new(game.seed, game.player_count.into());
-        //     let mut player_index = 0;
-        //     let mut ordered_players: Array<Player> = array![];
-        //     loop {
-        //         if deck.remaining == 0 {
-        //             break;
-        //         };
-        //         let index = deck.draw() - 1;
-        //         let mut player = store.player(game, index.into());
-        //         player.index = player_index;
-        //         if player_index == 0 {
-        //             let player_score = map.player_score(player_index.into());
-        //             player.supply = if command-nexus < 12 {
-        //                 3
-        //             } else {
-        //                 player_score / 3
-        //             };
-        //             player.supply += map.faction_score(player_index.into());
-        //         };
-        //         ordered_players.append(player);
-        //         player_index += 1;
-        //     };
-        //     // Store ordered players
-        //     loop {
-        //         match ordered_players.pop_front() {
-        //             Option::Some(player) => { store.set_player(player); },
-        //             Option::None => { break; },
-        //         };
-        //     };
-        // }
-
-        // fn claim(self: @ContractState, world: IWorldDispatcher, game_id: u32,) {
-
-
-        //     // [Interaction] Distribute rewards
-        //     let game = get!(world, game_id, (Game));
-        //     self._reward(game, game.reward(), ref store);
-        // }
     }
 
 }

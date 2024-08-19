@@ -399,7 +399,7 @@
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "host",
+        "name": "arena",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {

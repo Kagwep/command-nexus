@@ -77,6 +77,23 @@ mod nexus {
 
             let player = get_caller_address();
 
+            let mut game = get!(world,game_id,(Game));
+
+            let mut player = match self._find_player(world,game, caller) {
+                Option::Some(player) => player,
+                Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
+            };
+
+            player.assert_exists();
+
+            
+
+
+
+
+
+
+
         }
 
         fn patrol(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, 

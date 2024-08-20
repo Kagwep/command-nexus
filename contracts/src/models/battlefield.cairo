@@ -42,7 +42,7 @@ struct MilitaryPosition {
     #[key]
     player_id: ContractAddress,
     battlefield_id: u32,
-    faction: ContractAddress,
+    faction: u32,
     name: felt252,
     location: Vec3,
     control_level: u8,

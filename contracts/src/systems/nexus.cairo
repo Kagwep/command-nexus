@@ -56,9 +56,20 @@ mod nexus {
     use super::{INexus};
     use starknet::{ContractAddress, get_caller_address};
     use dojo_starter::models::{
-        battlefield::{BattlefieldName,UrbanBattlefield,},
+        battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
  
     };
+
+    #[generate_trait]
+    impl InternalImpl of InternalTrait {
+
+        fn process_client_battlefield(input: u8) -> BattlefieldName {
+            match BattlefieldNameTrait::from_u8(input) {
+                Option::Some(battlefield) => battlefield,
+                Option::None => BattlefieldName::None, // Default to None for invalid inputs
+            }
+        }
+    }
 
 
     #[abi(embed_v0)]
@@ -86,10 +97,10 @@ mod nexus {
 
             player.assert_exists();
 
-            
 
+            let player_home_base:BattlefieldName = player.home_base;
 
-
+          
 
 
 

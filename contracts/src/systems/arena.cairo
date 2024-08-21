@@ -30,6 +30,7 @@ mod Arena {
 
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
+    use contracts::models::Battlefield::{BattlefieldName};
 
     mod errors {
         const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
@@ -136,16 +137,18 @@ mod Arena {
                 Option::None => (),
             };
 
-
             // [Effect] Game
             let player_index: u32 = game.join().into();
+
+            let player_home_base: BattlefieldName = game.assign_home_base();
 
             set!(world, (game));
 
             // [Effect] Player
             let player = PlayerTrait::new(
-                game_id, index: player_index, address: caller, name: player_name
+                game_id, index: player_index, address: caller, name: player_name, home_base: player_home_base
             );
+
             set!(world, (player));
         }
 

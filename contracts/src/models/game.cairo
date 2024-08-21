@@ -1,5 +1,6 @@
-use starknet::ContractAddress;
+use starknet::{ContractAddress, get_block_timestamp, get_tx_info};
 use core::Zeroable;
+use core::pedersen;
 
 use core::hash::HashStateTrait;
 use core::poseidon::PoseidonTrait;
@@ -7,6 +8,8 @@ use core::poseidon::PoseidonTrait;
 const MINIMUM_PLAYER_COUNT: u8 = 2;
 const MAXIMUM_PLAYER_COUNT: u8 = 4;
 const TURN_COUNT: u32 = 3;
+
+use contracts::Battlefield::{BattlefieldName};
 
 
 #[derive(Component, Copy, Drop, Serde, SerdeLen)]
@@ -26,6 +29,8 @@ struct Game {
     winner: ContractAddress,
     arena: ContractAddress,
     seed: felt252,
+    available_home_bases: ByteArray,
+
 
 }
 
@@ -86,7 +91,8 @@ impl GameImpl of GameTrait {
             penalty,
             limit: 0,
             winner: Zeroable::zero(),
-            arena
+            arena,
+            available_home_bases: ALL_BASES_AVAILABLE,
         }
     }
 
@@ -123,6 +129,44 @@ impl GameImpl of GameTrait {
         turn_id.into()
     }
 
+
+    #[inline(always)]
+    fn assign_home_base(ref self: Game) -> BattlefieldName{
+
+        assert(self.available_home_bases.len()>0,'No available bases');
+
+        let random_index = self.get_random_number() % self.available_home_bases.len();
+
+        let base_index = self.available_home_bases[random_index];
+
+        // Remove the assigned base from the available list
+        let new_available_home_bases:ByteArray = ""; // check if this is valid
+        
+        let mut i = 0;
+        loop {
+            if i == self.available_home_bases.len() {
+                break;
+            }
+            if i != random_index {
+                self.new_available_home_bases.append_byte(self.available_home_bases[i]);
+            }
+            i += 1;
+        };
+
+        self.available_home_bases = new_available_home_bases;
+       
+
+        match base_index.into() {
+            0 => BattlefieldName::None,
+            1 => BattlefieldName::RadiantShores,
+            2 => BattlefieldName::Ironforge,
+            3 => BattlefieldName::Skullcrag,
+            4 => BattlefieldName::NovaWarhound,
+            5 => BattlefieldName::SavageCoast,
+            _ => panic(array!['Invalid base index']),
+        }
+
+    }
     /// Joins a game and returns the player index.
     /// # Arguments
     /// * `self` - The Game.
@@ -226,6 +270,12 @@ impl GameImpl of GameTrait {
         self.nonce = 0;
         self.price = 0;
     }
+
+    #[inline(always)]
+    fn get_random_number() -> u32 {
+        get_tx_info().unbox().transaction_hash.low
+    }
+
 }
 
 

@@ -1,0 +1,1 @@
+const ALL_BASES_AVAILABLE: felt252 = 0x3e;

@@ -34,38 +34,12 @@ struct Scoreboard {
     last_updated: u64,  
 }
 
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
-struct MilitaryPosition {
-    #[key]
-    game_id: u32,
-    #[key]
-    player_id: ContractAddress,
-    battlefield_id: u32,
-    faction: u32,
-    name: felt252,
-    location: Vec3,
-    control_level: u8,
-}
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct Vec3 {
     x: u32,
     y: u32,
     z: u32,
-}
-
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
-struct MilitaryUnits {
-    #[key]
-    game_id: u32,
-    #[key]
-    player_id: ContractAddress,
-    position_id: u32,
-    infantry: u16,
-    special_forces: u16,
-    drones: u16,
 }
 
 #[derive(Serde, Drop, Copy, PartialEq, Introspect)]
@@ -88,4 +62,22 @@ struct WeatherEffect {
     visibility: u8,
     movement_penalty: u8,
     comms_interference: u8,
+}
+
+trait BattlefieldNameTrait {
+    fn from_u8(value: u8) -> Option<BattlefieldName>;
+}
+
+impl BattlefieldNameImpl of BattlefieldNameTrait {
+    fn from_u8(value: u8) -> Option<BattlefieldName> {
+        match value {
+            0 => Option::Some(BattlefieldName::None),
+            1 => Option::Some(BattlefieldName::RadiantShores),
+            2 => Option::Some(BattlefieldName::Ironforge),
+            3 => Option::Some(BattlefieldName::Skullcrag),
+            4 => Option::Some(BattlefieldName::NovaWarhound),
+            5 => Option::Some(BattlefieldName::SavageCoast),
+            _ => Option::None,
+        }
+    }
 }

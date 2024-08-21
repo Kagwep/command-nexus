@@ -1,5 +1,6 @@
 use core::zeroable::Zeroable;
 use starknet::ContractAddress;
+use contracts::battlefield::{BattlefieldName};
 
 
 
@@ -23,6 +24,7 @@ struct Player {
     last_action:u64,
     rank: u8,
     player_score: PlayerScore,
+    home_base:BattlefieldName,
    
 }
 
@@ -47,19 +49,25 @@ struct UnitsSupply {
 #[generate_trait]
 impl PlayerImpl of PlayerTrait {
     #[inline(always)]
-    fn new(game_id: u32, index: u32, address: ContractAddress, name: felt252) -> Player {
-        Player { game_id, index, address, name,supply: UnitsSupply { 
+    fn new(game_id: u32, index: u32, address: ContractAddress, name: felt252, home_base: BattlefieldName) -> Player {
+        Player { 
+            game_id, index, address, name,
+            supply: UnitsSupply { 
             infantry: 5,
             armored: 4,
             air: 2,
             naval: 3,
             cyber: 1,
-        }, last_action: 0, rank: 0, player_score:  PlayerScore {
+        }, last_action: 0,
+            rank: 0,
+            player_score: PlayerScore {
             score: 0,
             kills: 0,
             deaths: 0,
             assists: 0,
-        }}
+        },
+        home_base,
+    }
     }
 
     #[inline(always)]
@@ -91,7 +99,8 @@ impl PlayerImpl of PlayerTrait {
             kills: 0,
             deaths: 0,
             assists: 0,
-        }
+        };
+        self.home_base = BattlefieldName::None
     }
 }
 
@@ -130,7 +139,8 @@ impl ZeroablePlayer of Zeroable<Player> {
                 kills: 0,
                 deaths: 0,
                 assists: 0,
-            }
+            },
+            home_base: 0
         }
     }
 

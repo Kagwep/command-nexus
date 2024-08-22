@@ -97,8 +97,9 @@ mod nexus {
 
             player.assert_exists();
 
+            
 
-            let player_home_base:BattlefieldName = player.home_base;
+            
 
           
 

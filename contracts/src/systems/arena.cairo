@@ -30,7 +30,7 @@ mod Arena {
 
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
-    use contracts::models::Battlefield::{BattlefieldName};
+    use contracts::models::Battlefield::{BattlefieldName,UrbanBattlefieldTrait,BattlefieldNameTrait, WeatherEffectTrait,UrbanBattlefield,WeatherEffect};
 
     mod errors {
         const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
@@ -150,6 +150,20 @@ mod Arena {
             );
 
             set!(world, (player));
+
+            let size = player_home_base.get_size();
+
+            let weather = WeatherEffectTrait::create(game_id);
+
+            let urban_battle_field = UrbanBattlefieldTrait::new(
+                game_id,
+                player_id: player_index,
+                name: player_home_base,
+                weather,
+                size,
+            );
+
+            set!(world,(urban_battle_field))
         }
 
 

@@ -27,7 +27,7 @@ struct Game {
     penalty: u64,
     limit: u32,
     winner: ContractAddress,
-    arena: ContractAddress,
+    arena_host: ContractAddress,
     seed: felt252,
     available_home_bases: ByteArray,
 
@@ -51,9 +51,9 @@ struct GameData {
 }
 
 mod errors {
-    const GAME_NOT_HOST: felt252 = 'Game: user is not the arena';
-    const GAME_IS_HOST: felt252 = 'Game: user is the arena';
-    const GAME_TRANSFER_SAME_HOST: felt252 = 'Game: transfer to the same arena';
+    const GAME_NOT_HOST: felt252 = 'Game: user is not the arena_host';
+    const GAME_IS_HOST: felt252 = 'Game: user is the arena_host';
+    const GAME_TRANSFER_SAME_HOST: felt252 = 'Game: transfer to the same arena_host';
     const GAME_TOO_MANY_PLAYERS: felt252 = 'Game: too many players';
     const GAME_TOO_FEW_PLAYERS: felt252 = 'Game: too few players';
     const GAME_IS_FULL: felt252 = 'Game: is full';
@@ -66,16 +66,16 @@ mod errors {
     const GAME_HAS_STARTED: felt252 = 'Game: has started';
     const GAME_NOT_EXISTS: felt252 = 'Game: does not exist';
     const GAME_DOES_EXIST: felt252 = 'Game: does exist';
-    const GAME_INVALID_HOST: felt252 = 'Game: invalid arena';
+    const GAME_INVALID_HOST: felt252 = 'Game: invalid arena_host';
 }
 
 
 #[generate_trait]
 impl GameImpl of GameTrait {
     #[inline(always)]
-    fn new(game_id: u32, arena: ContractAddress, price: u256, penalty: u64) -> Game {
+    fn new(game_id: u32, arena_host: ContractAddress, price: u256, penalty: u64) -> Game {
         // [Check] Host is valid
-        assert(arena != Zeroable::zero(), errors::GAME_INVALID_HOST);
+        assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
 
         // [Return] Default game
         Game {
@@ -91,7 +91,7 @@ impl GameImpl of GameTrait {
             penalty,
             limit: 0,
             winner: Zeroable::zero(),
-            arena,
+            arena_host,
             available_home_bases: ALL_BASES_AVAILABLE,
         }
     }
@@ -223,10 +223,10 @@ impl GameImpl of GameTrait {
     }
 
     #[inline(always)]
-    fn transfer(ref self: Game, arena: ContractAddress) {
-        assert(arena != Zeroable::zero(), errors::GAME_INVALID_HOST);
-        self.assert_not_host(arena);
-        self.arena = arena;
+    fn transfer(ref self: Game, arena_host: ContractAddress) {
+        assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
+        self.assert_not_host(arena_host);
+        self.arena_host = arena_host;
     }
 
     fn start(ref self: Game, time: u64, round_count: u32, mut players: Array<felt252>) {
@@ -263,7 +263,7 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn nullify(ref self: Game) {
-        self.arena = Zeroable::zero();
+        self.arena_host = Zeroable::zero();
         self.over = false;
         self.seed = 0;
         self.player_count = 0;
@@ -308,12 +308,12 @@ impl TurnIntoU32 of Into<Turn, u32> {
 impl GameAssert of AssertTrait {
     #[inline(always)]
     fn assert_is_host(self: Game, address: ContractAddress) {
-        assert(self.arena == address, errors::GAME_NOT_HOST);
+        assert(self.arena_host == address, errors::GAME_NOT_HOST);
     }
 
     #[inline(always)]
     fn assert_not_host(self: Game, address: ContractAddress) {
-        assert(self.arena != address, errors::GAME_IS_HOST);
+        assert(self.arena_host != address, errors::GAME_IS_HOST);
     }
 
     #[inline(always)]
@@ -389,13 +389,13 @@ impl ZeroableGame of core::Zeroable<Game> {
             penalty: 0,
             limit: 0,
             winner: Zeroable::zero(),
-            arena: Zeroable::zero(),
+            arena_host: Zeroable::zero(),
         }
     }
 
     #[inline(always)]
     fn is_zero(self: Game) -> bool {
-        Zeroable::zero() == self.arena
+        Zeroable::zero() == self.arena_host
     }
 
     #[inline(always)]

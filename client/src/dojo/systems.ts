@@ -139,10 +139,12 @@ export async function setupWorld(provider: DojoProvider) {
 
     return {
       create,
+      start,
       join,
       leave,
       kick,
       delete_game,
+      transfer,
     };
   }
 

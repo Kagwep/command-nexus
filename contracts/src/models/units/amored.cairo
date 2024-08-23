@@ -9,12 +9,13 @@ struct Amored {
     #[key]
     game_id: u32,
     #[key]
+    unit_id: u8,
     player_id: ContractAddress,
     accuracy: u8,
     firepower: u32,
     range: u64,
     accessories: AmoredAccessories,
-    Amored_health: AmoredHealth,
+    amored_health: AmoredHealth,
     position: Position,
     battlefield_name:BattlefieldName,
 }
@@ -38,5 +39,11 @@ struct AmoredHealth {
     #[key]
     player_id: ContractAddress,
     shield_strength: u32,
+
+}
+
+
+#[generate_trait]
+impl AmoredImpl of AmoredTrait {
 
 }

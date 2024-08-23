@@ -37,6 +37,17 @@ struct PlayerScore {
     assists: u16,
 }
 
+#[derive(Copy, Drop, Serde, PartialEq, Introspect)]
+enum UnitType {
+    None,
+    Infantry,
+    Armored,
+    Air,
+    Naval,
+    Cyber,
+}
+
+
 #[derive(Copy, Drop, Serde, Introspect)]
 struct UnitsSupply {
     infantry: u32,
@@ -152,5 +163,32 @@ impl ZeroablePlayer of Zeroable<Player> {
     #[inline(always)]
     fn is_non_zero(self: Player) -> bool {
         !self.is_zero()
+    }
+}
+
+
+#[generate_trait]
+impl UnitTypeImpl of UnitTypeTrait {
+    fn to_int(self: UnitType) -> u8 {
+        match self {
+            UnitType::None => 0_u8,
+            UnitType::Infantry => 1_u8,
+            UnitType::Armored => 2_u8,
+            UnitType::Air => 3_u8,
+            UnitType::Naval => 4_u8,
+            UnitType::Cyber => 5_u8,
+        }
+    }
+
+    fn from_int(value: u8) -> Option<UnitType> {
+        match value {
+            0_u8 => Option::Some(UnitType::None),
+            1_u8 => Option::Some(UnitType::Infantry),
+            2_u8 => Option::Some(UnitType::Armored),
+            3_u8 => Option::Some(UnitType::Air),
+            4_u8 => Option::Some(UnitType::Naval),
+            5_u8 => Option::Some(UnitType::Cyber),
+            _ => Option::None,
+        }
     }
 }

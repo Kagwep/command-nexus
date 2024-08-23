@@ -57,6 +57,7 @@ mod nexus {
     use starknet::{ContractAddress, get_caller_address};
     use dojo_starter::models::{
         battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
+        player::{UnitTypeTrait,UnitType}
  
     };
 
@@ -78,7 +79,7 @@ mod nexus {
         fn deploy_forces(
             ref world: IWorldDispatcher,
             game_id: u32,
-            battlefield_name: u8,
+            battlefield_id: u8,
             unit: u8,
             supply: u32,
             x: u32,
@@ -97,14 +98,13 @@ mod nexus {
 
             player.assert_exists();
 
-            
+            let battle_field = get!(world,(game_id, battlefield_id),(UrbanBattlefield));
+
+            assert(battle_field.player_id == player.index, 'Not Player or Not Players Territory');
+
+            let unit_type = UnitTypeTrait::from_int(unit);
 
             
-
-          
-
-
-
 
         }
 

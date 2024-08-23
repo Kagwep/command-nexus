@@ -18,8 +18,8 @@ struct UrbanBattlefield {
     #[key]
     game_id: u32,
     #[key]
+    battlefield_id: u8,
     player_id: u32,
-    name: BattlefieldName,
     size: u32,
     weather: WeatherEffect,
     control:u16,
@@ -79,7 +79,7 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
     const NOVA_WARHOUND_SIZE: u32 = 90;
     const SAVAGE_COAST_SIZE: u32 = 110;
 
-    fn from_u8(value: u8) -> Option<BattlefieldName> {
+    fn from_battlefield_id(value: u8) -> Option<BattlefieldName> {
         match value {
             0 => Option::Some(BattlefieldName::None),
             1 => Option::Some(BattlefieldName::RadiantShores),
@@ -88,6 +88,17 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
             4 => Option::Some(BattlefieldName::NovaWarhound),
             5 => Option::Some(BattlefieldName::SavageCoast),
             _ => Option::None,
+        }
+    }
+
+    fn to_battlefield_id(self: BattlefieldName) -> u8{
+        match self {
+            BattlefieldName::None => 0,
+            BattlefieldName::RadiantShores => 1,
+            BattlefieldName::Ironforge => 2,
+            BattlefieldName::Skullcrag => 3,
+            BattlefieldName::NovaWarhound => 4,
+            BattlefieldName::SavageCoast => 5,
         }
     }
 
@@ -107,17 +118,17 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
 impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
 
     #[inline(always)]
-    fn new(ref self: UrbanBattlefield, game_id: u32, player_id: u32, name: BattlefieldName, weather: WeatherEffect, size: u32) -> UrbanBattlefield {
+    fn new(ref self: UrbanBattlefield, game_id: u32, player_id: u32, battlefield_id: u8, weather: WeatherEffect, size: u32) -> UrbanBattlefield {
 
-        assert(name != BattlefieldName::None, 'Cannot Occupy territory none');
+        assert(battlefield_id != 0, 'Cannot Occupy territory none');
         assert(weather != WeatherCondition::None, 'Must have a weather condition');
 
 
 
         UrbanBattlefield {
             game_id,
+            battlefield_id,
             player_id,
-            name,
             size,
             weather,
             control: 0,

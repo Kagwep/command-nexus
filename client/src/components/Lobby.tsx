@@ -63,7 +63,8 @@ const Lobby: React.FC = () => {
   console.log("51456454464",me)
 
   useEffect(() => {
-    if (game && Number(game.seed.toString(16)) !== 0) {
+    // console.log(game)
+    if (game && Number(game.seed?.toString(16)) !== 0) {
       // Game has started
       set_game_state(GameState.Game);
     }
@@ -130,23 +131,23 @@ const Lobby: React.FC = () => {
     }
   };
 
-  // const transferHost = async (player_index: number, game_id: number) => {
-  //   try {
-  //     setTransferLoading(true);
-  //     await arena.transfer(account, game_id, player_index);
-  //   } catch (error: any) {
-  //     toast({
-  //       variant: 'destructive',
-  //       description: <code className="text-white text-xs">{error.message}</code>,
-  //     });
-  //   } finally {
-  //     setTransferLoading(false);
-  //   }
-  // };
+  const transferHost = async (player_index: number, game_id: number) => {
+    try {
+      setTransferLoading(true);
+      await arena.transfer(account, game_id, player_index);
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        description: <code className="text-white text-xs">{error.message}</code>,
+      });
+    } finally {
+      setTransferLoading(false);
+    }
+  };
 
-  // if (!game || !me || !players) {
-  //   return;
-  // }
+  if (!game || !me || !players) {
+    return;
+  }
 
   return (
     <div className="font-vt323 min-h-screen bg-cover bg-center bg-no-repeat" style={{backgroundImage: "url('https://res.cloudinary.com/dydj8hnhz/image/upload/v1722350662/p1qgfdio6sv1khctclnq.webp')"}}>

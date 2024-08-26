@@ -10,6 +10,8 @@ import GameRow from './GameRow';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import WalletButton from './WalletButton';
 import { useNetworkAccount } from '../contexts/WalletContex';
+import CommandNexus from './Game/CommandNexus';
+import { CombineAction } from '@babylonjs/core';
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -25,6 +27,9 @@ const MainMenu: React.FC = () => {
   } = useDojo();
 
   const { account, address, status, isConnected } = useNetworkAccount();
+
+   // remove this section
+  const [moveToGameScreen, setMoveToGameScreen] = useState<boolean>(false);
 
 
   const gameEntities_ = useEntityQuery([HasValue(Game, { arena: BigInt(account.address) })]);
@@ -80,6 +85,16 @@ const MainMenu: React.FC = () => {
     [gameEntities, Game]
   );
 
+
+   // remove this section
+  const handleTogameScreen = () => {
+    setMoveToGameScreen(true);
+  }
+
+  if(moveToGameScreen){
+    return <CommandNexus />
+  }
+
   if (!games) return null;
   return (
 <div className="font-vt323">
@@ -90,6 +105,9 @@ const MainMenu: React.FC = () => {
       </div>
       <div className="absolute right-0">
         <WalletButton />
+      </div>
+      <div>
+        <button type='button' onClick={handleTogameScreen} className='text-cyan-500 bg-slate-100'> see game arena</button>
       </div>
     </div>
     {games.length === 0 && (

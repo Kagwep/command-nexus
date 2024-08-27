@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import {ArcRotateCamera, Color3, Color4, Engine, HemisphericLight, KeyboardEventTypes, MeshBuilder, Scene, SceneLoader, StandardMaterial, Vector3} from "@babylonjs/core"
 import CommandNexusGui from './CommandNexusGui';
 import '@babylonjs/loaders';
-
+import { WeatherSystem, WeatherType } from './CommandNexusWeather';
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -34,9 +34,7 @@ export const setupScene = async (scene: Scene, engine: Engine) => {
   let targetAlpha = camera.alpha;
   let targetRadius = camera.radius;
 
-  // Light
-  const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-  light.intensity = 0.5;
+
 
   // Load battlefield model
   try {
@@ -51,6 +49,11 @@ export const setupScene = async (scene: Scene, engine: Engine) => {
   // Create GUI
   const gui = new CommandNexusGui(scene);
 
+    // Create Weather System
+    const weatherSystem = new WeatherSystem(scene);
+
+    // Example of setting weather manually
+    weatherSystem.setWeather("rainy");
   // Keyboard controls
 // Camera movement
 const keys = { w: false, s: false, a: false, d: false, q: false, e: false, r: false, f: false };

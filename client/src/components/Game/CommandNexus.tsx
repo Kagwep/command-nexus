@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { setupScene } from './CommandNexusScene';
 import { Engine, Scene } from '@babylonjs/core';
 
 
+
 const CommandNexus = () => {
 
+    const [isLoading, setIsLoading] = useState(true);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -18,6 +20,7 @@ const CommandNexus = () => {
             scene = new Scene(engine);
            
             await setupScene(scene, engine);
+
           };
       
           createScene();
@@ -38,7 +41,8 @@ const CommandNexus = () => {
         };
       }
     }, []);
-    
+
+
     return  <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;
 }
 

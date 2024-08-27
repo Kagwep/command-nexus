@@ -1,5 +1,7 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene } from '@babylonjs/core';
+import { Ability, UnitType,unitAbilities } from "../../utils/types";
+
 
 class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -8,6 +10,7 @@ class CommandNexusGui {
     private marketplacePanel: GUI.Rectangle;
     private actionsPanel: GUI.Rectangle;
     private turnInfoText: GUI.TextBlock;
+    private selectedUnitId: number | null = null;
 
     // Color scheme
     private readonly PANEL_COLOR = "rgba(0, 20, 0, 0.9)";
@@ -151,23 +154,72 @@ class CommandNexusGui {
         // Add more marketplace info here
     }
 
+    // private createActionsPanel(): void {
+    //     this.actionsPanel = this.createPanel("600px", "60px");
+    //     this.actionsPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    //     this.actionsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    //     this.actionsPanel.top = "-10px";
+    //     this.actionsPanel.isVisible = true;
+    //     this.gui.addControl(this.actionsPanel);
+
+    //     const actions = ["Move", "Attack", "Overwatch", "Reload", "Special"];
+    //     actions.forEach((action, index) => {
+    //         const button = this.createButton(action, action);
+    //         button.width = "110px";
+    //         button.left = (index - 2) * 120 + "px";  // Center the buttons
+    //         this.actionsPanel.addControl(button);
+    //     });
+    // }
     private createActionsPanel(): void {
         this.actionsPanel = this.createPanel("600px", "60px");
         this.actionsPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
         this.actionsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         this.actionsPanel.top = "-10px";
-        this.actionsPanel.isVisible = true;
+        this.actionsPanel.isVisible = false;
         this.gui.addControl(this.actionsPanel);
-
-        const actions = ["Move", "Attack", "Overwatch", "Reload", "Special"];
-        actions.forEach((action, index) => {
-            const button = this.createButton(action, action);
-            button.width = "110px";
-            button.left = (index - 2) * 120 + "px";  // Center the buttons
-            this.actionsPanel.addControl(button);
-        });
     }
 
+    public selectUnit(unitId: number, unitType: UnitType): void {
+        this.selectedUnitId = unitId;
+        this.updateActionsPanel(unitType);
+    }
+
+    private updateActionsPanel(unitType: UnitType): void {
+        if (this.selectedUnitId === null) {
+            this.actionsPanel.isVisible = false;
+            return;
+        }
+
+        // Clear existing buttons
+        this.actionsPanel.clearControls();
+
+        // Get available abilities for the unit type
+        const abilities = unitAbilities[unitType];
+
+        // Create a button for each available ability
+        abilities.forEach((ability: Ability, index: number) => {
+            const button = GUI.Button.CreateSimpleButton(`${ability}Button`, Ability[ability]);
+            button.width = "110px";
+            button.height = "40px";
+            button.color = "white";
+            button.background = "green";
+            button.onPointerUpObservable.add(() => {
+                this.useAbility(ability);
+            });
+            button.left = (index - (abilities.length - 1) / 2) * 120 + "px";  // Center the buttons
+            this.actionsPanel.addControl(button);
+        });
+
+        this.actionsPanel.isVisible = true;
+    }
+
+    private useAbility(ability: Ability): void {
+        if (this.selectedUnitId === null) return;
+
+        console.log(`Using ability ${Ability[ability]} for unit ${this.selectedUnitId}`);
+        // Here you would typically update game state, animate the action, etc.
+    }
+    
     private toggleMainMenuPanel(): void {
         this.mainMenuPanel.isVisible = !this.mainMenuPanel.isVisible;
         if (!this.mainMenuPanel.isVisible) {

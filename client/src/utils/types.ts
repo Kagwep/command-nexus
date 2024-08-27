@@ -57,3 +57,33 @@ export interface Player {
     rounds: Duel[][];
   }
   
+
+  export enum UnitType {
+    Infantry,
+    Armored,
+    Air,
+    Naval,
+    Cyber,
+}
+
+export enum Ability {
+    Move,
+    Attack,
+    Defend,
+    Patrol,
+    Stealth,
+    Recon,
+    Hack,
+    Repair,
+    Airlift,
+    Bombard,
+    Submerge,
+}
+
+export const unitAbilities: Record<UnitType, Ability[]> = {
+    [UnitType.Infantry]: [Ability.Move, Ability.Attack, Ability.Defend, Ability.Patrol],
+    [UnitType.Armored]: [Ability.Move, Ability.Attack, Ability.Defend],
+    [UnitType.Air]: [Ability.Move, Ability.Attack, Ability.Recon, Ability.Airlift],
+    [UnitType.Naval]: [Ability.Move, Ability.Attack, Ability.Bombard, Ability.Submerge],
+    [UnitType.Cyber]: [Ability.Hack, Ability.Defend, Ability.Stealth],
+};

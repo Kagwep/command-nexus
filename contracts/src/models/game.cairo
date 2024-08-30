@@ -29,6 +29,7 @@ struct Game {
     winner: ContractAddress,
     arena_host: ContractAddress,
     seed: felt252,
+    used_bases: u64,
     available_home_bases: ByteArray,
 
 
@@ -77,6 +78,8 @@ impl GameImpl of GameTrait {
         // [Check] Host is valid
         assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
 
+        let home_bases = self.get_bases("0",6);
+
         // [Return] Default game
         Game {
             game_id: game_id,
@@ -92,7 +95,7 @@ impl GameImpl of GameTrait {
             limit: 0,
             winner: Zeroable::zero(),
             arena_host,
-            available_home_bases: ALL_BASES_AVAILABLE,
+            available_home_bases: home_bases,
         }
     }
 
@@ -131,32 +134,56 @@ impl GameImpl of GameTrait {
 
 
     #[inline(always)]
-    fn assign_home_base(ref self: Game) -> BattlefieldName{
+    fn get_base_index(self: @Game, seed: felt252, limit: u8) -> u8 { // note that index 0 is reserved base
+        let seed: u256 = seed.into();
+        let result: u8 = ((seed.low % (limit - 1).into()) + 1).try_into().unwrap();
+        result
+    }
 
-        assert(self.available_home_bases.len()>0,'No available bases');
+    #[inline(always)]
+    fn get_bases(self : @Game, skip_base: felt252, new_size: usize) -> ByteArray{
 
-        let random_index = self.get_random_number() % self.available_home_bases.len();
+        let count: usize = 1;
 
-        let base_index = self.available_home_bases[random_index];
+        let bases: ByteArray = "7"; // 7 is the central base 
 
-        // Remove the assigned base from the available list
-        let new_available_home_bases:ByteArray = ""; // check if this is valid
-        
-        let mut i = 0;
         loop {
-            if i == self.available_home_bases.len() {
+
+            if count > new_size {
                 break;
             }
-            if i != random_index {
-                self.new_available_home_bases.append_byte(self.available_home_bases[i]);
+
+            if count.into() != skip_base{
+                bases.append_byte(count.into())
             }
-            i += 1;
-        };
+
+            count += 1;
+        }
+
+        bases
+
+    }
+
+
+    #[inline(always)]
+    fn assign_home_base(ref self: Game) -> BattlefieldName{
+
+        assert(self.available_home_bases.len() > 1,'No available bases');
+
+        let seed = get_tx_info().unbox().transaction_hash;
+
+        let limit: usize = self.available_home_bases.len();
+
+        let random_base_index = self.get_base_index(seed, limit);
+
+        let base = self.available_home_bases.at(random_base_index);
+
+        // Remove the assigned base from the available list
+        let new_available_home_bases:ByteArray = self.get_bases(base.into(), limit - 1);
 
         self.available_home_bases = new_available_home_bases;
        
-
-        match base_index.into() {
+        match base.into() {
             0 => BattlefieldName::None,
             1 => BattlefieldName::RadiantShores,
             2 => BattlefieldName::Ironforge,

@@ -1,5 +1,6 @@
 mod systems {
     mod arena;
+    mod unitmanager;
 }
 
 mod constants;

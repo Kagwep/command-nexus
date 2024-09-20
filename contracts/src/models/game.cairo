@@ -9,7 +9,16 @@ const MINIMUM_PLAYER_COUNT: u8 = 2;
 const MAXIMUM_PLAYER_COUNT: u8 = 4;
 const TURN_COUNT: u32 = 3;
 
-use contracts::Battlefield::{BattlefieldName};
+use contracts::models::battlefield::{BattlefieldName};
+
+#[derive(Copy, Drop,Serde, SerdeLen,Introspect)]
+struct HomeBasesTuple {
+    base1: felt252,
+    base2: felt252,
+    base3: felt252,
+    base4: felt252,
+    base5: felt252,
+}
 
 
 #[derive(Component, Copy, Drop, Serde, SerdeLen)]
@@ -29,8 +38,7 @@ struct Game {
     winner: ContractAddress,
     arena_host: ContractAddress,
     seed: felt252,
-    used_bases: u64,
-    available_home_bases: ByteArray,
+    available_home_bases: HomeBasesTuple,
 
 
 }
@@ -52,9 +60,9 @@ struct GameData {
 }
 
 mod errors {
-    const GAME_NOT_HOST: felt252 = 'Game: user is not the arena_host';
+    const GAME_NOT_HOST: felt252 = 'Game: user is not the host';
     const GAME_IS_HOST: felt252 = 'Game: user is the arena_host';
-    const GAME_TRANSFER_SAME_HOST: felt252 = 'Game: transfer to the same arena_host';
+    const GAME_TRANSFER_SAME_HOST: felt252 = 'Game: transfer to the same host';
     const GAME_TOO_MANY_PLAYERS: felt252 = 'Game: too many players';
     const GAME_TOO_FEW_PLAYERS: felt252 = 'Game: too few players';
     const GAME_IS_FULL: felt252 = 'Game: is full';
@@ -78,8 +86,13 @@ impl GameImpl of GameTrait {
         // [Check] Host is valid
         assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
 
-        let home_bases = self.get_bases("0",6);
-
+        let home_bases = HomeBasesTuple {
+            base1: 1,
+            base2: 2,
+            base3: 3,
+            base4: 4,
+            base5: 5,
+        };
         // [Return] Default game
         Game {
             game_id: game_id,
@@ -133,66 +146,71 @@ impl GameImpl of GameTrait {
     }
 
 
-    #[inline(always)]
-    fn get_base_index(self: @Game, seed: felt252, limit: u8) -> u8 { // note that index 0 is reserved base
-        let seed: u256 = seed.into();
-        let result: u8 = ((seed.low % (limit - 1).into()) + 1).try_into().unwrap();
-        result
-    }
 
-    #[inline(always)]
-    fn get_bases(self : @Game, skip_base: felt252, new_size: usize) -> ByteArray{
-
-        let count: usize = 1;
-
-        let bases: ByteArray = "7"; // 7 is the central base 
-
+    fn assign_home_base(ref self: Game) -> BattlefieldName {
+        // Get a random seed from the transaction hash
+        let seed: u256 = get_tx_info().unbox().transaction_hash.into();
+        
+        // Create an array from the HomeBasesTuple fields
+        let arr_home_bases = array![
+            self.available_home_bases.base1,
+            self.available_home_bases.base2,
+            self.available_home_bases.base3,
+            self.available_home_bases.base4,
+            self.available_home_bases.base5
+        ];
+    
+        // Count available bases and store their indices
+        let mut available_indices = ArrayTrait::new();
+        let mut count: usize = 0;
         loop {
-
-            if count > new_size {
+            if count == 5 {
                 break;
             }
-
-            if count.into() != skip_base{
-                bases.append_byte(count.into())
+            // If the base is available (non-zero), add its index (1-based) to available_indices
+            if *arr_home_bases.at(count) != 0 {
+                available_indices.append(count + 1);
             }
-
             count += 1;
+        };
+    
+        // Get the number of available bases
+        let limit: u128 = available_indices.len().try_into().unwrap();
+    
+        // If no bases are available, return None
+        if limit == 0 {
+            return BattlefieldName::None;
         }
-
-        bases
-
-    }
-
-
-    #[inline(always)]
-    fn assign_home_base(ref self: Game) -> BattlefieldName{
-
-        assert(self.available_home_bases.len() > 1,'No available bases');
-
-        let seed = get_tx_info().unbox().transaction_hash;
-
-        let limit: usize = self.available_home_bases.len();
-
-        let random_base_index = self.get_base_index(seed, limit);
-
-        let base = self.available_home_bases.at(random_base_index);
-
-        // Remove the assigned base from the available list
-        let new_available_home_bases:ByteArray = self.get_bases(base.into(), limit - 1);
-
-        self.available_home_bases = new_available_home_bases;
-       
-        match base.into() {
-            0 => BattlefieldName::None,
-            1 => BattlefieldName::RadiantShores,
-            2 => BattlefieldName::Ironforge,
-            3 => BattlefieldName::Skullcrag,
-            4 => BattlefieldName::NovaWarhound,
-            5 => BattlefieldName::SavageCoast,
+    
+        // Select a random index from the available indices
+        // Note: We add 1 to the modulo result to match 1-based indexing
+        let result: usize = (seed.low % limit + 1).try_into().unwrap();
+        let selected_index = *available_indices.at(result - 1);
+    
+        // Update available_home_bases and return the selected BattlefieldName
+        match selected_index {
+            0 => {
+                self.available_home_bases.base1 = 0;
+                BattlefieldName::RadiantShores
+            },
+            1 => {
+                self.available_home_bases.base2 = 0;
+                BattlefieldName::Ironforge
+            },
+            2 => {
+                self.available_home_bases.base3 = 0;
+                BattlefieldName::Skullcrag
+            },
+            3 => {
+                self.available_home_bases.base4 = 0;
+                BattlefieldName::NovaWarhound
+            },
+            4 => {
+                self.available_home_bases.base5 = 0;
+                BattlefieldName::SavageCoast
+            },
             _ => panic(array!['Invalid base index']),
         }
-
     }
     /// Joins a game and returns the player index.
     /// # Arguments
@@ -200,7 +218,7 @@ impl GameImpl of GameTrait {
     /// # Returns
     /// * The new index of the player.
     #[inline(always)]
-    fn join(ref self: Game) -> u8 {
+    fn join_game(ref self: Game) -> u8 {
         self.assert_exists();
         self.assert_not_over();
         self.assert_not_started();
@@ -256,7 +274,7 @@ impl GameImpl of GameTrait {
         self.arena_host = arena_host;
     }
 
-    fn start(ref self: Game, time: u64, round_count: u32, mut players: Array<felt252>) {
+    fn start(ref self: Game, time: u64, round_count: u32, mut players: Array<ContractAddress>) {
         // [Check] Game is valid
         self.assert_exists();
         self.assert_not_over();
@@ -268,7 +286,7 @@ impl GameImpl of GameTrait {
         state = state.update(self.game_id.into());
         loop {
             match players.pop_front() {
-                Option::Some(player) => { state = state.update(player); },
+                Option::Some(player) => { state = state.update(player.into()); },
                 Option::None => { break; },
             };
         };
@@ -298,10 +316,6 @@ impl GameImpl of GameTrait {
         self.price = 0;
     }
 
-    #[inline(always)]
-    fn get_random_number() -> u32 {
-        get_tx_info().unbox().transaction_hash.low
-    }
 
 }
 
@@ -403,6 +417,13 @@ impl GameAssert of AssertTrait {
 impl ZeroableGame of core::Zeroable<Game> {
     #[inline(always)]
     fn zero() -> Game {
+        let home_bases = HomeBasesTuple {
+            base1: 1,
+            base2: 2,
+            base3: 3,
+            base4: 4,
+            base5: 5,
+        };
         Game {
             game_id: 0,
             next_to_move: Zeroable::zero(),
@@ -417,6 +438,7 @@ impl ZeroableGame of core::Zeroable<Game> {
             limit: 0,
             winner: Zeroable::zero(),
             arena_host: Zeroable::zero(),
+            available_home_bases: home_bases,
         }
     }
 

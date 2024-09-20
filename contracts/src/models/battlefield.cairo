@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 use starknet::get_block_timestamp;
 
 
-#[derive(Serde, Drop, Copy, PartialEq, Introspect)]
+#[derive(Serde, Drop, Copy, PartialEq, Introspect,Destruct)]
 enum BattlefieldName {
     None,
     RadiantShores,
@@ -66,11 +66,7 @@ struct WeatherEffect {
 
 }
 
-trait BattlefieldNameTrait {
-    fn from_u8(value: u8) -> Option<BattlefieldName>;
-}
-
-impl BattlefieldNameImpl of BattlefieldNameTrait {
+mod battle_field_sizes {
 
     const NONE_SIZE: u32 = 0;
     const RADIANT_SHORES_SIZE: u32 = 100;
@@ -78,6 +74,17 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
     const SKULLCRAG_SIZE: u32 = 120;
     const NOVA_WARHOUND_SIZE: u32 = 90;
     const SAVAGE_COAST_SIZE: u32 = 110;
+}
+
+trait BattlefieldNameTrait {
+    fn from_battlefield_id(value: u8) -> Option<BattlefieldName>;
+    fn to_battlefield_id(self: BattlefieldName) -> u8;
+    fn get_size(self: BattlefieldName) -> u32;
+}
+
+impl BattlefieldNameImpl of BattlefieldNameTrait {
+
+
 
     fn from_battlefield_id(value: u8) -> Option<BattlefieldName> {
         match value {
@@ -104,12 +111,12 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
 
     fn get_size(self: BattlefieldName) -> u32 {
         match self {
-            BattlefieldName::None => 0,
-            BattlefieldName::RadiantShores => 100,
-            BattlefieldName::Ironforge => 80,
-            BattlefieldName::Skullcrag => 120,
-            BattlefieldName::NovaWarhound => 90,
-            BattlefieldName::SavageCoast => 110,
+            BattlefieldName::None => battle_field_sizes::NONE_SIZE,
+            BattlefieldName::RadiantShores => battle_field_sizes::RADIANT_SHORES_SIZE,
+            BattlefieldName::Ironforge => battle_field_sizes::IRONFORGE_SIZE,
+            BattlefieldName::Skullcrag => battle_field_sizes::SKULLCRAG_SIZE,
+            BattlefieldName::NovaWarhound => battle_field_sizes::NOVA_WARHOUND_SIZE,
+            BattlefieldName::SavageCoast => battle_field_sizes::SAVAGE_COAST_SIZE,
         }
     }
 }
@@ -118,10 +125,10 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
 impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
 
     #[inline(always)]
-    fn new(ref self: UrbanBattlefield, game_id: u32, player_id: u32, battlefield_id: u8, weather: WeatherEffect, size: u32) -> UrbanBattlefield {
+    fn new(game_id: u32,  battlefield_id: u8,player_id: u32, weather: WeatherEffect, size: u32) -> UrbanBattlefield {
 
         assert(battlefield_id != 0, 'Cannot Occupy territory none');
-        assert(weather != WeatherCondition::None, 'Must have a weather condition');
+        assert(weather.weather_condition != WeatherCondition::None, 'Must have a weather condition');
 
 
 
@@ -140,24 +147,20 @@ impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
 #[generate_trait]
 impl WeatherEffectImpl of WeatherEffectTrait {
 
-    #[inline(always)]
-    fn get_weather_condition(self: WeatherEffect, game_id: u32) -> WeatherCondition {
+
+
+    fn create(game_id: u32) -> WeatherEffect {
+
         let timestamp: u64 = get_block_timestamp();
         let last_digit = timestamp % 10;
-        
-        // Use the last digit to determine the weather condition
-        match last_digit {
+
+        let weather_condition = match last_digit {
             0 | 1 => WeatherCondition::None,
             2 | 3 | 4 => WeatherCondition::Clear,
             5 | 6 => WeatherCondition::Rainy,
             7 | 8 => WeatherCondition::Foggy,
             _ => WeatherCondition::Stormy,
-        }
-    }
-
-    fn create(game_id: u32) -> WeatherEffect {
-
-        let weather_condition = get_weather_condition(game_id);
+        };
         
         match weather_condition {
             WeatherCondition::None => WeatherEffect {

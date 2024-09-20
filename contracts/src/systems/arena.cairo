@@ -13,8 +13,6 @@ trait IArena {
     fn kick(ref world: IWorldDispatcher, game_id: u32, index: u32);
 }
 
-
-
 // System implementation
 
 #[dojo::contract]
@@ -30,7 +28,8 @@ mod Arena {
 
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
-    use contracts::models::Battlefield::{BattlefieldName,UrbanBattlefieldTrait,BattlefieldNameTrait, WeatherEffectTrait,UrbanBattlefield,WeatherEffect};
+    use contracts::utils::helper::{HelperTrait};
+    use contracts::models::battlefield::{BattlefieldName,UrbanBattlefieldTrait,BattlefieldNameTrait, WeatherEffectTrait,UrbanBattlefield,WeatherEffect};
 
     mod errors {
         const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
@@ -43,54 +42,6 @@ mod Arena {
         const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
     }
 
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-
-        fn _find_player(self: @ContractState,world: IWorldDispatcher, game: Game, account: ContractAddress) -> Option<Player> {
-            let mut index: u32 = game.player_count.into();
-            loop {
-                index -= 1;
-                let player_key = (game.game_id, index);
-                let player: Player = get!(world, player_key.into(), (Player));
-                if player.address == account {
-                    break Option::Some(player);
-                }
-                if index == 0 {
-                    break Option::None;
-                };
-            }
-        }
-
-
-
-        fn _find_ranked_player(self: @ContractState,world: IWorldDispatcher, game: Game, rank: u8) -> Option<Player> {
-            let mut index: u32 = game.player_count.into();
-            loop {
-                index -= 1;
-                let player_key = (game.game_id, index);
-                let player: Player = get!(world, player_key.into(), (Player));
-                if player.rank == rank {
-                    break Option::Some(player);
-                }
-                if index == 0 {
-                    break Option::None;
-                };
-            }
-        }
-
-        fn _players(self: @ContractState,world: IWorldDispatcher, game: Game) -> Array<Player> {
-            let mut index = game.player_count;
-            let mut players: Array<Player> = array![];
-            loop {
-                if index == 0 {
-                    break;
-                };
-                index -= 1;
-                players.append(self.player(game, index.into()));
-            };
-            players
-        }
-    }
 
     #[abi(embed_v0)]
     impl ArenaImpl of IArena<ContractState> {
@@ -107,16 +58,18 @@ mod Arena {
             // [Effect] Game
             let game_id = world.uuid();
             let mut game = GameTrait::new(
-                game_id: game_id, arena: caller, price: price, penalty: penalty
+                game_id: game_id, arena_host: caller, price: price, penalty: penalty
             );
 
-            let player_index: u32 = game.join().into();
+            let player_index: u32 = game.join_game().into();
+
+            let player_home_base: BattlefieldName = game.assign_home_base();
 
             set!(world, (game));
 
             // [Effect] Player
             let player = PlayerTrait::new(
-                game_id, index: player_index, address: caller, name: player_name
+                game_id, index: player_index, address: caller, name: player_name, home_base: player_home_base
             );
 
             set!(world, (player));
@@ -132,13 +85,13 @@ mod Arena {
 
             let caller = get_caller_address();
 
-            match self._find_player(world,game, caller) {
+            match HelperTrait::find_player(world,game, caller) {
                 Option::Some(_) => panic(array![errors::HOST_PLAYER_ALREADY_IN_LOBBY]),
                 Option::None => (),
             };
 
             // [Effect] Game
-            let player_index: u32 = game.join().into();
+            let player_index: u32 = game.join_game().into();
 
             let player_home_base: BattlefieldName = game.assign_home_base();
 
@@ -161,8 +114,8 @@ mod Arena {
                 game_id,
                 battlefield_id,
                 player_id: player_index,
-                weather,
-                size,
+                weather: weather,
+                size: size,
             );
 
             set!(world,(urban_battle_field))
@@ -175,7 +128,7 @@ mod Arena {
             let mut game = get!(world, game_id, (Game));
             let caller = get_caller_address();
 
-            let mut player = match self._find_player(world,game, caller) {
+            let mut player = match HelperTrait::find_player(world,game, caller) {
                 Option::Some(player) => player,
                 Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
             };
@@ -232,7 +185,7 @@ mod Arena {
             // [Check] Player exists
             let mut game = get!(world, game_id, (Game));
             let caller = get_caller_address();
-            let mut player = match self._find_player(world,game, caller) {
+            let mut player = match HelperTrait::find_player(world,game, caller) {
                 Option::Some(player) => player,
                 Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
             };
@@ -257,7 +210,7 @@ mod Arena {
 
             // [Effect] Start game
             let mut addresses = array![];
-            let mut players = self._players(world,game);
+            let mut players = HelperTrait::players(world,game);
             loop {
                 match players.pop_front() {
                     Option::Some(player) => { addresses.append(player.address); },

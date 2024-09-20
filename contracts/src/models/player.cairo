@@ -1,6 +1,6 @@
 use core::zeroable::Zeroable;
 use starknet::ContractAddress;
-use contracts::battlefield::{BattlefieldName};
+use contracts::models::battlefield::{BattlefieldName};
 
 
 
@@ -113,6 +113,22 @@ impl PlayerImpl of PlayerTrait {
         };
         self.home_base = BattlefieldName::None
     }
+
+    #[inline(always)]
+    fn get_unit_supply(ref self: Player, unit: UnitType) -> u32{
+
+        match unit {
+            UnitType::Infantry => self.supply.infantry,
+            UnitType::Armored =>  self.supply.armored,
+            UnitType::Air => self.supply.air,
+            UnitType::Naval => self.supply.naval,
+            UnitType::Cyber => self.supply.cyber,
+            UnitType::None => 0,
+            _=> panic(array!['Invalid Unit Type'])
+        }
+
+
+    }
 }
 
 #[generate_trait]
@@ -151,7 +167,7 @@ impl ZeroablePlayer of Zeroable<Player> {
                 deaths: 0,
                 assists: 0,
             },
-            home_base: 0
+            home_base: BattlefieldName::None
         }
     }
 

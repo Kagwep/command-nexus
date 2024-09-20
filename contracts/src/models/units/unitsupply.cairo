@@ -1,7 +1,6 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo::model]
+#[derive(Drop,Copy,Serde, PartialEq, Introspect)]
 enum UnitMode {
     Idle,
     Moving,
@@ -16,6 +15,10 @@ enum UnitMode {
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct UnitsSupply {
+    #[key]
+    game_id: u32,
+    #[key]
+    player_id: u32,
     infantry: u32,
     armored: u32,
     air: u32,
@@ -23,10 +26,9 @@ struct UnitsSupply {
     cyber: u32,
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct UnitState {
-    mode: UnitMode,
     #[key]
     game_id: u32,
     #[key]
@@ -37,5 +39,6 @@ struct UnitState {
     x: u32,
     y: u32,
     z: u32,
+    mode: UnitMode,
 }
 

@@ -2,6 +2,10 @@
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct UnitsSupply {
+    #[key]
+    game_id: u32,
+    #[key]
+    player_id: u32,
     infantry: u32,
     armored: u32,
     air: u32,
@@ -9,7 +13,7 @@ struct UnitsSupply {
     cyber: u32,
 }
 
-#[derive(Drop, starknet::Store)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct PlayerState {
     #[key]

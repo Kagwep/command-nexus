@@ -1,5 +1,3 @@
-
-
 // define the interface
 #[dojo::interface]
 trait INexus {
@@ -59,11 +57,24 @@ trait INexus {
 mod nexus {
     use super::{INexus};
     use starknet::{ContractAddress, get_caller_address};
-    use dojo_starter::models::{
+    use contracts::models::{
         battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
-        player::{UnitTypeTrait,UnitType}
- 
+        player::{UnitTypeTrait,UnitType},
+        
     };
+
+    use contracts::utils::{HelperTrait};
+
+    mod errors {
+        const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
+        const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
+        const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
+        const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
+        const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
+        const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
+        const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
+        const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
+    }
 
     #[generate_trait]
     impl InternalImpl of InternalTrait {
@@ -77,6 +88,7 @@ mod nexus {
     }
 
 
+    // player deploy force to battle field assigned
     #[abi(embed_v0)]
     impl NexusImpl of INexus<ContractState> {
 
@@ -91,11 +103,12 @@ mod nexus {
             z: u32
         ) {
 
-            let player = get_caller_address();
+            let caller = get_caller_address();
 
             let mut game = get!(world,game_id,(Game));
 
-            let mut player = match self._find_player(world,game, caller) {
+            // get the player
+            let mut player = match utils.find_player(world,game, caller) {
                 Option::Some(player) => player,
                 Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
             };
@@ -108,8 +121,20 @@ mod nexus {
 
             let unit_type = UnitTypeTrait::from_int(unit);
 
+
+            let unit_supply = match unit_type {
+                Some(unit) => {
+                    player.get_unit_supply(unit)
+                },
+                None => {
+                    panic!("Invalid unit type")
+                }
+            };
+
             // Ensure supply contraints for unit type
-            asser(supply > 0, "Insufficient supply for deployement"); // Added
+            asser(supply > 0, "Invalid deployment: supply must be greater than zero"); // Added
+
+            assert(unit_supply >= supply, "Insufficient supply for deployement")
 
             // Update game state with deployement
             game.deploy_units(caller, unit_type, supply, (x, y, z)); // Added
@@ -138,15 +163,14 @@ mod nexus {
         }
         
         fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32) {
-           let player = get_caller_address();
+           let player_address = get_caller_address();
            let mut game = get!(world, game_id, (Game));
 
-           let attacker = match self._find_unit(world, game, attacker_id) {
-            Option::Some(attacker) attacker, 
-            Option::None => panic(array![errors::ATTACKING_NOT_FOUND])
-           }; 
+           let mut attacker = HelperTrait::current_player(world,game); 
 
-           let target = match self._find_unit(world, game, target_id) {
+           assert(player.address == player_address, errors::ATTACK_INVALID_PLAYER);
+
+           let target_unit = match self._find_unit(world, game, target_id) {
             Option::Some(target) => target,
             Option::None => panic(array![errors::TARGET_NOT_FOUND])
            };

@@ -196,7 +196,7 @@ impl UnitTypeImpl of UnitTypeTrait {
         }
     }
 
-    fn from_int(value: u8) -> Option<UnitType> {
+    fn from_int(self: UnitType, value: u8) -> Option<UnitType> {
         match value {
             0_u8 => Option::Some(UnitType::None),
             1_u8 => Option::Some(UnitType::Infantry),

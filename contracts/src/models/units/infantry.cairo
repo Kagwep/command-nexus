@@ -7,7 +7,8 @@ struct Infantry {
     #[key]
     game_id: u32,
     #[key]
-    unit_id: u8,
+    unit_id: u32,
+    #[key]
     player_id: u32,
     range: u64,
     firepower: u32,

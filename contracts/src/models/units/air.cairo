@@ -1,45 +1,46 @@
-use starknet::ContractAddress;
-
-use contracts::models::position::Position;
 use contracts::models::battlefield::BattlefieldName;
-
+use contracts::models::position::Position;
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
-struct Ship {
+struct AirUnit {
     #[key]
     game_id: u32,
     #[key]
-    unit_id: u8,
-    player: ContractAddress,
+    unit_id: u32,
+    #[key]
+    player_id: u32,
     range: u64,
     firepower: u32,
     accuracy: u8,
-    ship_accessories: ShipAccessories,
-    ship_health: ShipHealth,
+    accessories: AirUnitAccessories,
+    health: AirUnitHealth,
     position: Position,
-    battlefield_name:BattlefieldName,
+    battlefield_name: BattlefieldName,
+    altitude: u32,  // New field for air units
+    max_speed: u32, // New field for air units
 }
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
-struct ShipAccessories {
+struct AirUnitAccessories {
     #[key]
     game_id: u32,
     #[key]
     player_id: u32,
+    missiles: u32,
+    flares: u32,
     fuel: u32,
-    ammunition: u32,
+    radar_jammer: u32,
 }
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
-struct ShipHealth {
+struct AirUnitHealth {
     #[key]
     game_id: u32,
     #[key]
     player_id: u32,
     hull_integrity: u32,
-    shield_strength: u32,
+    engine_health: u32,
 }
-

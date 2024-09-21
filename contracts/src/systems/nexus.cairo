@@ -4,7 +4,7 @@ trait INexus {
     fn deploy_forces(
         ref world: IWorldDispatcher, 
         game_id: u32,
-        battlefield_name: u8, 
+        battlefield_id: u8,
         unit: u8, 
         supply: u32,
         x: u32,
@@ -47,9 +47,27 @@ trait INexus {
         area_z: u32
     );
 
-    fn heal(ref world: IWorldDispatcher, game_id: u32, healer_id: u32, target_id: u32);
+    fn update_unit_state(
+        ref world: IWorldDispatcher,
+        game_id: u32,
+        player_index: u32,
+        unit_id: u32,
+        unit_type: u8,
+        start_x: u32,
+        start_y: u32,
+        start_z: u32
+    );
 
-    fn set_mode(ref  world: IWorldDispatcher, game_id: u32, unit_id: u32, mode: u8);
+    fn handle_unit_type_operation(
+        ref world: IWorldDispatcher,
+        game_id: u32,
+        player_index: u32,
+        unit_id: u32,
+        unit_type: UnitType,
+        operation: UnitOperation,
+    );
+
+
 }
 
 // dojo decorator
@@ -60,10 +78,14 @@ mod nexus {
     use contracts::models::{
         battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
         player::{UnitTypeTrait,UnitType},
+        units::unitsupply::{UnitMode,UnitState},
+        game::{Game},
         
     };
 
-    use contracts::utils::{HelperTrait};
+    
+
+    use contracts::utils::helper::{HelperTrait};
 
     mod errors {
         const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
@@ -74,19 +96,9 @@ mod nexus {
         const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
         const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
         const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
+        const INVALID_PLAYER:felt252 = 'Not player';
+       
     }
-
-    #[generate_trait]
-    impl InternalImpl of InternalTrait {
-
-        fn process_client_battlefield(input: u8) -> BattlefieldName {
-            match BattlefieldNameTrait::from_u8(input) {
-                Option::Some(battlefield) => battlefield,
-                Option::None => BattlefieldName::None, // Default to None for invalid inputs
-            }
-        }
-    }
-
 
     // player deploy force to battle field assigned
     #[abi(embed_v0)]
@@ -139,110 +151,302 @@ mod nexus {
             // Update game state with deployement
             game.deploy_units(caller, unit_type, supply, (x, y, z)); // Added
 
+            set!(world, (game));
+
+        }
+        // Function to handle unit type-specific operations
+        fn handle_unit_type_operation(
+            ref world: IWorldDispatcher,
+            game_id: u32,
+            player_index: u32,
+            unit_id: u32,
+            unit_type: UnitType,
+        )  {
+            match unit_type {
+                UnitType::Infantry => {
+                    assert(attacker.supply.infantry > 0, 'No Infantry Units Available');
+                    let _infantry_unit = HelperTrait::find_unit_infantry(game.game_id, attacker.index, unit_id);
+                },
+                UnitType::Armored => {
+                    assert(attacker.supply.armored > 0, 'No Armored Units Available');
+                    let _armored_unit = HelperTrait::find_unit_armored(game.game_id, attacker.index, unit_id);
+                },
+                UnitType::Air => {
+                    assert(attacker.supply.air > 0, 'No Air Units Available');
+                    let _air_unit = HelperTrait::find_unit_air(game.game_id, attacker.index, unit_id);
+                },
+                UnitType::Naval => {
+                    assert(attacker.supply.naval > 0, 'No Naval Units Available');
+                    let _naval_unit = HelperTrait::find_unit_naval(game.game_id, attacker.index, unit_id);
+                },
+                _ => panic(array!['Invalid Unit Type'])
+            }
         }
 
-        fn patrol(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, 
-            start_x: u32, start_y: u32, start_z: u32,
-            end_x: u32, end_y: u32, end_z: u32) {
-            // Logic for unit patrolling between two points
-            // Construct Vec3 inside if needed:
-            // let start_pos = Vec3 { x: start_x, y: start_y, z: start_z };
-            // let end_pos = Vec3 { x: end_x, y: end_y, z: end_z };
+        // Function to update unit state
+        fn update_unit_state(
+            ref world: IWorldDispatcher,
+            game_id: u32,
+            player_index: u32,
+            unit_id: u32,
+            unit_type: UnitType,
+            new_mode: UnitMode,
+            x: u32,
+            y: u32,
+            z: u32
+        ) {
+            let mut unit_state = HelperTrait::unit_mode(game_id, unit_id, player_index, unit_type);
+            assert(unit_state.mode != new_mode, 'Unit already in this mode');
 
-            let player = get_caller_address(); // Added
-            let mut game = get!(world, game_id, (Game)); // Added
+            unit_state.mode = new_mode;
+            unit_state.x = x;
+            unit_state.y = y;
+            unit_state.z = z;
 
-            let mut unit = match self._find_unit(world, game, unit_id) {
-                Option::Some(unit) => unit, 
-                Option::None => panic(array![errors::UNIT_NOT_FOUND]) 
-            }; // Added
+            set!(world, (unit_state));
+        }
 
-            // Logic to assign patrol movement between two points
-            unit.set_patrol_route((start_x, start_y, start_z), (end_x, end_y, end_z)); // Added
-            set!(world, (game_id, unit_id), unit); // Added
+        fn patrol(
+            ref world: IWorldDispatcher,
+            game_id: u32,
+            unit_id: u32,
+            unit_type: u8,
+            start_x: u32,
+            start_y: u32,
+            start_z: u32,
+        ) {
+            let player = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+            let mut attacker = HelperTrait::current_player(world, game);
+
+            assert(player == attacker.address, errors::INVALID_PLAYER);
+
+            let unit_type = UnitType::from_u8(unit_type);
+
+            // Handle unit type-specific operations
+            self.handle_unit_type_operation(
+                ref world,
+                game.game_id,
+                attacker.index,
+                unit_id,
+                unit_type,
+            );
+
+            // Update the unit state to patrolling mode
+            self.update_unit_state(
+                ref world,
+                game.game_id,
+                attacker.index,
+                unit_id,
+                unit_type,
+                UnitMode::Patrolling,
+                start_x,
+                start_y,
+                start_z
+            );
         }
         
-        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32) {
+        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_type: u8,x:u32,y:u32,z:u32) {
            let player_address = get_caller_address();
            let mut game = get!(world, game_id, (Game));
 
-           let mut attacker = HelperTrait::current_player(world,game); 
+           let mut attacker = HelperTrait::current_player(world, game);
 
-           assert(player.address == player_address, errors::ATTACK_INVALID_PLAYER);
+           assert(player == attacker.address, errors::INVALID_PLAYER);
 
-           let target_unit = match self._find_unit(world, game, target_id) {
-            Option::Some(target) => target,
-            Option::None => panic(array![errors::TARGET_NOT_FOUND])
-           };
+           let unit_type = UnitType::from_u8(unit_type);
 
-           // Logic to process combat between units
-           let result = attacker.attack(target);
-           if result.success {
-            target.decrease_health(result.damage);
-           }
-           set!(world, (game_id, target_id), target);
+            // Handle unit type-specific operations
+            self.handle_unit_type_operation(
+            ref world,
+            game.game_id,
+            attacker.index,
+            unit_id,
+            unit_type,
+        );
+
+        // Update the unit state to patrolling mode
+        self.update_unit_state(
+            ref world,
+            game.game_id,
+            attacker.index,
+            unit_id,
+            unit_type,
+            UnitMode::Attacking,
+            x,
+            y,
+            z
+        );
+
         }
         
-        fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, x: u32, y: u32, z: u32) {
-            // Logic for unit entering a defensive stance at a specific position
-            // let position = Vec3 { x, y, z };
-
-            let mut unit = get!(world, (game_id, unit_id), (UnitState));
-
-            // Logic to set unit in defensive mode
-            unit.set_defensive_position(x, y, z);
-            set!(world, (game_id, unit_id), unit);
+        fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u32, y: u32, z: u32) {
+            let player_address = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+ 
+            let mut player = HelperTrait::current_player(world, game);
+ 
+            assert(player == attacker.address, errors::INVALID_PLAYER);
+ 
+            let unit_type = UnitType::from_u8(unit_type);
+ 
+             // Handle unit type-specific operations
+             self.handle_unit_type_operation(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+         );
+ 
+         // Update the unit state to patrolling mode
+         self.update_unit_state(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+             UnitMode::Defending,
+             x,
+             y,
+             z
+         );
+ 
         }
         
-        fn move(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, dest_x: u32, dest_y: u32, dest_z: u32) {
-            // Logic for moving a unit to a new position
-            // let destination = Vec3 { x: dest_x, y: dest_y, z: dest_z };
-
-            let mut unit = get!(world, (game_id, unit_id), (UnitState));
-
-            // Logic to move unit to new position 
-            unit.set_position(dest_x, dest_y, dest_z);
-            set!(world, (game_id, unit_id), unit);
+        fn move_unit(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u32, dest_y: u32, dest_z: u32) {
+            let player_address = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+ 
+            let mut player = HelperTrait::current_player(world, game);
+ 
+            assert(player == attacker.address, errors::INVALID_PLAYER);
+ 
+            let unit_type = UnitType::from_u8(unit_type);
+ 
+             // Handle unit type-specific operations
+             self.handle_unit_type_operation(
+             ref world,
+             game.game_id,
+             attacker.index,
+             unit_id,
+             unit_type,
+           );
+ 
+         // Update the unit state to patrolling mode
+         self.update_unit_state(
+             ref world,
+             game.game_id,
+             attacker.index,
+             unit_id,
+             unit_type,
+             UnitMode::Moving,
+             dest_x,
+             dest_y,
+             dest_z
+         );
         }
         
-        fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32) {
-            // This function doesn't need position, so it remains unchanged
-
-            let mut unit = get!(world, (game_id, unit_id), (UnitState));
-
-            // Logic to set unit to stealth mode
-            unit.set_mode(UnitMode::Stealthed);
-            set!(world, (game_id, unit_id), unit);
+        fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8,x:u32,y:u32,z:u32) {
+            let player_address = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+ 
+            let mut player = HelperTrait::current_player(world, game);
+ 
+            assert(player == attacker.address, errors::INVALID_PLAYER);
+ 
+            let unit_type = UnitType::from_u8(unit_type);
+ 
+             // Handle unit type-specific operations
+             self.handle_unit_type_operation(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+           );
+ 
+         // Update the unit state to patrolling mode
+         self.update_unit_state(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+             UnitMode::Stealthed,
+             x,
+             y,
+             z
+         );
         }
         
-        fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, area_x: u32, area_y: u32, area_z: u32) {
-            // Logic for unit performing reconnaissance in a specific area
-            // let area = Vec3 { x: area_x, y: area_y, z: area_z };
-
-            let mut unit = get!(world, (game_id, unit_id), (UnitState));
-
-            // Logic for recconnaissance in a specific area
-            unit.recon_area(area_x, area_y, area_z);
-            set!(world, (game_id, unit_id), unit);
+        fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8, area_x: u32, area_y: u32, area_z: u32) {
+            let player_address = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+ 
+            let mut player = HelperTrait::current_player(world, game);
+ 
+            assert(player == player.address, errors::INVALID_PLAYER);
+ 
+            let unit_type = UnitType::from_u8(unit_type);
+ 
+             // Handle unit type-specific operations
+             self.handle_unit_type_operation(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+           );
+ 
+         // Update the unit state to patrolling mode
+         self.update_unit_state(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+             UnitMode::Reconning,
+             area_x,
+             area_y,
+             area_z
+         );
         }
         
-        fn heal(ref world: IWorldDispatcher, game_id: u32, healer_id: u32, target_id: u32) {
-           let mut healer = get!(world, (game_id, healer_id), (UnitState));
-           let mut target = get!(world, (game_id, healer_id), (UnitState));
-
-           // Logic to heal target unit
-           healer.perform_heal(&mut target);
-           set!(world, (game_id, target_id), target);
+        fn heal(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, unit_type:u8) {
+            let player_address = get_caller_address();
+            let mut game = get!(world, game_id, (Game));
+ 
+            let mut player = HelperTrait::current_player(world, game);
+ 
+            assert(player == player.address, errors::INVALID_PLAYER);
+ 
+            let unit_type = UnitType::from_u8(unit_type);
+ 
+             // Handle unit type-specific operations
+             self.handle_unit_type_operation(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+           );
+ 
+         // Update the unit state to patrolling mode
+         self.update_unit_state(
+             ref world,
+             game.game_id,
+             player.index,
+             unit_id,
+             unit_type,
+             UnitMode::Healing,
+             area_x,
+             area_y,
+             area_z
+         );
         }
         
-        fn set_mode(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, mode: u8) {
-            let mut unit = get!(world, (game_id, unit_id), (UnitState));
-            let mode_enum = UnitMode::from_u8(mode).unwrap_or(UnitMode::Idle);
 
-            // Logic to change the mode of the unit
-            unit.set_mode(mode_enum);
-            set!(world, (game_id, unit_id), unit);
-        }
     }
 }
 

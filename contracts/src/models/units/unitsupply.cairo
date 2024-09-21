@@ -35,6 +35,7 @@ struct UnitState {
     player_id: u32,
     #[key]
     unit_id: u32,
+    #[key]
     unit_type: u8,  // 0: infantry, 1: armored, 2: air, 3: naval, 4: cyber
     x: u32,
     y: u32,

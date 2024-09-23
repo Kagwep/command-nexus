@@ -3,7 +3,7 @@ use starknet::ContractAddress;
 use contracts::models::position::Position;
 use contracts::models::battlefield::BattlefieldName;
 
-#[derive( Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Armored {
     #[key]
@@ -15,8 +15,8 @@ struct Armored {
     accuracy: u8,
     firepower: u32,
     range: u64,
-    accessories: AmoredAccessories,
-    amored_health: AmoredHealth,
+    accessories: ArmoredAccessories,
+    amored_health: ArmoredHealth,
     position: Position,
     battlefield_name:BattlefieldName,
 }

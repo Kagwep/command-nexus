@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x63305dbcfa7a0cb3d91fb0687bc5e210da1f2199b5d4a6bcac7ef6aa51ccc7c"
+original_class_hash = "0x63305dbcfa7a0cb3d91fb0687bc5e210da1f2199b5d4a6bcac7ef6aa51ccc7c"
+abi = "manifests/dev/abis/base/models/contracts_models_battlefield_urban_battlefield.json"
+name = "contracts::models::battlefield::urban_battlefield"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "battlefield_id"
+type = "u8"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "size"
+type = "u32"
+key = false
+
+[[members]]
+name = "weather"
+type = "WeatherEffect"
+key = false
+
+[[members]]
+name = "control"
+type = "u16"
+key = false

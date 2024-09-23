@@ -1,21 +1,20 @@
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
-use contracts::models::game::Game;
-use contracts::models::player::Player;
-use contracts::models::units::unitsupply::{UnitMode,UnitState};
-use contracts::models::units::infantry::{Infantry};
-use contracts::models::units::air::{AirUnit};
-use contracts::models::units::cyber::{CyberUnit};
-use contracts::models::units::naval::{Ship};
-use contracts::models::units::armored::{Armored};
+
 
 
 
 mod helper {
     use super::ContractAddress;
     use super::IWorldDispatcher;
-    use super::Game;
-    use super::Player;
+    use contracts::models::game::{Game, GameTrait, GameAssert};
+    use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
+    use contracts::models::units::unitsupply::{UnitMode,UnitState};
+    use contracts::models::units::infantry::{Infantry};
+    use contracts::models::units::air::{AirUnit};
+    use contracts::models::units::cyber::{CyberUnit};
+    use contracts::models::units::naval::{Ship};
+    use contracts::models::units::armored::{Armored};
 
 
     #[generate_trait]
@@ -29,20 +28,20 @@ mod helper {
         }
 
         fn find_unit_infantry(world: IWorldDispatcher,game_id:u32,player_id:u32,unit_id:u32)-> Infantry{
-            get!(world, (game.game_id,unit_id, player_id), (Infantry))
+            get!(world, (game_id,unit_id, player_id), (Infantry))
         }
         fn find_unit_armored(world: IWorldDispatcher,game_id:u32,player_id:u32,unit_id:u32)-> Armored{
-            get!(world, (game.game_id,unit_id, player_id), (Armored))
+            get!(world, (game_id,unit_id, player_id), (Armored))
         }
         fn find_unit_air(world: IWorldDispatcher,game_id:u32,player_id:u32,unit_id:u32)-> AirUnit{
-            get!(world, (game.game_id,unit_id, player_id), (AirUnit))
+            get!(world, (game_id,unit_id, player_id), (AirUnit))
         }
         fn find_unit_naval(world: IWorldDispatcher,game_id:u32,player_id:u32,unit_id:u32)-> Ship{
-            get!(world, (game.game_id,unit_id, player_id), (Ship))
+            get!(world, (game_id,unit_id, player_id), (Ship))
         }
 
-        fn unit_mode(world: IWorldDispatcher, game_id: u32,unit_id:u32, index: u32,unit_type:u8) -> UnitState {
-            get!(world, (game_id,index,unit_id,unit_type), (UnitMode))
+        fn unit_state(world: IWorldDispatcher, game_id: u32,unit_id:u32, index: u32,unit_type:u8) -> UnitState {
+            get!(world, (game_id,index,unit_id,unit_type), (UnitState))
         }
 
         fn find_player(world: IWorldDispatcher, game: Game, account: ContractAddress) -> Option<Player> {

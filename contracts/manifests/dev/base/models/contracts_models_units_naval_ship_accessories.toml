@@ -1,0 +1,25 @@
+kind = "DojoModel"
+class_hash = "0x4130154327dd7ecdf469d6fb9d13848bc97ee2799f0980691b393fc83a36e02"
+original_class_hash = "0x4130154327dd7ecdf469d6fb9d13848bc97ee2799f0980691b393fc83a36e02"
+abi = "manifests/dev/abis/base/models/contracts_models_units_naval_ship_accessories.json"
+name = "contracts::models::units::naval::ship_accessories"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "fuel"
+type = "u32"
+key = false
+
+[[members]]
+name = "ammunition"
+type = "u32"
+key = false

@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x2bf473521016118e93bb1207dc865df5736cd4f37aa124417d0c4e37f7ddbc0"
+original_class_hash = "0x2bf473521016118e93bb1207dc865df5736cd4f37aa124417d0c4e37f7ddbc0"
+abi = "manifests/dev/abis/base/models/contracts_models_units_air_air_unit_accessories.json"
+name = "contracts::models::units::air::air_unit_accessories"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "missiles"
+type = "u32"
+key = false
+
+[[members]]
+name = "flares"
+type = "u32"
+key = false
+
+[[members]]
+name = "fuel"
+type = "u32"
+key = false
+
+[[members]]
+name = "radar_jammer"
+type = "u32"
+key = false

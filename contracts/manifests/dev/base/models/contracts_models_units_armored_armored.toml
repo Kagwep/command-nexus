@@ -1,0 +1,55 @@
+kind = "DojoModel"
+class_hash = "0x7241c44ca4dead9295848723a5225b80bf410f3b1ec2c379463405388a1d2b8"
+original_class_hash = "0x7241c44ca4dead9295848723a5225b80bf410f3b1ec2c379463405388a1d2b8"
+abi = "manifests/dev/abis/base/models/contracts_models_units_armored_armored.json"
+name = "contracts::models::units::armored::armored"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "unit_id"
+type = "u8"
+key = true
+
+[[members]]
+name = "player_id"
+type = "ContractAddress"
+key = true
+
+[[members]]
+name = "accuracy"
+type = "u8"
+key = false
+
+[[members]]
+name = "firepower"
+type = "u32"
+key = false
+
+[[members]]
+name = "range"
+type = "u64"
+key = false
+
+[[members]]
+name = "accessories"
+type = "ArmoredAccessories"
+key = false
+
+[[members]]
+name = "amored_health"
+type = "ArmoredHealth"
+key = false
+
+[[members]]
+name = "position"
+type = "Position"
+key = false
+
+[[members]]
+name = "battlefield_name"
+type = "BattlefieldName"
+key = false

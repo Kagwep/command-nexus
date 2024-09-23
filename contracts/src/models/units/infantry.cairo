@@ -1,7 +1,7 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::Position;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Infantry {
     #[key]
@@ -19,7 +19,7 @@ struct Infantry {
     battlefield_name:BattlefieldName,
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct InfantryAccessories {
     #[key]
@@ -32,7 +32,7 @@ struct InfantryAccessories {
     grenade: u32, 
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct InfantryHealth {
     #[key]

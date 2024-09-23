@@ -1,0 +1,30 @@
+kind = "DojoModel"
+class_hash = "0xc19cc1899cc30d5d483df31f49a9897d88b8ff8762130ddd105dd7c2e145d3"
+original_class_hash = "0xc19cc1899cc30d5d483df31f49a9897d88b8ff8762130ddd105dd7c2e145d3"
+abi = "manifests/dev/abis/base/models/contracts_models_battlefield_scoreboard.json"
+name = "contracts::models::battlefield::scoreboard"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_count"
+type = "u8"
+key = false
+
+[[members]]
+name = "top_score"
+type = "u32"
+key = false
+
+[[members]]
+name = "last_updated"
+type = "u64"
+key = false

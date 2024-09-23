@@ -1,7 +1,7 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::Position;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct CyberUnit {
     #[key]

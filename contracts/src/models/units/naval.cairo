@@ -4,7 +4,7 @@ use contracts::models::position::Position;
 use contracts::models::battlefield::BattlefieldName;
 
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Ship {
     #[key]

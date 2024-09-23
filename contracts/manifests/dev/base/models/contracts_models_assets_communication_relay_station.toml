@@ -1,0 +1,35 @@
+kind = "DojoModel"
+class_hash = "0x6adc9f4fbc84d0b64c58e88c8e8a1a79c8eb481a8133114b3edfbf6d135fb1d"
+original_class_hash = "0x6adc9f4fbc84d0b64c58e88c8e8a1a79c8eb481a8133114b3edfbf6d135fb1d"
+abi = "manifests/dev/abis/base/models/contracts_models_assets_communication_relay_station.json"
+name = "contracts::models::assets::communication::relay_station"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "station_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "station_name"
+type = "felt252"
+key = false
+
+[[members]]
+name = "capacity"
+type = "u32"
+key = false
+
+[[members]]
+name = "status"
+type = "felt252"
+key = false

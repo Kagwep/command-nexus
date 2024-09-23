@@ -1,6 +1,7 @@
 use starknet::ContractAddress;
 
 #[derive(Drop,Copy,Serde, PartialEq, Introspect)]
+#[dojo::model]
 enum UnitMode {
     Idle,
     Moving,

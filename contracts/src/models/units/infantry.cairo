@@ -1,5 +1,5 @@
 use contracts::models::battlefield::BattlefieldName;
-use contracts::models::position::Position;
+use contracts::models::position::{Position, Vec3};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -20,12 +20,7 @@ struct Infantry {
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-#[dojo::model]
 struct InfantryAccessories {
-    #[key]
-    game_id: u32,
-    #[key]
-    player_id: u32,
     ammunition: u32,
     first_aid_kit: u32,
     molotov: u32,
@@ -33,14 +28,109 @@ struct InfantryAccessories {
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-#[dojo::model]
 struct InfantryHealth {
-    #[key]
-    game_id: u32,
-    #[key]
-    player_id: u32,
-    shield_strength: u32,
+    current: u32,
+    max: u32,
 }
 
 
+#[generate_trait]
+impl InfantryImpl of InfantryTrait{
+
+    #[inline(always)]
+    fn new(game_id: u32,unit_id: u32, player_id:u32,range: u64,firepower: u32,x: u32,y: u32, z: u32,battlefield_name: BattlefieldName) -> Infantry {
+
+        let position  = Vec3{
+            x,
+            y,
+            z
+        };
+
+        Infantry {
+            game_id,
+            unit_id,
+            player_id,
+            range,
+            firepower,
+            accuracy: 100,
+            accessories: InfantryAccessories {
+                ammunition: 100,
+                first_aid_kit: 100,
+                molotov: 4,
+                grenade: 4, 
+            },
+            health: InfantryHealth { current: 100, max: 100 },
+            position: Position {
+                coord: position
+            },
+            battlefield_name,
+        }
+
+    }
+
+
+    #[inline(always)]
+    fn update_accessories(ref self: Infantry, new_accessories: InfantryAccessories) {
+        self.accessories = new_accessories;
+    }
+
+    #[inline(always)]
+    fn add_ammunation(ref self: Infantry, amount: u32){
+        self.accessories.ammunition += amount;
+    }
+
+    #[inline(always)]
+    fn throw_molotov(ref self:Infantry){
+        if self.accessories.molotov > 0 {
+            self.accessories.molotov -= 1;
+            // Add molotov throwing logic here
+        } 
+    }
+
+
+    #[inline(always)]
+    fn use_first_aid_kit(ref self: Infantry) {
+        if self.accessories.first_aid_kit > 0 {
+            self.accessories.first_aid_kit -= 1;
+            // Add healing logic here
+        }
+    }
+
+    #[inline(always)]
+    fn throw_grenade(ref self: Infantry) {
+        if self.accessories.grenade > 0 {
+            self.accessories.grenade -= 1;
+            
+            // Add grenade throwing logic here
+        }
+    }
+
+    #[inline(always)]
+    fn move_to(ref self: Infantry, new_position:Position) {
+        self.position = new_position;
+    }
+
+    #[inline(always)]
+    fn take_damage(ref self:Infantry, damage:u32){
+        if damage >= self.health.current {
+            self.health.current = 0;
+        }else{
+            self.health.current -=damage;
+        }
+    }
+
+    #[inline(always)]
+    fn heal(ref self: Infantry, amount: u32) {
+        let new_health = self.health.current + amount;
+        if new_health > self.health.max {
+            self.health.current = self.health.max;
+        } else {
+            self.health.current = new_health;
+        }
+    }
+
+    
+
+
+}
 

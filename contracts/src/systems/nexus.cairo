@@ -41,6 +41,11 @@ trait INexus {
 
 #[dojo::interface]
 trait INexusInternal {
+
+    // fn _handle_unit_deployment(
+
+    // );
+
     fn _handle_unit_type_operation(
         ref world: IWorldDispatcher,
         game_id: u32,

@@ -327,20 +327,28 @@
     "name": "contracts::models::units::armored::ArmoredAccessories",
     "members": [
       {
-        "name": "game_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "player_id",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
         "name": "fuel",
         "type": "core::integer::u32"
       },
       {
-        "name": "ammunition",
+        "name": "main_gun_ammunition",
         "type": "core::integer::u32"
+      },
+      {
+        "name": "secondary_gun_ammunition",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "smoke_grenades",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "repair_kits",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "active_protection_system",
+        "type": "core::integer::u8"
       }
     ]
   },
@@ -349,15 +357,15 @@
     "name": "contracts::models::units::armored::ArmoredHealth",
     "members": [
       {
-        "name": "game_id",
+        "name": "hull_integrity",
         "type": "core::integer::u32"
       },
       {
-        "name": "player_id",
-        "type": "core::starknet::contract_address::ContractAddress"
+        "name": "turret_integrity",
+        "type": "core::integer::u32"
       },
       {
-        "name": "shield_strength",
+        "name": "track_integrity",
         "type": "core::integer::u32"
       }
     ]
@@ -385,11 +393,7 @@
     "name": "contracts::models::position::Position",
     "members": [
       {
-        "name": "player",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "vec",
+        "name": "coord",
         "type": "contracts::models::position::Vec3"
       }
     ]
@@ -457,7 +461,7 @@
         "type": "contracts::models::units::armored::ArmoredAccessories"
       },
       {
-        "name": "amored_health",
+        "name": "armored_health",
         "type": "contracts::models::units::armored::ArmoredHealth"
       },
       {

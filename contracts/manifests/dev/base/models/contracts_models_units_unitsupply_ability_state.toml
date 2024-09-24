@@ -1,0 +1,50 @@
+kind = "DojoModel"
+class_hash = "0x38c17bff63644cb20a83b2d858daea525c15a2ae2845e2bb56fade9d83408db"
+original_class_hash = "0x38c17bff63644cb20a83b2d858daea525c15a2ae2845e2bb56fade9d83408db"
+abi = "manifests/dev/abis/base/models/contracts_models_units_unitsupply_ability_state.json"
+name = "contracts::models::units::unitsupply::ability_state"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "unit_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "is_active"
+type = "bool"
+key = false
+
+[[members]]
+name = "cooldown"
+type = "u32"
+key = false
+
+[[members]]
+name = "effectiveness"
+type = "u32"
+key = false
+
+[[members]]
+name = "unit"
+type = "UnitType"
+key = false
+
+[[members]]
+name = "cooldown_increase"
+type = "u32"
+key = false
+
+[[members]]
+name = "units_abilities_state"
+type = "UnitAbilities"
+key = false

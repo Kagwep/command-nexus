@@ -327,20 +327,32 @@
     "name": "contracts::models::units::naval::ShipAccessories",
     "members": [
       {
-        "name": "game_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "player_id",
-        "type": "core::integer::u32"
-      },
-      {
         "name": "fuel",
         "type": "core::integer::u32"
       },
       {
-        "name": "ammunition",
+        "name": "main_gun_ammunition",
         "type": "core::integer::u32"
+      },
+      {
+        "name": "missile_ammunition",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "torpedo_ammunition",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "anti_air_ammunition",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "sonar_charges",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "repair_drones",
+        "type": "core::integer::u8"
       }
     ]
   },
@@ -349,15 +361,15 @@
     "name": "contracts::models::units::naval::ShipHealth",
     "members": [
       {
-        "name": "game_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "player_id",
-        "type": "core::integer::u32"
-      },
-      {
         "name": "hull_integrity",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "engine_integrity",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "weapon_systems_integrity",
         "type": "core::integer::u32"
       },
       {
@@ -389,11 +401,7 @@
     "name": "contracts::models::position::Position",
     "members": [
       {
-        "name": "player",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "vec",
+        "name": "coord",
         "type": "contracts::models::position::Vec3"
       }
     ]

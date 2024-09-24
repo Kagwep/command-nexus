@@ -74,6 +74,23 @@ mod Arena {
 
             set!(world, (player));
 
+            let size = player_home_base.get_size();
+
+            let weather = WeatherEffectTrait::create(game_id);
+
+            let battlefield_id = player_home_base.to_battlefield_id();
+
+            let urban_battle_field = UrbanBattlefieldTrait::new(
+                game_id,
+                battlefield_id,
+                player_id: player_index,
+                weather: weather,
+                size: size,
+            );
+
+            set!(world,(urban_battle_field));
+            
+
             // [Return] Game id
             game_id
         }

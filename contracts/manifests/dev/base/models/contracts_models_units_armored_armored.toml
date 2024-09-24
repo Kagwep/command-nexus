@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x7241c44ca4dead9295848723a5225b80bf410f3b1ec2c379463405388a1d2b8"
-original_class_hash = "0x7241c44ca4dead9295848723a5225b80bf410f3b1ec2c379463405388a1d2b8"
+class_hash = "0x6e6e216e74a8dea38fc63d6ce9cdbba29bbc131bece17130712ba91e6946c71"
+original_class_hash = "0x6e6e216e74a8dea38fc63d6ce9cdbba29bbc131bece17130712ba91e6946c71"
 abi = "manifests/dev/abis/base/models/contracts_models_units_armored_armored.json"
 name = "contracts::models::units::armored::armored"
 
@@ -40,7 +40,7 @@ type = "ArmoredAccessories"
 key = false
 
 [[members]]
-name = "amored_health"
+name = "armored_health"
 type = "ArmoredHealth"
 key = false
 

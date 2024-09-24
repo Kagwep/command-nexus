@@ -1,11 +1,8 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
+#[derive(Copy, Drop, Serde, Introspect)]
 pub struct Position {
-    #[key]
-    player: ContractAddress,
-    vec: Vec3,
+    coord: Vec3,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]

@@ -9,7 +9,7 @@ mod helper {
     use super::IWorldDispatcher;
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
-    use contracts::models::units::unitsupply::{UnitMode,UnitState};
+    use contracts::models::units::unit_states::{UnitMode,UnitState};
     use contracts::models::units::infantry::{Infantry};
     use contracts::models::units::air::{AirUnit};
     use contracts::models::units::cyber::{CyberUnit};

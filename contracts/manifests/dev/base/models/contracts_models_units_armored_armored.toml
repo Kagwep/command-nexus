@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x6e6e216e74a8dea38fc63d6ce9cdbba29bbc131bece17130712ba91e6946c71"
-original_class_hash = "0x6e6e216e74a8dea38fc63d6ce9cdbba29bbc131bece17130712ba91e6946c71"
+class_hash = "0x4bf9f04ea25210b25425d5babfde18cc52c605b3984b6ca3e013c9637aef4dd"
+original_class_hash = "0x4bf9f04ea25210b25425d5babfde18cc52c605b3984b6ca3e013c9637aef4dd"
 abi = "manifests/dev/abis/base/models/contracts_models_units_armored_armored.json"
 name = "contracts::models::units::armored::armored"
 
@@ -11,12 +11,12 @@ key = true
 
 [[members]]
 name = "unit_id"
-type = "u8"
+type = "u32"
 key = true
 
 [[members]]
 name = "player_id"
-type = "ContractAddress"
+type = "u32"
 key = true
 
 [[members]]

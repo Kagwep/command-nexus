@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 use contracts::models::position::{Position,Vec3};
 use contracts::models::battlefield::BattlefieldName;
-use contracts::models::units::unitsupply::AbilityState;
+use contracts::models::units::unit_states::AbilityState;
 
 
 #[derive(Copy, Drop, Serde, Introspect)]
@@ -13,7 +13,7 @@ struct Ship {
     #[key]
     unit_id: u32,
     #[key]
-    player: ContractAddress,
+    player_id: u32,
     range: u64,
     firepower: u32,
     accuracy: u8,
@@ -42,13 +42,21 @@ struct ShipHealth {
     shield_strength: u32,
 }
 
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
+enum NavalAction {
+    FireCannon,
+    LaunchTorpedo,
+    DeployRepairDrone,
+    ActivateSonar,
+}
+
 #[generate_trait]
 impl ShipImpl of ShipTrait {
-    fn new(game_id: u32, unit_id: u32, player: ContractAddress, x: u32, y: u32, z: u32, battlefield_name: BattlefieldName) -> Ship {
+    fn new(game_id: u32, unit_id: u32, player_id: u32, x: u32, y: u32, z: u32, battlefield_name: BattlefieldName) -> Ship {
         Ship {
             game_id,
             unit_id,
-            player,
+            player_id,
             range: 10000,  // Long range for naval units
             firepower: 150,
             accuracy: 80,

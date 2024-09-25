@@ -1,8 +1,8 @@
 kind = "DojoModel"
-class_hash = "0x4441e3588106e4cde1bbd68fcc56a61bc85c91903a96ccb94212e596c9e047"
-original_class_hash = "0x4441e3588106e4cde1bbd68fcc56a61bc85c91903a96ccb94212e596c9e047"
-abi = "manifests/dev/abis/base/models/contracts_models_units_unitsupply_unit_state.json"
-name = "contracts::models::units::unitsupply::unit_state"
+class_hash = "0x2f17aba9b2f2252e1bf6e08532dd379a66a4d2a689d603005319adda1d8bae2"
+original_class_hash = "0x2f17aba9b2f2252e1bf6e08532dd379a66a4d2a689d603005319adda1d8bae2"
+abi = "manifests/dev/abis/base/models/contracts_models_units_unit_states_unit_state.json"
+name = "contracts::models::units::unit_states::unit_state"
 
 [[members]]
 name = "game_id"
@@ -42,4 +42,9 @@ key = false
 [[members]]
 name = "mode"
 type = "UnitMode"
+key = false
+
+[[members]]
+name = "environment"
+type = "EnvironmentInfo"
 key = false

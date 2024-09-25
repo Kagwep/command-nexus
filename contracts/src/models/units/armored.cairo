@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use contracts::models::position::{Position,Vec3};
 use contracts::models::battlefield::BattlefieldName;
-use contracts::models::units::unitsupply::AbilityState;
+use contracts::models::units::unit_states::AbilityState;
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -9,9 +9,9 @@ struct Armored {
     #[key]
     game_id: u32,
     #[key]
-    unit_id: u8,
+    unit_id: u32,
     #[key]
-    player_id: ContractAddress,
+    player_id: u32,
     accuracy: u8,
     firepower: u32,
     range: u64,
@@ -39,11 +39,18 @@ struct ArmoredHealth {
 }
 
 
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
+enum ArmoredAction {
+    FireMainGun,
+    FireSecondaryGun,
+    DeploySmoke,
+    UseRepairKit,
+}
 
 #[generate_trait]
 impl ArmoredImpl of ArmoredTrait {
 
-    fn new(game_id: u32, unit_id: u8, player_id: ContractAddress, x: u32, y: u32, z: u32, battlefield_name: BattlefieldName) -> Armored {
+    fn new(game_id: u32, unit_id: u32, player_id: u32, x: u32, y: u32, z: u32, battlefield_name: BattlefieldName) -> Armored {
         Armored {
             game_id,
             unit_id,

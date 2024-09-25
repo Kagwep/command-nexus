@@ -135,7 +135,7 @@ mod Arena {
                 size: size,
             );
 
-            set!(world,(urban_battle_field))
+            set!(world,(urban_battle_field));
         }
 
 
@@ -239,7 +239,7 @@ mod Arena {
             let time = get_block_timestamp();
             game.start(time, round_count, addresses);
         
-            set!(world, (game))
+            set!(world, (game));
 
         }
 

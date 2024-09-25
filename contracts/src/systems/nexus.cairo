@@ -1,5 +1,6 @@
 use contracts::models::player::{Player, PlayerTrait, PlayerAssert,UnitType,UnitTypeTrait,UnitTypeImpl};
-use contracts::models::units::unitsupply::{UnitMode,UnitState};
+use contracts::models::units::unit_states::{UnitMode,UnitState,UnitStateTrait,EnvironmentInfo,TerrainType,TerrainTypeTrait,AbilityStateTrait};
+use contracts::models::battlefield::BattlefieldName;
 
 #[dojo::interface]
 trait INexus {
@@ -11,7 +12,10 @@ trait INexus {
         supply: u32,
         x: u32,
         y: u32,
-        z: u32
+        z: u32,
+        terrain_num: u8,
+        cover_level: u8,   
+        elevation: u8,
     );
 
     fn patrol(
@@ -24,7 +28,7 @@ trait INexus {
         start_z: u32,
     );
 
-    fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_type: u8,x:u32,y:u32,z:u32);
+    fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x:u32,y:u32,z:u32);
 
     fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u32, y: u32, z: u32);
 
@@ -42,9 +46,16 @@ trait INexus {
 #[dojo::interface]
 trait INexusInternal {
 
-    // fn _handle_unit_deployment(
-
-    // );
+    fn _handle_unit_deployment(
+        ref world: IWorldDispatcher,
+        game_id: u32,
+        unit_id: u32,
+        unit_type: UnitType,
+        player: Player,
+        environment:EnvironmentInfo,
+        battlefield_name: BattlefieldName,
+        x:u32,y:u32,z:u32
+    );
 
     fn _handle_unit_type_operation(
         ref world: IWorldDispatcher,
@@ -73,7 +84,7 @@ mod nexus {
     use starknet::{ContractAddress, get_caller_address};
     use contracts::models::{
         battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
-        units::unitsupply::{UnitMode,UnitState},
+        units::unit_states::{UnitMode,UnitState,TerrainTypeTrait,EnvironmentInfo,UnitStateTrait,UnitTrait,AbilityState,AbilityStateTrait},
         
     };
 
@@ -81,6 +92,22 @@ mod nexus {
     use contracts::models::game::{Game, GameTrait, GameAssert};
 
     use contracts::utils::helper::{HelperTrait};
+
+    use contracts::models::units::air::{
+        AirUnit,
+        AirUnitTrait,
+    };
+    
+    use contracts::models::units::armored::{
+        Armored,
+        ArmoredTrait,
+    };
+    
+    use contracts::models::units::infantry::{Infantry,InfantryTrait};
+    use contracts::models::units::naval::{Ship,ShipTrait};
+    
+    use contracts::models::units::cyber::{CyberUnitTrait,CyberUnit};
+
 
     mod errors {
         const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
@@ -110,7 +137,10 @@ mod nexus {
             supply: u32,
             x: u32,
             y: u32,
-            z: u32
+            z: u32,
+            terrain_num: u8,
+            cover_level: u8,  
+            elevation: u8,
         ) {
 
             let caller = get_caller_address();
@@ -141,6 +171,35 @@ mod nexus {
             assert(supply > 0, 'Invalid deployment: '); // Added
 
             assert(unit_supply >= supply, 'Insufficient supply');
+
+            let terrain = match TerrainTypeTrait::from_u8(terrain_num) {
+                Option::Some(ter) => ter,
+                Option::None => panic(array!['Invalid Terrain type'])
+            };
+
+
+            let environment = EnvironmentInfo {
+                terrain,
+                cover_level,   
+                elevation,     
+            };
+
+            let battlefield_name = match BattlefieldNameTrait::from_battlefield_id(battlefield_id){
+                Option::Some(name) => name,
+                Option::None => panic(array!['Invalid battle field'])
+            };
+
+            let unit_id = game.add_unit();
+
+            self._handle_unit_deployment(
+                game_id,
+                unit_id,
+                unit_type,
+                player,
+                environment,
+                battlefield_name,
+                x,y,z
+            );
 
 
             set!(world, (game));
@@ -188,7 +247,7 @@ mod nexus {
             );
         }
         
-        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_type: u8,x:u32,y:u32,z:u32) {
+        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x:u32,y:u32,z:u32) {
            let player_address = get_caller_address();
            let mut game = get!(world, game_id, (Game));
 
@@ -450,6 +509,55 @@ mod nexus {
             unit_state.z = z;
 
             set!(world, (unit_state));
+        }
+
+        fn _handle_unit_deployment(
+            ref world: IWorldDispatcher,
+            game_id: u32,
+            unit_id: u32,
+            unit_type: UnitType,
+            player: Player,
+            environment:EnvironmentInfo,
+            battlefield_name: BattlefieldName,
+            x:u32,y:u32,z:u32
+        ) {
+
+            let unit_value = UnitTypeTrait::to_int(unit_type);
+
+            let unit_state = UnitStateTrait::new(game_id,player.index,unit_id,unit_value, x,y,z,environment);
+            let ability_state = AbilityStateTrait::new(game_id, unit_id, unit_type, player.index);
+
+
+            match unit_type {
+                UnitType::Infantry =>  {
+                    let infantry_unit = InfantryTrait::new(game_id,unit_id, player.index,x,y, z,battlefield_name);
+                    set!(world,(infantry_unit));
+                },
+                UnitType::Armored =>  {
+                    let armored_unit = ArmoredTrait::new(game_id, unit_id, player.index, x, y, z, battlefield_name);
+                    set!(world,(armored_unit));
+                },
+                UnitType::Naval =>  {
+                    let naval_unit = ShipTrait::new(game_id, unit_id, player.index, x, y, z, battlefield_name);
+                    set!(world,(naval_unit))
+                },
+                UnitType::Air => {
+                    let air_unit = AirUnitTrait::new(game_id,unit_id, player.index,x,y, z,battlefield_name);
+                    set!(world, (air_unit));
+                },
+                UnitType::Cyber =>  {
+                    let cyber_unit = CyberUnitTrait::new(game_id, unit_id, player.index, x, y, z, battlefield_name);
+                    set!(world, (cyber_unit));
+                },
+                _=> panic(array!['Invalid unit type'])
+            }
+            
+
+            set!(world, (unit_state));
+            set!(world, (ability_state));
+
+
+
         }
 
     }

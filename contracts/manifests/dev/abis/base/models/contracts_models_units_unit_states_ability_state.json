@@ -319,57 +319,109 @@
   },
   {
     "type": "impl",
-    "name": "unit_stateImpl",
-    "interface_name": "contracts::models::units::unitsupply::Iunit_state"
+    "name": "ability_stateImpl",
+    "interface_name": "contracts::models::units::unit_states::Iability_state"
   },
   {
     "type": "enum",
-    "name": "contracts::models::units::unitsupply::UnitMode",
+    "name": "core::bool",
     "variants": [
       {
-        "name": "Idle",
+        "name": "False",
         "type": "()"
       },
       {
-        "name": "Moving",
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "contracts::models::player::UnitType",
+    "variants": [
+      {
+        "name": "None",
         "type": "()"
       },
       {
-        "name": "Attacking",
+        "name": "Infantry",
         "type": "()"
       },
       {
-        "name": "Defending",
+        "name": "Armored",
         "type": "()"
       },
       {
-        "name": "Patrolling",
+        "name": "Air",
         "type": "()"
       },
       {
-        "name": "Stealthed",
+        "name": "Naval",
         "type": "()"
       },
       {
-        "name": "Reconning",
-        "type": "()"
-      },
-      {
-        "name": "Healing",
+        "name": "Cyber",
         "type": "()"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::units::unitsupply::UnitState",
+    "name": "contracts::models::units::unit_states::UnitAbilities",
+    "members": [
+      {
+        "name": "move_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "attack_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "defend_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "patrol_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "stealth_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "recon_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "hack_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "repair_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "airlift_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "bombard_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "submerge_level",
+        "type": "core::integer::u8"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::units::unit_states::AbilityState",
     "members": [
       {
         "name": "game_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "player_id",
         "type": "core::integer::u32"
       },
       {
@@ -377,30 +429,38 @@
         "type": "core::integer::u32"
       },
       {
-        "name": "unit_type",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "x",
+        "name": "player_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "y",
+        "name": "is_active",
+        "type": "core::bool"
+      },
+      {
+        "name": "cooldown",
         "type": "core::integer::u32"
       },
       {
-        "name": "z",
+        "name": "effectiveness",
         "type": "core::integer::u32"
       },
       {
-        "name": "mode",
-        "type": "contracts::models::units::unitsupply::UnitMode"
+        "name": "unit",
+        "type": "contracts::models::player::UnitType"
+      },
+      {
+        "name": "cooldown_increase",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "units_abilities_state",
+        "type": "contracts::models::units::unit_states::UnitAbilities"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::units::unitsupply::Iunit_state",
+    "name": "contracts::models::units::unit_states::Iability_state",
     "items": [
       {
         "type": "function",
@@ -408,7 +468,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::units::unitsupply::UnitState"
+            "type": "contracts::models::units::unit_states::AbilityState"
           }
         ],
         "outputs": [],
@@ -418,7 +478,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::units::unitsupply::unit_state::Event",
+    "name": "contracts::models::units::unit_states::ability_state::Event",
     "kind": "enum",
     "variants": []
   }

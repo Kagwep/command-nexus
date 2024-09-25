@@ -1,8 +1,8 @@
 kind = "DojoModel"
-class_hash = "0x38c17bff63644cb20a83b2d858daea525c15a2ae2845e2bb56fade9d83408db"
-original_class_hash = "0x38c17bff63644cb20a83b2d858daea525c15a2ae2845e2bb56fade9d83408db"
-abi = "manifests/dev/abis/base/models/contracts_models_units_unitsupply_ability_state.json"
-name = "contracts::models::units::unitsupply::ability_state"
+class_hash = "0x41eb439e9443884bf6c6c453e331c989f537589b478951cb4d2fd69106ec752"
+original_class_hash = "0x41eb439e9443884bf6c6c453e331c989f537589b478951cb4d2fd69106ec752"
+abi = "manifests/dev/abis/base/models/contracts_models_units_unit_states_ability_state.json"
+name = "contracts::models::units::unit_states::ability_state"
 
 [[members]]
 name = "game_id"

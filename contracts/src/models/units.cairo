@@ -1,7 +1,7 @@
 mod armored;
 mod infantry;
 mod playerstate;
-mod unitsupply;
+mod unit_states;
 mod naval;
 mod air;
 mod cyber;

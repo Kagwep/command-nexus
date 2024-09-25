@@ -1,6 +1,6 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::{Position,Vec3};
-use contracts::models::units::unitsupply::AbilityState;
+use contracts::models::units::unit_states::AbilityState;
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -36,11 +36,19 @@ struct AirUnitHealth {
     engine_health: u32,
 }
 
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
+enum AirUnitAction {
+    LaunchMissile,
+    DropBomb,
+    DeployFlares,
+    ChangeAltitude,
+}
+
 #[generate_trait]
 impl AirUnitIMpl of AirUnitTrait{
   
     #[inline(always)]
-  fn new(game_id: u32,unit_id: u32, player_id:u32,range: u64,firepower: u32,x: u32,y: u32, z: u32,battlefield_name: BattlefieldName) -> AirUnit{
+  fn new(game_id: u32,unit_id: u32, player_id:u32,x: u32,y: u32, z: u32,battlefield_name: BattlefieldName) -> AirUnit{
     let new_position  = Vec3{
         x,
         y,
@@ -50,8 +58,8 @@ impl AirUnitIMpl of AirUnitTrait{
         game_id,
         unit_id,
         player_id,
-        range,
-        firepower,
+        range:150,
+        firepower:100,
         accuracy: 100,
         accessories: AirUnitAccessories {
             missiles: 16,

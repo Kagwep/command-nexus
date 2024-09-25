@@ -30,6 +30,7 @@ struct Game {
     minimum_moves: u8,
     over: bool,
     player_count: u8,
+    unit_count: u32,
     nonce: u32,
     price: u256,
     clock: u64,
@@ -100,6 +101,7 @@ impl GameImpl of GameTrait {
             minimum_moves: 0,
             over: false,
             player_count: 0,
+            unit_count: 0,
             nonce: 0,
             seed: 0,
             price,
@@ -226,6 +228,12 @@ impl GameImpl of GameTrait {
         let index = self.player_count;
         self.player_count += 1;
         index
+    }
+
+    #[inline(always)]
+    fn add_unit(ref self: Game) -> u32 {
+        let new_unit_count = self.unit_count + 1;
+        new_unit_count  
     }
 
     /// Leaves a game and returns the last player index.
@@ -430,6 +438,7 @@ impl ZeroableGame of core::Zeroable<Game> {
             minimum_moves: 0,
             over: false,
             player_count: 0,
+            unit_count: 0,
             seed: 0,
             nonce: 0,
             price: 0,

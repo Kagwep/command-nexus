@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x60df435c802188c0be43a2f2eeff42afee7900af507fbd18e0a0a2df3da60c1"
-original_class_hash = "0x60df435c802188c0be43a2f2eeff42afee7900af507fbd18e0a0a2df3da60c1"
+class_hash = "0x42666c5d8c92215cd86ccdee1810a43ff0e4fa94ed3bdf282f5a45289049380"
+original_class_hash = "0x42666c5d8c92215cd86ccdee1810a43ff0e4fa94ed3bdf282f5a45289049380"
 abi = "manifests/dev/abis/base/models/contracts_models_game_game.json"
 name = "contracts::models::game::game"
 
@@ -27,6 +27,11 @@ key = false
 [[members]]
 name = "player_count"
 type = "u8"
+key = false
+
+[[members]]
+name = "unit_count"
+type = "u32"
 key = false
 
 [[members]]

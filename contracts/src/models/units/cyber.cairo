@@ -1,6 +1,6 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::{Position,Vec3};
-use contracts::models::units::unitsupply::AbilityState;
+use contracts::models::units::unit_states::AbilityState;
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -36,6 +36,16 @@ struct CyberUnitHealth {
     system_integrity: u32,
     anti_virus_strength: u32,
 }
+
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
+enum CyberUnitAction {
+    Attack,
+    DeployMalware, 
+    ExecuteHack,   
+    StrengthenFirewall,
+    UseVPN,
+}
+
 
 
 #[generate_trait]

@@ -438,11 +438,11 @@
       },
       {
         "name": "unit_id",
-        "type": "core::integer::u8"
+        "type": "core::integer::u32"
       },
       {
         "name": "player_id",
-        "type": "core::starknet::contract_address::ContractAddress"
+        "type": "core::integer::u32"
       },
       {
         "name": "accuracy",

@@ -319,113 +319,101 @@
   },
   {
     "type": "impl",
-    "name": "ability_stateImpl",
-    "interface_name": "contracts::models::units::unitsupply::Iability_state"
+    "name": "unit_stateImpl",
+    "interface_name": "contracts::models::units::unit_states::Iunit_state"
   },
   {
     "type": "enum",
-    "name": "core::bool",
+    "name": "contracts::models::units::unit_states::UnitMode",
     "variants": [
       {
-        "name": "False",
+        "name": "Idle",
         "type": "()"
       },
       {
-        "name": "True",
+        "name": "Moving",
+        "type": "()"
+      },
+      {
+        "name": "Attacking",
+        "type": "()"
+      },
+      {
+        "name": "Defending",
+        "type": "()"
+      },
+      {
+        "name": "Patrolling",
+        "type": "()"
+      },
+      {
+        "name": "Stealthed",
+        "type": "()"
+      },
+      {
+        "name": "Reconning",
+        "type": "()"
+      },
+      {
+        "name": "Healing",
+        "type": "()"
+      },
+      {
+        "name": "Retreating",
+        "type": "()"
+      },
+      {
+        "name": "Repairing",
         "type": "()"
       }
     ]
   },
   {
     "type": "enum",
-    "name": "contracts::models::player::UnitType",
+    "name": "contracts::models::units::unit_states::TerrainType",
     "variants": [
       {
-        "name": "None",
+        "name": "UrbanStreet",
         "type": "()"
       },
       {
-        "name": "Infantry",
+        "name": "UrbanBuilding",
         "type": "()"
       },
       {
-        "name": "Armored",
+        "name": "UrbanPark",
         "type": "()"
       },
       {
-        "name": "Air",
-        "type": "()"
-      },
-      {
-        "name": "Naval",
-        "type": "()"
-      },
-      {
-        "name": "Cyber",
+        "name": "Ocean",
         "type": "()"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::units::unitsupply::UnitAbilities",
+    "name": "contracts::models::units::unit_states::EnvironmentInfo",
     "members": [
       {
-        "name": "move_level",
+        "name": "terrain",
+        "type": "contracts::models::units::unit_states::TerrainType"
+      },
+      {
+        "name": "cover_level",
         "type": "core::integer::u8"
       },
       {
-        "name": "attack_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "defend_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "patrol_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "stealth_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "recon_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "hack_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "repair_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "airlift_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "bombard_level",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "submerge_level",
+        "name": "elevation",
         "type": "core::integer::u8"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::units::unitsupply::AbilityState",
+    "name": "contracts::models::units::unit_states::UnitState",
     "members": [
       {
         "name": "game_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "unit_id",
         "type": "core::integer::u32"
       },
       {
@@ -433,34 +421,38 @@
         "type": "core::integer::u32"
       },
       {
-        "name": "is_active",
-        "type": "core::bool"
-      },
-      {
-        "name": "cooldown",
+        "name": "unit_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "effectiveness",
+        "name": "unit_type",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "x",
         "type": "core::integer::u32"
       },
       {
-        "name": "unit",
-        "type": "contracts::models::player::UnitType"
-      },
-      {
-        "name": "cooldown_increase",
+        "name": "y",
         "type": "core::integer::u32"
       },
       {
-        "name": "units_abilities_state",
-        "type": "contracts::models::units::unitsupply::UnitAbilities"
+        "name": "z",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "mode",
+        "type": "contracts::models::units::unit_states::UnitMode"
+      },
+      {
+        "name": "environment",
+        "type": "contracts::models::units::unit_states::EnvironmentInfo"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::units::unitsupply::Iability_state",
+    "name": "contracts::models::units::unit_states::Iunit_state",
     "items": [
       {
         "type": "function",
@@ -468,7 +460,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::units::unitsupply::AbilityState"
+            "type": "contracts::models::units::unit_states::UnitState"
           }
         ],
         "outputs": [],
@@ -478,7 +470,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::units::unitsupply::ability_state::Event",
+    "name": "contracts::models::units::unit_states::unit_state::Event",
     "kind": "enum",
     "variants": []
   }

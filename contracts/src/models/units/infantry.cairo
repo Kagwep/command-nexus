@@ -33,12 +33,21 @@ struct InfantryHealth {
     max: u32,
 }
 
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
+enum InfantryAction {
+    ThrowGrenade,
+    UseMolotov,
+    UseFirstAidKit,
+    Patrol,
+}
+
+
 
 #[generate_trait]
 impl InfantryImpl of InfantryTrait{
 
     #[inline(always)]
-    fn new(game_id: u32,unit_id: u32, player_id:u32,range: u64,firepower: u32,x: u32,y: u32, z: u32,battlefield_name: BattlefieldName) -> Infantry {
+    fn new(game_id: u32,unit_id: u32, player_id:u32,x: u32,y: u32, z: u32,battlefield_name: BattlefieldName) -> Infantry {
 
         let position  = Vec3{
             x,
@@ -50,8 +59,8 @@ impl InfantryImpl of InfantryTrait{
             game_id,
             unit_id,
             player_id,
-            range,
-            firepower,
+            range:100,
+            firepower:100,
             accuracy: 100,
             accessories: InfantryAccessories {
                 ammunition: 100,

@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0xf948aa2d49005bb85fab1db25108bf9d649abe0b6c8d4276aa664789832f8a"
-original_class_hash = "0xf948aa2d49005bb85fab1db25108bf9d649abe0b6c8d4276aa664789832f8a"
+class_hash = "0x578ab05d9f3575be04dfafb26247596a8c7c6da7d1f84ed54b6ed5f96a1f755"
+original_class_hash = "0x578ab05d9f3575be04dfafb26247596a8c7c6da7d1f84ed54b6ed5f96a1f755"
 abi = "manifests/dev/abis/base/models/contracts_models_units_naval_ship.json"
 name = "contracts::models::units::naval::ship"
 
@@ -15,8 +15,8 @@ type = "u32"
 key = true
 
 [[members]]
-name = "player"
-type = "ContractAddress"
+name = "player_id"
+type = "u32"
 key = true
 
 [[members]]

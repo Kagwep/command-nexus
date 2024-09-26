@@ -40,6 +40,7 @@ struct Game {
     arena_host: ContractAddress,
     seed: felt252,
     available_home_bases: HomeBasesTuple,
+    player_name: felt252,
 
 
 }
@@ -83,7 +84,7 @@ mod errors {
 #[generate_trait]
 impl GameImpl of GameTrait {
     #[inline(always)]
-    fn new(game_id: u32, arena_host: ContractAddress, price: u256, penalty: u64) -> Game {
+    fn new(game_id: u32, arena_host: ContractAddress, price: u256, penalty: u64,player_name: felt252) -> Game {
         // [Check] Host is valid
         assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
 
@@ -111,6 +112,7 @@ impl GameImpl of GameTrait {
             winner: Zeroable::zero(),
             arena_host,
             available_home_bases: home_bases,
+            player_name,
         }
     }
 
@@ -448,6 +450,7 @@ impl ZeroableGame of core::Zeroable<Game> {
             winner: Zeroable::zero(),
             arena_host: Zeroable::zero(),
             available_home_bases: home_bases,
+            player_name: '',
         }
     }
 

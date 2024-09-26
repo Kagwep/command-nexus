@@ -323,6 +323,32 @@
     "interface_name": "contracts::models::battlefield::Iweather_effect"
   },
   {
+    "type": "enum",
+    "name": "contracts::models::battlefield::WeatherCondition",
+    "variants": [
+      {
+        "name": "None",
+        "type": "()"
+      },
+      {
+        "name": "Clear",
+        "type": "()"
+      },
+      {
+        "name": "Rainy",
+        "type": "()"
+      },
+      {
+        "name": "Foggy",
+        "type": "()"
+      },
+      {
+        "name": "Stormy",
+        "type": "()"
+      }
+    ]
+  },
+  {
     "type": "struct",
     "name": "contracts::models::battlefield::WeatherEffect",
     "members": [
@@ -331,12 +357,8 @@
         "type": "core::integer::u32"
       },
       {
-        "name": "player_id",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "battlefield_id",
-        "type": "core::integer::u32"
+        "name": "weather_condition",
+        "type": "contracts::models::battlefield::WeatherCondition"
       },
       {
         "name": "visibility",

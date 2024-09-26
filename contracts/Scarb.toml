@@ -20,11 +20,21 @@ dojo = { git = "https://github.com/dojoengine/dojo", tag = "v0.7.4" }
 initializer_class_hash = "0xbeef"
 
 [tool.dojo.env]
-rpc_url = "https://api.cartridge.gg/x/command-nexus-demo/katana"
+rpc_url = "http://localhost:5050" #
 # Default account for katana with seed = 0
 account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
 private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"
 world_address = "0x6019ff874cb7cf5f8ac22d824f37dcece028bfc1e634fd0150e5bae5186e17e"  # Uncomment and update this line with your world address.
+
+# -----------------------
+# slot (command-nexus)
+# 
+[profile.slot.tool.dojo.env]
+rpc_url = "https://api.cartridge.gg/x/nexus-one/katana" #https://api.cartridge.gg/x/nexus-one/katana
+account_address = "0xb3ff441a68610b30fd5e2abbf3a1548eb6ba6f3559f2862bf2dc757e5828ca"
+private_key = "0x2bbf4f9fd0bbb2e60b0316c1fe0b76cf7a4d0198bd493ced9b8df2a3a24d68a"
+world_address = "0x6019ff874cb7cf5f8ac22d824f37dcece028bfc1e634fd0150e5bae5186e17e"  # Uncomment and update this line with your world address.
+
 
 [profile.sepolia.tool.dojo.env]
 rpc_url = "https://starknet-sepolia.public.blastapi.io"

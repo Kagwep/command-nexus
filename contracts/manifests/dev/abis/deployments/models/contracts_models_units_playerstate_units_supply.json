@@ -319,13 +319,21 @@
   },
   {
     "type": "impl",
-    "name": "playerImpl",
-    "interface_name": "contracts::models::player::Iplayer"
+    "name": "units_supplyImpl",
+    "interface_name": "contracts::models::units::playerstate::Iunits_supply"
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::UnitsSupply",
+    "name": "contracts::models::units::playerstate::UnitsSupply",
     "members": [
+      {
+        "name": "game_id",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "player_id",
+        "type": "core::integer::u32"
+      },
       {
         "name": "infantry",
         "type": "core::integer::u32"
@@ -349,102 +357,8 @@
     ]
   },
   {
-    "type": "struct",
-    "name": "contracts::models::player::PlayerScore",
-    "members": [
-      {
-        "name": "score",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "kills",
-        "type": "core::integer::u16"
-      },
-      {
-        "name": "deaths",
-        "type": "core::integer::u16"
-      },
-      {
-        "name": "assists",
-        "type": "core::integer::u16"
-      }
-    ]
-  },
-  {
-    "type": "enum",
-    "name": "contracts::models::battlefield::BattlefieldName",
-    "variants": [
-      {
-        "name": "None",
-        "type": "()"
-      },
-      {
-        "name": "RadiantShores",
-        "type": "()"
-      },
-      {
-        "name": "Ironforge",
-        "type": "()"
-      },
-      {
-        "name": "Skullcrag",
-        "type": "()"
-      },
-      {
-        "name": "NovaWarhound",
-        "type": "()"
-      },
-      {
-        "name": "SavageCoast",
-        "type": "()"
-      }
-    ]
-  },
-  {
-    "type": "struct",
-    "name": "contracts::models::player::Player",
-    "members": [
-      {
-        "name": "game_id",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "index",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "address",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "name",
-        "type": "core::felt252"
-      },
-      {
-        "name": "supply",
-        "type": "contracts::models::player::UnitsSupply"
-      },
-      {
-        "name": "last_action",
-        "type": "core::integer::u64"
-      },
-      {
-        "name": "rank",
-        "type": "core::integer::u8"
-      },
-      {
-        "name": "player_score",
-        "type": "contracts::models::player::PlayerScore"
-      },
-      {
-        "name": "home_base",
-        "type": "contracts::models::battlefield::BattlefieldName"
-      }
-    ]
-  },
-  {
     "type": "interface",
-    "name": "contracts::models::player::Iplayer",
+    "name": "contracts::models::units::playerstate::Iunits_supply",
     "items": [
       {
         "type": "function",
@@ -452,7 +366,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::player::Player"
+            "type": "contracts::models::units::playerstate::UnitsSupply"
           }
         ],
         "outputs": [],
@@ -462,7 +376,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::player::player::Event",
+    "name": "contracts::models::units::playerstate::units_supply::Event",
     "kind": "enum",
     "variants": []
   }

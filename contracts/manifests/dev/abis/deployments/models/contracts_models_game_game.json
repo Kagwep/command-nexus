@@ -352,6 +352,32 @@
   },
   {
     "type": "struct",
+    "name": "contracts::models::game::HomeBasesTuple",
+    "members": [
+      {
+        "name": "base1",
+        "type": "core::felt252"
+      },
+      {
+        "name": "base2",
+        "type": "core::felt252"
+      },
+      {
+        "name": "base3",
+        "type": "core::felt252"
+      },
+      {
+        "name": "base4",
+        "type": "core::felt252"
+      },
+      {
+        "name": "base5",
+        "type": "core::felt252"
+      }
+    ]
+  },
+  {
+    "type": "struct",
     "name": "contracts::models::game::Game",
     "members": [
       {
@@ -373,6 +399,10 @@
       {
         "name": "player_count",
         "type": "core::integer::u8"
+      },
+      {
+        "name": "unit_count",
+        "type": "core::integer::u32"
       },
       {
         "name": "nonce",
@@ -399,12 +429,16 @@
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "arena",
+        "name": "arena_host",
         "type": "core::starknet::contract_address::ContractAddress"
       },
       {
         "name": "seed",
         "type": "core::felt252"
+      },
+      {
+        "name": "available_home_bases",
+        "type": "contracts::models::game::HomeBasesTuple"
       }
     ]
   },

@@ -319,54 +319,70 @@
   },
   {
     "type": "impl",
-    "name": "playerImpl",
-    "interface_name": "contracts::models::player::Iplayer"
+    "name": "air_unitImpl",
+    "interface_name": "contracts::models::units::air::Iair_unit"
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::UnitsSupply",
+    "name": "contracts::models::units::air::AirUnitAccessories",
     "members": [
       {
-        "name": "infantry",
+        "name": "missiles",
         "type": "core::integer::u32"
       },
       {
-        "name": "armored",
+        "name": "flares",
         "type": "core::integer::u32"
       },
       {
-        "name": "air",
+        "name": "fuel",
         "type": "core::integer::u32"
       },
       {
-        "name": "naval",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "cyber",
+        "name": "radar_jammer",
         "type": "core::integer::u32"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::PlayerScore",
+    "name": "contracts::models::units::air::AirUnitHealth",
     "members": [
       {
-        "name": "score",
+        "name": "hull_integrity",
         "type": "core::integer::u32"
       },
       {
-        "name": "kills",
-        "type": "core::integer::u16"
+        "name": "engine_health",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::position::Vec3",
+    "members": [
+      {
+        "name": "x",
+        "type": "core::integer::u32"
       },
       {
-        "name": "deaths",
-        "type": "core::integer::u16"
+        "name": "y",
+        "type": "core::integer::u32"
       },
       {
-        "name": "assists",
-        "type": "core::integer::u16"
+        "name": "z",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::position::Position",
+    "members": [
+      {
+        "name": "coord",
+        "type": "contracts::models::position::Vec3"
       }
     ]
   },
@@ -402,49 +418,61 @@
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::Player",
+    "name": "contracts::models::units::air::AirUnit",
     "members": [
       {
         "name": "game_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "index",
+        "name": "unit_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "address",
-        "type": "core::starknet::contract_address::ContractAddress"
+        "name": "player_id",
+        "type": "core::integer::u32"
       },
       {
-        "name": "name",
-        "type": "core::felt252"
-      },
-      {
-        "name": "supply",
-        "type": "contracts::models::player::UnitsSupply"
-      },
-      {
-        "name": "last_action",
+        "name": "range",
         "type": "core::integer::u64"
       },
       {
-        "name": "rank",
+        "name": "firepower",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "accuracy",
         "type": "core::integer::u8"
       },
       {
-        "name": "player_score",
-        "type": "contracts::models::player::PlayerScore"
+        "name": "accessories",
+        "type": "contracts::models::units::air::AirUnitAccessories"
       },
       {
-        "name": "home_base",
+        "name": "health",
+        "type": "contracts::models::units::air::AirUnitHealth"
+      },
+      {
+        "name": "position",
+        "type": "contracts::models::position::Position"
+      },
+      {
+        "name": "battlefield_name",
         "type": "contracts::models::battlefield::BattlefieldName"
+      },
+      {
+        "name": "altitude",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "max_speed",
+        "type": "core::integer::u32"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::player::Iplayer",
+    "name": "contracts::models::units::air::Iair_unit",
     "items": [
       {
         "type": "function",
@@ -452,7 +480,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::player::Player"
+            "type": "contracts::models::units::air::AirUnit"
           }
         ],
         "outputs": [],
@@ -462,7 +490,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::player::player::Event",
+    "name": "contracts::models::units::air::air_unit::Event",
     "kind": "enum",
     "variants": []
   }

@@ -319,132 +319,148 @@
   },
   {
     "type": "impl",
-    "name": "playerImpl",
-    "interface_name": "contracts::models::player::Iplayer"
+    "name": "ability_stateImpl",
+    "interface_name": "contracts::models::units::unit_states::Iability_state"
   },
   {
-    "type": "struct",
-    "name": "contracts::models::player::UnitsSupply",
-    "members": [
+    "type": "enum",
+    "name": "core::bool",
+    "variants": [
       {
-        "name": "infantry",
-        "type": "core::integer::u32"
+        "name": "False",
+        "type": "()"
       },
       {
-        "name": "armored",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "air",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "naval",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "cyber",
-        "type": "core::integer::u32"
-      }
-    ]
-  },
-  {
-    "type": "struct",
-    "name": "contracts::models::player::PlayerScore",
-    "members": [
-      {
-        "name": "score",
-        "type": "core::integer::u32"
-      },
-      {
-        "name": "kills",
-        "type": "core::integer::u16"
-      },
-      {
-        "name": "deaths",
-        "type": "core::integer::u16"
-      },
-      {
-        "name": "assists",
-        "type": "core::integer::u16"
+        "name": "True",
+        "type": "()"
       }
     ]
   },
   {
     "type": "enum",
-    "name": "contracts::models::battlefield::BattlefieldName",
+    "name": "contracts::models::player::UnitType",
     "variants": [
       {
         "name": "None",
         "type": "()"
       },
       {
-        "name": "RadiantShores",
+        "name": "Infantry",
         "type": "()"
       },
       {
-        "name": "Ironforge",
+        "name": "Armored",
         "type": "()"
       },
       {
-        "name": "Skullcrag",
+        "name": "Air",
         "type": "()"
       },
       {
-        "name": "NovaWarhound",
+        "name": "Naval",
         "type": "()"
       },
       {
-        "name": "SavageCoast",
+        "name": "Cyber",
         "type": "()"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::Player",
+    "name": "contracts::models::units::unit_states::UnitAbilities",
+    "members": [
+      {
+        "name": "move_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "attack_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "defend_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "patrol_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "stealth_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "recon_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "hack_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "repair_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "airlift_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "bombard_level",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "submerge_level",
+        "type": "core::integer::u8"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::units::unit_states::AbilityState",
     "members": [
       {
         "name": "game_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "index",
+        "name": "unit_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "address",
-        "type": "core::starknet::contract_address::ContractAddress"
+        "name": "player_id",
+        "type": "core::integer::u32"
       },
       {
-        "name": "name",
-        "type": "core::felt252"
+        "name": "is_active",
+        "type": "core::bool"
       },
       {
-        "name": "supply",
-        "type": "contracts::models::player::UnitsSupply"
+        "name": "cooldown",
+        "type": "core::integer::u32"
       },
       {
-        "name": "last_action",
-        "type": "core::integer::u64"
+        "name": "effectiveness",
+        "type": "core::integer::u32"
       },
       {
-        "name": "rank",
-        "type": "core::integer::u8"
+        "name": "unit",
+        "type": "contracts::models::player::UnitType"
       },
       {
-        "name": "player_score",
-        "type": "contracts::models::player::PlayerScore"
+        "name": "cooldown_increase",
+        "type": "core::integer::u32"
       },
       {
-        "name": "home_base",
-        "type": "contracts::models::battlefield::BattlefieldName"
+        "name": "units_abilities_state",
+        "type": "contracts::models::units::unit_states::UnitAbilities"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::player::Iplayer",
+    "name": "contracts::models::units::unit_states::Iability_state",
     "items": [
       {
         "type": "function",
@@ -452,7 +468,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::player::Player"
+            "type": "contracts::models::units::unit_states::AbilityState"
           }
         ],
         "outputs": [],
@@ -462,7 +478,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::player::player::Event",
+    "name": "contracts::models::units::unit_states::ability_state::Event",
     "kind": "enum",
     "variants": []
   }

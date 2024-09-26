@@ -49,7 +49,7 @@ mod Arena {
             ref world: IWorldDispatcher,
             player_name: felt252,
             price: u256,
-            penalty: u64
+            penalty: u64,
         ) -> u32 {
           
             let caller = get_caller_address();
@@ -58,7 +58,7 @@ mod Arena {
             // [Effect] Game
             let game_id = world.uuid();
             let mut game = GameTrait::new(
-                game_id: game_id, arena_host: caller, price: price, penalty: penalty
+                game_id: game_id, arena_host: caller, price: price, penalty: penalty,player_name: player_name
             );
 
             let player_index: u32 = game.join_game().into();

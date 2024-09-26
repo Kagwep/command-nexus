@@ -155,7 +155,7 @@ impl WeatherEffectImpl of WeatherEffectTrait {
         let last_digit = timestamp % 10;
 
         let weather_condition = match last_digit {
-            0 | 1 => WeatherCondition::None,
+            0 | 1 => WeatherCondition::Clear,
             2 | 3 | 4 => WeatherCondition::Clear,
             5 | 6 => WeatherCondition::Rainy,
             7 | 8 => WeatherCondition::Foggy,

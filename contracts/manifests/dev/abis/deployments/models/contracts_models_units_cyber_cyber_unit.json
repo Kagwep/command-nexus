@@ -319,54 +319,74 @@
   },
   {
     "type": "impl",
-    "name": "playerImpl",
-    "interface_name": "contracts::models::player::Iplayer"
+    "name": "cyber_unitImpl",
+    "interface_name": "contracts::models::units::cyber::Icyber_unit"
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::UnitsSupply",
+    "name": "contracts::models::units::cyber::CyberUnitAccessories",
     "members": [
       {
-        "name": "infantry",
+        "name": "malware",
         "type": "core::integer::u32"
       },
       {
-        "name": "armored",
+        "name": "firewalls",
         "type": "core::integer::u32"
       },
       {
-        "name": "air",
+        "name": "vpn_tokens",
         "type": "core::integer::u32"
       },
       {
-        "name": "naval",
+        "name": "encryption_keys",
         "type": "core::integer::u32"
       },
       {
-        "name": "cyber",
+        "name": "decryption_tools",
         "type": "core::integer::u32"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::PlayerScore",
+    "name": "contracts::models::units::cyber::CyberUnitHealth",
     "members": [
       {
-        "name": "score",
+        "name": "system_integrity",
         "type": "core::integer::u32"
       },
       {
-        "name": "kills",
-        "type": "core::integer::u16"
+        "name": "anti_virus_strength",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::position::Vec3",
+    "members": [
+      {
+        "name": "x",
+        "type": "core::integer::u32"
       },
       {
-        "name": "deaths",
-        "type": "core::integer::u16"
+        "name": "y",
+        "type": "core::integer::u32"
       },
       {
-        "name": "assists",
-        "type": "core::integer::u16"
+        "name": "z",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "contracts::models::position::Position",
+    "members": [
+      {
+        "name": "coord",
+        "type": "contracts::models::position::Vec3"
       }
     ]
   },
@@ -402,49 +422,61 @@
   },
   {
     "type": "struct",
-    "name": "contracts::models::player::Player",
+    "name": "contracts::models::units::cyber::CyberUnit",
     "members": [
       {
         "name": "game_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "index",
+        "name": "unit_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "address",
-        "type": "core::starknet::contract_address::ContractAddress"
+        "name": "player_id",
+        "type": "core::integer::u32"
       },
       {
-        "name": "name",
-        "type": "core::felt252"
-      },
-      {
-        "name": "supply",
-        "type": "contracts::models::player::UnitsSupply"
-      },
-      {
-        "name": "last_action",
+        "name": "hacking_range",
         "type": "core::integer::u64"
       },
       {
-        "name": "rank",
+        "name": "encryption_strength",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "stealth",
         "type": "core::integer::u8"
       },
       {
-        "name": "player_score",
-        "type": "contracts::models::player::PlayerScore"
+        "name": "accessories",
+        "type": "contracts::models::units::cyber::CyberUnitAccessories"
       },
       {
-        "name": "home_base",
+        "name": "health",
+        "type": "contracts::models::units::cyber::CyberUnitHealth"
+      },
+      {
+        "name": "position",
+        "type": "contracts::models::position::Position"
+      },
+      {
+        "name": "battlefield_name",
         "type": "contracts::models::battlefield::BattlefieldName"
+      },
+      {
+        "name": "bandwidth",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "processing_power",
+        "type": "core::integer::u32"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::player::Iplayer",
+    "name": "contracts::models::units::cyber::Icyber_unit",
     "items": [
       {
         "type": "function",
@@ -452,7 +484,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::player::Player"
+            "type": "contracts::models::units::cyber::CyberUnit"
           }
         ],
         "outputs": [],
@@ -462,7 +494,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::player::player::Event",
+    "name": "contracts::models::units::cyber::cyber_unit::Event",
     "kind": "enum",
     "variants": []
   }

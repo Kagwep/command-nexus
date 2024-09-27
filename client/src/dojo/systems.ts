@@ -27,8 +27,13 @@ const tryBetterErrorMsg = (msg: string): string => {
 export async function setupWorld(provider: DojoProvider) {
   // Transaction execution and checking wrapper
   const executeAndCheck = async (account: AccountInterface, contractName: string, methodName: string, args: any[]) => {
+
+    console.log("called ........", account);
+    console.log("called ........", {contractName, entrypoint: methodName, calldata: args});
     
     const ret = await provider.execute(account, {contractName, entrypoint: methodName, calldata: args});
+
+  
 
 
     const receipt = await account.waitForTransaction(ret.transaction_hash, {
@@ -58,6 +63,7 @@ export async function setupWorld(provider: DojoProvider) {
   function arena() {
     const contractName = 'arena';
     const create = async (account: AccountInterface, playerName: string, price: bigint, penalty: number) => {
+      
       try {
         return await executeAndCheck(account, contractName, 'create', [
           playerName,
@@ -65,7 +71,7 @@ export async function setupWorld(provider: DojoProvider) {
           penalty,
         ]);
       } catch (error) {
-        console.error('Error executing create:', error);
+        console.error('Error executing create:', error.message);
         throw error;
       }
     };

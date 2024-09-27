@@ -19,7 +19,7 @@ echo world : $WORLD_ADDRESS
 echo " "
 echo arena : $ARENA_ADDRESS
 echo " "
-echo arena : $NEXUS_ADDRESS
+echo nexus : $NEXUS_ADDRESS
 
 echo "---------------------------------------------------------------------------"
 

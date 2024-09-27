@@ -13,7 +13,7 @@ mod tests {
 
 
     use contracts::{
-        systems::{arena::{Arena, IArenaDispatcher, IArenaDispatcherTrait}}, 
+        systems::{arena::{arena, IArenaDispatcher, IArenaDispatcherTrait}}, 
         models::{game::{Game, game}, player::{Player, player}}
     };
 
@@ -27,7 +27,7 @@ mod tests {
     fn setup()->(IWorldDispatcher, IArenaDispatcher) {
         let mut models = array![player::TEST_CLASS_HASH, game::TEST_CLASS_HASH];
         let world = spawn_test_world(models);
-        let contract_address = world.deploy_contract('salt', Arena::TEST_CLASS_HASH.try_into().unwrap(), array![].span());
+        let contract_address = world.deploy_contract('salt', arena::TEST_CLASS_HASH.try_into().unwrap(), array![].span());
 
         let arena_systems = IArenaDispatcher {contract_address};
         (world, arena_systems)

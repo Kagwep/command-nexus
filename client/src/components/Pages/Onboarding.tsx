@@ -33,8 +33,8 @@ const Onboarding: React.FC<OnboardingProps> = ({onOnboardComplete}) => {
   const { loginScreen } = useElementStore();
 
   return (
-    <div className="min-h-screen  flex flex-col items-center "  style={{
-      backgroundImage: 'url("https://res.cloudinary.com/dydj8hnhz/image/upload/v1722520527/skvkbgqsetkwstif4ss8.webp")',
+    <div className="min-h-screen bg-slate-800  flex flex-col items-center "  style={{
+      backgroundImage: 'url("")',
       backgroundSize: 'cover',
      
     }} >

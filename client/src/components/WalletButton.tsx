@@ -10,7 +10,7 @@ const WalletButton = () => {
   const { isWalletPanelOpen, setWalletPanelOpen } = useElementStore((state) => state);
 
   return (
-    <Button className="p-2 flex gap-3 bg-white hover:bg-green-700" variant={"secondary"} onClick={() => setWalletPanelOpen(!isWalletPanelOpen)}>
+    <Button className="p-2 flex gap-3 bg-green-800 hover:bg-green-700" variant={"secondary"} onClick={() => setWalletPanelOpen(!isWalletPanelOpen)}>
       <Wallet size={16} /> <p className="font-vt323">{account?.address ? shortAddress(account?.address) : 'Connect'}</p>
     </Button>
   );

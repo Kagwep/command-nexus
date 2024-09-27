@@ -16,7 +16,7 @@ trait IArena {
 // System implementation
 
 #[dojo::contract]
-mod Arena {
+mod arena {
     // Starknet imports
 
     use super::{IArena};

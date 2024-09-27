@@ -21,22 +21,22 @@ name = "dojo::base::base"
 
 [[contracts]]
 kind = "DojoContract"
-address = "0x3142cd5ebf652389fba48c0f0b79995eb3b79338060402ac6345a4941542f53"
-class_hash = "0x730963c622f6e7bf9f705fc7b3361f4d2b45fcf0a9788e22eacf7570348645d"
-original_class_hash = "0x730963c622f6e7bf9f705fc7b3361f4d2b45fcf0a9788e22eacf7570348645d"
+address = "0x6799df4857c44d232fefd3baa777acfb715844d5ea7ff2e97ed2bde5ae25ccc"
+class_hash = "0xe57e7716d942c0ff6da5f25527356756fc406f1b56afe69bf5f4df48ea2115"
+original_class_hash = "0xe57e7716d942c0ff6da5f25527356756fc406f1b56afe69bf5f4df48ea2115"
 base_class_hash = "0x22f3e55b61d86c2ac5239fa3b3b8761f26b9a5c0b5f61ddbd5d756ced498b46"
-abi = "manifests/dev/abis/deployments/contracts/contracts_systems_arena_Arena.json"
+abi = "manifests/dev/abis/deployments/contracts/contracts_systems_arena_arena.json"
 reads = []
 writes = []
 computed = []
 init_calldata = []
-name = "contracts::systems::arena::Arena"
+name = "contracts::systems::arena::arena"
 
 [[contracts]]
 kind = "DojoContract"
 address = "0x71be9bc5c6dba1310086fe171d64939410004f5dafc222875838e7b25e4bdb3"
-class_hash = "0x5a1c04661da93166fc35e019f60509778a304ffb8719d862e67fe10908b74d7"
-original_class_hash = "0x5a1c04661da93166fc35e019f60509778a304ffb8719d862e67fe10908b74d7"
+class_hash = "0x482c15ea1ecee157178e49b3310ae5410a688e1905468c31a32f713ed595ca"
+original_class_hash = "0x482c15ea1ecee157178e49b3310ae5410a688e1905468c31a32f713ed595ca"
 base_class_hash = "0x22f3e55b61d86c2ac5239fa3b3b8761f26b9a5c0b5f61ddbd5d756ced498b46"
 abi = "manifests/dev/abis/deployments/contracts/contracts_systems_nexus_nexus.json"
 reads = []
@@ -520,8 +520,8 @@ key = false
 
 [[models]]
 kind = "DojoModel"
-class_hash = "0x42666c5d8c92215cd86ccdee1810a43ff0e4fa94ed3bdf282f5a45289049380"
-original_class_hash = "0x42666c5d8c92215cd86ccdee1810a43ff0e4fa94ed3bdf282f5a45289049380"
+class_hash = "0x98fc630d4e1670aec4a2e009d7509fae31c101abe2c720ad454f36c1729af5"
+original_class_hash = "0x98fc630d4e1670aec4a2e009d7509fae31c101abe2c720ad454f36c1729af5"
 abi = "manifests/dev/abis/deployments/models/contracts_models_game_game.json"
 name = "contracts::models::game::game"
 
@@ -598,6 +598,11 @@ key = false
 [[models.members]]
 name = "available_home_bases"
 type = "HomeBasesTuple"
+key = false
+
+[[models.members]]
+name = "player_name"
+type = "felt252"
 key = false
 
 [[models]]

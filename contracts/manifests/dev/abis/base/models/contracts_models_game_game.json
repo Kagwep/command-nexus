@@ -439,6 +439,10 @@
       {
         "name": "available_home_bases",
         "type": "contracts::models::game::HomeBasesTuple"
+      },
+      {
+        "name": "player_name",
+        "type": "core::felt252"
       }
     ]
   },

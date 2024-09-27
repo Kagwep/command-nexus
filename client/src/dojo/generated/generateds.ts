@@ -191,11 +191,11 @@ export function defineContractComponents(world: World) {
     Game: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, next_to_move: RecsType.BigInt, minimum_moves: RecsType.Number, over: RecsType.Boolean, player_count: RecsType.Number, unit_count: RecsType.Number, nonce: RecsType.Number, price: RecsType.BigInt, clock: RecsType.BigInt, penalty: RecsType.BigInt, limit: RecsType.Number, winner: RecsType.BigInt, arena_host: RecsType.BigInt, seed: RecsType.BigInt, available_home_bases: { base1: RecsType.BigInt, base2: RecsType.BigInt, base3: RecsType.BigInt, base4: RecsType.BigInt, base5: RecsType.BigInt } },
+        { game_id: RecsType.Number, next_to_move: RecsType.BigInt, minimum_moves: RecsType.Number, over: RecsType.Boolean, player_count: RecsType.Number, unit_count: RecsType.Number, nonce: RecsType.Number, price: RecsType.BigInt, clock: RecsType.BigInt, penalty: RecsType.BigInt, limit: RecsType.Number, winner: RecsType.BigInt, arena_host: RecsType.BigInt, seed: RecsType.BigInt, available_home_bases: { base1: RecsType.BigInt, base2: RecsType.BigInt, base3: RecsType.BigInt, base4: RecsType.BigInt, base5: RecsType.BigInt }, player_name: RecsType.BigInt },
         {
           metadata: {
             name: "Game",
-            types: ["u32","contractaddress","u8","bool","u8","u32","u32","u256","u64","u64","u32","contractaddress","contractaddress","felt252","felt252","felt252","felt252","felt252","felt252"],
+            types: ["u32","contractaddress","u8","bool","u8","u32","u32","u256","u64","u64","u32","contractaddress","contractaddress","felt252","felt252","felt252","felt252","felt252","felt252","felt252"],
             customTypes: ["HomeBasesTuple"],
           },
         }

@@ -9,7 +9,7 @@ import { useGetPlayersForGame } from '../hooks/useGetPlayersForGame';
 import { useGame } from '../hooks/useGame';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from './UI/table';
 import { useMe } from '../hooks/useMe';
-import { FaFire  } from 'react-icons/fa';
+import { FaClock, FaCoins, FaFire, FaTrophy, FaUsers  } from 'react-icons/fa';
 import { Player } from '../utils/types';
 import { useState } from 'react';
 import WalletButton from './WalletButton';
@@ -31,7 +31,7 @@ const Lobby: React.FC = () => {
 
   const game = useGame();
 
-  console.log(game)
+  console.log(game_id)
 
   const { players } = useGetPlayersForGame(game_id);
 
@@ -149,114 +149,105 @@ const Lobby: React.FC = () => {
     return;
   }
 
+  // console.log(account.address)
+
   return (
-    <div className="font-vt323 min-h-screen bg-cover bg-center bg-no-repeat" style={{backgroundImage: "url('https://res.cloudinary.com/dydj8hnhz/image/upload/v1722350662/p1qgfdio6sv1khctclnq.webp')"}}>
-      <div className="flex flex-col justify-center items-center gap-6">
-        <div className="w-full relative h-16">
+    <div className="font-vt323 min-h-screen bg-cover bg-center bg-no-repeat text-green-100" 
+         style={{backgroundImage: "url('')"}}>
+      <div className="flex flex-col justify-center items-center gap-6 p-4">
+        <header className="w-full flex justify-between items-center bg-green-950 bg-opacity-80 p-4 rounded-lg">
           <Button
             isLoading={leaveLoading}
             isDisabled={leaveLoading}
-            className="absolute left-0"
             variant="tertiary"
-            onClick={async () => {
-              if (game.game_id !== undefined) {
-                await leaveGame(game.game_id);
-              }
-            }}
+            onClick={() => leaveGame(game.game_id)}
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
-            Back
+            Leave
           </Button>
+          <h1 className="text-4xl font-bold text-center text-green-300">Command Nexus</h1>
+          <WalletButton />
+        </header>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2 w-96 rounded-lg uppercase text-white text-4xl p-4 bg-green-950 text-center">
-            Command Nexus
-          </div>
-          <div className="absolute right-0">
-            <WalletButton />
-          </div>
-        </div>
-
-        <div className="w-5/6 max-w-4xl flex flex-col bg-green-950 p-8 rounded-lg">
-          <div className="flex items-center w-full relative justify-center">
-            <div className="flex-grow"></div> {/* Left spacer */}
-            <h1 className="flex-grow-0 flex-shrink mx-auto text-white text-4xl">{`Game ${game.game_id}`}</h1>
-            <div className="flex-grow h-fit">
-              <p className="text-white absolute text-xl right-0 top-2">Players: {players.length}/4</p>
+        <main className="w-full max-w-6xl bg-green-950 bg-opacity-80 p-8 rounded-lg shadow-lg">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-semibold">Game #{game.game_id}</h2>
+            <div className="flex items-center space-x-4">
+              <span className="flex items-center"><FaUsers className="mr-2" />{players.length}/4 Players</span>
+              <span className="flex items-center"><FaClock className="mr-2" />Turn: {game.clock}</span>
+              <span className="flex items-center"><FaTrophy className="mr-2" />Limit: {game.limit}</span>
+              <span className="flex items-center"><FaCoins className="mr-2" />Price: {game.price.toString()}</span>
             </div>
-            {/* Right spacer */}
           </div>
 
-          {players.length !== 0 && (
-            <Table className="text-lg ">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="w-full">Address</TableHead>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-green-900 p-4 rounded-lg">
+              <h3 className="text-xl font-semibold mb-2">Game Info</h3>
+              <p>Minimum Moves: {game.minimum_moves}</p>
+              <p>Next to Move: Player {game.next_to_move.toString()}</p>
+              <p>Penalty: {game.penalty.toString()}</p>
+              <p>Seed: {game.seed.toString()}</p>
+            </div>
+            <div className="bg-green-900 p-4 rounded-lg">
+              <h3 className="text-xl font-semibold mb-2">Available Home Bases</h3>
+              {Object.entries(game.available_home_bases).map(([base, status]) => (
+                <p key={base}>{base}: {status.toString() === '0' ? 'Occupied' : 'Available'}</p>
+              ))}
+            </div>
+          </div>
+
+          <Table className="w-full">
+            <TableHeader>
+              <TableRow className="bg-green-800">
+                <TableHead>Name</TableHead>
+                <TableHead>Address</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {players.map((player) => (
+                <TableRow key={player.address} className="hover:bg-green-800">
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {isHost(game.arena, player.address) && <FaFire className="text-red-500" />}
+                      {player.name}
+                    </div>
+                  </TableCell>
+                  <TableCell>{player.address}</TableCell>
+                  <TableCell>
+                    {isHost(game.arena, me.address) && player.address !== me.address && (
+                      <Button
+                        isLoading={kickLoading}
+                        isDisabled={kickLoading}
+                        size="sm"
+                        variant="tertiary"
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                        onClick={() => kickPlayer(player.index, game.game_id)}
+                      >
+                        Kick
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody className="rounded-lg">
-                {players.map((player: Player) => (
-                  <TableRow key={player.address}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {isHost(game.arena, player.address) && <FaFire  color='red' />}
-                        {player.name}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {
-                        <div className="flex gap-8 items-center justify-between">
-                          <span>{player.address} </span>{' '}
-                          <div className="flex gap-6">
-                            {isHost(game.arena, me.address) && player.address !== me.address && (
-                              <>
-                                <Button
-                                  isLoading={kickLoading}
-                                  isDisabled={kickLoading}
-                                  size="sm"
-                                  variant="tertiary"
-                                  className="hover:bg-red-600"
-                                  onClick={async () => {
-                                    await kickPlayer(player.index, game.game_id);
-                                  }}
-                                >
-                                  Kick
-                                </Button>
-                                {/* <Button
-                                  isLoading={transferLoading}
-                                  isDisabled={transferLoading}
-                                  size="sm"
-                                  variant="tertiary"
-                                  className="hover:bg-green-600"
-                                  onClick={async () => {
-                                    await transferHost(player.index, game.id);
-                                  }}
-                                >
-                                  Give Host
-                                </Button> */}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      }
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              ))}
+            </TableBody>
+          </Table>
+
+          {isHost(game.arena, account.address) ? (
+            <div className="mt-6 flex justify-end">
+              <Button
+                isLoading={startLoading}
+                isDisabled={startLoading || players.length < 2}
+                className="bg-green-600 hover:bg-green-700 text-white"
+                onClick={startGame}
+              >
+                Start the Game
+              </Button>
+            </div>
+          ) : (
+            <Loading text="Waiting for the game to start" />
           )}
-          {isHost(game.arena, account.address) && (
-            <Button
-              isLoading={startLoading}
-              isDisabled={startLoading}
-              className="mt-8 self-end w-fit hover:bg-green-600"
-              variant="tertiary"
-              onClick={startGame}
-            >
-              Start the Game
-            </Button>
-          )}
-        </div>
-        {!isHost(game.arena, account.address) && <Loading text="Waiting for the game to start" />}
+        </main>
       </div>
     </div>
   );

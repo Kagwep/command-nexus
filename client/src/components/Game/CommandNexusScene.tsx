@@ -3,6 +3,9 @@ import {ArcRotateCamera, Color3, Color4, Engine, HemisphericLight, KeyboardEvent
 import CommandNexusGui from './CommandNexusGui';
 import '@babylonjs/loaders';
 import { WeatherSystem, WeatherType } from './CommandNexusWeather';
+import { useDojo } from '../../dojo/useDojo';
+import { Phase } from '../../utils/nexus';
+import { Player } from '../../utils/types';
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -12,8 +15,17 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene, engine: Engine) => {
+export const setupScene = async (scene: Scene, engine: Engine,gameState: {
+  player: Player,
+  isItMyTurn: boolean,
+  turn: number,
+  phase: Phase,
+  game: any
+}) => {
+  
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
+
+  console.log(gameState.player);
 
   // Camera
   const camera = new ArcRotateCamera(
@@ -46,14 +58,13 @@ export const setupScene = async (scene: Scene, engine: Engine) => {
     console.error("Error loading battlefield model:", error);
   }
 
-  // Create GUI
-  const gui = new CommandNexusGui(scene);
+ 
 
     // Create Weather System
-    const weatherSystem = new WeatherSystem(scene);
+  const weatherSystem = new WeatherSystem(scene);
 
     // Example of setting weather manually
-    weatherSystem.setWeather("rainy");
+    weatherSystem.setWeather("clear");
   // Keyboard controls
 // Camera movement
 const keys = { w: false, s: false, a: false, d: false, q: false, e: false, r: false, f: false };
@@ -83,4 +94,32 @@ scene.onBeforeRenderObservable.add(() => {
 
   camera.radius = Math.max(camera.lowerRadiusLimit, Math.min(camera.radius, camera.upperRadiusLimit));
 });
+};
+
+// New function to update the scene based on game state
+export const updateScene = (scene: Scene, gameState: {
+  player: Player,
+  isItMyTurn: boolean,
+  turn: number,
+  phase: Phase
+}) => {
+  // Update scene based on game state
+  // For example:
+  if (gameState.isItMyTurn) {
+    // Highlight current player's units or enable controls
+  }
+
+  // Update turn display
+  const turnText = scene.getMeshByName("turnText");
+  if (turnText) {
+    (turnText as any).text = `Turn: ${gameState.turn}`;
+  }
+
+  // Update phase display
+  const phaseText = scene.getMeshByName("phaseText");
+  if (phaseText) {
+    (phaseText as any).text = `Phase: ${gameState.phase}`;
+  }
+
+  // Add more logic to update other aspects of the scene based on gameState
 };

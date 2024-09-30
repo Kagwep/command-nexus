@@ -10,7 +10,7 @@ import GameRow from './GameRow';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import WalletButton from './WalletButton';
 import { useNetworkAccount } from '../contexts/WalletContex';
-import CommandNexus from './Game/CommandNexus';
+
 import { CombineAction } from '@babylonjs/core';
 
 const MainMenu: React.FC = () => {
@@ -30,9 +30,6 @@ const MainMenu: React.FC = () => {
 
   const prevGameIdRef = useRef<number | null>(null);
   const prevGameStateRef = useRef<GameState | null>(null);
-
-   // remove this section
-  const [moveToGameScreen, setMoveToGameScreen] = useState<boolean>(false);
 
 
   const gameEntitiesOne = useEntityQuery([HasValue(Game, { arena_host: BigInt(account.address) })]);
@@ -110,16 +107,6 @@ const MainMenu: React.FC = () => {
     [gameEntities, Game]
   );
 
-
-   // remove this section
-  const handleTogameScreen = () => {
-    setMoveToGameScreen(true);
-  }
-
-  if(moveToGameScreen){
-    return <CommandNexus />
-  }
-
   if (!games) return null;
   return (
     <div className="font-vt323 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -130,13 +117,6 @@ const MainMenu: React.FC = () => {
               Command Nexus
             </h1>
             <div className="flex items-center gap-4">
-              <button 
-                type='button' 
-                onClick={handleTogameScreen} 
-                className='px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-md transition-colors duration-300'
-              >
-                See Game Arena
-              </button>
               <WalletButton />
             </div>
           </header>

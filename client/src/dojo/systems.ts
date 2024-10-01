@@ -33,6 +33,8 @@ export async function setupWorld(provider: DojoProvider) {
     
     const ret = await provider.execute(account, {contractName, entrypoint: methodName, calldata: args});
 
+    console.log(ret.transaction_hash);
+
     const receipt = await account.waitForTransaction(ret.transaction_hash, {
       retryInterval: 100,
     });

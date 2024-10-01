@@ -6,6 +6,8 @@ import { WeatherSystem, WeatherType } from './CommandNexusWeather';
 import { useDojo } from '../../dojo/useDojo';
 import { Phase } from '../../utils/nexus';
 import { Player } from '../../utils/types';
+import { CameraSlidingCollision } from './CameraCollisionSystem';
+
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -41,16 +43,24 @@ export const setupScene = async (scene: Scene, engine: Engine,gameState: {
   camera.lowerBetaLimit = 0.1;
   camera.upperBetaLimit = Math.PI / 2.2;
   camera.attachControl(engine.getRenderingCanvas(), true);
+  camera.checkCollisions = true;
+  camera.collisionRadius = new Vector3(1, 1, 1);
+
 
   let targetPosition = camera.target.clone();
   let targetAlpha = camera.alpha;
   let targetRadius = camera.radius;
 
-
+ 
 
   // Load battlefield model
   try {
     const result = await SceneLoader.ImportMeshAsync('', '/models/', "nexus.glb");
+
+    result.meshes.forEach(mesh => {
+      mesh.checkCollisions = true;
+    })
+
     const battlefieldMesh = result.meshes[0];
     battlefieldMesh.position = new Vector3(GRID_SIZE * CELL_SIZE / 2, 0, GRID_SIZE * CELL_SIZE / 2);
     //battlefieldMesh.scaling = new Vector3(10, 10, 10);  // Adjust scale as needed

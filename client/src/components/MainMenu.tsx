@@ -88,7 +88,11 @@ const MainMenu: React.FC = () => {
 
     try {
       const totalSeconds = hours ? hours * 3600 + minutes * 60 : minutes * 60;
-      await arena.create(account, player_name, /* price */ BigInt(0), /* penalty*/ totalSeconds);
+      let result = await arena.create(account, player_name, /* price */ BigInt(0), /* penalty*/ totalSeconds);
+      toast({
+        variant: 'default',
+        description: <code className="text-white text-xs">{result.execution_status}</code>,
+      });
     } catch (error: any) {
       toast({
         variant: 'destructive',

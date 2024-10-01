@@ -8,13 +8,13 @@ import { useElementStore } from '../../utils/nexus';
 import { useMe } from '../../hooks/useMe';
 import { useTurn } from '../../hooks/useTurn';
 import { usePhase } from '../../hooks/usePhase';
-import CommandNexusGui from './CommandNexusGui';
+import { useCommandNexusGui } from './useCommandNexusGui';
 
 const CommandNexus = () => {
     const [isLoading, setIsLoading] = useState(true);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const sceneRef = useRef<Scene | null>(null);
-    const guiRef = useRef<CommandNexusGui | null>(null);
+    const engineRef = useRef<Engine | null>(null);
 
     const {
       setup: {
@@ -24,57 +24,64 @@ const CommandNexus = () => {
     const { me: player, isItMyTurn } = useMe();
     const { turn } = useTurn();
     const { phase } = usePhase();
+    console.log("..............",turn)
   
     const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
   
     const game = useGame();
-    console.log(game_id)
-  
     const { players } = useGetPlayersForGame(game_id);
 
+    console.log(players)
+
+    // Use our custom hook
+    const { gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn, phase, game, players);
+
     useEffect(() => {
-      if (canvasRef.current) {
-        const engine = new Engine(canvasRef.current, true);
-        let scene: Scene;
+      if (canvasRef.current && !engineRef.current) {
+        engineRef.current = new Engine(canvasRef.current, true);
         const createScene = async () => {
-            scene = new Scene(engine);
+            const scene = new Scene(engineRef.current);
+            scene.collisionsEnabled = true;
             sceneRef.current = scene;
            
-            await setupScene(scene, engine, { player, isItMyTurn, turn, phase, game });
+            await setupScene(scene, engineRef.current, { player, isItMyTurn, turn, phase, game });
             
-            // Create GUI and store the reference
-            guiRef.current = new CommandNexusGui(scene);
-          };
+            setIsLoading(false);
+        };
       
-          createScene();
+        createScene();
+
+
           
-          // Main render loop
-          engine.runRenderLoop(() => {
-              scene.render();
-          });
+        engineRef.current.runRenderLoop(() => {
+            if (sceneRef.current) {
+                sceneRef.current.render();
+            }
+        });
           
-          // Resize handler
-          window.addEventListener('resize', () => {
-              engine.resize();
-          });
+        const handleResize = () => {
+            engineRef.current?.resize();
+        };
+
+        window.addEventListener('resize', handleResize);
     
-          return () => {
-              engine.dispose();
-          };
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (sceneRef.current) {
+                sceneRef.current.dispose();
+                sceneRef.current = null;
+            }
+            engineRef.current?.dispose();
+            engineRef.current = null;
+        };
       }
     }, []);
 
     useEffect(() => {
-      if (sceneRef.current) {
+      if (sceneRef.current && !isLoading && isGuiReady) {
         updateScene(sceneRef.current, { player, isItMyTurn, turn, phase });
       }
-      
-      // Update GUI methods here
-      if (guiRef.current) {
-        console.log("updated")
-        guiRef.current.updatePlayerInfo(player)
-      }
-    }, [player, isItMyTurn, turn, phase]);
+    }, [player, isItMyTurn, turn, phase, game, isLoading, isGuiReady]);
   
     return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;
 }

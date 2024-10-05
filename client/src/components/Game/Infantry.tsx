@@ -1,14 +1,14 @@
 import { Scene, Vector3, AnimationGroup, TransformNode, SceneLoader, ISceneLoaderAsyncResult, Skeleton, Bone, Ray, IPhysicsCollisionEvent, PhysicsEventType, Mesh, Axis, RayHelper, Color3, DeepImmutable, MeshBuilder, Space } from '@babylonjs/core';
 
-export enum ArmoredAction {
+export enum InfantryAction {
     FireMainGun,
     FireSecondaryGun,
     DeploySmoke,
     UseRepairKit,
 }
 
-export default class TankSystem {
-    private tank: Mesh;
+export default class InfantrySystem {
+    private infantry: Mesh;
     private scene: Scene;
     private skeleton: Skeleton;
     private rotationBone: Bone;
@@ -22,42 +22,41 @@ export default class TankSystem {
     private obstacleDetectionRange: number = 1;
     private targetPosition: Vector3 | null = null;
     private obstacles: Mesh[] = [];
-    public tankTransform: TransformNode;
+    public infantryTransform: TransformNode;
 
     private nameList: string[] = ["Road_01", "Road_01.001", "Landscape_01", "EnergyRes_RenewablePlant_Wall_01", "EnergyRes_NaturalGasFacility_Wall_01","Water_01"];
 
 
-    constructor(armoredResult: ISceneLoaderAsyncResult, scene: Scene) {
+    constructor(InfantryResult: ISceneLoaderAsyncResult, scene: Scene) {
         this.scene = scene;
-        this.tank = armoredResult.meshes[0] as Mesh;
-        this.skeleton = armoredResult.skeletons[0];
+        this.infantry = InfantryResult.meshes[0] as Mesh;
+        this.skeleton = InfantryResult.skeletons[0];
         this.initializeTankPosition();
-        this.loadAnimations(armoredResult);
-        this.findRotationBone();
-        this.setUpTank()
+        this.loadAnimations(InfantryResult);
+        this.setUpInfantry()
   
 
        
     }
 
-    private setUpTank(){
+    private setUpInfantry(){
         // Setup Player
-        //this.tank.isPickable = false;
+        //this.infantry.isPickable = false;
         
-        this.tank.scaling = new Vector3(0.5, 0.5, 0.5);
+        this.infantry.scaling = new Vector3(0.5, 0.5, 0.5);
 
         // Correct Rotation from Imported Model
-        this.tank.rotation = new Vector3(0, -Math.PI, 0);
+        this.infantry.rotation = new Vector3(0, -Math.PI, 0);
 
         //
 
-        this.tank.rotate(Axis.Y, Math.PI, Space.LOCAL);
+        this.infantry.rotate(Axis.Y, Math.PI, Space.LOCAL);
 
-        const playerTransform = new TransformNode("tank_root", this.scene);    
-        this.tank.parent = playerTransform;
-        this.tank.checkCollisions = true
+        const playerTransform = new TransformNode("infantry_root", this.scene);    
+        this.infantry.parent = playerTransform;
+        this.infantry.checkCollisions = true
 
-        this.tankTransform = playerTransform;
+        this.infantryTransform = playerTransform;
 
         const tankCollider = this.createTankCollider();
         tankCollider.parent = playerTransform;
@@ -67,19 +66,19 @@ export default class TankSystem {
 
     private  createTankCollider = () => {
         // Compute the world matrix to include all transformations
-        this.tank.computeWorldMatrix(true);
+        this.infantry.computeWorldMatrix(true);
 
         // Get the bounding info of the entire mesh hierarchy
-        const boundingInfo = this.tank.getHierarchyBoundingVectors(true);
+        const boundingInfo = this.infantry.getHierarchyBoundingVectors(true);
         const dimensions = boundingInfo.max.subtract(boundingInfo.min);
 
-        const collisionBox = MeshBuilder.CreateBox("tankCollider", { 
+        const collisionBox = MeshBuilder.CreateBox("infantryCollider", { 
           width: dimensions.x,
           height: dimensions.y,
           depth: dimensions.z
         }, this.scene);
 
-        // Position the collision box to match the center of the tank
+        // Position the collision box to match the center of the infantry
         const center = boundingInfo.min.add(dimensions.scale(0.5));
         collisionBox.position = center;
 
@@ -89,24 +88,14 @@ export default class TankSystem {
         return collisionBox;
       };
 
-    private findRotationBone(): Bone {
-        const rotationBone = this.skeleton.bones.find(bone => bone.name === 'rotation');
-        if (!rotationBone) {
-            console.error("'rotation' bone not found. Turret aiming will not work correctly.");
-            return this.skeleton.bones[0]; // Fallback to root bone
-        }else{
-            this.rotationBone = rotationBone;
-        }
-        return rotationBone;
+    public infantryNode(){
+        return this.infantryTransform
     }
+
 
     private checkNameUsingIncludes(name: string): boolean {
         //console.log(name, this.nameList.includes(name));
         return this.nameList.includes(name);
-    }
-
-    public tankNode() {
-        return this.tankTransform;
     }
     
     
@@ -116,7 +105,7 @@ export default class TankSystem {
         const rayStart = new Vector3(position.x, 10, position.z);
         const rayEnd = new Vector3(position.x, -10, position.z);
         const ray = new Ray(rayStart, rayEnd.subtract(rayStart), 20);
-        const pick = this.scene.pickWithRay(ray, (mesh) => mesh !== this.navMesh && mesh !== this.tank && !this.checkNameUsingIncludes(mesh.name));
+        const pick = this.scene.pickWithRay(ray, (mesh) => mesh !== this.navMesh && mesh !== this.infantry && !this.checkNameUsingIncludes(mesh.name));
         console.log(pick)
         return pick.hit;
     }
@@ -129,7 +118,7 @@ export default class TankSystem {
         const rayStart = currentPosition.add(new Vector3(0, 1, 0));
         const rayDirection = direction.scale(this.obstacleDetectionRange);
         const ray = new Ray(rayStart, rayDirection, this.obstacleDetectionRange);
-        const pick = this.scene.pickWithRay(ray, (mesh) => mesh !== this.navMesh && mesh !== this.tank && this.checkNameUsingIncludes(mesh.name));
+        const pick = this.scene.pickWithRay(ray, (mesh) => mesh !== this.navMesh && mesh !== this.infantry && this.checkNameUsingIncludes(mesh.name));
 
         if (pick.hit) {
             // Calculate an avoidance vector using cross product or a more complex avoidance strategy
@@ -148,11 +137,11 @@ export default class TankSystem {
     }
 
     public getTankPosition(){
-        return this.tank.position
+        return this.infantry.position
     }
 
     public getTank(){
-        return this.tank
+        return this.infantry
     }
 
     public getNavMesh(){
@@ -179,11 +168,11 @@ export default class TankSystem {
         // Simple ray casting for collision detection
         const ray = new Ray(newPosition, new Vector3(0, -1, 0), 1);
         const hit = this.scene.pickWithRay(ray);
-        return hit && hit.hit && hit.pickedMesh !== this.tank;
+        return hit && hit.hit && hit.pickedMesh !== this.infantry;
     }
 
     public correctPosition(steeringVector: DeepImmutable<Vector3>){
-        this.tank.position.addInPlace(steeringVector)
+        this.infantry.position.addInPlace(steeringVector)
     }
 
     public avoidObstacles(currentPosition) {
@@ -207,7 +196,7 @@ export default class TankSystem {
         // Check if any rays hit an obstacle, and adjust direction accordingly
         let adjustmentVector = new Vector3(0,0,0);
         for (const ray of rays) {
-            const pick = this.scene.pickWithRay(ray, (mesh) => mesh !== this.navMesh && mesh !== this.tank && this.checkNameUsingIncludes(mesh.name));
+            const pick = this.scene.pickWithRay(ray, (mesh) => mesh !== this.navMesh && mesh !== this.infantry && this.checkNameUsingIncludes(mesh.name));
             if (pick.hit) {
                 // Create an avoidance adjustment vector (e.g., steer away from obstacle)
                 const avoidanceDirection = Vector3.Cross(ray.direction, Axis.Y);
@@ -225,7 +214,7 @@ export default class TankSystem {
     }
 
     public aimAtTarget(target: Vector3) {
-        const tankPosition = this.tank.getAbsolutePosition();
+        const tankPosition = this.infantry.getAbsolutePosition();
         const direction = target.subtract(tankPosition);
         
         // Calculate yaw (rotation around Y-axis)
@@ -235,27 +224,27 @@ export default class TankSystem {
     }
 
     private initializeTankPosition() {
-        this.tank.position = new Vector3(808.0254908309985, -0.08039172726103061, 770.1119890077115);
+        this.infantry.position = new Vector3(808.0254908309985, -0.08039172726103061, 770.1119890077115);
     }
 
-    private loadAnimations(armoredResult: ISceneLoaderAsyncResult) {
-        armoredResult.animationGroups.forEach(animGroup => {
+    private loadAnimations(InfantryResult: ISceneLoaderAsyncResult) {
+        InfantryResult.animationGroups.forEach(animGroup => {
             this.animations[animGroup.name] = animGroup;
         });
     }
 
-    public performAction(action: ArmoredAction) {
+    public performAction(action: InfantryAction) {
         switch (action) {
-            case ArmoredAction.FireMainGun:
+            case InfantryAction.FireMainGun:
                 this.fireMainGun();
                 break;
-            case ArmoredAction.FireSecondaryGun:
+            case InfantryAction.FireSecondaryGun:
                 this.fireSecondaryGun();
                 break;
-            case ArmoredAction.DeploySmoke:
+            case InfantryAction.DeploySmoke:
                 this.deploySmoke();
                 break;
-            case ArmoredAction.UseRepairKit:
+            case InfantryAction.UseRepairKit:
                 this.useRepairKit();
                 break;
         }
@@ -286,7 +275,7 @@ export default class TankSystem {
 
 
     public moveTank(x: number, y: number, z: number) {
-        this.tank.position = new Vector3(x, y, z);
+        this.infantry.position = new Vector3(x, y, z);
         this.playAnimation('Tank_Movement');
     }
 

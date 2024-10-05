@@ -1,4 +1,4 @@
-import { Scene, ParticleSystem, Texture, Color4, Vector3, CubeTexture, DirectionalLight, ParticleHelper, HemisphericLight, CreateSphere, AbstractMesh, MeshBuilder, PointLight, Color3, VolumetricLightScatteringPostProcess } from "@babylonjs/core";
+import { Scene, ParticleSystem, Texture, Color4, Vector3, CubeTexture, DirectionalLight, ParticleHelper, HemisphericLight, CreateSphere, AbstractMesh, MeshBuilder, PointLight, Color3, VolumetricLightScatteringPostProcess, ArcRotateCameraMouseWheelInput, ArcRotateCamera } from "@babylonjs/core";
 
 export type WeatherType = "clear" | "rainy" | "snowy" | "stormy" | "foggy";
 
@@ -8,13 +8,15 @@ export class WeatherSystem {
   private particleSystem: ParticleSystem | null;
   private countdown: number;
   private emitterSphere: AbstractMesh | null;
+  private camera: ArcRotateCamera;
 
-  constructor(scene: Scene) {
+  constructor(scene: Scene, camera: ArcRotateCamera) {
     this.scene = scene;
     this.currentWeather = "clear";
     this.particleSystem = null;
     this.countdown = 600;  // 10 seconds at 60 fps
     this.setWeather("clear");
+    this.camera = camera;
   }
 
   public setWeather(weatherType: WeatherType): void {
@@ -141,7 +143,7 @@ export class WeatherSystem {
     moonLight.intensity = 0.1; // Very low intensity
 
     // Create a point light that follows the camera (like a flashlight effect)
-    const cameraLight = new PointLight("cameraLight", this.scene.activeCamera.position, this.scene);
+    const cameraLight = new PointLight("cameraLight", this.camera.position, this.scene);
     cameraLight.intensity = 0.7;
     cameraLight.range = 50; // Reduced range for a more claustrophobic feel
 
@@ -167,7 +169,7 @@ export class WeatherSystem {
 
     // Optional: Add volumetric fog for more depth
     const volumetricFog = new VolumetricLightScatteringPostProcess(
-        'volumetric', 1.0, this.scene.activeCamera, null, 50, Texture.BILINEAR_SAMPLINGMODE
+        'volumetric', 1.0, this.camera, null, 50, Texture.BILINEAR_SAMPLINGMODE
     );
     volumetricFog.exposure = 0.15;
     volumetricFog.decay = 0.95;

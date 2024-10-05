@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { setupScene, updateScene } from './CommandNexusScene';
-import { Engine, Scene } from '@babylonjs/core';
+import { ArcRotateCamera, Engine, HavokPlugin, PhysicsViewer, Scene, Tools, Vector3 } from '@babylonjs/core';
 import { useDojo } from '../../dojo/useDojo';
 import { useGame } from '../../hooks/useGame';
 import { useGetPlayersForGame } from '../../hooks/useGetPlayersForGame';
@@ -9,12 +9,22 @@ import { useMe } from '../../hooks/useMe';
 import { useTurn } from '../../hooks/useTurn';
 import { usePhase } from '../../hooks/usePhase';
 import { useCommandNexusGui } from './useCommandNexusGui';
+import HavokPhysics from '@babylonjs/havok';
+
+const GRID_SIZE = 40;
+const CELL_SIZE = 40;
+const CAMERA_SPEED = 1;
+const ROTATION_SPEED = 0.05;
+const ZOOM_SPEED = 5;
+
 
 const CommandNexus = () => {
     const [isLoading, setIsLoading] = useState(true);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const sceneRef = useRef<Scene | null>(null);
     const engineRef = useRef<Engine | null>(null);
+    
+    
 
     const {
       setup: {
@@ -41,10 +51,32 @@ const CommandNexus = () => {
         engineRef.current = new Engine(canvasRef.current, true);
         const createScene = async () => {
             const scene = new Scene(engineRef.current);
+
+            const camera = new ArcRotateCamera("camera", Tools.ToRadians(90), Tools.ToRadians(65), 10, Vector3.Zero(), scene!);
+            camera.lowerRadiusLimit = 10;
+            camera.upperRadiusLimit = 150;
+            camera.lowerBetaLimit = 0.1;
+            camera.upperBetaLimit = Math.PI / 2.2;
+            camera.attachControl(canvasRef.current, true);
+            camera.checkCollisions = true;
+            camera.collisionRadius = new Vector3(1, 1, 1);
+
+            
             scene.collisionsEnabled = true;
             sceneRef.current = scene;
+
+            const havokPlugin = await HavokPhysics();
+
+            const physicsPlugin = new HavokPlugin(true, havokPlugin);
+            scene.enablePhysics(undefined, physicsPlugin);
+            const physicsViewer = new PhysicsViewer();
+
+              // Camera
+
            
-            await setupScene(scene, engineRef.current, { player, isItMyTurn, turn, phase, game });
+            await setupScene(scene,camera, engineRef.current, { player, isItMyTurn, turn, phase, game });
+
+
             
             setIsLoading(false);
         };

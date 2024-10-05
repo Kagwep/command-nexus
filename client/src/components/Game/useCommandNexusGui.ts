@@ -51,11 +51,11 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
         guiRef.current.updatePlayerInfo(player);
         
         if (turn === player.index) {
-          guiRef.current.updateTurnInfo(`It's your Turn ${player.name}`);
+          guiRef.current.updateTurnInfo(``);
         } else {
           players.forEach((p) => {
             if (turn === p.index) {
-              guiRef.current?.updateTurnInfo(`It's ${p.name}'s Turn`);
+              guiRef.current?.updateTurnInfo(``);
             }
           });
         }

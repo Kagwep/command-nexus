@@ -1,5 +1,5 @@
 import React, { useRef } from 'react'
-import {ArcRotateCamera, Color3, Color4, Engine, HemisphericLight, KeyboardEventTypes, MeshBuilder, Scene, SceneLoader, StandardMaterial, Vector3} from "@babylonjs/core"
+import {AbstractMesh, ArcRotateCamera, Axis, Color3, Color4, Engine, GroundMesh, HavokPlugin, HemisphericLight, KeyboardEventTypes, Mesh, MeshBuilder, PhysicsAggregate, PhysicsShapeType, PhysicsViewer, PointerEventTypes, RecastJSPlugin, Scalar, Scene, SceneLoader, Space, StandardMaterial, Texture, TransformNode, Vector3} from "@babylonjs/core"
 import CommandNexusGui from './CommandNexusGui';
 import '@babylonjs/loaders';
 import { WeatherSystem, WeatherType } from './CommandNexusWeather';
@@ -9,10 +9,15 @@ import { Player } from '../../utils/types';
 import { CameraSlidingCollision } from './CameraCollisionSystem';
 import NexusAreaSystem from './BattleField';
 import TankSystem, { ArmoredAction } from './Armored';
+import Recast from "recast-detour";
+import PointNavigation from './PointNavigation';
+import SceneNavigation from './SceneNavigation';
+import InfantrySystem from './Infantry';
 
 
-
-
+interface MeshN extends Mesh {
+  idx?: number;
+}
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -22,7 +27,7 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene, engine: Engine,gameState: {
+export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine,gameState: {
   player: Player,
   isItMyTurn: boolean,
   turn: number,
@@ -31,65 +36,359 @@ export const setupScene = async (scene: Scene, engine: Engine,gameState: {
 }) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
+  
 
   console.log(gameState.player);
-
-  // Camera
-  const camera = new ArcRotateCamera(
-    "Camera",
-    -Math.PI / 2,  // alpha
-    Math.PI / 3,   // beta
-    100,           // radius
-    new Vector3(GRID_SIZE * CELL_SIZE / 2, 0, GRID_SIZE * CELL_SIZE / 2),
-    scene
-  );
-  camera.lowerRadiusLimit = 10;
-  camera.upperRadiusLimit = 150;
-  camera.lowerBetaLimit = 0.1;
-  camera.upperBetaLimit = Math.PI / 2.2;
-  camera.attachControl(engine.getRenderingCanvas(), true);
-  camera.checkCollisions = true;
-  camera.collisionRadius = new Vector3(1, 1, 1);
 
 
   let targetPosition = camera.target.clone();
   let targetAlpha = camera.alpha;
   let targetRadius = camera.radius;
 
- 
+   let navmeshdebug;
+
+   let currentAnim ;
+
+   let activeUnit;
+
+
+  
+  let hdrRotation = 0;
 
   // Load battlefield model
   try {
-    const result = await SceneLoader.ImportMeshAsync('', '/models/', "nexus.glb");
+
+    let landNavMesh;
+
+    const obstacles = [];
+
+    const nameList: string[] = ["Road_01", "Road_01.001", "Landscape_01", "EnergyRes_RenewablePlant_Wall_01", "EnergyRes_NaturalGasFacility_Wall_01","Water_01"];
+
+    const result = await SceneLoader.ImportMeshAsync('', '/models/', "nexusres1.glb");
+
+    function checkNameUsingIncludes(name: string): boolean {
+   //
+      return nameList.includes(name);
+  }
+  
 
     result.meshes.forEach(mesh => {
       mesh.checkCollisions = true;
+      if (mesh.name === "NavMesh"){
+        landNavMesh = mesh as Mesh
+        landNavMesh.visibility = 0;
+      }
+      if (! checkNameUsingIncludes(mesh.name)){
+        obstacles.push(mesh)
+      }
+      addPhysicsAggregate(mesh);
     })
 
     const armored =  await SceneLoader.ImportMeshAsync('', '/models/', "Tank.glb");
 
     armored.meshes.forEach((mesh) => {
       mesh.checkCollisions = true;
+      addPhysicsAggregate(mesh);
     })
 
     const tank = armored.meshes[0];
+    
 
-    tank.position = new Vector3(808.0254908309985,-0.08039172726103061, 770.1119890077115);
+        
+    tank.scaling = new Vector3(0.5, 0.5, 0.5);
 
-    console.log(armored)
+    // Correct Rotation from Imported Model
+    tank.rotation = new Vector3(0, -Math.PI, 0);
 
-    const tankSystem = new TankSystem(armored, scene);
+    //
 
-    tankSystem.setIdleAnimation();
+    tank.rotate(Axis.Y, Math.PI, Space.LOCAL);
 
-   // tankSystem.stopAllAnimations();
 
-    tankSystem.rotateTurret(50);
+    const infantryMesh =  await SceneLoader.ImportMeshAsync('', '/models/', "Soldier.glb");
 
-    tankSystem.performAction(ArmoredAction.FireMainGun);
+    infantryMesh.meshes.forEach((mesh) => {
+      mesh.checkCollisions = true;
+      addPhysicsAggregate(mesh);
+    })
 
-    const battlefieldMesh = result.meshes[0];
-    battlefieldMesh.position = new Vector3(GRID_SIZE * CELL_SIZE / 2, 0, GRID_SIZE * CELL_SIZE / 2);
+    const infantry = infantryMesh.meshes[0];
+
+        
+    infantry.scaling = new Vector3(0.5, 0.5, 0.5);
+
+    // Correct Rotation from Imported Model
+    infantry.rotation = new Vector3(0, -Math.PI, 0);
+
+    //
+
+    infantry.rotate(Axis.Y, Math.PI, Space.LOCAL);
+
+    
+    activeUnit = tank;
+
+
+    //const tankSystem = new TankSystem(armored, scene);
+    //const infantrySystem = new InfantrySystem(infantryMesh, scene);
+
+
+    const recast =   await new Recast(); 
+    const navigationPlugin = new RecastJSPlugin(recast);
+    navigationPlugin.setWorkerURL("/src/libs/navMeshWorker.js");
+
+    const pointNav = new PointNavigation(scene, "/circles.png")
+
+    const pointNavMesh = pointNav.getPointNavMesh();
+
+    // const infantryNode = infantrySystem.infantryNode()
+    // const armoredNode = tankSystem.tankNode()
+
+
+
+
+
+    
+        // Create a Main Player Transform Root
+        const playerTransform = new TransformNode("Player_Root", scene);    
+        tank.parent = playerTransform;
+        tank.checkCollisions = true
+        // Create a single collision box for the entire tank
+        const createTankCollider = (rootMesh: AbstractMesh) => {
+          // Compute the world matrix to include all transformations
+          rootMesh.computeWorldMatrix(true);
+
+          // Get the bounding info of the entire mesh hierarchy
+          const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
+          const dimensions = boundingInfo.max.subtract(boundingInfo.min);
+
+          const collisionBox = MeshBuilder.CreateBox("tankCollider", { 
+            width: dimensions.x,
+            height: dimensions.y,
+            depth: dimensions.z
+          }, scene);
+
+          // Position the collision box to match the center of the tank
+          const center = boundingInfo.min.add(dimensions.scale(0.5));
+          collisionBox.position = center;
+
+          collisionBox.isVisible = false;
+          collisionBox.checkCollisions = true;
+
+          return collisionBox;
+        };
+
+        const tankCollider = createTankCollider(tank);
+        tankCollider.parent = playerTransform;
+
+          // Setup Navigation
+          setTimeout(() => {
+            // Create Point Navigation
+            const pointNavPre = MeshBuilder.CreateGround("pointNav", {width: 1, height: 1}, scene!);
+    
+              // pointNav = BABYLON.MeshBuilder.CreateBox("pointNav", {size: 2, height:0.01}, scene);
+              // pointNavPre.disableLighting = true;
+              
+              var pointNavMaterial = new StandardMaterial("pointNavMaterial", scene!);
+              pointNavMaterial.diffuseTexture = new Texture("/circles.png");
+              pointNavMaterial.diffuseTexture.hasAlpha = true;
+              pointNavMaterial.useAlphaFromDiffuseTexture = true;
+              pointNavMaterial.specularPower = 0;
+              pointNavMaterial.specularColor = new Color3(0.1,0.1,0.1);
+              pointNavMaterial.roughness = 1;
+              pointNavMaterial.alphaCutOff  = 0.2;
+              pointNavMaterial.backFaceCulling = false;
+              // pointNavMaterial.reflectionLevel = null;
+              //pointNavMaterial.emissiveColor = new BABYLON.Color3.White();
+              // pointNavMaterial.emissiveTexture = pointNavMaterial.albedoTexture;
+              //pointNavMaterial.emissiveIntensity = 0.3;
+              pointNavPre.material = pointNavMaterial;
+              pointNavPre.visibility = 0;
+              
+              var rot = 0;
+              scene!.registerAfterRender(()=>{
+                  pointNavPre.rotation.y = rot;
+                  rot += 0.03;
+              });
+            // Setup Player Navigation
+            setNavigation(tank as MeshN, scene,navigationPlugin,landNavMesh,playerTransform,pointNavMesh)            
+        }, 500);
+    
+    
+const setNavigation = (player: MeshN,scene: Scene, navigationPlugin: RecastJSPlugin, ground: Mesh, playerTransform: TransformNode, pointNavPre: GroundMesh): void => {
+
+    
+          // Nav Mesh Parameters
+    var navmeshParameters = {
+      cs: 0.4,
+      ch: 0.01,
+      walkableSlopeAngle: 0,
+      walkableHeight: 0.0,
+      walkableClimb: 0,
+      walkableRadius: 2,
+      maxEdgeLen: 12,
+      maxSimplificationError: 1,
+      minRegionArea: 15,
+      mergeRegionArea: 20,
+      maxVertsPerPoly: 6,
+      detailSampleDist: 6,
+      detailSampleMaxError: 35,
+      borderSize: 1,
+      tileSize:25
+  };
+
+  // Navigation Plugin CreateNavMesh (Ground and Boxes separated)
+  // Also you can previosly merge all the navigation meshes
+  navigationPlugin.createNavMesh([ground], navmeshParameters,(navmeshData) =>
+  {
+      navigationPlugin.buildFromNavmeshData(navmeshData);
+      navmeshdebug = navigationPlugin.createDebugNavMesh(scene);
+      navmeshdebug.name = "ground";
+      navmeshdebug.position = new Vector3(0, 0.01, 0);
+      var matdebug = new StandardMaterial('matdebug', scene);
+      matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
+      matdebug.alpha = 1;
+      navmeshdebug.material = matdebug;
+      navmeshdebug.visibility = 0;
+      
+      // Badge Information Ready to Navigate
+      setTimeout(() => {
+          // var badgeInfo = document.getElementById("badge");
+          // badgeInfo.innerHTML = " Toggle NavMesh";
+          console.log("RECAST Loaded");
+      }, 300);
+      
+     // recastLoaded = true;
+
+     
+
+      // Setup Navigation Plugin using one Player
+      var crowd = navigationPlugin.createCrowd(1, 0.1, scene);
+
+      // Crow
+      var agentParams = {
+          radius: 0.3,
+          height: 0.01,
+          maxAcceleration: 50.0,
+          maxSpeed: 4,
+          collisionQueryRange: 0.5,
+          pathOptimizationRange: 0.2,
+          separationWeight: 1.0};
+
+      // Setup Player Position
+      var position = navigationPlugin.getClosestPoint(new Vector3(0, 0, 0));
+
+      // Add Agent
+      var agentIndex = crowd.addAgent(position, agentParams, playerTransform);
+       player.idx = agentIndex; 
+
+      // Hide Point Nav
+      pointNavPre.visibility = 0;
+
+      // Detecting Navigation Point Position
+      var startingPoint;
+      var getGroundPosition = function () {
+          var pickinfo = scene.pick(scene.pointerX, scene.pointerY);
+          if (pickinfo.hit) {
+              return pickinfo.pickedPoint;
+          }
+          return null;
+      }
+
+      // Pointer Tap Functions
+      var pointerTap = function (mesh: Mesh) {
+          console.log("Tap: " + mesh.name);
+          
+          // Detect Pointer Tap only on Ground Mesh 
+          if (!mesh.name.includes("ground"))
+              return;
+
+          startingPoint = getGroundPosition();
+          pointNavPre.position = startingPoint as Vector3;
+          pointNavPre.visibility = 1;
+          var agents = crowd.getAgents();
+          var i;
+
+          for (i=0;i<agents.length;i++) {
+              if (currentAnim == idleAnim)
+              {
+                  // Start Player Walk Animation
+                  //currentAnim = walkAnim;
+                 
+                  scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(idleAnim, 1.0, walkAnim, 1.3, true, 0.05));
+              }
+              crowd.agentGoto(agents[i], navigationPlugin.getClosestPoint(startingPoint as Vector3));
+          }
+      }
+      
+      // On Point Observable
+      scene.onPointerObservable.add((pointerInfo) => {      		
+          switch (pointerInfo.type) {
+              case PointerEventTypes.POINTERTAP:
+                  if(pointerInfo.pickInfo && pointerInfo.pickInfo.hit) {
+                      pointerTap(pointerInfo.pickInfo.pickedMesh as Mesh)
+                  }
+                  break;
+          }
+      });
+
+      // Crowd On Before Render Observable
+      scene.onBeforeRenderObservable.add(()=> {
+          // New Player Position
+          playerTransform.position = crowd.getAgentPosition(player.idx as number);
+          let vel = crowd.getAgentVelocity(player.idx as number);
+          crowd.getAgentPositionToRef(player.idx as number, playerTransform.position);
+          if (vel.length() > 1)
+          {
+              // New Player Rotation
+              vel.normalize();
+              var desiredRotation = Math.atan2(vel.x, vel.z);
+              playerTransform.rotation.y = playerTransform.rotation.y + (desiredRotation - playerTransform.rotation.y);    
+          }
+      });
+
+      const idleAnim = scene!.getAnimationGroupByName("Tank_Idle");
+      const walkAnim = scene!.getAnimationGroupByName("Tank_Movement");
+      idleAnim?.start(true);
+      
+
+      // Crowd On Reach Target Observable
+      crowd.onReachTargetObservable.add((agentInfos: any) => {
+          console.log("agent reach destination");
+          //currentAnim = idleAnim;
+       
+          scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(walkAnim, 1.3, idleAnim, 1.0, true, 0.05));
+          pointNavPre.visibility = 0;
+      });
+
+      console.log("....................",playerTransform)
+
+  });
+    
+  };
+    
+    
+    function* animationBlending(fromAnim: any, fromAnimSpeedRatio: any, toAnim: any, toAnimSpeedRatio: any, repeat: any, animationBlendingSpeed: any)
+    {
+        let currentWeight = 1;
+        let newWeight = 0;
+        //fromAnim.stop();
+        toAnim.play(repeat);
+        fromAnim.speedRatio = fromAnimSpeedRatio;
+        toAnim.speedRatio = toAnimSpeedRatio;
+        while(newWeight < 1)
+        {
+            newWeight += animationBlendingSpeed;
+            currentWeight -= animationBlendingSpeed;
+            toAnim.setWeightForAllAnimatables(newWeight);
+            fromAnim.setWeightForAllAnimatables(currentWeight);
+            yield;
+        }
+    }
+
+
+
+    // const battlefieldMesh = result.meshes[0];
+    // battlefieldMesh.position = new Vector3(GRID_SIZE * CELL_SIZE / 2, 0, GRID_SIZE * CELL_SIZE / 2);
     //battlefieldMesh.scaling = new Vector3(10, 10, 10);  // Adjust scale as needed
   } catch (error) {
     console.error("Error loading battlefield model:", error);
@@ -119,11 +418,22 @@ export const setupScene = async (scene: Scene, engine: Engine,gameState: {
     
 // ];
 
+function addPhysicsAggregate(meshe: TransformNode) {
+  const res = new PhysicsAggregate(
+      meshe,
+      PhysicsShapeType.BOX,
+      { mass: 0, friction: 0.5 },
+      scene
+  );
+  // this.physicsViewer.showBody(res.body);
+  return res;
+}
+
 const NovaWarhoundPoints: Vector3[] = [
-  new Vector3(730.5467471709067, -4.724697113037109, 190.73690047725162),
-  new Vector3(675.3514988227852, -4.724697113037223, 660.1602674193605),
-  new Vector3(968.7855318752481, -4.724697113037109, 932.9703875779442),
-  new Vector3(1447.4623918502261, -4.724697113037223, 195.96328441847112)
+  new Vector3(-701.1143110284269, -4.724697113037109, -613.5130894128426),
+  new Vector3(135.2915183946171, -4.724697113036996, 140.48346988813887),
+  new Vector3(930.3866023298494, -4.724697113036996, -253.01963900603135),
+  new Vector3(554.3687183857892, -4.724697113037223, -606.869953651963)
 ];
 
 areaSystemOne.addArea(NovaWarhoundPoints, {
@@ -133,11 +443,10 @@ areaSystemOne.addArea(NovaWarhoundPoints, {
 });
 
 const IronforgePoints: Vector3[] = [
-  new Vector3(1469.1237614022982, -4.724697113037109, 195.10749872040142),
-  new Vector3(972.4897285476902, -0.09647619724273682, 941.8156671391265),
-  new Vector3(758.2028310346097, -4.724697113036996, 1063.6247380330788),
-  new Vector3(802.070642140824, -4.724697113037109, 1599.093106802532),
-  new Vector3(1721.28227015607, -4.724697113036996, 1589.2691094773127)
+  new Vector3(-40.34674016534149, -4.724697113037109, 246.94971527372445),
+  new Vector3(-41.92048839982266, -4.724697113037109, 797.001260541894),
+  new Vector3(918.0348243184673, -4.724697113037109, 794.4816519981175),
+  new Vector3(929.6542846267871, -4.724697113037109, -201.31500393718164)
 ];
 
 const areaSystemTwo = new NexusAreaSystem(scene);
@@ -149,10 +458,12 @@ areaSystemTwo.addArea(IronforgePoints, {
 });
 
 const RadiantShoresPoints: Vector3[] = [
-  new Vector3(656.7453083810918, -4.724697113036882, 1599.221712962129),
-  new Vector3(705.447522951092, -0.14761458337306976, 959.67568381819),
-  new Vector3(494.58448396652415, -4.724697113037223, 846.3462530203496),
-  new Vector3(-140.4915378734339, -4.724697113037109, 1350.377682276965)
+  new Vector3(-44.196680927944726, -4.7246971130370525, 241.8750392048088),
+  new Vector3(-168.20402177229565, -4.724697113037109, 132.66805411641394),
+  new Vector3(-224.44661019700706, -4.724697113037109, 241.57445828506684),
+  new Vector3(-596.1817341386354, -4.724697113037109, 247.93515516561172),
+  new Vector3(-923.7357331408812, -4.724697113037109, 789.4817941049374),
+  new Vector3(-5.241598217332637, -4.7246971130370525, 800.4915650788527)
 ];
 
 const areaSystemThree = new NexusAreaSystem(scene);
@@ -164,10 +475,13 @@ areaSystemThree.addArea(RadiantShoresPoints, {
 });
 
 const SavageCoastPoints: Vector3[] = [
-  new Vector3(-139.6726017686658, -4.724697113037109, 1271.3336887731152),
-  new Vector3(442.51928678286686, -4.724697113037109, 908.8976983560792),
-  new Vector3(627.9791629136411, -4.724697113037109, 640.8770786211204),
-  new Vector3(225.50933003149942, -4.724697113037223, 190.16510894844487)
+  new Vector3(-210.01917913768062, 3.334695195105759, 213.63762816982944),
+  new Vector3(-175.03646913444982, -4.724697113037109, 130.5347643517446),
+  new Vector3(-196.65097201368565, -4.724697113037102, 76.48515275188214),
+  new Vector3(-292.9622171292379, -4.724697113037109, 70.40431770105654),
+  new Vector3(-170.27564772619093, -4.724697113037095, -120.70127057236148),
+  new Vector3(-889.8629214636325, -4.724697113037109, -570.6022537156441),
+  new Vector3(-939.2950710815101, -4.724697113037109, 190.73043485634932)
 ];
 
 const areaSystemFour = new NexusAreaSystem(scene);
@@ -178,10 +492,10 @@ areaSystemFour.addArea(SavageCoastPoints, {
   alpha: 0.5
 });
 
-
+  
   
     // Create Weather System
-  const weatherSystem = new WeatherSystem(scene);
+  const weatherSystem = new WeatherSystem(scene,camera);
 
     // Example of setting weather manually
     weatherSystem.setWeather("clear");
@@ -214,7 +528,11 @@ scene.onBeforeRenderObservable.add(() => {
 
   camera.radius = Math.max(camera.lowerRadiusLimit, Math.min(camera.radius, camera.upperRadiusLimit));
 });
+
+camera.setTarget(activeUnit, true, false, false);
 };
+
+
 
 // New function to update the scene based on game state
 export const updateScene = (scene: Scene, gameState: {

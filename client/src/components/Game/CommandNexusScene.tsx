@@ -11,7 +11,7 @@ import NexusAreaSystem from './BattleField';
 import TankSystem, { ArmoredAction } from './Armored';
 import Recast from "recast-detour";
 import PointNavigation from './PointNavigation';
-import SceneNavigation from './SceneNavigation';
+import { AgentAnimations, AnimationMapping, MultiAgentNavigation } from './SceneNavigation';
 import InfantrySystem from './Infantry';
 
 
@@ -86,10 +86,39 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const armored =  await SceneLoader.ImportMeshAsync('', '/models/', "Tank.glb");
 
+    const tankContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Tank.glb", scene);
+    const soldierContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Soldier.glb", scene);
+
+    tankContainer.meshes[0].scaling = new Vector3(0.5, 0.5, 0.5);
+    tankContainer.meshes[0].rotation = new Vector3(0, -Math.PI, 0);
+
+    //
+
+    tankContainer.meshes[0].rotate(Axis.Y, Math.PI, Space.LOCAL);
+
+
+      // Define animation mappings
+      const tankAnimationMapping: AnimationMapping = {
+        idle: ["Idle", "Stand"],
+        movement: ["Movement", "Run", "Walk"],
+        attack: ["Attack", "Fire"]
+    };
+
+    const soldierAnimationMapping: AnimationMapping = {
+        idle: ["Idle", "Stand"],
+        movement: ["Run", "Walk"],
+        attack: ["Fire"],
+        defensive: ["Defensive"]
+    };
+
     armored.meshes.forEach((mesh) => {
       mesh.checkCollisions = true;
       addPhysicsAggregate(mesh);
+      mesh.isPickable = true
+      mesh.setEnabled(false);
+     // mesh.visibility = 0
     })
+    
 
     const tank = armored.meshes[0];
     
@@ -107,8 +136,12 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const infantryMesh =  await SceneLoader.ImportMeshAsync('', '/models/', "Soldier.glb");
 
+    console.log(infantryMesh)
+
     infantryMesh.meshes.forEach((mesh) => {
       mesh.checkCollisions = true;
+      mesh.isPickable = true
+      mesh.setEnabled(false);
       addPhysicsAggregate(mesh);
     })
 
@@ -143,7 +176,19 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
     // const infantryNode = infantrySystem.infantryNode()
     // const armoredNode = tankSystem.tankNode()
 
+        // Find the animation groups for the tank
+        const tankAnimations: AgentAnimations = {
+          idle: scene.getAnimationGroupByName("Tank_Idle"),
+          movement: scene.getAnimationGroupByName("Tank_Movement"),
+          attack: scene.getAnimationGroupByName("Tank_Attack")
+      };
 
+      const soldierAnimations: AgentAnimations = {
+        idle: scene.getAnimationGroupByName("Soldier_Idle"),
+        movement: scene.getAnimationGroupByName("Soldier_Run"),
+        attack: scene.getAnimationGroupByName("Soldier_Fire"),
+        defensive: scene.getAnimationGroupByName("Soldier_Defensive")
+    };
 
 
 
@@ -181,7 +226,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
         tankCollider.parent = playerTransform;
 
           // Setup Navigation
-          setTimeout(() => {
+          setTimeout(async () => {
             // Create Point Navigation
             const pointNavPre = MeshBuilder.CreateGround("pointNav", {width: 1, height: 1}, scene!);
     
@@ -210,7 +255,21 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
                   rot += 0.03;
               });
             // Setup Player Navigation
-            setNavigation(tank as MeshN, scene,navigationPlugin,landNavMesh,playerTransform,pointNavMesh)            
+                      // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
+          const multiAgentNav = new MultiAgentNavigation(scene, navigationPlugin, landNavMesh, pointNavPre);
+          await multiAgentNav.initialize();
+
+          // Create your custom mesh
+         // const customAgentMesh = MeshBuilder.CreateBox("agentTemplate", {size: 1}, scene);
+          // Customize your mesh here (e.g., apply materials, adjust geometry)
+
+          // Add agents at specific positions with the custom mesh
+          const agent1 = multiAgentNav.addAgent(new Vector3(tank.position.x + 10, 0,tank.position.z + 1), tankContainer, tankAnimationMapping);
+          //const agent3 = multiAgentNav.addAgent(new Vector3(tank.position.x + 10, 0,tank.position.z + 10), tankContainer, tankAnimationMapping);
+          const agent2 = multiAgentNav.addAgent(new Vector3(2, 0, 2), soldierContainer, soldierAnimationMapping);
+
+
+           // setNavigation(tank as MeshN, scene,navigationPlugin,landNavMesh,playerTransform,pointNavMesh)            
         }, 500);
     
     
@@ -248,7 +307,7 @@ const setNavigation = (player: MeshN,scene: Scene, navigationPlugin: RecastJSPlu
       matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
       matdebug.alpha = 1;
       navmeshdebug.material = matdebug;
-      navmeshdebug.visibility = 0;
+      navmeshdebug.visibility = 0.15;
       
       // Badge Information Ready to Navigate
       setTimeout(() => {
@@ -529,7 +588,7 @@ scene.onBeforeRenderObservable.add(() => {
   camera.radius = Math.max(camera.lowerRadiusLimit, Math.min(camera.radius, camera.upperRadiusLimit));
 });
 
-camera.setTarget(activeUnit, true, false, false);
+//camera.setTarget(activeUnit, true, false, false);
 };
 
 

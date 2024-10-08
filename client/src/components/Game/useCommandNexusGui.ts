@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Scene } from '@babylonjs/core';
 import CommandNexusGui from './CommandNexusGui';
 import { Phase } from '../../utils/nexus';
@@ -11,6 +11,10 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
   function excludePlayer(players: Player[], addressToExclude: any) {
     return players.filter(player => player.address !== addressToExclude);
   }
+
+  const getGui = useCallback(() => {
+    return guiRef.current;
+  }, []);
 
   useEffect(() => {
     if (scene) {
@@ -71,5 +75,5 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
     }
   }, [isGuiReady, player, isItMyTurn, turn, phase, game, players]);
 
-  return { gui: guiRef.current, isGuiReady };
+  return { getGui,gui: guiRef.current, isGuiReady };
 };

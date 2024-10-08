@@ -1,29 +1,10 @@
 import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
+import CommandNexusGui from './CommandNexusGui';
+import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations } from '../../utils/types';
+import { soldierAnimationMapping, tankAnimationMapping } from '../../utils/nexus';
 
-export interface AgentAnimations {
-    idle: AnimationGroup;
-    movement: AnimationGroup;
-    attack?: AnimationGroup;
-    [key: string]: AnimationGroup | undefined;
-}
-
-interface Agent {
-    navAgent: TransformNode;
-    visualMesh: Mesh;
-    idx: number;
-    animations: AgentAnimations;
-    animationGroups: AnimationGroup[];
-}
-
-export interface AnimationMapping {
-    idle: string[];
-    movement: string[];
-    attack?: string[];
-    [key: string]: string[] | undefined;
-}
-
-class MultiAgentNavigation {
+class NexusUnitManager {
     private scene: Scene;
     private navigationPlugin: RecastJSPlugin;
     private ground: Mesh;
@@ -32,12 +13,41 @@ class MultiAgentNavigation {
     private agents: Agent[] = [];
     private selectedAgent: Agent | null = null;
     public navmeshdebug;
+    private guiRef: CommandNexusGui | null;
+    private getGui: () => CommandNexusGui;
+    private unitAssets: UnitAssetContainers = {
+        [UnitType.Infantry]: new AssetContainer(),
+        [UnitType.Armored]: new AssetContainer(),
+        [UnitType.Air]: new AssetContainer(),
+        [UnitType.Naval]: new AssetContainer(),
+        [UnitType.Cyber]: new AssetContainer(),
+    };
+    private unitAnimations: UnitAnimations;
 
-    constructor(scene: Scene, navigationPlugin: RecastJSPlugin, ground: Mesh, pointNavPre: GroundMesh) {
+    constructor(
+        scene: Scene, 
+        navigationPlugin: RecastJSPlugin, 
+        ground: Mesh, 
+        pointNavPre: GroundMesh,
+        getGui: () => CommandNexusGui,
+        InfantryAssetContainer: AssetContainer,
+        ArmoredAssetContainer: AssetContainer,
+    ) {
         this.scene = scene;
         this.navigationPlugin = navigationPlugin;
         this.ground = ground;
         this.pointNavPre = pointNavPre;
+        this.getGui= getGui;
+        console.log(InfantryAssetContainer)
+        this.unitAssets[UnitType.Infantry] = InfantryAssetContainer;
+        this.unitAssets[UnitType.Armored] = ArmoredAssetContainer;
+        this.unitAnimations = {
+            [UnitType.Infantry]: soldierAnimationMapping,
+            [UnitType.Armored]: tankAnimationMapping,
+            [UnitType.Air]: { idle: ["Hover"], movement: ["Fly"], attack: ["Missile"] },
+            [UnitType.Naval]: { idle: ["Float"], movement: ["Sail"], attack: ["Cannon"] },
+            [UnitType.Cyber]: { idle: ["Standby"], movement: ["Transfer"], attack: ["Hack"] }
+          };
     }
 
     initialize(): Promise<void> {
@@ -105,7 +115,7 @@ class MultiAgentNavigation {
         console.log("called")
     }
 
-    addAgent(position: Vector3, assetContainer: AssetContainer,animationMapping: AnimationMapping): Agent {
+    private addAgent(unitType: UnitType, position: Vector3): Agent {
         const agentParams = {
             radius: 0.3,
             height: 0.01,
@@ -119,7 +129,7 @@ class MultiAgentNavigation {
         const navAgent = new TransformNode("navAgent_" + this.agents.length, this.scene);
         
         // Create a new instance of the model
-        const result = assetContainer.instantiateModelsToScene(undefined, false, { doNotInstantiate: true });
+        const result = this.unitAssets[unitType].instantiateModelsToScene(undefined, false, { doNotInstantiate: true });
         const rootMesh = result.rootNodes[0] as Mesh;
         rootMesh.parent = navAgent;
         rootMesh.position = Vector3.Zero(); // Reset position relative to navAgent
@@ -127,7 +137,7 @@ class MultiAgentNavigation {
         const agentPosition = this.navigationPlugin.getClosestPoint(position);
         const agentIndex = this.crowd.addAgent(agentPosition, agentParams, navAgent);
 
-        const animations: AgentAnimations   = this.mapAnimations(result.animationGroups, animationMapping);
+        const animations: AgentAnimations   = this.mapAnimations(result.animationGroups, this.unitAnimations[unitType]);
 
         const agent: Agent = {
             navAgent: navAgent,
@@ -146,6 +156,8 @@ class MultiAgentNavigation {
 
         // Start with idle animation
         agent.animations.idle.start(true);
+
+        this.getGui().handleDeployement();
 
         return agent;
     }
@@ -180,13 +192,13 @@ class MultiAgentNavigation {
 
 
     private handlePointerTap(mesh: Mesh): void {
-        
+        const startingPoint = this.getGroundPosition();
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             this.selectedAgent = this.agents[mesh.metadata.agentIndex];
-            console.log("Selected agent:", this.selectedAgent.idx);
-            console.log("Selected agent details:", this.selectedAgent);
-        } else if (mesh.name.includes("ground") && this.selectedAgent) {
-            const startingPoint = this.getGroundPosition();
+           
+        } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui().getDeploymentMode()) {
+            //console.log(this.getGui().getDeploymentMode())
+            // const startingPoint = this.getGroundPosition();
             if (startingPoint) {
                 this.pointNavPre.position = startingPoint;
                 this.pointNavPre.visibility = 1;
@@ -206,6 +218,11 @@ class MultiAgentNavigation {
 
                 this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
             }
+        }else if (mesh.name.includes("ground") && this.getGui().getDeploymentMode()) {
+
+            const {unit: unitType, position} = this.getGui().getSelectedUnitAndDeployPosition();
+            console.log(unitType,position)
+            this.addAgent(unitType, startingPoint)
         }
 
         
@@ -255,4 +272,4 @@ class MultiAgentNavigation {
     
 }
 
-export { MultiAgentNavigation };
+export { NexusUnitManager };

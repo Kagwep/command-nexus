@@ -1,7 +1,8 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3 } from '@babylonjs/core';
 import { Ability, UnitType,unitAbilities } from "../../utils/types";
-
+import { DeployInfo } from "../../utils/types";
+import { stringToUnitType } from "../../utils/nexus";
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -18,9 +19,10 @@ export default class CommandNexusGui {
 
     private deployButton: GUI.Ellipse;
     private isDeploymentMode: boolean = false;
-    private selectedUnit: string | null = null;
+    public selectedUnit: UnitType;
     private unitSelectionPanel: GUI.Rectangle;
     private closeButton: GUI.Button;
+    private deployPosition: Vector3 | null;
 
 
 
@@ -1011,8 +1013,10 @@ export default class CommandNexusGui {
         if (button.textBlock) {
             button.textBlock.left = "20px"; // Move text to the right
         }
+
+        const unit = stringToUnitType(unitType);
     
-        button.onPointerUpObservable.add(() => this.selectUnitToDeploy(unitType));
+        button.onPointerUpObservable.add(() => this.selectUnitToDeploy(unit));
     
         // Add hover effect
         button.onPointerEnterObservable.add(() => {
@@ -1038,7 +1042,7 @@ export default class CommandNexusGui {
         this.unitSelectionPanel.isVisible = !this.unitSelectionPanel.isVisible;
     }
 
-    private selectUnitToDeploy(unitType: string): void {
+    private selectUnitToDeploy(unitType: UnitType): void {
         this.selectedUnit = unitType;
         this.isDeploymentMode = true;
         this.unitSelectionPanel.isVisible = false;
@@ -1050,9 +1054,22 @@ export default class CommandNexusGui {
         if (this.isDeploymentMode && this.selectedUnit) {
             console.log(`Deploying ${this.selectedUnit} at position: ${position}`);
             // Here you would actually create and place the unit at the clicked position
-            this.isDeploymentMode = false;
-            this.selectedUnit = null;
+            this.deployPosition = position;
         }
+    }
+
+    public getSelectedUnitAndDeployPosition(): DeployInfo {
+        return {unit: this.selectedUnit, position: this.deployPosition};
+      }
+
+    public handleDeployement() {
+        this.isDeploymentMode = false;
+        this.selectedUnit = null;
+        this.deployPosition = null;
+    }
+
+    public getDeploymentMode(): boolean{
+        return this.isDeploymentMode
     }
 }
 

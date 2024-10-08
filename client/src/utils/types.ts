@@ -1,3 +1,5 @@
+import { AnimationGroup, AssetContainer, Mesh, TransformNode, Vector3 } from "@babylonjs/core";
+
 export interface Player {
     game_id: number;
     index: number;
@@ -66,6 +68,8 @@ export interface Player {
     Cyber,
 }
 
+
+
 export enum Ability {
     Move,
     Attack,
@@ -87,3 +91,53 @@ export const unitAbilities: Record<UnitType, Ability[]> = {
     [UnitType.Naval]: [Ability.Move, Ability.Attack, Ability.Bombard, Ability.Submerge],
     [UnitType.Cyber]: [Ability.Hack, Ability.Defend, Ability.Stealth],
 };
+
+// UnitMode enum (matching your contract)
+export enum UnitMode {
+  Idle,
+  Moving,
+  Attacking,
+  Defending,
+  Patrolling,
+  Stealthed,
+  Reconning,
+  Healing,
+  Retreating,
+  Repairing,
+}
+
+
+export interface DeployInfo {
+   unit: UnitType; position: Vector3 | null
+}
+
+export type UnitAssetContainers = {
+  [key in UnitType]: AssetContainer;
+};
+
+export interface AgentAnimations {
+  idle: AnimationGroup;
+  movement: AnimationGroup;
+  attack?: AnimationGroup;
+  [key: string]: AnimationGroup | undefined;
+}
+
+export interface Agent {
+  navAgent: TransformNode;
+  visualMesh: Mesh;
+  idx: number;
+  animations: AgentAnimations;
+  animationGroups: AnimationGroup[];
+}
+
+export interface AnimationMapping {
+  idle: string[];
+  movement: string[];
+  attack?: string[];
+  [key: string]: string[] | undefined;
+}
+
+
+export type UnitAnimations = {
+  [key in UnitType] : AnimationMapping
+}

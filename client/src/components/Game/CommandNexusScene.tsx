@@ -5,13 +5,13 @@ import '@babylonjs/loaders';
 import { WeatherSystem, WeatherType } from './CommandNexusWeather';
 import { useDojo } from '../../dojo/useDojo';
 import { Phase } from '../../utils/nexus';
-import { Player } from '../../utils/types';
+import { Player, UnitType } from '../../utils/types';
 import { CameraSlidingCollision } from './CameraCollisionSystem';
 import NexusAreaSystem from './BattleField';
 import TankSystem, { ArmoredAction } from './Armored';
 import Recast from "recast-detour";
 import PointNavigation from './PointNavigation';
-import { AgentAnimations, AnimationMapping, MultiAgentNavigation } from './SceneNavigation';
+import { NexusUnitManager } from './NexusUnitManager';
 import InfantrySystem from './Infantry';
 
 
@@ -27,12 +27,13 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine,gameState: {
+export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui, gameState: {
   player: Player,
   isItMyTurn: boolean,
   turn: number,
   phase: Phase,
-  game: any
+  game: any,
+  players: Player[]
 }) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
@@ -97,19 +98,6 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
     tankContainer.meshes[0].rotate(Axis.Y, Math.PI, Space.LOCAL);
 
 
-      // Define animation mappings
-      const tankAnimationMapping: AnimationMapping = {
-        idle: ["Idle", "Stand"],
-        movement: ["Movement", "Run", "Walk"],
-        attack: ["Attack", "Fire"]
-    };
-
-    const soldierAnimationMapping: AnimationMapping = {
-        idle: ["Idle", "Stand"],
-        movement: ["Run", "Walk"],
-        attack: ["Fire"],
-        defensive: ["Defensive"]
-    };
 
     armored.meshes.forEach((mesh) => {
       mesh.checkCollisions = true;
@@ -173,26 +161,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const pointNavMesh = pointNav.getPointNavMesh();
 
-    // const infantryNode = infantrySystem.infantryNode()
-    // const armoredNode = tankSystem.tankNode()
 
-        // Find the animation groups for the tank
-        const tankAnimations: AgentAnimations = {
-          idle: scene.getAnimationGroupByName("Tank_Idle"),
-          movement: scene.getAnimationGroupByName("Tank_Movement"),
-          attack: scene.getAnimationGroupByName("Tank_Attack")
-      };
-
-      const soldierAnimations: AgentAnimations = {
-        idle: scene.getAnimationGroupByName("Soldier_Idle"),
-        movement: scene.getAnimationGroupByName("Soldier_Run"),
-        attack: scene.getAnimationGroupByName("Soldier_Fire"),
-        defensive: scene.getAnimationGroupByName("Soldier_Defensive")
-    };
-
-
-
-    
         // Create a Main Player Transform Root
         const playerTransform = new TransformNode("Player_Root", scene);    
         tank.parent = playerTransform;
@@ -256,174 +225,174 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
               });
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
-          const multiAgentNav = new MultiAgentNavigation(scene, navigationPlugin, landNavMesh, pointNavPre);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,soldierContainer,tankContainer);
           await multiAgentNav.initialize();
 
           // Create your custom mesh
          // const customAgentMesh = MeshBuilder.CreateBox("agentTemplate", {size: 1}, scene);
           // Customize your mesh here (e.g., apply materials, adjust geometry)
 
-          // Add agents at specific positions with the custom mesh
-          const agent1 = multiAgentNav.addAgent(new Vector3(tank.position.x + 10, 0,tank.position.z + 1), tankContainer, tankAnimationMapping);
-          //const agent3 = multiAgentNav.addAgent(new Vector3(tank.position.x + 10, 0,tank.position.z + 10), tankContainer, tankAnimationMapping);
-          const agent2 = multiAgentNav.addAgent(new Vector3(2, 0, 2), soldierContainer, soldierAnimationMapping);
 
+
+          scene.metadata = {
+            multiAgentNav,
+          };
 
            // setNavigation(tank as MeshN, scene,navigationPlugin,landNavMesh,playerTransform,pointNavMesh)            
         }, 500);
     
     
-const setNavigation = (player: MeshN,scene: Scene, navigationPlugin: RecastJSPlugin, ground: Mesh, playerTransform: TransformNode, pointNavPre: GroundMesh): void => {
+// const setNavigation = (player: MeshN,scene: Scene, navigationPlugin: RecastJSPlugin, ground: Mesh, playerTransform: TransformNode, pointNavPre: GroundMesh): void => {
 
     
-          // Nav Mesh Parameters
-    var navmeshParameters = {
-      cs: 0.4,
-      ch: 0.01,
-      walkableSlopeAngle: 0,
-      walkableHeight: 0.0,
-      walkableClimb: 0,
-      walkableRadius: 2,
-      maxEdgeLen: 12,
-      maxSimplificationError: 1,
-      minRegionArea: 15,
-      mergeRegionArea: 20,
-      maxVertsPerPoly: 6,
-      detailSampleDist: 6,
-      detailSampleMaxError: 35,
-      borderSize: 1,
-      tileSize:25
-  };
+//           // Nav Mesh Parameters
+//     var navmeshParameters = {
+//       cs: 0.4,
+//       ch: 0.01,
+//       walkableSlopeAngle: 0,
+//       walkableHeight: 0.0,
+//       walkableClimb: 0,
+//       walkableRadius: 2,
+//       maxEdgeLen: 12,
+//       maxSimplificationError: 1,
+//       minRegionArea: 15,
+//       mergeRegionArea: 20,
+//       maxVertsPerPoly: 6,
+//       detailSampleDist: 6,
+//       detailSampleMaxError: 35,
+//       borderSize: 1,
+//       tileSize:25
+//   };
 
-  // Navigation Plugin CreateNavMesh (Ground and Boxes separated)
-  // Also you can previosly merge all the navigation meshes
-  navigationPlugin.createNavMesh([ground], navmeshParameters,(navmeshData) =>
-  {
-      navigationPlugin.buildFromNavmeshData(navmeshData);
-      navmeshdebug = navigationPlugin.createDebugNavMesh(scene);
-      navmeshdebug.name = "ground";
-      navmeshdebug.position = new Vector3(0, 0.01, 0);
-      var matdebug = new StandardMaterial('matdebug', scene);
-      matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
-      matdebug.alpha = 1;
-      navmeshdebug.material = matdebug;
-      navmeshdebug.visibility = 0.15;
+//   // Navigation Plugin CreateNavMesh (Ground and Boxes separated)
+//   // Also you can previosly merge all the navigation meshes
+//   navigationPlugin.createNavMesh([ground], navmeshParameters,(navmeshData) =>
+//   {
+//       navigationPlugin.buildFromNavmeshData(navmeshData);
+//       navmeshdebug = navigationPlugin.createDebugNavMesh(scene);
+//       navmeshdebug.name = "ground";
+//       navmeshdebug.position = new Vector3(0, 0.01, 0);
+//       var matdebug = new StandardMaterial('matdebug', scene);
+//       matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
+//       matdebug.alpha = 1;
+//       navmeshdebug.material = matdebug;
+//       navmeshdebug.visibility = 0.15;
       
-      // Badge Information Ready to Navigate
-      setTimeout(() => {
-          // var badgeInfo = document.getElementById("badge");
-          // badgeInfo.innerHTML = " Toggle NavMesh";
-          console.log("RECAST Loaded");
-      }, 300);
+//       // Badge Information Ready to Navigate
+//       setTimeout(() => {
+//           // var badgeInfo = document.getElementById("badge");
+//           // badgeInfo.innerHTML = " Toggle NavMesh";
+//           console.log("RECAST Loaded");
+//       }, 300);
       
-     // recastLoaded = true;
+//      // recastLoaded = true;
 
      
 
-      // Setup Navigation Plugin using one Player
-      var crowd = navigationPlugin.createCrowd(1, 0.1, scene);
+//       // Setup Navigation Plugin using one Player
+//       var crowd = navigationPlugin.createCrowd(1, 0.1, scene);
 
-      // Crow
-      var agentParams = {
-          radius: 0.3,
-          height: 0.01,
-          maxAcceleration: 50.0,
-          maxSpeed: 4,
-          collisionQueryRange: 0.5,
-          pathOptimizationRange: 0.2,
-          separationWeight: 1.0};
+//       // Crow
+//       var agentParams = {
+//           radius: 0.3,
+//           height: 0.01,
+//           maxAcceleration: 50.0,
+//           maxSpeed: 4,
+//           collisionQueryRange: 0.5,
+//           pathOptimizationRange: 0.2,
+//           separationWeight: 1.0};
 
-      // Setup Player Position
-      var position = navigationPlugin.getClosestPoint(new Vector3(0, 0, 0));
+//       // Setup Player Position
+//       var position = navigationPlugin.getClosestPoint(new Vector3(0, 0, 0));
 
-      // Add Agent
-      var agentIndex = crowd.addAgent(position, agentParams, playerTransform);
-       player.idx = agentIndex; 
+//       // Add Agent
+//       var agentIndex = crowd.addAgent(position, agentParams, playerTransform);
+//        player.idx = agentIndex; 
 
-      // Hide Point Nav
-      pointNavPre.visibility = 0;
+//       // Hide Point Nav
+//       pointNavPre.visibility = 0;
 
-      // Detecting Navigation Point Position
-      var startingPoint;
-      var getGroundPosition = function () {
-          var pickinfo = scene.pick(scene.pointerX, scene.pointerY);
-          if (pickinfo.hit) {
-              return pickinfo.pickedPoint;
-          }
-          return null;
-      }
+//       // Detecting Navigation Point Position
+//       var startingPoint;
+//       var getGroundPosition = function () {
+//           var pickinfo = scene.pick(scene.pointerX, scene.pointerY);
+//           if (pickinfo.hit) {
+//               return pickinfo.pickedPoint;
+//           }
+//           return null;
+//       }
 
-      // Pointer Tap Functions
-      var pointerTap = function (mesh: Mesh) {
-          console.log("Tap: " + mesh.name);
+//       // Pointer Tap Functions
+//       var pointerTap = function (mesh: Mesh) {
+//           console.log("Tap: " + mesh.name);
           
-          // Detect Pointer Tap only on Ground Mesh 
-          if (!mesh.name.includes("ground"))
-              return;
+//           // Detect Pointer Tap only on Ground Mesh 
+//           if (!mesh.name.includes("ground"))
+//               return;
 
-          startingPoint = getGroundPosition();
-          pointNavPre.position = startingPoint as Vector3;
-          pointNavPre.visibility = 1;
-          var agents = crowd.getAgents();
-          var i;
+//           startingPoint = getGroundPosition();
+//           pointNavPre.position = startingPoint as Vector3;
+//           pointNavPre.visibility = 1;
+//           var agents = crowd.getAgents();
+//           var i;
 
-          for (i=0;i<agents.length;i++) {
-              if (currentAnim == idleAnim)
-              {
-                  // Start Player Walk Animation
-                  //currentAnim = walkAnim;
+//           for (i=0;i<agents.length;i++) {
+//               if (currentAnim == idleAnim)
+//               {
+//                   // Start Player Walk Animation
+//                   //currentAnim = walkAnim;
                  
-                  scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(idleAnim, 1.0, walkAnim, 1.3, true, 0.05));
-              }
-              crowd.agentGoto(agents[i], navigationPlugin.getClosestPoint(startingPoint as Vector3));
-          }
-      }
+//                   scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(idleAnim, 1.0, walkAnim, 1.3, true, 0.05));
+//               }
+//               crowd.agentGoto(agents[i], navigationPlugin.getClosestPoint(startingPoint as Vector3));
+//           }
+//       }
       
-      // On Point Observable
-      scene.onPointerObservable.add((pointerInfo) => {      		
-          switch (pointerInfo.type) {
-              case PointerEventTypes.POINTERTAP:
-                  if(pointerInfo.pickInfo && pointerInfo.pickInfo.hit) {
-                      pointerTap(pointerInfo.pickInfo.pickedMesh as Mesh)
-                  }
-                  break;
-          }
-      });
+//       // On Point Observable
+//       scene.onPointerObservable.add((pointerInfo) => {      		
+//           switch (pointerInfo.type) {
+//               case PointerEventTypes.POINTERTAP:
+//                   if(pointerInfo.pickInfo && pointerInfo.pickInfo.hit) {
+//                       pointerTap(pointerInfo.pickInfo.pickedMesh as Mesh)
+//                   }
+//                   break;
+//           }
+//       });
 
-      // Crowd On Before Render Observable
-      scene.onBeforeRenderObservable.add(()=> {
-          // New Player Position
-          playerTransform.position = crowd.getAgentPosition(player.idx as number);
-          let vel = crowd.getAgentVelocity(player.idx as number);
-          crowd.getAgentPositionToRef(player.idx as number, playerTransform.position);
-          if (vel.length() > 1)
-          {
-              // New Player Rotation
-              vel.normalize();
-              var desiredRotation = Math.atan2(vel.x, vel.z);
-              playerTransform.rotation.y = playerTransform.rotation.y + (desiredRotation - playerTransform.rotation.y);    
-          }
-      });
+//       // Crowd On Before Render Observable
+//       scene.onBeforeRenderObservable.add(()=> {
+//           // New Player Position
+//           playerTransform.position = crowd.getAgentPosition(player.idx as number);
+//           let vel = crowd.getAgentVelocity(player.idx as number);
+//           crowd.getAgentPositionToRef(player.idx as number, playerTransform.position);
+//           if (vel.length() > 1)
+//           {
+//               // New Player Rotation
+//               vel.normalize();
+//               var desiredRotation = Math.atan2(vel.x, vel.z);
+//               playerTransform.rotation.y = playerTransform.rotation.y + (desiredRotation - playerTransform.rotation.y);    
+//           }
+//       });
 
-      const idleAnim = scene!.getAnimationGroupByName("Tank_Idle");
-      const walkAnim = scene!.getAnimationGroupByName("Tank_Movement");
-      idleAnim?.start(true);
+//       const idleAnim = scene!.getAnimationGroupByName("Tank_Idle");
+//       const walkAnim = scene!.getAnimationGroupByName("Tank_Movement");
+//       idleAnim?.start(true);
       
 
-      // Crowd On Reach Target Observable
-      crowd.onReachTargetObservable.add((agentInfos: any) => {
-          console.log("agent reach destination");
-          //currentAnim = idleAnim;
+//       // Crowd On Reach Target Observable
+//       crowd.onReachTargetObservable.add((agentInfos: any) => {
+//           console.log("agent reach destination");
+//           //currentAnim = idleAnim;
        
-          scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(walkAnim, 1.3, idleAnim, 1.0, true, 0.05));
-          pointNavPre.visibility = 0;
-      });
+//           scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(walkAnim, 1.3, idleAnim, 1.0, true, 0.05));
+//           pointNavPre.visibility = 0;
+//       });
 
-      console.log("....................",playerTransform)
+//       console.log("....................",playerTransform)
 
-  });
+//   });
     
-  };
+//   };
     
     
     function* animationBlending(fromAnim: any, fromAnimSpeedRatio: any, toAnim: any, toAnimSpeedRatio: any, repeat: any, animationBlendingSpeed: any)
@@ -461,21 +430,6 @@ const setNavigation = (player: MeshN,scene: Scene, navigationPlugin: RecastJSPlu
   // NovaWarhound,
   // SavageCoast,
 
-//   const complexAreaPoints = [
-//     new Vector3(852.5509877908504, -0.14761458337295608, 758.9692187112205),
-//     new Vector3(893.5529652153359, -0.08039172726097377, 839.130093353469),
-//     new Vector3(917.5572048258765, -0.30003630329429143, 895.7555439107293),
-//     new Vector3(1022.2176402963837, -0.08039172726103061, 874.4706940989424),
-//     new Vector3(1042.8196019748418, -0.14761458337306976, 850.5284954540897),
-//     new Vector3(1046.7855684428391, -0.14761458337306976, 785.4498092467963),
-//     new Vector3(1064.7283954052075, -0.14761458337301292, 813.7681701227885),
-//     new Vector3(1121.3155191853955, -0.14761458337309818, 819.7479110334095),
-//     new Vector3(1273.7406247327149, -0.14761458337306976, 816.397528651424),
-//     new Vector3(1254.3572263799138, -0.14761458337301292, 746.0177863984642),
-//     new Vector3(1253.8637497492393, -4.724697113037109, 190.2639365757862),
-//     new Vector3(907.4799501815879, -4.724697113037223, 194.276443631348)
-    
-// ];
 
 function addPhysicsAggregate(meshe: TransformNode) {
   const res = new PhysicsAggregate(
@@ -588,35 +542,17 @@ scene.onBeforeRenderObservable.add(() => {
   camera.radius = Math.max(camera.lowerRadiusLimit, Math.min(camera.radius, camera.upperRadiusLimit));
 });
 
+
+
 //camera.setTarget(activeUnit, true, false, false);
 };
 
 
 
-// New function to update the scene based on game state
-export const updateScene = (scene: Scene, gameState: {
-  player: Player,
-  isItMyTurn: boolean,
-  turn: number,
-  phase: Phase
-}) => {
-  // Update scene based on game state
-  // For example:
-  if (gameState.isItMyTurn) {
-    // Highlight current player's units or enable controls
-  }
-
-  // Update turn display
-  const turnText = scene.getMeshByName("turnText");
-  if (turnText) {
-    (turnText as any).text = `Turn: ${gameState.turn}`;
-  }
-
-  // Update phase display
-  const phaseText = scene.getMeshByName("phaseText");
-  if (phaseText) {
-    (phaseText as any).text = `Phase: ${gameState.phase}`;
-  }
-
-  // Add more logic to update other aspects of the scene based on gameState
+export const updateScene = (
+  scene: Scene, 
+  gui: CommandNexusGui | null, 
+  state: { player: Player, isItMyTurn: boolean, turn: number, phase: Phase, game:any, players: Player[] }
+) => {
+  console.log(gui.getDeploymentMode())
 };

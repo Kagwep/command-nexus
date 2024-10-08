@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import GameState from './gamestate';
-import { Battle } from './types';
+import { AnimationMapping, Battle, UnitType } from './types';
 import { LogType } from '../hooks/useLogs';
 import { Event } from './events';
 
@@ -145,3 +145,34 @@ export type Network =
   | "sepolia"
   | "localKatana"
   | undefined;
+
+  export function stringToUnitType(unitString: string): UnitType {
+    switch (unitString.toLowerCase()) {
+        case 'infantry':
+            return UnitType.Infantry;
+        case 'armored':
+            return UnitType.Armored;
+        case 'air':
+            return UnitType.Air;
+        case 'naval':
+            return UnitType.Naval;
+        case 'cyber':
+            return UnitType.Cyber;
+        default:
+            throw new Error(`Invalid unit type: ${unitString}`);
+    }
+}
+
+      // Define animation mappings
+export const tankAnimationMapping: AnimationMapping = {
+        idle: ["Idle", "Stand"],
+        movement: ["Movement", "Run", "Walk"],
+        attack: ["Attack", "Fire"]
+    };
+
+export const soldierAnimationMapping: AnimationMapping = {
+        idle: ["Idle", "Stand"],
+        movement: ["Run", "Walk"],
+        attack: ["Fire"],
+        defensive: ["Defensive"]
+    };

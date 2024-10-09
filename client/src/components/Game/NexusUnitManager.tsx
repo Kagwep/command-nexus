@@ -1,4 +1,4 @@
-import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer } from '@babylonjs/core';
+import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
 import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations } from '../../utils/types';
@@ -23,6 +23,8 @@ class NexusUnitManager {
         [UnitType.Cyber]: new AssetContainer(),
     };
     private unitAnimations: UnitAnimations;
+    private activeUnitType: UnitType;
+    private activePosition: Vector3;
 
     constructor(
         scene: Scene, 
@@ -105,6 +107,11 @@ class NexusUnitManager {
         this.crowd.onReachTargetObservable.add((agentInfos: any) => {
             console.log("Agent reached destination:", agentInfos.agentIndex);
             this.pointNavPre.visibility = 0;
+            console.log(this.activeUnitType)
+           // this.getGui().showActionsMenu(this.activeUnitType);
+            const elevation = this.getElevationAtPosition(this.activePosition)
+            const coverPosition = this.getCoverLevel(this.activePosition)
+            console.log(elevation,coverPosition);
             // Implement stop walk animation here if needed
             //this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent.animations.movement, 1.3, this.selectedAgent.animations.idle, 1.0, true, 0.05));
         
@@ -112,7 +119,7 @@ class NexusUnitManager {
 
 
         });
-        console.log("called")
+        console.log("called..............")
     }
 
     private addAgent(unitType: UnitType, position: Vector3): Agent {
@@ -144,7 +151,8 @@ class NexusUnitManager {
             visualMesh: rootMesh,
             idx: agentIndex,
             animations: animations,
-            animationGroups: result.animationGroups
+            animationGroups: result.animationGroups,
+            cUnitType: unitType
         };
 
         rootMesh.metadata = { agentIndex: this.agents.length };
@@ -217,11 +225,13 @@ class NexusUnitManager {
                     );
 
                 this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
+                this.activeUnitType = this.selectedAgent.cUnitType;
             }
         }else if (mesh.name.includes("ground") && this.getGui().getDeploymentMode()) {
 
             const {unit: unitType, position} = this.getGui().getSelectedUnitAndDeployPosition();
-            console.log(unitType,position)
+            this.activePosition = startingPoint;
+            
             this.addAgent(unitType, startingPoint)
         }
 
@@ -268,6 +278,44 @@ class NexusUnitManager {
             yield;
         }
     }
+
+    private getElevationAtPosition(position: Vector3): number {
+        // Create a ray starting from the position and pointing downwards
+        const ray = new Ray(position, new Vector3(0, -1, 0));
+        const pickResult = this.scene.pickWithRay(ray);
+    
+        if (pickResult.hit) {
+            // If the ray hits a mesh, return the Y position (elevation)
+            return pickResult.pickedPoint.y;
+        }
+        return 0; // Return 0 if there's no hit
+    }
+
+    private getCoverLevel(unitPosition: Vector3): number {
+        // Define your logic to determine cover level
+        let coverLevel = 0;
+    
+        // Example logic: Check for nearby objects to determine cover
+        const objects = this.scene.meshes; // Assuming all your objects are in the scene
+    
+        // Check surrounding objects within a certain radius
+        const radius = 5; // Define your radius for checking cover
+        objects.forEach((mesh) => {
+            if (mesh instanceof AbstractMesh) {
+                const distance = Vector3.Distance(unitPosition, mesh.position);
+                if (distance < radius) {
+                    // Calculate cover level based on distance or other criteria
+                    // For simplicity, let's say objects provide a fixed cover level
+                    coverLevel += 20; // Increase cover level based on proximity
+                }
+            }
+        });
+    
+        // Cap the cover level at 100
+        return Math.min(coverLevel, 100);
+    }
+    
+    
 
     
 }

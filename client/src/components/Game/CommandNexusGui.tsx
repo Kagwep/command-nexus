@@ -1,8 +1,10 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3 } from '@babylonjs/core';
-import { Ability, UnitType,unitAbilities } from "../../utils/types";
+import {  UnitType,UnitAbilities, AbilityType } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
-import { stringToUnitType } from "../../utils/nexus";
+import { abilityStringToEnum, stringToUnitType } from "../../utils/nexus";
+import { getUnitAbilities } from "../../utils/nexus";
+import { Button, Control, Rectangle } from "@babylonjs/gui";
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -23,6 +25,10 @@ export default class CommandNexusGui {
     private unitSelectionPanel: GUI.Rectangle;
     private closeButton: GUI.Button;
     private deployPosition: Vector3 | null;
+    private unitButtons: GUI.Button[] = []
+    private outerArc: Rectangle;
+    private innerArc: Rectangle;
+    private imagePlaceholder: Rectangle;
 
 
 
@@ -50,7 +56,35 @@ export default class CommandNexusGui {
 
         this.createDeployButton();
         this.createUnitSelectionPanel();
+
+        this.createArcs();
+       
     }
+
+    private createArcs() {
+        this.outerArc = new Rectangle("outerArc");
+        this.outerArc.width = "700px";
+        this.outerArc.height = "200px";
+        this.outerArc.cornerRadius = 200;
+        this.outerArc.color = "green";
+        this.outerArc.thickness = 0;
+        this.outerArc.background = "transparent";
+        this.outerArc.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        this.gui.addControl(this.outerArc);
+
+        this.innerArc = new Rectangle("innerArc");
+        this.innerArc.width = "400px";
+        this.innerArc.height = "100px";
+        this.innerArc.cornerRadius = 150;
+        this.innerArc.color = "green";
+        this.innerArc.thickness = 0;
+        this.innerArc.background = "transparent";
+        this.innerArc.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        this.gui.addControl(this.innerArc);
+    }
+
+
+
 
     private createButton(name: string, text: string): GUI.Button {
         const button = GUI.Button.CreateSimpleButton(name, text);
@@ -321,47 +355,6 @@ export default class CommandNexusGui {
         this.gui.addControl(this.actionsPanel);
     }
 
-    public selectUnit(unitId: number, unitType: UnitType): void {
-        this.selectedUnitId = unitId;
-        this.updateActionsPanel(unitType);
-    }
-
-    private updateActionsPanel(unitType: UnitType): void {
-        if (this.selectedUnitId === null) {
-            this.actionsPanel.isVisible = false;
-            return;
-        }
-
-        // Clear existing buttons
-        this.actionsPanel.clearControls();
-
-        // Get available abilities for the unit type
-        const abilities = unitAbilities[unitType];
-
-        // Create a button for each available ability
-        abilities.forEach((ability: Ability, index: number) => {
-            const button = GUI.Button.CreateSimpleButton(`${ability}Button`, Ability[ability]);
-            button.width = "110px";
-            button.height = "40px";
-            button.color = "white";
-            button.background = "green";
-            button.onPointerUpObservable.add(() => {
-                this.useAbility(ability);
-            });
-            button.left = (index - (abilities.length - 1) / 2) * 120 + "px";  // Center the buttons
-            this.actionsPanel.addControl(button);
-        });
-
-        this.actionsPanel.isVisible = true;
-    }
-
-    private useAbility(ability: Ability): void {
-        if (this.selectedUnitId === null) return;
-
-        console.log(`Using ability ${Ability[ability]} for unit ${this.selectedUnitId}`);
-        // Here you would typically update game state, animate the action, etc.
-    }
-    
     private toggleMainMenuPanel(): void {
         this.mainMenuPanel.isVisible = !this.mainMenuPanel.isVisible;
         if (!this.mainMenuPanel.isVisible) {
@@ -1071,5 +1064,155 @@ export default class CommandNexusGui {
     public getDeploymentMode(): boolean{
         return this.isDeploymentMode
     }
+
+    public showActionsMenu(unitType: UnitType) {
+        this.clearButtons(); // Clear existing buttons
+        this.innerArc.thickness = 1;
+    
+        // Fetch abilities based on the unitType
+        const abilities = getUnitAbilities(unitType);
+        const availableAbilities = Object.entries(abilities)
+            .filter(([_, level]) => level > 0)
+            .map(([ability, _]) => ability as keyof typeof AbilityType);
+    
+        const numButtons = availableAbilities.length;
+        const buttonSize = "80px";
+        const outerWidth = 700; // Width of the outer arc
+        const innerWidth = 300; // Width of the inner arc
+        const outerHeight = 200; // Height of the outer arc
+        const innerHeight = 100; // Height of the inner arc
+        const buttonRadius = (outerWidth + innerWidth) / 4; // Average radius for horizontal positioning
+    
+        const paddingAngle = 0.2; // Padding in radians to reduce total range slightly
+        const availableAngle = Math.PI - paddingAngle; // Total angle range with padding
+        const angleStep = availableAngle / (numButtons - 1); // Even angle step between buttons
+    
+        availableAbilities.forEach((ability, index) => {
+            // Calculate angle for buttons, evenly spaced with padding
+            const angle = (index * angleStep) + (paddingAngle / 2); // Offset to center the arc
+    
+            // Horizontal position based on buttonRadius and angle
+            let x = Math.cos(angle) * buttonRadius;
+    
+            // Vertical position to ensure it's between the outer and inner arc heights
+            let y = -Math.sin(angle) * (outerHeight / 2 - innerHeight / 2) - (outerHeight - innerHeight) / 2;
+    
+            // Adjust the first and last buttons by pushing them slightly down
+            if (index === 0 || index === numButtons - 1) {
+                y += 40; // Push the button down by 20px (adjust this value as needed)
+                if (index === 0){
+                    x += 20;
+                }else{
+                    x -= 20;
+                }
+            }else{
+                y -=10
+            }
+            function capitalizeFirstLetter(ability: string) {
+                return ability.charAt(0).toUpperCase() + ability.slice(1);
+            }
+
+            const abilityEnum = abilityStringToEnum(capitalizeFirstLetter(ability));
+
+            const abilityImagePath = this.getAbilityImage(abilityEnum);
+
+           // console.log(abilityImagePath,abilityEnum, ability)
+    
+            // Create the button with image
+            const button = Button.CreateImageWithCenterTextButton(
+                ability,
+                ability,
+                abilityImagePath
+            );
+            button.width = buttonSize;
+            button.height = "50px";
+            button.color = "white";
+            button.thickness = 0;
+            button.cornerRadius = 35;
+            button.background = "rgba(80, 80, 80, 0.6)";
+            button.hoverCursor = "pointer";
+            button.thickness = 0;
+            button.fontFamily = "Arial, Helvetica, sans-serif";
+            button.fontSize = 16;
+        
+            // Adjust image size and position
+            if (button.image) {
+                button.image.width = "20px";
+                button.image.height = "20px";
+                button.image.left = "-30px"; // Move image to the left
+            }
+        
+            // Adjust text position
+            if (button.textBlock) {
+                button.textBlock.left = "10px"; // Move text to the right
+            }
+    
+            // Handle click event
+            button.onPointerUpObservable.add(() => {
+                console.log(`${ability} ability used`);
+                // Implement ability action here
+            });
+    
+            // Add hover effect
+            button.onPointerEnterObservable.add(() => {
+                button.background = "rgba(0, 80, 40, 0.9)"; // Light blue with slight transparency on hover
+            });
+
+            button.onPointerOutObservable.add(() => {
+                button.background = "rgba(80, 80, 80, 0.6)"; // Dark gray with slight transparency in normal state
+            });
+
+
+            // Align buttons relative to the outer arc
+            button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+            button.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+    
+            // Set the calculated position of the button relative to the center
+            button.left = x + "px";
+            button.top = y + "px";
+    
+            // Add the button to the GUI
+            this.gui.addControl(button);
+            this.unitButtons.push(button);
+        });
+    
+        console.log("Actions menu displayed");
+    }
+    
+    
+
+    private clearButtons() {
+        this.unitButtons.forEach(button => this.gui.removeControl(button));
+        this.unitButtons = [];
+    }
+
+    private getAbilityImage(ability: AbilityType): string {
+        switch (ability) {
+            case AbilityType.Attack:
+                return "/images/attack_icon.png";
+            case AbilityType.Defend:
+                return "/images/defend_icon.png";
+            case AbilityType.Patrol:
+                return "/images/patrol_icon.png";
+            case AbilityType.Stealth:
+                return "/images/stealth_icon.png";
+            case AbilityType.Recon:
+                return "/images/recon_icon.png";
+            case AbilityType.Hack:
+                return "/images/hack_icon.png";
+            case AbilityType.Repair:
+                return "/images/repair_icon.png";
+            case AbilityType.Airlift:
+                return "/images/airlift_icon.png";
+            case AbilityType.Bombard:
+                return "/images/bombard_icon.png";
+            case AbilityType.Submerge:
+                return "/images/submerge_icon.png";
+            default:
+                return "/images/default_icon.png"; // Fallback if no matching ability
+        }
+    }
+    
+
 }
 

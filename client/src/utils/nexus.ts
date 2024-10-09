@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import GameState from './gamestate';
-import { AnimationMapping, Battle, UnitType } from './types';
+import { AbilityType, AnimationMapping, Battle, UnitAbilities, UnitType } from './types';
 import { LogType } from '../hooks/useLogs';
 import { Event } from './events';
 
@@ -176,3 +176,51 @@ export const soldierAnimationMapping: AnimationMapping = {
         attack: ["Fire"],
         defensive: ["Defensive"]
     };
+
+
+    export const getUnitAbilities = (unitType: UnitType): UnitAbilities => {
+      switch (unitType) {
+          case UnitType.Infantry:
+              return {
+                  attack: 2, defend: 2,
+                  patrol: 1, stealth: 1, recon: 0,
+                  hack: 0, repair: 0, airlift: 0,
+                  bombard: 0, submerge: 0
+              };
+          case UnitType.Armored:
+              return {
+                  attack: 3, defend: 3,
+                  patrol: 1, stealth: 0, recon: 0,
+                  hack: 0, repair: 1, airlift: 0,
+                  bombard: 2, submerge: 0
+              };
+          case UnitType.Naval:
+              return {
+                  attack: 2, defend: 2,
+                  patrol: 2, stealth: 1, recon: 1,
+                  hack: 0, repair: 1, airlift: 0,
+                  bombard: 2, submerge: 1
+              };
+          case UnitType.Air:
+              return {
+                  attack: 2, defend: 1,
+                  patrol: 2, stealth: 1, recon: 2,
+                  hack: 0, repair: 0, airlift: 2,
+                  bombard: 1, submerge: 0
+              };
+          case UnitType.Cyber:
+              return {
+                  attack: 1, defend: 1,
+                  patrol: 0, stealth: 2, recon: 2,
+                  hack: 3, repair: 2, airlift: 0,
+                  bombard: 0, submerge: 0
+              };
+          default:
+              throw new Error("Invalid unit type");
+      }
+  }
+
+
+  export function abilityStringToEnum(ability: string): AbilityType | undefined {
+    return AbilityType[ability as keyof typeof AbilityType];
+}

@@ -124,7 +124,7 @@ export class WeatherSystem {
 
     // Optional: Add fog to enhance the radius effect
     this.scene.fogMode = Scene.FOGMODE_EXP2;
-    this.scene.fogDensity = 0.005; // Adjust this value to change fog density
+    this.scene.fogDensity = 0.009; // Adjust this value to change fog density
     this.scene.fogColor = new Color3(0.05, 0.05, 0.1);
     
 

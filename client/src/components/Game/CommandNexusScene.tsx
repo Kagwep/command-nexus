@@ -85,7 +85,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
       addPhysicsAggregate(mesh);
     })
 
-    const armored =  await SceneLoader.ImportMeshAsync('', '/models/', "Tank.glb");
+    //const armored =  await SceneLoader.ImportMeshAsync('', '/models/', "Tank.glb");
 
     const tankContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Tank.glb", scene);
     const soldierContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Soldier.glb", scene);
@@ -99,54 +99,54 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
 
 
-    armored.meshes.forEach((mesh) => {
-      mesh.checkCollisions = true;
-      addPhysicsAggregate(mesh);
-      mesh.isPickable = true
-      mesh.setEnabled(false);
-     // mesh.visibility = 0
-    })
+    // armored.meshes.forEach((mesh) => {
+    //   mesh.checkCollisions = true;
+    //   addPhysicsAggregate(mesh);
+    //   mesh.isPickable = true
+    //   mesh.setEnabled(false);
+    //  // mesh.visibility = 0
+    // })
     
 
-    const tank = armored.meshes[0];
+    // const tank = armored.meshes[0];
     
 
         
-    tank.scaling = new Vector3(0.5, 0.5, 0.5);
+    // tank.scaling = new Vector3(0.5, 0.5, 0.5);
 
-    // Correct Rotation from Imported Model
-    tank.rotation = new Vector3(0, -Math.PI, 0);
+    // // Correct Rotation from Imported Model
+    // tank.rotation = new Vector3(0, -Math.PI, 0);
 
-    //
+    // //
 
-    tank.rotate(Axis.Y, Math.PI, Space.LOCAL);
+    // tank.rotate(Axis.Y, Math.PI, Space.LOCAL);
 
 
-    const infantryMesh =  await SceneLoader.ImportMeshAsync('', '/models/', "Soldier.glb");
+    // const infantryMesh =  await SceneLoader.ImportMeshAsync('', '/models/', "Soldier.glb");
 
-    console.log(infantryMesh)
+    // console.log(infantryMesh)
 
-    infantryMesh.meshes.forEach((mesh) => {
-      mesh.checkCollisions = true;
-      mesh.isPickable = true
-      mesh.setEnabled(false);
-      addPhysicsAggregate(mesh);
-    })
+    // infantryMesh.meshes.forEach((mesh) => {
+    //   mesh.checkCollisions = true;
+    //   mesh.isPickable = true
+    //   mesh.setEnabled(false);
+    //   addPhysicsAggregate(mesh);
+    // })
 
-    const infantry = infantryMesh.meshes[0];
+    // const infantry = infantryMesh.meshes[0];
 
         
-    infantry.scaling = new Vector3(0.5, 0.5, 0.5);
+    // infantry.scaling = new Vector3(0.5, 0.5, 0.5);
 
-    // Correct Rotation from Imported Model
-    infantry.rotation = new Vector3(0, -Math.PI, 0);
+    // // Correct Rotation from Imported Model
+    // infantry.rotation = new Vector3(0, -Math.PI, 0);
 
-    //
+    // //
 
-    infantry.rotate(Axis.Y, Math.PI, Space.LOCAL);
+    // infantry.rotate(Axis.Y, Math.PI, Space.LOCAL);
 
     
-    activeUnit = tank;
+    //activeUnit = tank;
 
 
     //const tankSystem = new TankSystem(armored, scene);
@@ -164,8 +164,8 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
         // Create a Main Player Transform Root
         const playerTransform = new TransformNode("Player_Root", scene);    
-        tank.parent = playerTransform;
-        tank.checkCollisions = true
+        //tank.parent = playerTransform;
+       // tank.checkCollisions = true
         // Create a single collision box for the entire tank
         const createTankCollider = (rootMesh: AbstractMesh) => {
           // Compute the world matrix to include all transformations
@@ -191,8 +191,8 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
           return collisionBox;
         };
 
-        const tankCollider = createTankCollider(tank);
-        tankCollider.parent = playerTransform;
+        //const tankCollider = createTankCollider(tank);
+       // tankCollider.parent = playerTransform;
 
           // Setup Navigation
           setTimeout(async () => {

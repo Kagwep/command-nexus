@@ -32,6 +32,7 @@ export default class NexusAreaSystem {
 
         // Create custom mesh
         const customMesh = new Mesh(options.name, this.scene);
+        customMesh.visibility = 0
 
         const positions: number[] = [];
         const indices: number[] = [];

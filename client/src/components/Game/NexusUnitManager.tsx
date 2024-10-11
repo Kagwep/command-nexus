@@ -1,8 +1,11 @@
-import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh } from '@babylonjs/core';
+import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
-import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations } from '../../utils/types';
+import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType } from '../../utils/types';
 import { soldierAnimationMapping, tankAnimationMapping } from '../../utils/nexus';
+import { Weapon } from './BulletSystem';
+import { SoundManager } from './SoundManager';
+import { RayCaster } from './RayCaster';
 
 class NexusUnitManager {
     private scene: Scene;
@@ -25,6 +28,14 @@ class NexusUnitManager {
     private unitAnimations: UnitAnimations;
     private activeUnitType: UnitType;
     private activePosition: Vector3;
+    private bulletSystem: Weapon;
+    private soundManager: SoundManager;
+    private navMeshIndices: any;
+    private highlightMesh: Mesh;
+    private threshold = 0.1;
+    private epsilon = 0.001
+    private indices: any;
+    private rayCaster: RayCaster;
 
     constructor(
         scene: Scene, 
@@ -50,6 +61,10 @@ class NexusUnitManager {
             [UnitType.Naval]: { idle: ["Float"], movement: ["Sail"], attack: ["Cannon"] },
             [UnitType.Cyber]: { idle: ["Standby"], movement: ["Transfer"], attack: ["Hack"] }
           };
+          this.bulletSystem = new Weapon(scene);
+          this.initializeSoundManager();
+          this.rayCaster = new RayCaster(scene);
+        
     }
 
     initialize(): Promise<void> {
@@ -97,7 +112,22 @@ class NexusUnitManager {
         matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
         matdebug.alpha = 1;
         this.navmeshdebug.material = matdebug;
-        this.navmeshdebug.visibility = 0;
+        this.navmeshdebug.visibility = 0.15;
+
+        const positions = this.navmeshdebug.getVerticesData(VertexBuffer.PositionKind);
+        this.navMeshIndices =positions
+        this.indices = this.navmeshdebug.getIndices();
+
+        console.log(this.navMeshIndices)
+
+
+        //new InteractiveGridObstructionSystem(this.scene, 300, 1);
+    }
+
+    private initializeSoundManager(){
+            this.soundManager =new SoundManager(this.scene)
+            this.soundManager.addSound("bulletFire","/sounds/riflefire.mp3")
+            this.soundManager.addSound("move","/sounds/footsteps-running-away-fading-2-103763.mp3")
     }
 
     private setupCrowd(): void {
@@ -107,8 +137,8 @@ class NexusUnitManager {
         this.crowd.onReachTargetObservable.add((agentInfos: any) => {
             console.log("Agent reached destination:", agentInfos.agentIndex);
             this.pointNavPre.visibility = 0;
-            console.log(this.activeUnitType)
-           // this.getGui().showActionsMenu(this.activeUnitType);
+            this.soundManager.stopSound("move")
+            this.getGui().showActionsMenu(this.activeUnitType);
             const elevation = this.getElevationAtPosition(this.activePosition)
             const coverPosition = this.getCoverLevel(this.activePosition)
             console.log(elevation,coverPosition);
@@ -202,11 +232,127 @@ class NexusUnitManager {
     private handlePointerTap(mesh: Mesh): void {
         const startingPoint = this.getGroundPosition();
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
-            this.selectedAgent = this.agents[mesh.metadata.agentIndex];
+            if (this.selectedAgent && this.selectedAgent.idx !== mesh.metadata.agentIndex && this.getGui().getAbilityMode() == AbilityType.Attack) {
+                console.log("different", this.selectedAgent.visualMesh);
+                console.log(this.getGui().getAbilityMode());
+                // Get the target agent
+                const targetAgent = this.agents[mesh.metadata.agentIndex];
+
+                const { hit} = this.rayCaster.castRay(this.selectedAgent.visualMesh, targetAgent.visualMesh);
+
+                if (hit) {
+                    console.log(`Ray hit at `);
+                    console.log(`Hit normal:`);
+                } else {
+                    console.log("Ray did not hit the target mesh");
+                }
+                            
+                if (targetAgent && targetAgent.navAgent) {
+
+                    const distanceBetweenMeshes = this.getDistanceBetweenMeshes(this.selectedAgent.visualMesh, targetAgent.visualMesh);
+
+                    console.log(distanceBetweenMeshes*2.5);
+
+                    // const obstructions = this.detectPlayerObstructions(this.selectedAgent.navAgent, 5, 360);
+                    // console.log("Blocked Regions:", obstructions);
+                    // Log positions for debugging
+                    // console.log("Selected Agent Position:", this.selectedAgent.navAgent.position);
+                    // console.log("Target Agent Position:", targetAgent.navAgent.position);
+
+                    const originalRotation = this.selectedAgent.navAgent.rotationQuaternion;
+                    const agentRotation  = this.selectedAgent.visualMesh.rotationQuaternion;
+            
+                    // Calculate the direction vector from the selected agent to the target agent
+                    const direction = targetAgent.navAgent.position.subtract(this.selectedAgent.navAgent.position);
+            
+                    // Log direction for debugging
+                    // console.log("Direction Vector:", direction);
+            
+                    // Normalize the direction vector
+                    direction.normalize();
+            
+                    // Log normalized direction for debugging
+                    // console.log("Normalized Direction Vector:", direction);
+            
+                    // Calculate the angle between the world forward vector and the direction vector
+                    const worldForward = Vector3.Forward().negate();
+                    const angle = Math.atan2(direction.x, direction.z) - Math.atan2(worldForward.x, worldForward.z);
+            
+                    // Log angle for debugging
+                    // console.log("Rotation Angle (radians):", angle);
+            
+                    // Create a rotation quaternion based on the calculated angle
+                    const rotationQuaternion = Quaternion.RotationAxis(Axis.Y, angle);
+            
+                    // Apply the rotation to the selected agent's navAgent
+                    this.selectedAgent.navAgent.rotationQuaternion = rotationQuaternion;
+            
+                    // If visualMesh is parented to navAgent, we need to reset its local rotation
+                    if (this.selectedAgent.visualMesh) {
+                        this.selectedAgent.visualMesh.rotationQuaternion = Quaternion.Identity();
+                    }
+            
+                    this.scene.onBeforeRenderObservable.runCoroutineAsync(
+                        this.animationBlending(
+                            this.selectedAgent.animations.idle,
+                            1.0,
+                            this.selectedAgent.animations.attack,
+                            1.3,
+                            true,
+                            0.05
+                        )
+                    );
+                    this.soundManager.playSound("bulletFire");
+            
+                    console.log("Agent is now facing the target",this.selectedAgent.visualMesh);
+
+                    // Assuming this.selectedAgent.visualMesh is the parent mesh
+                    const nozzMesh = this.selectedAgent.visualMesh.getChildMeshes().find(mesh => mesh.name === "Clone of nozz");
+
+                    if (nozzMesh) {
+                        console.log("Found nozz mesh:", nozzMesh);
+                        // You can now use nozzMesh for further operations
+                        this.bulletSystem.triggerMuzzleFlash(nozzMesh as Mesh);
+                    } else {
+                        console.log("Nozz mesh not found");
+                    
+                    }
+
+
+                    setTimeout(() => {
+                        this.soundManager.stopSound("bulletFire")
+                        this.scene.onBeforeRenderObservable.runCoroutineAsync(
+                            this.animationBlending(
+                                this.selectedAgent.animations.attack,
+                                1.3,
+                                this.selectedAgent.animations.idle,
+                                1.0,
+                                true,
+                                0.05
+                            )
+                        );
+                        // this.selectedAgent.navAgent.rotate(Axis.Y, Math.PI, Space.LOCAL);
+                        // this.selectedAgent.visualMesh.rotate(Axis.Y, Math.PI, Space.LOCAL);
+                        this.selectedAgent.navAgent.rotationQuaternion = originalRotation;
+                        this.selectedAgent.visualMesh.rotationQuaternion = agentRotation;
+
+                        this.getGui().handleAttack();
+
+                        console.log("Stopping attack animation and returning to idle");
+                    }, 3000); // 3000 milliseconds = 3 seconds
+                } else {
+                    console.log("Target agent or its navAgent not found");
+                }
+            }
+            if(this.getGui().getAbilityMode() !== AbilityType.Attack){
+                 this.selectedAgent = this.agents[mesh.metadata.agentIndex];
+            }
            
         } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui().getDeploymentMode()) {
             //console.log(this.getGui().getDeploymentMode())
             // const startingPoint = this.getGroundPosition();
+
+        
             if (startingPoint) {
                 this.pointNavPre.position = startingPoint;
                 this.pointNavPre.visibility = 1;
@@ -225,6 +371,9 @@ class NexusUnitManager {
                     );
 
                 this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
+        
+                this.soundManager.playSound("move");
+
                 this.activeUnitType = this.selectedAgent.cUnitType;
             }
         }else if (mesh.name.includes("ground") && this.getGui().getDeploymentMode()) {
@@ -235,6 +384,58 @@ class NexusUnitManager {
             this.addAgent(unitType, startingPoint)
         }
 
+        
+    }
+
+    private findClosestVertexToPosition(clickedPosition) {
+        let closestIndex = -1;
+        let closestDistanceSq = Number.MAX_VALUE;
+
+        for (let i = 0; i < this.navMeshIndices.length; i += 3) {
+            const vertexPosition = new Vector3(
+                this.navMeshIndices[i],
+                this.navMeshIndices[i + 1],
+                this.navMeshIndices[i + 2]
+            );
+            const distanceSq = Vector3.DistanceSquared(clickedPosition, vertexPosition);
+
+            if (distanceSq < closestDistanceSq) {
+                closestDistanceSq = distanceSq;
+                closestIndex = i / 3;
+
+                // Break early if we're close enough
+                if (distanceSq <= this.threshold * this.threshold) {
+                    break;
+                }
+            }
+        }
+
+        if (closestIndex === -1) {
+            console.warn("No vertex found within the threshold distance.");
+            return null;
+        }
+
+        return {
+            index: closestIndex,
+            position: new Vector3(
+                this.navMeshIndices[closestIndex * 3],
+                this.navMeshIndices[closestIndex * 3 + 1],
+                this.navMeshIndices[closestIndex * 3 + 2]
+            ),
+            distance: Math.sqrt(closestDistanceSq)
+        };
+    }
+
+    highlightVertex(position) {
+        if (this.highlightMesh) {
+            this.highlightMesh.dispose();
+        }
+
+        this.highlightMesh = MeshBuilder.CreateSphere("highlight", { diameter: 0.1 }, this.navmeshdebug.getScene());
+        this.highlightMesh.position = position;
+        const material = new StandardMaterial("highlightMat", this.navmeshdebug.getScene());
+        material.emissiveColor = new Color3(1, 0, 0);
+        this.highlightMesh.material = material;
         
     }
 
@@ -315,9 +516,389 @@ class NexusUnitManager {
         return Math.min(coverLevel, 100);
     }
     
+    private getDistanceBetweenMeshes(mesh1: Mesh, mesh2: Mesh) {
+        // Get the world position of each mesh
+        let position1 = mesh1.getAbsolutePosition();
+        let position2 = mesh2.getAbsolutePosition();
+        
+        // Calculate the distance
+        let distance = Vector3.Distance(position1, position2);
+        
+        return distance;
+      }
+
+      private detectPlayerObstructions(playerMesh, radius, rayCount) {
+        const obstructions = [];
+        const origin = playerMesh.position.clone();
+        origin.y += 2; // Slightly above the ground to avoid self-intersection
+    
+        let currentObstruction = null;
+        let obstructionCache = new Set(); // Cache for already detected obstructions
+    
+        const stepAngle = 360 / rayCount; // Precompute step angle
+    
+        // Loop through rays, with dynamic step size
+        for (let i = 0; i <= rayCount; i++) {
+            const angle = i * stepAngle; // Simplified angle calculation
+            const direction = new Vector3(
+                Math.sin(Tools.ToRadians(angle)),
+                0,
+                Math.cos(Tools.ToRadians(angle))
+            );
+    
+            // Use bounding volumes first for a fast check
+            const ray = new Ray(origin, direction, radius);
+            const hit = this.fastBoundingBoxCheck(ray); // Fast check before exact ray-picking
+    
+            if (hit) {
+                if (!obstructionCache.has(hit.pickedMesh)) { // Avoid recalculating the same obstructions
+                    obstructionCache.add(hit.pickedMesh); // Cache the obstruction
+    
+                    if (currentObstruction === null) {
+                        currentObstruction = [angle];
+                    }
+                }
+            } else {
+                if (currentObstruction !== null) {
+                    currentObstruction.push(angle);
+                    obstructions.push(currentObstruction);
+                    this.createObstructionMesh(currentObstruction, playerMesh, radius); // Create mesh for obstruction
+                    currentObstruction = null;
+                }
+            }
+        }
+    
+        // Handle obstruction that wraps around 360 degrees
+        if (currentObstruction !== null) {
+            if (obstructions.length > 0 && obstructions[0][0] === 0) {
+                obstructions[0][0] = currentObstruction[0];
+            } else {
+                currentObstruction.push(360);
+                obstructions.push(currentObstruction);
+                this.createObstructionMesh(currentObstruction, playerMesh, radius); // Create mesh for obstruction
+            }
+        }
+    
+        return obstructions;
+    }
+    
+    // A fast bounding box check to pre-filter unnecessary ray picks
+    private fastBoundingBoxCheck(ray) {
+        const meshesInScene = this.scene.meshes; // All meshes in the scene
+    
+        for (const mesh of meshesInScene) {
+            if (ray.intersectsMesh(mesh, true)) {
+                // Perform exact ray-picking only if a fast bounding box check hits
+                return this.scene.pickWithRay(ray); // Exact ray pick
+            }
+        }
+        return null; // No hit
+    }
     
 
+    private createObstructionMesh(obstruction, playerMesh, radius) {
+        const [startAngle, endAngle] = obstruction;
+        const sliceAngle = endAngle - startAngle;
     
+        // Create a pie slice for obstruction using MeshBuilder.CreateDisc
+        const slice = MeshBuilder.CreateDisc("obstructionSlice", {
+            radius: radius,
+            tessellation: 3, // Low tessellation to create a "slice" effect
+            arc: sliceAngle  // Define arc based on the obstruction angle
+        }, this.scene);
+    
+        // Position the slice at the player's position
+        slice.position = playerMesh.position.clone();
+        slice.position.y += 0.01; // Slightly above the ground to avoid z-fighting
+    
+        // Set the disc to be flat on the ground (in the XZ plane)
+        slice.rotation.x = Math.PI / 2; // Rotate 90 degrees to lay flat
+        // slice.rotation.z = Math.PI / 2; 
+    
+        // Adjust the rotation.y to point towards the midpoint of the obstruction
+        const midpointAngle = startAngle + (sliceAngle / 2); // Midpoint between start and end angle
+        slice.rotation.y = Tools.ToRadians(midpointAngle); // Rotate the slice towards the correct obstruction direction
+    
+        // Make the mesh red and semi-transparent
+        const redMaterial = new StandardMaterial("redMat", this.scene);
+        redMaterial.diffuseColor = new Color3(1, 0, 0); // Red color
+        redMaterial.alpha = 0.5; // Semi-transparent
+        slice.material = redMaterial;
+    }
+
+    private areVerticesOnStraightLine(indexA, indexB) {
+        const pointA = new Vector3(
+            this.navMeshIndices[indexA * 3],
+            this.navMeshIndices[indexA * 3 + 1],
+            this.navMeshIndices[indexA * 3 + 2]
+        );
+        const pointB = new Vector3(
+            this.navMeshIndices[indexB * 3],
+            this.navMeshIndices[indexB * 3 + 1],
+            this.navMeshIndices[indexB * 3 + 2]
+        );
+
+        // Vector from A to B
+        const vectorAB = pointB.subtract(pointA);
+        const directionAB = Vector3.Normalize(vectorAB);
+
+        // Check all points between A and B
+        const start = Math.min(indexA, indexB);
+        const end = Math.max(indexA, indexB);
+
+        for (let i = start + 1; i < end; i++) {
+            const point = new Vector3(
+                this.navMeshIndices[i * 3],
+                this.navMeshIndices[i * 3 + 1],
+                this.navMeshIndices[i * 3 + 2]
+            );
+
+            // Vector from A to current point
+            const vectorAP = point.subtract(pointA);
+
+            // Check if AP is parallel to AB
+            const cross = Vector3.Cross(vectorAP, directionAB);
+            if (cross.length() > this.epsilon) {
+                return false; // Not on the same line
+            }
+
+            // Check if point is between A and B
+            const dot = Vector3.Dot(vectorAP, directionAB);
+            if (dot < 0 || dot > vectorAB.length()) {
+                return false; // Point is not between A and B
+            }
+        }
+
+        return true; // All points are on the same line
+    }
+
+    private findClosestVertexIndex(point) {
+        let closestIndex = -1;
+        let closestDistanceSq = Number.MAX_VALUE;
+
+        for (let i = 0; i < this.navMeshIndices.length; i += 3) {
+            const vertexPosition = new Vector3(
+                this.navMeshIndices[i],
+                this.navMeshIndices[i + 1],
+                this.navMeshIndices[i + 2]
+            );
+            const distanceSq = Vector3.DistanceSquared(point, vertexPosition);
+
+            if (distanceSq < closestDistanceSq) {
+                closestDistanceSq = distanceSq;
+                closestIndex = i / 3;
+            }
+        }
+
+        return closestIndex;
+    }
+
+    private isStraightLineContinuous(startPoint, endPoint) {
+        const startIndex = this.findClosestVertexIndex(startPoint);
+        const endIndex = this.findClosestVertexIndex(endPoint);
+
+        const start = new Vector3(
+            this.navMeshIndices[startIndex * 3],
+            this.navMeshIndices[startIndex * 3 + 1],
+            this.navMeshIndices[startIndex * 3 + 2]
+        );
+        const end = new Vector3(
+            this.navMeshIndices[endIndex * 3],
+            this.navMeshIndices[endIndex * 3 + 1],
+            this.navMeshIndices[endIndex * 3 + 2]
+        );
+
+        const direction = end.subtract(start).normalize();
+        const length = Vector3.Distance(start, end);
+
+        // Check all triangles for intersection
+        for (let i = 0; i < this.indices.length; i += 3) {
+            const v1 = new Vector3(
+                this.navMeshIndices[this.indices[i] * 3],
+                this.navMeshIndices[this.indices[i] * 3 + 1],
+                this.navMeshIndices[this.indices[i] * 3 + 2]
+            );
+            const v2 = new Vector3(
+                this.navMeshIndices[this.indices[i + 1] * 3],
+                this.navMeshIndices[this.indices[i + 1] * 3 + 1],
+                this.navMeshIndices[this.indices[i + 1] * 3 + 2]
+            );
+            const v3 = new Vector3(
+                this.navMeshIndices[this.indices[i + 2] * 3],
+                this.navMeshIndices[this.indices[i + 2] * 3 + 1],
+                this.navMeshIndices[this.indices[i + 2] * 3 + 2]
+            );
+
+            const intersection = this.rayTriangleIntersection(start, direction, v1, v2, v3);
+            if (intersection && intersection.distanceTo(start) <= length) {
+                // Check if the intersection point is actually on an edge of the triangle
+                if (!this.isPointOnTriangleEdge(intersection, v1, v2, v3)) {
+                    return false; // Found a triangle that blocks the straight path
+                }
+            }
+        }
+
+        return true; // No blocking triangles found
+    }
+
+    private rayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3) {
+        const edge1 = v2.subtract(v1);
+        const edge2 = v3.subtract(v1);
+        const h = Vector3.Cross(rayDirection, edge2);
+        const a = Vector3.Dot(edge1, h);
+
+        if (a > -this.epsilon && a < this.epsilon) return null;
+
+        const f = 1.0 / a;
+        const s = rayOrigin.subtract(v1);
+        const u = f * Vector3.Dot(s, h);
+
+        if (u < 0.0 || u > 1.0) return null;
+
+        const q = Vector3.Cross(s, edge1);
+        const v = f * Vector3.Dot(rayDirection, q);
+
+        if (v < 0.0 || u + v > 1.0) return null;
+
+        const t = f * Vector3.Dot(edge2, q);
+
+        if (t > this.epsilon) {
+            return rayOrigin.add(rayDirection.scale(t));
+        }
+
+        return null;
+    }
+
+    private isPointOnTriangleEdge(point, v1, v2, v3) {
+        const onEdge1 = this.isPointOnLineSegment(point, v1, v2);
+        const onEdge2 = this.isPointOnLineSegment(point, v2, v3);
+        const onEdge3 = this.isPointOnLineSegment(point, v3, v1);
+        return onEdge1 || onEdge2 || onEdge3;
+    }
+
+    private isPointOnLineSegment(point, start, end) {
+        const d1 = Vector3.Distance(point, start);
+        const d2 = Vector3.Distance(point, end);
+        const length = Vector3.Distance(start, end);
+        return Math.abs(d1 + d2 - length) < this.epsilon;
+    }
+
+    private visualizePath(startPoint, endPoint) {
+        const lines = [startPoint, endPoint];
+        const linesMesh = MeshBuilder.CreateLines("path", {points: lines}, this.navmeshdebug.getScene());
+        linesMesh.color = new Color3(0, 1, 0); // Green line for continuous path
+        return linesMesh;
+    }
+
+    private raycastWithCollisionCheck(startPoint: Vector3, endPoint: Vector3, minHeightAboveGround: number = 0.1): { hit: boolean, hitPoint: Vector3 | null, path: Vector3[] } {
+        const direction = endPoint.subtract(startPoint).normalize();
+        const length = Vector3.Distance(startPoint, endPoint);
+    
+        let currentPoint = startPoint.clone();
+        const path: Vector3[] = [currentPoint];
+    
+        const stepSize = 0.1; // Adjust this value to change the precision of the check
+        let distanceTraveled = 0;
+    
+        while (distanceTraveled < length) {
+            const nextPoint = currentPoint.add(direction.scale(stepSize));
+            
+            // Ensure the point is above the minimum height
+            const groundPoint = this.findGroundPoint(nextPoint);
+            if (groundPoint) {
+                nextPoint.y = Math.max(nextPoint.y, groundPoint.y + minHeightAboveGround);
+            }
+    
+            // Check for collision
+            const collision = this.checkCollision(currentPoint, nextPoint);
+            if (collision) {
+                return { hit: true, hitPoint: collision, path };
+            }
+    
+            currentPoint = nextPoint;
+            path.push(currentPoint);
+            distanceTraveled += stepSize;
+        }
+    
+        return { hit: false, hitPoint: null, path };
+    }
+    
+    private findGroundPoint(point: Vector3): Vector3 | null {
+        const rayOrigin = new Vector3(point.x, point.y + 1000, point.z); // Start high above the point
+        const rayDirection = new Vector3(0, -1, 0); // Straight down
+    
+        for (let i = 0; i < this.indices.length; i += 3) {
+            const v1 = new Vector3(
+                this.navMeshIndices[this.indices[i] * 3],
+                this.navMeshIndices[this.indices[i] * 3 + 1],
+                this.navMeshIndices[this.indices[i] * 3 + 2]
+            );
+            const v2 = new Vector3(
+                this.navMeshIndices[this.indices[i + 1] * 3],
+                this.navMeshIndices[this.indices[i + 1] * 3 + 1],
+                this.navMeshIndices[this.indices[i + 1] * 3 + 2]
+            );
+            const v3 = new Vector3(
+                this.navMeshIndices[this.indices[i + 2] * 3],
+                this.navMeshIndices[this.indices[i + 2] * 3 + 1],
+                this.navMeshIndices[this.indices[i + 2] * 3 + 2]
+            );
+    
+            const intersection = this.rayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3);
+            if (intersection) {
+                return intersection;
+            }
+        }
+    
+        return null;
+    }
+    
+    private checkCollision(start: Vector3, end: Vector3): Vector3 | null {
+        const direction = end.subtract(start).normalize();
+        const length = Vector3.Distance(start, end);
+    
+        for (let i = 0; i < this.indices.length; i += 3) {
+            const v1 = new Vector3(
+                this.navMeshIndices[this.indices[i] * 3],
+                this.navMeshIndices[this.indices[i] * 3 + 1],
+                this.navMeshIndices[this.indices[i] * 3 + 2]
+            );
+            const v2 = new Vector3(
+                this.navMeshIndices[this.indices[i + 1] * 3],
+                this.navMeshIndices[this.indices[i + 1] * 3 + 1],
+                this.navMeshIndices[this.indices[i + 1] * 3 + 2]
+            );
+            const v3 = new Vector3(
+                this.navMeshIndices[this.indices[i + 2] * 3],
+                this.navMeshIndices[this.indices[i + 2] * 3 + 1],
+                this.navMeshIndices[this.indices[i + 2] * 3 + 2]
+            );
+    
+            const intersection = this.rayTriangleIntersection(start, direction, v1, v2, v3);
+            if (intersection && Vector3.Distance(start, intersection) <= length) {
+                return intersection;
+            }
+        }
+    
+        return null;
+    }
+    
+    private visualizeRaycast(path: Vector3[], hit: boolean, hitPoint: Vector3 | null) {
+        const scene = this.navmeshdebug.getScene();
+        const pathMesh = MeshBuilder.CreateLines("path", {points: path}, scene);
+        pathMesh.color = hit ? new Color3(1, 0, 0) : new Color3(0, 1, 0); // Red if hit, Green if clear
+    
+        if (hitPoint) {
+            const hitMarker = MeshBuilder.CreateSphere("hitMarker", {diameter: 0.2}, scene);
+            hitMarker.position = hitPoint;
+            const material = new StandardMaterial("hitMarkerMat", scene);
+            material.emissiveColor = new Color3(1, 0, 0);
+            hitMarker.material = material;
+        }
+    
+        return pathMesh;
+    }
+ 
 }
 
 export { NexusUnitManager };

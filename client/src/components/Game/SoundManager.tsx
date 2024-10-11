@@ -1,6 +1,6 @@
 import { Scene, Sound, Vector3 } from "@babylonjs/core";
 
-class SoundManager {
+export class SoundManager {
     private scene: Scene;
     private sounds: Map<string, Sound>;
 
@@ -37,9 +37,11 @@ class SoundManager {
         const sound = this.sounds.get(name);
         if (sound) {
             sound.play();
+            sound.setVolume(0.3);
         } else {
             console.warn(`Sound ${name} not found`);
         }
+
     }
 
     stopSound(name: string): void {

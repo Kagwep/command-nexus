@@ -1,6 +1,6 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3 } from '@babylonjs/core';
-import {  UnitType,UnitAbilities, AbilityType } from "../../utils/types";
+import {  UnitType,UnitAbilities, AbilityType, Agent } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
@@ -18,6 +18,8 @@ export default class CommandNexusGui {
     private selectedUnitId: number | null = null;
     private ACCENT_COLOR = "#4CAF50";
     public player = {};
+    private abilityMode:AbilityType| null;
+
 
     private deployButton: GUI.Ellipse;
     private isDeploymentMode: boolean = false;
@@ -1008,6 +1010,10 @@ export default class CommandNexusGui {
         }
 
         const unit = stringToUnitType(unitType);
+
+        if (unit === UnitType.Air || unit === UnitType.Cyber || unit === UnitType.Naval){
+            button.isEnabled = false;
+        }
     
         button.onPointerUpObservable.add(() => this.selectUnitToDeploy(unit));
     
@@ -1150,7 +1156,7 @@ export default class CommandNexusGui {
             // Handle click event
             button.onPointerUpObservable.add(() => {
                 console.log(`${ability} ability used`);
-                // Implement ability action here
+                this.abilityMode = abilityEnum;
             });
     
             // Add hover effect
@@ -1211,6 +1217,14 @@ export default class CommandNexusGui {
             default:
                 return "/images/default_icon.png"; // Fallback if no matching ability
         }
+    }
+
+    public getAbilityMode(): AbilityType | null {
+        return this.abilityMode
+    }
+
+    public handleAttack(){
+        this.abilityMode = null
     }
     
 

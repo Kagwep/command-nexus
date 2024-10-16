@@ -31,10 +31,15 @@ const MainMenu: React.FC = () => {
   const prevGameIdRef = useRef<number | null>(null);
   const prevGameStateRef = useRef<GameState | null>(null);
 
+  
+
 
   const gameEntitiesOne = useEntityQuery([HasValue(Game, { arena_host: BigInt(account.address) })]);
+  console.log(gameEntitiesOne)
   const gameEntity = useMemo(() => gameEntitiesOne.length > 0 ? gameEntitiesOne[0] : undefined, [gameEntitiesOne]);
   const game = useComponentValue(Game, gameEntity);
+
+  console.log(account,game)
 
   const playerEntities = useEntityQuery([HasValue(Player, { address: BigInt(account.address) })]);
   const playerEntity = useMemo(() => playerEntities.length > 0 ? playerEntities[0] : undefined, [playerEntities]);
@@ -43,39 +48,45 @@ const MainMenu: React.FC = () => {
   const prevGameRef = useRef(game);
   const prevPlayerRef = useRef(player);
 
-  const updateGameState = useCallback(() => {
+  const updateGameState = useCallback((currentPlayer, currentGame) => {
+    console.log("Inside updateGameState callback with params:", currentPlayer);
+  
+    // If either player or game exists, set the game state to Lobby
+    const newGameState = (currentPlayer || currentGame) ? GameState.Lobby : null;
 
-    const newGameState = (player || game) ? GameState.Lobby : null;
-
-    //console.log("vvvvvvvvvvvvvvvvv",player.game_id === game.game_id);
-
-    if (player?.game_id === game?.game_id) {
-      set_game_id(player.game_id);
+    console.log(currentPlayer?.game_id)
+  
+    if (currentPlayer?.game_id >= 0) {
+      console.log("setting game state");
+      set_game_id(currentPlayer.game_id);
     }
-    
+  
     if (newGameState !== null) {
       set_game_state(newGameState);
     }
-
-  }, [player, game, set_game_id, set_game_state]);
-  console.log(game,player)
+    console.log("executed")
+  }, [set_game_id, set_game_state]);
+  
 
 
   const [hours, setHours] = useState<number | null>(null);
   const [minutes, setMinutes] = useState(5);
 
-  // if player is arena of a game, go to the lobby
-  useEffect(() => {
-    const gameChanged = game !== prevGameRef.current;
-    const playerChanged = player !== prevPlayerRef.current;
+// In useEffect, pass the current player and game explicitly
+useEffect(() => {
+  const gameChanged = game !== prevGameRef.current;
+  const playerChanged = player !== prevPlayerRef.current;
 
-    if (gameChanged || playerChanged) {
-      console.log('Changes detected:', { gameChanged, playerChanged });
-      updateGameState();
-      prevGameRef.current = game;
-      prevPlayerRef.current = player;
-    }
-  }, [game, player, updateGameState]);
+  if (gameChanged || playerChanged) {
+    console.log('Changes detected:', { gameChanged, playerChanged }, player,game);
+    
+    // Pass the player and game to updateGameState explicitly
+    updateGameState(player, game);
+
+    prevGameRef.current = game;
+    prevPlayerRef.current = player;
+  }
+}, [game, player, updateGameState]);
 
   const createNewGame = async () => {
     if (!player_name) {

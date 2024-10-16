@@ -1,10 +1,14 @@
 import * as GUI from "@babylonjs/gui";
-import { Scene, Vector3 } from '@babylonjs/core';
+import { Scene, Vector3,Animation } from '@babylonjs/core';
 import {  UnitType,UnitAbilities, AbilityType, Agent } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
-import { abilityStringToEnum, stringToUnitType } from "../../utils/nexus";
+import { abilityStringToEnum, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle } from "@babylonjs/gui";
+import { Player } from "../../utils/types";
+import { useRef } from "react";
+import { Account } from "@dojoengine/torii-client";
+import { AccountInterface } from "starknet";
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -17,8 +21,12 @@ export default class CommandNexusGui {
     private turnInfoText: GUI.TextBlock;
     private selectedUnitId: number | null = null;
     private ACCENT_COLOR = "#4CAF50";
-    public player = {};
+    private player:Player;
     private abilityMode:AbilityType| null;
+    private baseText: GUI.TextBlock;
+    private rankText: GUI.TextBlock;
+    //private kickButton: GUI.Button;
+    private getAccount: () => AccountInterface | Account;
 
 
     private deployButton: GUI.Ellipse;
@@ -31,7 +39,10 @@ export default class CommandNexusGui {
     private outerArc: Rectangle;
     private innerArc: Rectangle;
     private imagePlaceholder: Rectangle;
-
+    private arena;
+    private nexus;
+    private game;
+   
 
 
     // Color scheme
@@ -45,7 +56,7 @@ export default class CommandNexusGui {
     private unitRows: Map<string, GUI.TextBlock> = new Map();
     private scoreRows: Map<string, GUI.TextBlock> = new Map();
     private supplyRows: Map<string, GUI.TextBlock> = new Map();
-    constructor(scene: Scene) {
+    constructor(scene: Scene,arena,nexus,game,player, getAccount) {
         this.gui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
         this.createTopBar();
         this.createMainMenuButton();
@@ -60,6 +71,11 @@ export default class CommandNexusGui {
         this.createUnitSelectionPanel();
 
         this.createArcs();
+        this.arena = arena;
+        this.nexus = nexus;
+        this.game = game;
+        this.player = player
+        this.getAccount = getAccount;
        
     }
 
@@ -131,17 +147,93 @@ export default class CommandNexusGui {
         topBar.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
         topBar.isVisible = true;
         this.gui.addControl(topBar);
-
+    
+        // Create a StackPanel for the left side (Turn Info and Base/Rank)
+        let leftPanel = new GUI.StackPanel();
+        leftPanel.isVertical = false;
+        leftPanel.height = "50px";
+        leftPanel.width = "700px";
+        leftPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    
+        // Turn Info Panel
+        let turnInfoPanel = new GUI.StackPanel();
+        turnInfoPanel.isVertical = false;
+        turnInfoPanel.height = "50px";
+        turnInfoPanel.width = "200px";
+    
+        let playerImage = new GUI.Image("playerIcon", "/logo.png");
+        playerImage.width = "40px";
+        playerImage.height = "40px";
+        playerImage.paddingLeft = '4px';
+    
         this.turnInfoText = new GUI.TextBlock();
-        this.turnInfoText.text = "Turn 1 - Player Phase";
+        this.turnInfoText.text = "Player";
+        this.turnInfoText.width = '80px';
         this.turnInfoText.color = this.TEXT_COLOR;
         this.turnInfoText.fontSize = 20;
-        topBar.addControl(this.turnInfoText);
+        this.turnInfoText.paddingLeft = '10px';
+    
+        turnInfoPanel.addControl(playerImage);
+        turnInfoPanel.addControl(this.turnInfoText);
+    
+        // Base and Rank Panel
+        let baseRankPanel = new GUI.StackPanel();
+        baseRankPanel.isVertical = false;
+        baseRankPanel.height = "50px";
+        baseRankPanel.width = "200px";
+        baseRankPanel.paddingLeft = '20px';
+    
+        let baseImage = new GUI.Image("baseIcon", "/images/base.png");
+        baseImage.width = "30px";
+        baseImage.height = "30px";
+    
+        this.baseText = new GUI.TextBlock();
+        this.baseText.text = 'Base Name';
+        this.baseText.color = 'blue';
+        this.baseText.fontSize = 15;
+        this.baseText.width = '100px';
+        this.baseText.paddingLeft = '10px';
 
+        baseRankPanel.addControl(baseImage);
+        baseRankPanel.addControl(this.baseText);
+
+        // Base and Rank Panel
+        let rankPanel = new GUI.StackPanel();
+        rankPanel.isVertical = false;
+        rankPanel.height = "50px";
+        rankPanel.width = "350px";
+        rankPanel.paddingLeft = '20px';
+
+        let rankImage = new GUI.Image("baseIcon", "/images/recruit.jpg");
+        rankImage.width = "30px";
+        rankImage.height = "30px";
+    
+        this.rankText = new GUI.TextBlock();
+        this.rankText.text = 'Rank';
+        this.rankText.color = 'orange';
+        this.rankText.fontSize = 15;
+        this.rankText.width = '100px';
+        this.rankText.paddingLeft = '10px';
+    
+
+        rankPanel.addControl(rankImage);
+        rankPanel.addControl(this.rankText);
+    
+        // Add Turn Info and Base/Rank panels to the left panel
+        leftPanel.addControl(turnInfoPanel);
+        leftPanel.addControl(baseRankPanel);
+        leftPanel.addControl(rankPanel);
+    
+        // Add the left panel to the top bar
+        topBar.addControl(leftPanel);
+    
+        // Create and add the End Turn button
         const endTurnBtn = this.createButton("endTurn", "End Turn");
         endTurnBtn.width = "120px";
+        endTurnBtn.height = "40px";
         endTurnBtn.cornerRadius = 5;
         endTurnBtn.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        endTurnBtn.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
         endTurnBtn.left = "-10px";
         endTurnBtn.onPointerUpObservable.add(() => {
             console.log("End Turn clicked");
@@ -149,6 +241,7 @@ export default class CommandNexusGui {
         });
         topBar.addControl(endTurnBtn);
     }
+    
 
     private createMainMenuButton(): void {
         const mainMenuBtn = this.createButton("mainMenu", "Main Menu");
@@ -531,10 +624,6 @@ export default class CommandNexusGui {
         labelText.height = "20px";
         field.addControl(labelText);
 
-        console.log(this.player);
-
-        console.log(this.player["player_score"]);
-
         const valueText = new GUI.TextBlock();
         valueText.color = this.ACCENT_COLOR;
         valueText.fontSize = 24;
@@ -606,7 +695,14 @@ export default class CommandNexusGui {
         }
     }
 
-    public updatePlayerInfo(playerData: any): void {
+    // public showKick(){
+    //     this.kickButton.isVisible = true;
+    // }
+
+    public updatePlayerInfo(playerData: Player): void {
+
+       this.baseText.text = playerData.home_base
+       this.rankText.text = getBannerLevelString(playerData.rank)
         
         Object.entries(playerData).forEach(([key, value]) => {
             console.log(this.infoRows.has(key))
@@ -791,36 +887,48 @@ export default class CommandNexusGui {
         } else {
             this.addInfoRow(contentStack, "Supply", "N/A");
         }
-        // Add cancel button
-        const kickButton = GUI.Button.CreateSimpleButton("kickButton", "kick");
-        kickButton.paddingTop = "10px"
-        kickButton.color = "white";
-        kickButton.cornerRadius = 5;
-        kickButton.background = "red";
-        kickButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        kickButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-        kickButton.top = "5px";
-        kickButton.left = "-5px";
-        kickButton.hoverCursor = "pointer";
-        kickButton.width = "200px";
-        kickButton.height = "40px";
-        kickButton.color = "white";
-        kickButton.cornerRadius = 5;
-        kickButton.hoverCursor = "pointer";
-        kickButton.thickness = 0;
-        kickButton.fontFamily = "Arial, Helvetica, sans-serif";
-        kickButton.fontSize = 16;
-        // Add hover effect
-        kickButton.onPointerEnterObservable.add(() => {
-            kickButton.background = "rgba(180, 100, 50, 1)";
-        });
-        kickButton.onPointerOutObservable.add(() => {
-            kickButton.background = "rgba(255, 80, 40, 0.9)";
-        });
-        kickButton.onPointerUpObservable.add(() => {
-            this.opponentsPanel.isVisible = false;
-        });
-        contentStack.addControl(kickButton);
+        // // Add cancel button
+        // const kickButton = GUI.Button.CreateSimpleButton("kickButton", "kick");
+        // kickButton.paddingTop = "10px"
+        // kickButton.color = "white";
+        // kickButton.cornerRadius = 5;
+        // kickButton.background = "red";
+        // kickButton.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        // kickButton.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+        // kickButton.top = "5px";
+        // kickButton.left = "-5px";
+        // kickButton.hoverCursor = "pointer";
+        // kickButton.width = "200px";
+        // kickButton.height = "40px";
+        // kickButton.color = "white";
+        // kickButton.cornerRadius = 5;
+        // kickButton.hoverCursor = "pointer";
+        // kickButton.thickness = 0;
+        // kickButton.fontFamily = "Arial, Helvetica, sans-serif";
+        // kickButton.fontSize = 16;
+        // kickButton.isVisible  = false
+        // // Add hover effect
+        // kickButton.onPointerEnterObservable.add(() => {
+        //     kickButton.background = "rgba(180, 100, 50, 1)";
+        // });
+        // kickButton.onPointerOutObservable.add(() => {
+        //     kickButton.background = "rgba(255, 80, 40, 0.9)";
+        // });
+        // kickButton.onPointerUpObservable.add(async () => {
+        //     try {
+        //         // Wait for the kickPlayer function to complete before hiding the panel
+        //         await this.kickPlayer(this.player.index, this.game.game_id);
+        //         this.opponentsPanel.isVisible = false;
+        //         this.showToast("Player kicked out")
+        //     } catch (error: any) {
+        //         this.showToast(error.message);
+        //     }
+        // });
+        
+
+        
+        // this.kickButton = kickButton;
+        // contentStack.addControl(this.kickButton);
     
         console.log(`Card created for ${opponent.name} with ${contentStack.children.length} content items`);
         return card;
@@ -1225,6 +1333,91 @@ export default class CommandNexusGui {
 
     public handleAttack(){
         this.abilityMode = null
+    }
+
+    // Method to create the toast notification
+    public showToast(message: string): void {
+        // Create a background panel for the toast
+        const toastPanel = new GUI.Rectangle();
+        toastPanel.width = "800px";
+        toastPanel.height = "80px";
+        toastPanel.cornerRadius = 10;
+        toastPanel.color = "white";  // Border color
+        toastPanel.thickness = 0;    // Border thickness
+        toastPanel.background = "rgba(0, 80, 40, 0.9)";  // Background color of the toast
+        toastPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        toastPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        toastPanel.paddingBottom = "20px"; // Position the toast slightly above the bottom
+
+        // Create the text block to show the message
+        const toastText = new GUI.TextBlock();
+        toastText.text = message;
+        toastText.color = "cyan";
+        toastText.fontSize = 15;
+        toastText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        toastText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+
+        // Add the text block to the panel
+        toastPanel.addControl(toastText);
+
+        // Add the panel to the GUI
+        this.gui.addControl(toastPanel);
+
+        // Add animation: fade in, stay visible, and then fade out
+        this.animateToast(toastPanel);
+    }
+
+    private kickPlayer = async (player_index: number, game_id: number) => {
+        try {
+        //   setKickLoading(true);
+          const result  = await this.arena.kick(this.getAccount(), game_id, player_index);
+        } catch (error: any) {
+          this.showToast(error.message);
+        } finally {
+          
+        }
+      };
+
+    // Method to animate the toast panel (fade in, wait, fade out)
+    private animateToast(panel: GUI.Rectangle): void {
+        // Fade in animation
+        panel.alpha = 0; // Start fully transparent
+        let fadeIn = new Animation(
+            "fadeIn", "alpha", 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+        let fadeInKeys = [
+            { frame: 0, value: 0 },  // Initial transparency
+            { frame: 20, value: 1 }  // Fully visible
+        ];
+        fadeIn.setKeys(fadeInKeys);
+
+        // Fade out animation (after 3 seconds)
+        let fadeOut = new Animation(
+            "fadeOut", "alpha", 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+        let fadeOutKeys = [
+            { frame: 0, value: 1 },  // Start fully visible
+            { frame: 30, value: 0 }  // Fully transparent
+        ];
+        fadeOut.setKeys(fadeOutKeys);
+
+        // Run fade in, wait for 3 seconds, then fade out
+        this.gui.getScene().beginDirectAnimation(panel, [fadeIn], 0, 20, false, 1, () => {
+            setTimeout(() => {
+                this.gui.getScene().beginDirectAnimation(panel, [fadeOut], 0, 30, false, 1, () => {
+                    // Remove the toast after fading out
+                    panel.dispose();
+                });
+            }, 3000); // Toast stays visible for 3 seconds
+        });
+    }
+
+    public updatePlayer(player: Player){
+        this.player = player
+    }
+
+    public updateGame(game:any){
+        this.game = game
     }
     
 

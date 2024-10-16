@@ -10,7 +10,8 @@ import { useTurn } from '../../hooks/useTurn';
 import { usePhase } from '../../hooks/usePhase';
 import { useCommandNexusGui } from './useCommandNexusGui';
 import HavokPhysics from '@babylonjs/havok';
-
+import { useGameState } from './GameState';
+import useNetworkAccount from '../../hooks/useNetworkAccount';
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -34,6 +35,7 @@ const CommandNexus = () => {
   const { turn } = useTurn();
   const { phase } = usePhase();
   const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
+  const { account, address, status, isConnected } = useNetworkAccount();
 
   const game = useGame();
   const { players } = useGetPlayersForGame(game_id);
@@ -42,8 +44,10 @@ const CommandNexus = () => {
   const updateGuiState = useCallback((newState) => {
       setGuiState(prevState => ({...prevState, ...newState}));
   }, []);
+
+  const {getGameState,gameState} = useGameState();
   
-  const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn, phase, game, players);
+  const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn, phase, game, players,arena,nexus);
 
   const updateSceneAndGUI = () => {
       if (sceneRef.current && !isLoading && isGuiReady) {
@@ -74,8 +78,16 @@ const CommandNexus = () => {
               const physicsPlugin = new HavokPlugin(true, havokPlugin);
               scene.enablePhysics(undefined, physicsPlugin);
               const physicsViewer = new PhysicsViewer();
-             
-              await setupScene(scene, camera, engineRef.current, getGui, { player, isItMyTurn, turn, phase, game, players });
+              console.log("------------------------",gameState,account)
+
+              const me = gameState.players.find((p) => p.address === account.address);
+
+              gameState.player = me
+
+              console.log(me)
+              
+              await setupScene(scene, camera, engineRef.current, getGui, getGameState, gameState,arena,nexus);
+        
               
               setIsLoading(false);
           };

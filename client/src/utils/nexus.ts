@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import GameState from './gamestate';
-import { AbilityType, AnimationMapping, Battle, UnitAbilities, UnitType } from './types';
+import { AbilityType, AnimationMapping, BannerLevel, Battle, BattlefieldName, Region, UnitAbilities, UnitType } from './types';
 import { LogType } from '../hooks/useLogs';
 import { Event } from './events';
+import { Vector3 } from '@babylonjs/core';
+import { removeLeadingZeros } from './sanitizer';
 
 export enum Phase {
   DEPLOY,
@@ -177,6 +179,10 @@ export const soldierAnimationMapping: AnimationMapping = {
         defensive: ["Defensive"]
     };
 
+    export function getBannerLevelString(level: BannerLevel): string {
+      return BannerLevel[level];
+    }
+    
 
     export const getUnitAbilities = (unitType: UnitType): UnitAbilities => {
       switch (unitType) {
@@ -224,3 +230,55 @@ export const soldierAnimationMapping: AnimationMapping = {
   export function abilityStringToEnum(ability: string): AbilityType | undefined {
     return AbilityType[ability as keyof typeof AbilityType];
 }
+
+
+
+export const NovaWarhoundPoints: Vector3[] = [
+  new Vector3(-701.1143110284269, -4.724697113037109, -613.5130894128426),
+  new Vector3(135.2915183946171, -4.724697113036996, 140.48346988813887),
+  new Vector3(930.3866023298494, -4.724697113036996, -253.01963900603135),
+  new Vector3(554.3687183857892, -4.724697113037223, -606.869953651963)
+];
+
+
+export const IronforgePoints: Vector3[] = [
+  new Vector3(-40.34674016534149, -4.724697113037109, 246.94971527372445),
+  new Vector3(-41.92048839982266, -4.724697113037109, 797.001260541894),
+  new Vector3(918.0348243184673, -4.724697113037109, 794.4816519981175),
+  new Vector3(929.6542846267871, -4.724697113037109, -201.31500393718164)
+];
+
+
+export const RadiantShoresPoints: Vector3[] = [
+  new Vector3(-44.196680927944726, -4.7246971130370525, 241.8750392048088),
+  new Vector3(-168.20402177229565, -4.724697113037109, 132.66805411641394),
+  new Vector3(-224.44661019700706, -4.724697113037109, 241.57445828506684),
+  new Vector3(-596.1817341386354, -4.724697113037109, 247.93515516561172),
+  new Vector3(-923.7357331408812, -4.724697113037109, 789.4817941049374),
+  new Vector3(-5.241598217332637, -4.7246971130370525, 800.4915650788527)
+];
+
+
+
+export const SavageCoastPoints: Vector3[] = [
+  new Vector3(-210.01917913768062, 3.334695195105759, 213.63762816982944),
+  new Vector3(-175.03646913444982, -4.724697113037109, 130.5347643517446),
+  new Vector3(-196.65097201368565, -4.724697113037102, 76.48515275188214),
+  new Vector3(-292.9622171292379, -4.724697113037109, 70.40431770105654),
+  new Vector3(-170.27564772619093, -4.724697113037095, -120.70127057236148),
+  new Vector3(-889.8629214636325, -4.724697113037109, -570.6022537156441),
+  new Vector3(-939.2950710815101, -4.724697113037109, 190.73043485634932)
+];
+
+export const regions: Region[] = [
+  { name: BattlefieldName.RadiantShores, points: RadiantShoresPoints },
+  { name: BattlefieldName.Ironforge, points: IronforgePoints },
+  { name: BattlefieldName.NovaWarhound, points: NovaWarhoundPoints },
+  { name: BattlefieldName.SavageCoast, points: SavageCoastPoints },
+  // Add Skullcrag when you have its points
+];
+
+
+export const isHost = (arena: string, address: string) => {
+  return arena === removeLeadingZeros(address);
+};

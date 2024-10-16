@@ -1,11 +1,13 @@
 import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
-import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType } from '../../utils/types';
-import { soldierAnimationMapping, tankAnimationMapping } from '../../utils/nexus';
+import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, BattlefieldName } from '../../utils/types';
+import { regions, soldierAnimationMapping, tankAnimationMapping } from '../../utils/nexus';
 import { Weapon } from './BulletSystem';
 import { SoundManager } from './SoundManager';
 import { RayCaster } from './RayCaster';
+import { GameState } from './GameState';
+import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 
 class NexusUnitManager {
     private scene: Scene;
@@ -36,6 +38,10 @@ class NexusUnitManager {
     private epsilon = 0.001
     private indices: any;
     private rayCaster: RayCaster;
+    private getGameState: () => GameState;
+    private battlefieldCameraManager;
+    private arena;
+    private nexus;
 
     constructor(
         scene: Scene, 
@@ -43,8 +49,12 @@ class NexusUnitManager {
         ground: Mesh, 
         pointNavPre: GroundMesh,
         getGui: () => CommandNexusGui,
+        getGameState: () => GameState,
         InfantryAssetContainer: AssetContainer,
         ArmoredAssetContainer: AssetContainer,
+        battlefieldCameraManager: BattlefieldCameraManager,
+        arena,
+        nexus
     ) {
         this.scene = scene;
         this.navigationPlugin = navigationPlugin;
@@ -64,7 +74,37 @@ class NexusUnitManager {
           this.bulletSystem = new Weapon(scene);
           this.initializeSoundManager();
           this.rayCaster = new RayCaster(scene);
+          this.getGameState = getGameState;
+          this.battlefieldCameraManager = battlefieldCameraManager;
+          this.arena = arena,
+          this.nexus = nexus;
+         // this.initializeCameraPosition();
         
+    }
+
+    initializeCameraPosition(){
+
+         if(this.getGameState().player.home_base === "NovaWarhound"){
+            const selectedBattlefield = BattlefieldName.NovaWarhound; // This would come from user input
+            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+          }
+
+          if(this.getGameState().player.home_base === "SavageCoast"){
+            const selectedBattlefield = BattlefieldName.SavageCoast; // This would come from user input
+            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+          }
+
+          if(this.getGameState().player.home_base === "Ironforge"){
+            const selectedBattlefield = BattlefieldName.Ironforge; // This would come from user input
+            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+          }
+
+          if(this.getGameState().player.home_base === "RadiantShores"){
+            const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
+            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+          }
+
+
     }
 
     initialize(): Promise<void> {
@@ -231,6 +271,7 @@ class NexusUnitManager {
 
     private handlePointerTap(mesh: Mesh): void {
         const startingPoint = this.getGroundPosition();
+        console.log(mesh.name, mesh.absolutePosition)
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             if (this.selectedAgent && this.selectedAgent.idx !== mesh.metadata.agentIndex && this.getGui().getAbilityMode() == AbilityType.Attack) {
                 console.log("different", this.selectedAgent.visualMesh);
@@ -372,7 +413,9 @@ class NexusUnitManager {
 
                 this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
         
-                this.soundManager.playSound("move");
+                if (this.selectedAgent.cUnitType === UnitType.Infantry){
+                    this.soundManager.playSound("move");
+                }
 
                 this.activeUnitType = this.selectedAgent.cUnitType;
             }
@@ -380,51 +423,67 @@ class NexusUnitManager {
 
             const {unit: unitType, position} = this.getGui().getSelectedUnitAndDeployPosition();
             this.activePosition = startingPoint;
+
+            const clickedRegion = this.getClickedRegion(startingPoint);
+            console.log(`Clicked region: ${BattlefieldName[clickedRegion]}`);
+
+            console.log(this.getGameState().player)
+
+            const player_base = this.getGameState().player.home_base;
+
+            if (player_base === BattlefieldName[clickedRegion]){
+                this.addAgent(unitType, startingPoint)
+            }else{
+                console.log("can not deploy here")
+                this.getGui().showToast(`You can only delpy units from your base region ${player_base}`);
+            }
+
             
-            this.addAgent(unitType, startingPoint)
+            
+            
         }
 
         
     }
 
-    private findClosestVertexToPosition(clickedPosition) {
-        let closestIndex = -1;
-        let closestDistanceSq = Number.MAX_VALUE;
+    // private findClosestVertexToPosition(clickedPosition) {
+    //     let closestIndex = -1;
+    //     let closestDistanceSq = Number.MAX_VALUE;
 
-        for (let i = 0; i < this.navMeshIndices.length; i += 3) {
-            const vertexPosition = new Vector3(
-                this.navMeshIndices[i],
-                this.navMeshIndices[i + 1],
-                this.navMeshIndices[i + 2]
-            );
-            const distanceSq = Vector3.DistanceSquared(clickedPosition, vertexPosition);
+    //     for (let i = 0; i < this.navMeshIndices.length; i += 3) {
+    //         const vertexPosition = new Vector3(
+    //             this.navMeshIndices[i],
+    //             this.navMeshIndices[i + 1],
+    //             this.navMeshIndices[i + 2]
+    //         );
+    //         const distanceSq = Vector3.DistanceSquared(clickedPosition, vertexPosition);
 
-            if (distanceSq < closestDistanceSq) {
-                closestDistanceSq = distanceSq;
-                closestIndex = i / 3;
+    //         if (distanceSq < closestDistanceSq) {
+    //             closestDistanceSq = distanceSq;
+    //             closestIndex = i / 3;
 
-                // Break early if we're close enough
-                if (distanceSq <= this.threshold * this.threshold) {
-                    break;
-                }
-            }
-        }
+    //             // Break early if we're close enough
+    //             if (distanceSq <= this.threshold * this.threshold) {
+    //                 break;
+    //             }
+    //         }
+    //     }
 
-        if (closestIndex === -1) {
-            console.warn("No vertex found within the threshold distance.");
-            return null;
-        }
+    //     if (closestIndex === -1) {
+    //         console.warn("No vertex found within the threshold distance.");
+    //         return null;
+    //     }
 
-        return {
-            index: closestIndex,
-            position: new Vector3(
-                this.navMeshIndices[closestIndex * 3],
-                this.navMeshIndices[closestIndex * 3 + 1],
-                this.navMeshIndices[closestIndex * 3 + 2]
-            ),
-            distance: Math.sqrt(closestDistanceSq)
-        };
-    }
+    //     return {
+    //         index: closestIndex,
+    //         position: new Vector3(
+    //             this.navMeshIndices[closestIndex * 3],
+    //             this.navMeshIndices[closestIndex * 3 + 1],
+    //             this.navMeshIndices[closestIndex * 3 + 2]
+    //         ),
+    //         distance: Math.sqrt(closestDistanceSq)
+    //     };
+    // }
 
     highlightVertex(position) {
         if (this.highlightMesh) {
@@ -740,6 +799,29 @@ class NexusUnitManager {
 
         return true; // No blocking triangles found
     }
+
+    public isPointInPolygon(point: Vector3, polygonPoints: Vector3[]): boolean {
+        let inside = false;
+        for (let i = 0, j = polygonPoints.length - 1; i < polygonPoints.length; j = i++) {
+            const xi = polygonPoints[i].x, yi = polygonPoints[i].z;
+            const xj = polygonPoints[j].x, yj = polygonPoints[j].z;
+            
+            const intersect = ((yi > point.z) !== (yj > point.z))
+                && (point.x < (xj - xi) * (point.z - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
+    public getClickedRegion(clickPosition: Vector3): BattlefieldName {
+        for (const region of regions) {
+            if (this.isPointInPolygon(clickPosition, region.points)) {
+                return region.name;
+            }
+        }
+        return BattlefieldName.None;
+    }
+    
 
     private rayTriangleIntersection(rayOrigin, rayDirection, v1, v2, v3) {
         const edge1 = v2.subtract(v1);

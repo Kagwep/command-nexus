@@ -5,7 +5,7 @@ import '@babylonjs/loaders';
 import { WeatherSystem, WeatherType } from './CommandNexusWeather';
 import { useDojo } from '../../dojo/useDojo';
 import { Phase } from '../../utils/nexus';
-import { Player, UnitType } from '../../utils/types';
+import { BattlefieldName,  Player, UnitType } from '../../utils/types';
 import { CameraSlidingCollision } from './CameraCollisionSystem';
 import NexusAreaSystem from './BattleField';
 import TankSystem, { ArmoredAction } from './Armored';
@@ -13,7 +13,8 @@ import Recast from "recast-detour";
 import PointNavigation from './PointNavigation';
 import { NexusUnitManager } from './NexusUnitManager';
 import InfantrySystem from './Infantry';
-
+import { BattlefieldCameraManager } from './BattlefieldCameraManager';
+import { GameState } from './GameState';
 
 interface MeshN extends Mesh {
   idx?: number;
@@ -27,20 +28,15 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui, gameState: {
+export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui, getGameState: () => GameState | null,gameState: {
   player: Player,
-  isItMyTurn: boolean,
   turn: number,
   phase: Phase,
   game: any,
   players: Player[]
-}) => {
+},arena,nexus) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
-  
-
-  console.log(gameState.player);
-
 
   let targetPosition = camera.target.clone();
   let targetAlpha = camera.alpha;
@@ -65,12 +61,15 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const nameList: string[] = ["Road_01", "Road_01.001", "Landscape_01", "EnergyRes_RenewablePlant_Wall_01", "EnergyRes_NaturalGasFacility_Wall_01","Water_01"];
 
-    const result = await SceneLoader.ImportMeshAsync('', '/models/', "nexusres1.glb");
+    const result = await SceneLoader.ImportMeshAsync('', '/models/', "next.glb");
 
     function checkNameUsingIncludes(name: string): boolean {
    //
       return nameList.includes(name);
   }
+
+
+  const battlefieldCameraManager = new BattlefieldCameraManager(scene,camera); 
   
 
     result.meshes.forEach(mesh => {
@@ -82,6 +81,62 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
       if (! checkNameUsingIncludes(mesh.name)){
         obstacles.push(mesh)
       }
+
+      if (mesh.name === "NavMesh01"){
+ 
+        mesh.visibility = 0;
+        mesh.isPickable = false
+      }
+
+
+
+      switch (mesh.name) {
+        case "IntelAgency_Buildings_14":
+            const novaWarhoundLandmark = mesh as Mesh;
+            battlefieldCameraManager.registerLandmark(BattlefieldName.NovaWarhound, novaWarhoundLandmark);
+
+            if(gameState.player.home_base === "NovaWarhound"){
+              const selectedBattlefield = BattlefieldName.NovaWarhound; // This would come from user input
+              battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+            }
+            break;
+        
+        case "TransportHub_Seaport_Port_Crane_03":
+            const savageCoastLandmark = mesh as Mesh;
+            battlefieldCameraManager.registerLandmark(BattlefieldName.SavageCoast, savageCoastLandmark);
+
+            if(gameState.player.home_base === "SavageCoast"){
+              const selectedBattlefield = BattlefieldName.SavageCoast; // This would come from user input
+              battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+            }
+            break;
+    
+        case "EnergyRes_NaturalGasFacility_Tank_10":
+            const ironForgeLandmark = mesh as Mesh;
+            battlefieldCameraManager.registerLandmark(BattlefieldName.Ironforge, ironForgeLandmark);
+
+            if(gameState.player.home_base === "Ironforge"){
+              const selectedBattlefield = BattlefieldName.Ironforge; // This would come from user input
+              battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+            }
+            break;
+
+        case "EnergyRes_NaturalGasFacility_Tank_10":
+              const radiantShoresLandmark = mesh as Mesh;
+              battlefieldCameraManager.registerLandmark(BattlefieldName.RadiantShores, radiantShoresLandmark);
+  
+              if(gameState.player.home_base === "RadiantShores"){
+                const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
+                battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+              }
+              break;
+    
+        default:
+            // Handle unknown or other meshes
+            console.log("Unknown mesh.");
+            break;
+    }
+      
       addPhysicsAggregate(mesh);
     })
 
@@ -225,7 +280,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
               });
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
-          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,soldierContainer,tankContainer);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,arena,nexus);
           await multiAgentNav.initialize();
 
           // Create your custom mesh

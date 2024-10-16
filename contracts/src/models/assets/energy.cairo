@@ -7,7 +7,7 @@ enum EnergyStatus {
     offline,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct OilDepot {
     #[key]
@@ -21,7 +21,7 @@ struct OilDepot {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct SolarPowerPlant {
     #[key]
@@ -34,7 +34,7 @@ struct SolarPowerPlant {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct GasStorage {
     #[key]
@@ -48,7 +48,7 @@ struct GasStorage {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct GasStation {
     #[key]
@@ -62,7 +62,7 @@ struct GasStation {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct NuclearPowerStation {
     #[key]

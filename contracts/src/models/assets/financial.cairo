@@ -16,7 +16,7 @@ enum FinancialType {
     InvestmentFirm,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct Bank {
     #[key]
@@ -31,7 +31,7 @@ struct Bank {
     status: FinancialStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct StockExchange {
     #[key]
@@ -45,7 +45,7 @@ struct StockExchange {
     status: FinancialStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct Treasury {
     #[key]
@@ -59,7 +59,7 @@ struct Treasury {
     status: FinancialStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct InvestmentFirm {
     #[key]

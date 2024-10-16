@@ -16,7 +16,7 @@ enum AgencyStatus {
     Compromised,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct IntelligenceAgency {
     #[key]
@@ -30,7 +30,7 @@ struct IntelligenceAgency {
     status: AgencyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct SpyNetwork {
     #[key]
@@ -44,7 +44,7 @@ struct SpyNetwork {
     status: AgencyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct IntelligenceReport {
     #[key]

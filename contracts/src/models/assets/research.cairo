@@ -15,7 +15,7 @@ enum ResearchType {
     InnovationCenter,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct Laboratory {
     #[key]
@@ -29,7 +29,7 @@ struct Laboratory {
     status: ResearchStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct TestingGround {
     #[key]
@@ -43,7 +43,7 @@ struct TestingGround {
     status: ResearchStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct InnovationCenter {
     #[key]

@@ -16,7 +16,7 @@ enum MillitaryType {
     CommandCenter,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct Barracks {
     #[key]
@@ -30,7 +30,7 @@ struct Barracks {
     status: MillitaryStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct Armory {
     #[key]
@@ -44,7 +44,7 @@ struct Armory {
     status: MillitaryStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct TrainingFacility {
     #[key]
@@ -58,7 +58,7 @@ struct TrainingFacility {
     status: MillitaryStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 #[dojo:model]
 struct CommandCenter {
     #[key]

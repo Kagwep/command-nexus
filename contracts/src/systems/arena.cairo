@@ -7,6 +7,7 @@ trait IArena {
         penalty: u64
     ) -> u32;
     fn join(ref world: IWorldDispatcher,game_id: u32, player_name: felt252);
+    fn transfer(ref world: IWorldDispatcher, game_id: u32, index: u32);
     fn leave(ref world: IWorldDispatcher, game_id: u32);
     fn start(ref world: IWorldDispatcher, game_id: u32, round_count: u32);
     fn delete(ref world: IWorldDispatcher, game_id: u32);
@@ -76,7 +77,7 @@ mod arena {
 
             let size = player_home_base.get_size();
 
-            let weather = WeatherEffectTrait::create(game_id);
+            let weather = WeatherEffectTrait::create();
 
             let battlefield_id = player_home_base.to_battlefield_id();
 
@@ -123,7 +124,7 @@ mod arena {
 
             let size = player_home_base.get_size();
 
-            let weather = WeatherEffectTrait::create(game_id);
+            let weather = WeatherEffectTrait::create();
 
             let battlefield_id = player_home_base.to_battlefield_id();
 
@@ -138,6 +139,25 @@ mod arena {
             set!(world,(urban_battle_field));
         }
 
+
+        fn transfer(ref world: IWorldDispatcher, game_id: u32, index: u32) {
+
+            // [Check] Caller is the host
+            let mut game = get!(world, game_id, Game);
+
+            let caller = get_caller_address();
+
+            game.assert_is_host(caller);
+
+            // [Check] Player exists
+            let mut player = get!(world,(game_id,index),Player);
+            player.assert_exists();
+
+            // [Effect] Update Game
+            game.transfer(player.address);
+            
+            set!(world,(game));
+        }
 
         fn leave(ref world: IWorldDispatcher, game_id: u32,) {
 
@@ -206,10 +226,11 @@ mod arena {
                 Option::Some(player) => player,
                 Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
             };
+
             player.assert_exists();
-
-
+            
             // [Effect] Update Game
+
             game.delete(player.address);
             set!(world, (game));
 
@@ -237,7 +258,9 @@ mod arena {
 
             // [Effect] Update Game
             let time = get_block_timestamp();
+
             game.start(time, round_count, addresses);
+    
         
             set!(world, (game));
 

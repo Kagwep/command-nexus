@@ -45,12 +45,6 @@ struct Game {
 
 }
 
-#[derive(Drop, PartialEq)]
-enum Turn {
-    Supply,
-    Attack,
-    Transfer,
-}
 
 #[derive(Model, Copy, Drop, Serde)]
 struct GameData {
@@ -132,23 +126,10 @@ impl GameImpl of GameTrait {
     }
 
     #[inline(always)]
-    fn turn(self: Game) -> Turn {
-        let turn_id = self.nonce % TURN_COUNT;
-        turn_id.into()
-    }
-
-    #[inline(always)]
     fn next_player(self: Game) -> u32 {
         let index = (self.nonce / TURN_COUNT + 1) % self.player_count.into();
         index.into()
     }
-
-    #[inline(always)]
-    fn next_turn(self: Game) -> Turn {
-        let turn_id = (self.nonce + 1) % TURN_COUNT;
-        turn_id.into()
-    }
-
 
 
     fn assign_home_base(ref self: Game) -> BattlefieldName {
@@ -165,7 +146,7 @@ impl GameImpl of GameTrait {
         ];
     
         // Count available bases and store their indices
-        let mut available_indices = ArrayTrait::new();
+        let mut available_bases = ArrayTrait::new();
         let mut count: usize = 0;
         loop {
             if count == 5 {
@@ -173,13 +154,13 @@ impl GameImpl of GameTrait {
             }
             // If the base is available (non-zero), add its index (1-based) to available_indices
             if *arr_home_bases.at(count) != 0 {
-                available_indices.append(count + 1);
+                available_bases.append(*arr_home_bases[count]);
             }
             count += 1;
         };
     
         // Get the number of available bases
-        let limit: u128 = available_indices.len().try_into().unwrap();
+        let limit: u128 = available_bases.len().try_into().unwrap();
     
         // If no bases are available, return None
         if limit == 0 {
@@ -188,8 +169,8 @@ impl GameImpl of GameTrait {
     
         // Select a random index from the available indices
         // Note: We add 1 to the modulo result to match 1-based indexing
-        let result: usize = (seed.low % limit + 1).try_into().unwrap();
-        let selected_index = *available_indices.at(result - 1);
+        let result: usize = (seed.low % limit).try_into().unwrap();
+        let selected_index = *available_bases.at(result) - 1;
     
         // Update available_home_bases and return the selected BattlefieldName
         match selected_index {
@@ -253,6 +234,8 @@ impl GameImpl of GameTrait {
         self.assert_not_host(address);
         self.player_count -= 1;
         self.player_count.into()
+
+        
     }
 
     #[inline(always)]
@@ -316,6 +299,10 @@ impl GameImpl of GameTrait {
         self.nonce += TURN_COUNT - turn;
     }
 
+    fn turns_remaining(self: Game) -> u32 {
+        TURN_COUNT - (self.nonce % TURN_COUNT)
+    }
+
     #[inline(always)]
     fn nullify(ref self: Game) {
         self.arena_host = Zeroable::zero();
@@ -330,30 +317,6 @@ impl GameImpl of GameTrait {
 }
 
 
-impl U32IntoTurn of Into<u32, Turn> {
-    #[inline(always)]
-    fn into(self: u32) -> Turn {
-        assert(self < 3, 'U8IntoTurn: invalid turn');
-        if self == 0 {
-            Turn::Supply
-        } else if self == 1 {
-            Turn::Attack
-        } else {
-            Turn::Transfer
-        }
-    }
-}
-
-impl TurnIntoU32 of Into<Turn, u32> {
-    #[inline(always)]
-    fn into(self: Turn) -> u32 {
-        match self {
-            Turn::Supply => 0,
-            Turn::Attack => 1,
-            Turn::Transfer => 2,
-        }
-    }
-}
 
 #[generate_trait]
 impl GameAssert of AssertTrait {

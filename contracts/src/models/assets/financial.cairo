@@ -1,5 +1,4 @@
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum FinancialStatus {
     Operational,
     UnderMaintenance,
@@ -7,8 +6,7 @@ enum FinancialStatus {
     Closed,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum FinancialType {
     Bank,
     StockExchange,
@@ -16,8 +14,8 @@ enum FinancialType {
     InvestmentFirm,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct Bank {
     #[key]
     game_id: u32,
@@ -31,8 +29,8 @@ struct Bank {
     status: FinancialStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct StockExchange {
     #[key]
     game_id: u32,
@@ -45,8 +43,8 @@ struct StockExchange {
     status: FinancialStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct Treasury {
     #[key]
     game_id: u32,
@@ -59,8 +57,8 @@ struct Treasury {
     status: FinancialStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct InvestmentFirm {
     #[key]
     game_id: u32,

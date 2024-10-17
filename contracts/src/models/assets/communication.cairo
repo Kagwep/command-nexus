@@ -1,4 +1,4 @@
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Communication {
     #[key]
@@ -12,7 +12,7 @@ struct Communication {
     control_center: ControlCenter,
 }
 
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Cable {
     #[key]
@@ -25,7 +25,7 @@ struct Cable {
     status: felt252, // e.g. "active", "damaged"
 }
 
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct CommunicationTower {
     #[key]
@@ -38,7 +38,7 @@ struct CommunicationTower {
     status: felt252, // e.g. "active", "under maintenance"
 }
 
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct SatelliteDish {
     #[key]
@@ -51,7 +51,7 @@ struct SatelliteDish {
     status: felt252, // e.g. "active", "offline"
 }
 
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct RelayStation {
     #[key]
@@ -64,7 +64,7 @@ struct RelayStation {
     status: felt252, // e.g. "active", "overloaded"
 }
 
-#[derive(Model, Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct ControlCenter {
     #[key]

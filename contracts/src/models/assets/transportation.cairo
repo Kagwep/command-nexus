@@ -1,4 +1,4 @@
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Transportation {
     #[key]
@@ -11,7 +11,7 @@ struct Transportation {
     depot: Depot
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Airport {
     #[key]
@@ -22,7 +22,7 @@ struct Airport {
     airport_name: felt252
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Seaport {
     #[key]
@@ -33,7 +33,7 @@ struct Seaport {
     seaport_name: felt252,
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct RailwayStation {
     #[key]
@@ -45,7 +45,7 @@ struct RailwayStation {
 
 }
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Depot {
     #[key]

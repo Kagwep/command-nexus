@@ -1,5 +1,4 @@
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum AgencyType {
     Domestic,
     Foreign,
@@ -7,8 +6,7 @@ enum AgencyType {
     CounterIntelligence,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum AgencyStatus {
     Active,
     UnderOperation,
@@ -16,8 +14,8 @@ enum AgencyStatus {
     Compromised,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct IntelligenceAgency {
     #[key]
     game_id: u32,
@@ -30,8 +28,8 @@ struct IntelligenceAgency {
     status: AgencyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct SpyNetwork {
     #[key]
     game_id: u32,
@@ -44,8 +42,8 @@ struct SpyNetwork {
     status: AgencyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct IntelligenceReport {
     #[key]
     game_id: u32,

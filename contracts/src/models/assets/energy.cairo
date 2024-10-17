@@ -1,5 +1,5 @@
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 enum EnergyStatus {
     Active,
     UnderMaintenance,
@@ -7,8 +7,8 @@ enum EnergyStatus {
     offline,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct OilDepot {
     #[key]
     game_id: u32,
@@ -21,8 +21,8 @@ struct OilDepot {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct SolarPowerPlant {
     #[key]
     game_id: u32,
@@ -34,8 +34,8 @@ struct SolarPowerPlant {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct GasStorage {
     #[key]
     game_id: u32,
@@ -48,8 +48,8 @@ struct GasStorage {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct GasStation {
     #[key]
     game_id: u32,
@@ -62,8 +62,8 @@ struct GasStation {
     status: EnergyStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct NuclearPowerStation {
     #[key]
     game_id: u32,

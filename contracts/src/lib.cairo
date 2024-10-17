@@ -19,6 +19,10 @@ mod models {
 
 
 
+#[cfg(test)]
 mod tests {
-    mod test_world;
+    mod setup;
+    mod arena;
+    mod nexus;
+
 }

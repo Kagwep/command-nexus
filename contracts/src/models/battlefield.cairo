@@ -54,11 +54,8 @@ enum WeatherCondition {
     Stormy,
 }
 
-#[derive(Copy, Drop, Serde)]
-#[dojo::model]
+#[derive(Copy, Drop, Serde, Introspect)]
 struct WeatherEffect {
-    #[key]
-    game_id: u32,
     weather_condition: WeatherCondition,
     visibility: u8,
     movement_penalty: u8,
@@ -149,7 +146,7 @@ impl WeatherEffectImpl of WeatherEffectTrait {
 
 
 
-    fn create(game_id: u32) -> WeatherEffect {
+    fn create() -> WeatherEffect {
 
         let timestamp: u64 = get_block_timestamp();
         let last_digit = timestamp % 10;
@@ -164,35 +161,30 @@ impl WeatherEffectImpl of WeatherEffectTrait {
         
         match weather_condition {
             WeatherCondition::None => WeatherEffect {
-                game_id,
                 weather_condition,
                 visibility: 0,
                 movement_penalty: 0,
                 comms_interference: 0,
             },
             WeatherCondition::Clear => WeatherEffect {
-                game_id,
                 weather_condition,
                 visibility: 10,
                 movement_penalty: 0,
                 comms_interference: 0,
             },
             WeatherCondition::Rainy => WeatherEffect {
-                game_id,
                 weather_condition,
                 visibility: 6,
                 movement_penalty: 2,
                 comms_interference: 2,
             },
             WeatherCondition::Foggy => WeatherEffect {
-                game_id,
                 weather_condition,
                 visibility: 2,
                 movement_penalty: 2,
                 comms_interference: 1,
             },
             WeatherCondition::Stormy => WeatherEffect {
-                game_id,
                 weather_condition,
                 visibility: 4,
                 movement_penalty: 3,

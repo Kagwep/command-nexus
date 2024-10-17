@@ -129,6 +129,21 @@ impl PlayerImpl of PlayerTrait {
 
 
     }
+
+    #[inline(always)]
+    fn unit_supply(ref self: Player, unit: UnitType){
+
+        match unit {
+            UnitType::Infantry => self.supply.infantry -= 1,
+            UnitType::Armored =>  self.supply.armored -= 1,
+            UnitType::Air => self.supply.air -= 1,
+            UnitType::Naval => self.supply.naval -= 1,
+            UnitType::Cyber => self.supply.cyber -= 1,
+            _=> panic(array!['Invalid Unit Type'])
+        }
+
+
+    }
 }
 
 #[generate_trait]

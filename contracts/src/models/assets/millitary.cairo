@@ -1,5 +1,4 @@
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum MillitaryStatus {
     Operational,
     UnderMaintenance,
@@ -7,8 +6,7 @@ enum MillitaryStatus {
     Decommissioned,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum MillitaryType {
     Barracks,
     Armory,
@@ -16,39 +14,39 @@ enum MillitaryType {
     CommandCenter,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct Barracks {
     #[key]
     game_id: u32,
     #[key]
     player_id: u32,
     barracks_id: u32,
-    barrack_name; felt252,
+    barrack_name: felt252,
     capacity: u32,
     current_soldiers: u32,
     status: MillitaryStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct Armory {
     #[key]
     game_id: u32,
     #[key]
     player_id: u32,
-    armory_id; u32,
+    armory_id: u32,
     armory_name: felt252,
     weapon_inventory: u32,
     ammo_inventory: u32,
     status: MillitaryStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct TrainingFacility {
     #[key]
-    game_id: U32,
+    game_id: u32,
     #[key]
     player_id: u32,
     facility_id: u32,
@@ -58,8 +56,8 @@ struct TrainingFacility {
     status: MillitaryStatus,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-#[dojo:model]
+#[derive(Copy, Drop, Serde, Introspect)]
+#[dojo::model]
 struct CommandCenter {
     #[key]
     game_id: u32,

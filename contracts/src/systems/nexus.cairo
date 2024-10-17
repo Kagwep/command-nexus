@@ -201,7 +201,11 @@ mod nexus {
                 x,y,z
             );
 
+            player.unit_supply(unit_type);
 
+            set!(world, (player));
+
+            
             set!(world, (game));
 
         }

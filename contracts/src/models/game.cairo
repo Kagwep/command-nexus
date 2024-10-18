@@ -7,7 +7,7 @@ use core::poseidon::PoseidonTrait;
 
 const MINIMUM_PLAYER_COUNT: u8 = 2;
 const MAXIMUM_PLAYER_COUNT: u8 = 4;
-const TURN_COUNT: u32 = 3;
+const TURN_ADVANCE: u32 = 3;
 
 use contracts::models::battlefield::{BattlefieldName};
 
@@ -121,13 +121,13 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn player(self: Game) -> u32 {
-        let index = self.nonce / TURN_COUNT % self.player_count.into();
+        let index = self.nonce / TURN_ADVANCE % self.player_count.into();
         index.into()
     }
 
     #[inline(always)]
     fn next_player(self: Game) -> u32 {
-        let index = (self.nonce / TURN_COUNT + 1) % self.player_count.into();
+        let index = (self.nonce / TURN_ADVANCE + 1) % self.player_count.into();
         index.into()
     }
 
@@ -215,8 +215,8 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn add_unit(ref self: Game) -> u32 {
-        let new_unit_count = self.unit_count + 1;
-        new_unit_count  
+        self.unit_count += 1;
+        self.unit_count 
     }
 
     /// Leaves a game and returns the last player index.
@@ -233,9 +233,7 @@ impl GameImpl of GameTrait {
         self.assert_not_empty();
         self.assert_not_host(address);
         self.player_count -= 1;
-        self.player_count.into()
-
-        
+        self.player_count.into()   
     }
 
     #[inline(always)]
@@ -285,22 +283,22 @@ impl GameImpl of GameTrait {
         };
         self.seed = state.finalize();
         self.clock = time;
-        self.limit = self.player_count.into() * round_count * TURN_COUNT;
+        self.limit = self.player_count.into() * round_count * TURN_ADVANCE;
     }
 
     #[inline(always)]
-    fn increment(ref self: Game) {
-        self.nonce += 1;
+    fn advance_turn(ref self: Game) {
+        self.nonce += TURN_ADVANCE;
     }
 
     #[inline(always)]
     fn pass(ref self: Game) {
-        let turn = self.nonce % TURN_COUNT;
-        self.nonce += TURN_COUNT - turn;
+        let turn = self.nonce % TURN_ADVANCE;
+        self.nonce += TURN_ADVANCE - turn;
     }
 
     fn turns_remaining(self: Game) -> u32 {
-        TURN_COUNT - (self.nonce % TURN_COUNT)
+        TURN_ADVANCE - (self.nonce % TURN_ADVANCE)
     }
 
     #[inline(always)]

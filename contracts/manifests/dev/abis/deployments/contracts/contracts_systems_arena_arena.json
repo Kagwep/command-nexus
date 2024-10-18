@@ -177,11 +177,11 @@
   {
     "type": "impl",
     "name": "IDojoInitImpl",
-    "interface_name": "contracts::systems::arena::Arena::IDojoInit"
+    "interface_name": "contracts::systems::arena::arena::IDojoInit"
   },
   {
     "type": "interface",
-    "name": "contracts::systems::arena::Arena::IDojoInit",
+    "name": "contracts::systems::arena::arena::IDojoInit",
     "items": [
       {
         "type": "function",
@@ -241,7 +241,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::systems::arena::Arena::Event",
+    "name": "contracts::systems::arena::arena::Event",
     "kind": "enum",
     "variants": [
       {

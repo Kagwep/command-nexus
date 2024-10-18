@@ -1,7 +1,7 @@
 
 use core::debug::PrintTrait;
 
-use starknet::testing::set_contract_address;
+use starknet::testing::{set_contract_address,set_block_timestamp};
 
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
 
@@ -159,6 +159,7 @@ fn test_start() {
     set_contract_address(PLAYER());
     systems.arena.join(game_id,'musa');
 
+    set_block_timestamp(1634325678);
     set_contract_address(ARENA_HOST());
     systems.arena.start(game_id,3);
 
@@ -166,6 +167,12 @@ fn test_start() {
     let game = get!(world, (game_id), (Game));
 
     assert(game.limit != 0, 'Game: Did not Start');
+
+    let mut player_index: u8 = 0;
+    
+    let player = get!(world,(game_id,player_index),Player);
+
+    assert(player.turn_start_time != 0, 'Player time not initialized');
 
 
 }

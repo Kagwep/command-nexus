@@ -260,9 +260,14 @@ mod arena {
             let time = get_block_timestamp();
 
             game.start(time, round_count, addresses);
-    
+
+            let player_index = game.player();
+            let mut player = get!(world, (game_id, player_index), Player);
+
+            player.set_turn_start_time(time);
         
             set!(world, (game));
+            set!(world,(player));
 
         }
 

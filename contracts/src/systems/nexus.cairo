@@ -40,6 +40,9 @@ trait INexus {
 
     fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8, area_x: u32, area_y: u32, area_z: u32);
 
+    fn force_end_player_turn (ref world: IWorldDispatcher, game_id: u32,target_player_index: u32);
+
+
 }
 
 
@@ -56,6 +59,7 @@ trait INexusInternal {
         battlefield_name: BattlefieldName,
         x:u32,y:u32,z:u32
     );
+
 
     fn _handle_unit_type_operation(
         ref world: IWorldDispatcher,
@@ -81,7 +85,7 @@ trait INexusInternal {
 #[dojo::contract(allow_ref_self)]
 mod nexus {
     use super::{INexus};
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address,get_block_timestamp};
     use contracts::models::{
         battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
         units::unit_states::{UnitMode,UnitState,TerrainTypeTrait,EnvironmentInfo,UnitStateTrait,UnitTrait,AbilityState,AbilityStateTrait},
@@ -129,6 +133,8 @@ mod nexus {
     #[abi(embed_v0)]
     impl NexusImpl of INexus<ContractState> {
 
+
+
         fn deploy_forces(
             ref world: IWorldDispatcher,
             game_id: u32,
@@ -154,6 +160,13 @@ mod nexus {
             };
 
             player.assert_exists();
+
+            player.assert_has_commands();
+
+            let time = get_block_timestamp();
+
+            assert(!player.is_turn_timed_out(time), 'Turn Timeout');
+            
 
             let battle_field: UrbanBattlefield = get!(world,(game_id, battlefield_id),(UrbanBattlefield));
 
@@ -202,6 +215,13 @@ mod nexus {
             );
 
             player.unit_supply(unit_type);
+
+            let remaining_commands = player.send_command();
+
+            if remaining_commands == 0{
+                game.advance_turn();
+                player.reset_moves();
+            }
 
             set!(world, (player));
 
@@ -456,6 +476,45 @@ mod nexus {
                 area_z
             );
         } 
+
+        fn force_end_player_turn (ref world: IWorldDispatcher, game_id: u32, target_player_index: u32){
+
+            let caller = get_caller_address();
+
+            let mut game = get!(world,game_id,(Game));
+
+            // get the player
+            let mut player = match HelperTrait::find_player(world,game, caller) {
+                Option::Some(player) => player,
+                Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
+            };
+
+            player.assert_exists();
+
+            let mut target_player = HelperTrait::current_player(world,game);
+
+            let time = get_block_timestamp();
+
+            // replace with a penalty on score ,action, unit
+            assert(target_player.is_turn_timed_out(time), 'Player Turn Valid');
+
+            game.advance_turn();
+
+            // penalty to delaying player
+            //
+
+            let mut new_player = HelperTrait::current_player(world,game);
+
+            target_player.reset_moves();
+
+            new_player.set_turn_start_time(time);
+
+            set!(world,(player));
+            set!(world,(target_player));
+            set!(world,(new_player));
+            set!(world,(game));
+        
+        }
 
     }
 

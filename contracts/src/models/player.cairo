@@ -2,13 +2,16 @@ use core::zeroable::Zeroable;
 use starknet::ContractAddress;
 use contracts::models::battlefield::{BattlefieldName};
 
-
+const INITIAL_MOVES: u8 = 8;
+const ACTION_MOVES: u8 = 3;
+const TURN_TIME_LIMIT_SECONDS: u64 = 200;
 
 mod errors {
     const PLAYER_INVALID_RANK: felt252 = 'Player: invalid rank';
     const PLAYER_NOT_EXISTS: felt252 = 'Player: does not exist';
     const PLAYER_DOES_EXIST: felt252 = 'Player: does exist';
     const PLAYER_IS_DEAD: felt252 = 'Player: is dead';
+    const NO_COMMANDS: felt252 = 'Player:  No Commands';
 }
 
 #[derive(Copy,Drop,Serde)]
@@ -25,7 +28,8 @@ struct Player {
     rank: u8,
     player_score: PlayerScore,
     home_base:BattlefieldName,
-   
+    commands_remaining: u8,
+    turn_start_time: u64,
 }
 
 
@@ -49,7 +53,7 @@ enum UnitType {
 
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct UnitsSupply {
+struct UnitsSupply { 
     infantry: u32,
     armored: u32,
     air: u32,
@@ -78,7 +82,29 @@ impl PlayerImpl of PlayerTrait {
             assists: 0,
         },
         home_base,
+        commands_remaining: INITIAL_MOVES,
+        turn_start_time: 0,
     }
+    }
+
+    #[inline(always)]
+    fn reset_moves(ref self: Player) {
+        self.commands_remaining = ACTION_MOVES;
+    }
+
+    #[inline(always)]
+    fn send_command(ref self: Player) -> u8 {
+        assert(self.commands_remaining >= 0,'No Commands remaining.');
+        self.commands_remaining -= 1;
+
+        self.commands_remaining
+
+    }
+
+    #[inline(always)]
+    fn is_turn_timed_out(self: Player, current_time: u64) -> bool {
+        assert(self.turn_start_time != 0, 'Round not Initialized');
+        current_time - self.turn_start_time > TURN_TIME_LIMIT_SECONDS
     }
 
     #[inline(always)]
@@ -111,7 +137,9 @@ impl PlayerImpl of PlayerTrait {
             deaths: 0,
             assists: 0,
         };
-        self.home_base = BattlefieldName::None
+        self.home_base = BattlefieldName::None;
+        self.commands_remaining = 0;
+        self.turn_start_time = 0;
     }
 
     #[inline(always)]
@@ -131,6 +159,12 @@ impl PlayerImpl of PlayerTrait {
     }
 
     #[inline(always)]
+    fn set_turn_start_time(ref self: Player, start_time: u64){
+        self.turn_start_time = start_time;
+    }
+
+
+    #[inline(always)]
     fn unit_supply(ref self: Player, unit: UnitType){
 
         match unit {
@@ -144,6 +178,8 @@ impl PlayerImpl of PlayerTrait {
 
 
     }
+
+    
 }
 
 #[generate_trait]
@@ -156,6 +192,11 @@ impl PlayerAssert of AssertTrait {
     #[inline(always)]
     fn assert_not_exists(self: Player) {
         assert(self.is_zero(), errors::PLAYER_DOES_EXIST);
+    }
+
+    #[inline(always)]
+    fn assert_has_commands(self: Player){
+        assert(self.commands_remaining !=0,errors::NO_COMMANDS);
     }
 }
 
@@ -182,7 +223,9 @@ impl ZeroablePlayer of Zeroable<Player> {
                 deaths: 0,
                 assists: 0,
             },
-            home_base: BattlefieldName::None
+            home_base: BattlefieldName::None,
+            commands_remaining: 0,
+            turn_start_time: 0,
         }
     }
 
@@ -190,6 +233,7 @@ impl ZeroablePlayer of Zeroable<Player> {
     fn is_zero(self: Player) -> bool {
         self.address == Zeroable::zero()
     }
+
 
     #[inline(always)]
     fn is_non_zero(self: Player) -> bool {

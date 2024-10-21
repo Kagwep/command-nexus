@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x7d8d4713d71c4b28cee4a7496098ed33a4bc08535329f9ff4959d2c0574e2ab"
-original_class_hash = "0x7d8d4713d71c4b28cee4a7496098ed33a4bc08535329f9ff4959d2c0574e2ab"
+class_hash = "0x328fc86db967c0f12fb934d262ab400434f2031508cf32c20a2ae4e8ac507ef"
+original_class_hash = "0x328fc86db967c0f12fb934d262ab400434f2031508cf32c20a2ae4e8ac507ef"
 abi = "manifests/dev/abis/base/models/contracts_models_player_player.json"
 name = "contracts::models::player::player"
 
@@ -47,4 +47,14 @@ key = false
 [[members]]
 name = "home_base"
 type = "BattlefieldName"
+key = false
+
+[[members]]
+name = "commands_remaining"
+type = "u8"
+key = false
+
+[[members]]
+name = "turn_start_time"
+type = "u64"
 key = false

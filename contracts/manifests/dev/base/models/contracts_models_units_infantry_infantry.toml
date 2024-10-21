@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x6373992493104fefc0527ac8583096e69d5e7abfc38827ab0ebdbd05bbac1fb"
-original_class_hash = "0x6373992493104fefc0527ac8583096e69d5e7abfc38827ab0ebdbd05bbac1fb"
+class_hash = "0x4161272c386d44b2381daaa7e775d4afb781403e7f91653830229175d0fa983"
+original_class_hash = "0x4161272c386d44b2381daaa7e775d4afb781403e7f91653830229175d0fa983"
 abi = "manifests/dev/abis/base/models/contracts_models_units_infantry_infantry.json"
 name = "contracts::models::units::infantry::infantry"
 

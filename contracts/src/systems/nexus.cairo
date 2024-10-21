@@ -10,9 +10,9 @@ trait INexus {
         battlefield_id: u8,
         unit: u8,
         supply: u32,
-        x: u32,
-        y: u32,
-        z: u32,
+        x: u256,
+        y: u256,
+        z: u256,
         terrain_num: u8,
         cover_level: u8,   
         elevation: u8,
@@ -23,22 +23,22 @@ trait INexus {
         game_id: u32,
         unit_id: u32,
         unit_type: u8,
-        start_x: u32,
-        start_y: u32,
-        start_z: u32,
+        start_x: u256,
+        start_y: u256,
+        start_z: u256,
     );
 
-    fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x:u32,y:u32,z:u32);
+    fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x: u256,y: u256,z: u256,);
 
-    fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u32, y: u32, z: u32);
+    fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u256, y: u256, z: u256);
 
-    fn move_unit(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u32, dest_y: u32, dest_z: u32);
+    fn move_unit(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u256, dest_y: u256, dest_z: u256);
 
-    fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8,x:u32,y:u32,z:u32);
+    fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8,x: u256,y: u256,z: u256,);
 
-    fn heal(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, unit_type:u8,area_x: u32, area_y: u32, area_z: u32);
+    fn heal(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256);
 
-    fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8, area_x: u32, area_y: u32, area_z: u32);
+    fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8, area_x: u256, area_y: u256, area_z: u256);
 
     fn force_end_player_turn (ref world: IWorldDispatcher, game_id: u32,target_player_index: u32);
 
@@ -57,7 +57,7 @@ trait INexusInternal {
         player: Player,
         environment:EnvironmentInfo,
         battlefield_name: BattlefieldName,
-        x:u32,y:u32,z:u32
+        x:u256,y:u256,z:u256
     );
 
 
@@ -76,9 +76,9 @@ trait INexusInternal {
         unit_id: u32,
         unit_type: UnitType,
         new_mode: UnitMode,
-        x: u32,
-        y: u32,
-        z: u32
+        x: u256,
+        y: u256,
+        z: u256
     );
 }
 
@@ -141,9 +141,9 @@ mod nexus {
             battlefield_id: u8,
             unit: u8,
             supply: u32,
-            x: u32,
-            y: u32,
-            z: u32,
+            x: u256,
+            y: u256,
+            z: u256,
             terrain_num: u8,
             cover_level: u8,  
             elevation: u8,
@@ -235,9 +235,9 @@ mod nexus {
             game_id: u32,
             unit_id: u32,
             unit_type: u8,
-            start_x: u32,
-            start_y: u32,
-            start_z: u32,
+            start_x: u256,
+            start_y: u256,
+            start_z: u256,
         ) {
             let player_address  = get_caller_address();
             let mut game = get!(world, game_id, (Game));
@@ -271,7 +271,7 @@ mod nexus {
             );
         }
         
-        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x:u32,y:u32,z:u32) {
+        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x:u256,y:u256,z:u256) {
            let player_address = get_caller_address();
            let mut game = get!(world, game_id, (Game));
 
@@ -306,7 +306,7 @@ mod nexus {
 
         }
         
-        fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u32, y: u32, z: u32) {
+        fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u256, y: u256, z: u256) {
             let player_address = get_caller_address();
             let mut game = get!(world, game_id, (Game));
  
@@ -341,7 +341,7 @@ mod nexus {
  
         }
         
-        fn move_unit(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u32, dest_y: u32, dest_z: u32) {
+        fn move_unit(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u256, dest_y: u256, dest_z: u256) {
             let player_address = get_caller_address();
             let mut game = get!(world, game_id, (Game));
  
@@ -375,7 +375,7 @@ mod nexus {
          );
         }
         
-        fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8,x:u32,y:u32,z:u32) {
+        fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8,x:u256,y:u256,z:u256) {
             let player_address = get_caller_address();
             let mut game = get!(world, game_id, (Game));
  
@@ -409,7 +409,7 @@ mod nexus {
             );
         }
         
-        fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8, area_x: u32, area_y: u32, area_z: u32) {
+        fn recon(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8, area_x: u256, area_y: u256, area_z: u256) {
             let player_address = get_caller_address();
             let mut game = get!(world, game_id, (Game));
  
@@ -443,7 +443,7 @@ mod nexus {
          );
         }
         
-        fn heal(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, unit_type:u8,area_x: u32, area_y: u32, area_z: u32) {
+        fn heal(ref world: IWorldDispatcher, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256) {
             let player_address = get_caller_address();
             let mut game = get!(world, game_id, (Game));
  
@@ -558,9 +558,9 @@ mod nexus {
             unit_id: u32,
             unit_type: UnitType,
             new_mode: UnitMode,
-            x: u32,
-            y: u32,
-            z: u32
+            x: u256,
+            y: u256,
+            z: u256
         ) {
             let unit_int = UnitTypeTrait::to_int(unit_type);
             let mut unit_state: UnitState = HelperTrait::unit_state(world,game_id, unit_id, player_index, unit_int);
@@ -582,7 +582,7 @@ mod nexus {
             player: Player,
             environment:EnvironmentInfo,
             battlefield_name: BattlefieldName,
-            x:u32,y:u32,z:u32
+            x:u256,y:u256,z:u256
         ) {
 
             let unit_value = UnitTypeTrait::to_int(unit_type);

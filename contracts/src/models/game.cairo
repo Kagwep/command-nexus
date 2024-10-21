@@ -17,7 +17,6 @@ struct HomeBasesTuple {
     base2: felt252,
     base3: felt252,
     base4: felt252,
-    base5: felt252,
 }
 
 
@@ -87,7 +86,6 @@ impl GameImpl of GameTrait {
             base2: 2,
             base3: 3,
             base4: 4,
-            base5: 5,
         };
         // [Return] Default game
         Game {
@@ -141,15 +139,14 @@ impl GameImpl of GameTrait {
             self.available_home_bases.base1,
             self.available_home_bases.base2,
             self.available_home_bases.base3,
-            self.available_home_bases.base4,
-            self.available_home_bases.base5
+            self.available_home_bases.base4
         ];
     
         // Count available bases and store their indices
         let mut available_bases = ArrayTrait::new();
         let mut count: usize = 0;
         loop {
-            if count == 5 {
+            if count == 4 {
                 break;
             }
             // If the base is available (non-zero), add its index (1-based) to available_indices
@@ -189,10 +186,6 @@ impl GameImpl of GameTrait {
             3 => {
                 self.available_home_bases.base4 = 0;
                 BattlefieldName::NovaWarhound
-            },
-            4 => {
-                self.available_home_bases.base5 = 0;
-                BattlefieldName::SavageCoast
             },
             _ => panic(array!['Invalid base index']),
         }
@@ -393,7 +386,6 @@ impl ZeroableGame of core::Zeroable<Game> {
             base2: 2,
             base3: 3,
             base4: 4,
-            base5: 5,
         };
         Game {
             game_id: 0,

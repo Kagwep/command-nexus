@@ -439,6 +439,14 @@
       {
         "name": "home_base",
         "type": "contracts::models::battlefield::BattlefieldName"
+      },
+      {
+        "name": "commands_remaining",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "turn_start_time",
+        "type": "core::integer::u64"
       }
     ]
   },

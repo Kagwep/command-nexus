@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x98fc630d4e1670aec4a2e009d7509fae31c101abe2c720ad454f36c1729af5"
-original_class_hash = "0x98fc630d4e1670aec4a2e009d7509fae31c101abe2c720ad454f36c1729af5"
+class_hash = "0x64dd79c7c69961662e8ceee76935612876738453920d6307f6ae93570587c23"
+original_class_hash = "0x64dd79c7c69961662e8ceee76935612876738453920d6307f6ae93570587c23"
 abi = "manifests/dev/abis/base/models/contracts_models_game_game.json"
 name = "contracts::models::game::game"
 

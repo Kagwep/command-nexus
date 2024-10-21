@@ -59,6 +59,20 @@
     "interface_name": "contracts::systems::nexus::INexus"
   },
   {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
     "type": "interface",
     "name": "contracts::systems::nexus::INexus",
     "items": [
@@ -84,15 +98,15 @@
           },
           {
             "name": "x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "terrain_num",
@@ -128,15 +142,15 @@
           },
           {
             "name": "start_x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "start_y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "start_z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           }
         ],
         "outputs": [],
@@ -172,15 +186,15 @@
           },
           {
             "name": "x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           }
         ],
         "outputs": [],
@@ -204,15 +218,15 @@
           },
           {
             "name": "x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           }
         ],
         "outputs": [],
@@ -236,15 +250,15 @@
           },
           {
             "name": "dest_x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "dest_y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "dest_z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           }
         ],
         "outputs": [],
@@ -268,15 +282,15 @@
           },
           {
             "name": "x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           }
         ],
         "outputs": [],
@@ -300,15 +314,15 @@
           },
           {
             "name": "area_x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "area_y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "area_z",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           }
         ],
         "outputs": [],
@@ -332,14 +346,30 @@
           },
           {
             "name": "area_x",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "area_y",
-            "type": "core::integer::u32"
+            "type": "core::integer::u256"
           },
           {
             "name": "area_z",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "force_end_player_turn",
+        "inputs": [
+          {
+            "name": "game_id",
+            "type": "core::integer::u32"
+          },
+          {
+            "name": "target_player_index",
             "type": "core::integer::u32"
           }
         ],

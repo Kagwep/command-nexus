@@ -319,64 +319,68 @@
   },
   {
     "type": "impl",
-    "name": "weather_effectImpl",
-    "interface_name": "contracts::models::battlefield::Iweather_effect"
+    "name": "gas_stationImpl",
+    "interface_name": "contracts::models::assets::energy::Igas_station"
   },
   {
     "type": "enum",
-    "name": "contracts::models::battlefield::WeatherCondition",
+    "name": "contracts::models::assets::energy::EnergyStatus",
     "variants": [
       {
-        "name": "None",
+        "name": "Active",
         "type": "()"
       },
       {
-        "name": "Clear",
+        "name": "UnderMaintenance",
         "type": "()"
       },
       {
-        "name": "Rainy",
+        "name": "Dameged",
         "type": "()"
       },
       {
-        "name": "Foggy",
-        "type": "()"
-      },
-      {
-        "name": "Stormy",
+        "name": "offline",
         "type": "()"
       }
     ]
   },
   {
     "type": "struct",
-    "name": "contracts::models::battlefield::WeatherEffect",
+    "name": "contracts::models::assets::energy::GasStation",
     "members": [
       {
         "name": "game_id",
         "type": "core::integer::u32"
       },
       {
-        "name": "weather_condition",
-        "type": "contracts::models::battlefield::WeatherCondition"
+        "name": "player_id",
+        "type": "core::integer::u32"
       },
       {
-        "name": "visibility",
-        "type": "core::integer::u8"
+        "name": "station_id",
+        "type": "core::integer::u32"
       },
       {
-        "name": "movement_penalty",
-        "type": "core::integer::u8"
+        "name": "station_name",
+        "type": "core::felt252"
       },
       {
-        "name": "comms_interference",
-        "type": "core::integer::u8"
+        "name": "fuel_available",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "fuel_price",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "status",
+        "type": "contracts::models::assets::energy::EnergyStatus"
       }
     ]
   },
   {
     "type": "interface",
-    "name": "contracts::models::battlefield::Iweather_effect",
+    "name": "contracts::models::assets::energy::Igas_station",
     "items": [
       {
         "type": "function",
@@ -384,7 +388,7 @@
         "inputs": [
           {
             "name": "model",
-            "type": "contracts::models::battlefield::WeatherEffect"
+            "type": "contracts::models::assets::energy::GasStation"
           }
         ],
         "outputs": [],
@@ -394,7 +398,7 @@
   },
   {
     "type": "event",
-    "name": "contracts::models::battlefield::weather_effect::Event",
+    "name": "contracts::models::assets::energy::gas_station::Event",
     "kind": "enum",
     "variants": []
   }

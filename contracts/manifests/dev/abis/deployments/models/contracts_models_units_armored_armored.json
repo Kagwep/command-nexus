@@ -372,19 +372,33 @@
   },
   {
     "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "struct",
     "name": "contracts::models::position::Vec3",
     "members": [
       {
         "name": "x",
-        "type": "core::integer::u32"
+        "type": "core::integer::u256"
       },
       {
         "name": "y",
-        "type": "core::integer::u32"
+        "type": "core::integer::u256"
       },
       {
         "name": "z",
-        "type": "core::integer::u32"
+        "type": "core::integer::u256"
       }
     ]
   },

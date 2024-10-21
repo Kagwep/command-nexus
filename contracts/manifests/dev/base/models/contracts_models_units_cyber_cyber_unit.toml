@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0xa95c8effd4b94507cc438ba474c62a3533458f1bbffe164f1570aca035aea7"
-original_class_hash = "0xa95c8effd4b94507cc438ba474c62a3533458f1bbffe164f1570aca035aea7"
+class_hash = "0x74ac4c4c6191c4ecced1830e7c02dff6da62f1c86cde3ddcca6bb72ac95de0e"
+original_class_hash = "0x74ac4c4c6191c4ecced1830e7c02dff6da62f1c86cde3ddcca6bb72ac95de0e"
 abi = "manifests/dev/abis/base/models/contracts_models_units_cyber_cyber_unit.json"
 name = "contracts::models::units::cyber::cyber_unit"
 

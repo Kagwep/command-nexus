@@ -84,6 +84,253 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
+    GasStation: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, station_id: RecsType.Number, station_name: RecsType.BigInt, fuel_available: RecsType.Number, fuel_price: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "GasStation",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["EnergyStatus"],
+          },
+        }
+      );
+    })(),
+    GasStorage: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, storage_id: RecsType.Number, storage_name: RecsType.BigInt, capacity: RecsType.Number, current_storage: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "GasStorage",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["EnergyStatus"],
+          },
+        }
+      );
+    })(),
+    NuclearPowerStation: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, station_id: RecsType.Number, station_name: RecsType.BigInt, power_output: RecsType.Number, fuel_level: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "NuclearPowerStation",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["EnergyStatus"],
+          },
+        }
+      );
+    })(),
+    OilDepot: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, depot_id: RecsType.Number, depot_name: RecsType.BigInt, capacity: RecsType.Number, current_storage: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "OilDepot",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["EnergyStatus"],
+          },
+        }
+      );
+    })(),
+    SolarPowerPlant: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, plant_id: RecsType.Number, plant_name: RecsType.Number, power_output: RecsType.BigInt, status: RecsType.Number },
+        {
+          metadata: {
+            name: "SolarPowerPlant",
+            types: ["u32","u32","u32","u32","felt252","enum"],
+            customTypes: ["EnergyStatus"],
+          },
+        }
+      );
+    })(),
+    Bank: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, bank_id: RecsType.Number, bank_name: RecsType.BigInt, total_deposit: RecsType.Number, total_withdrawals: RecsType.Number, interest_rate: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "Bank",
+            types: ["u32","u32","u32","felt252","u32","u32","u32","enum"],
+            customTypes: ["FinancialStatus"],
+          },
+        }
+      );
+    })(),
+    InvestmentFirm: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, firm_id: RecsType.Number, firm_name: RecsType.BigInt, assets_under_management: RecsType.Number, active_investments: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "InvestmentFirm",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["FinancialStatus"],
+          },
+        }
+      );
+    })(),
+    StockExchange: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, exchange_id: RecsType.Number, exchange_name: RecsType.BigInt, listed_companies: RecsType.Number, trading_volume: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "StockExchange",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["FinancialStatus"],
+          },
+        }
+      );
+    })(),
+    Treasury: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, treasury_id: RecsType.Number, treasury_name: RecsType.BigInt, funds_available: RecsType.Number, funds_reserved: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "Treasury",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["FinancialStatus"],
+          },
+        }
+      );
+    })(),
+    IntelligenceAgency: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, agency_id: RecsType.Number, agency_name: RecsType.BigInt, agency_type: RecsType.Number, resource_allocation: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "IntelligenceAgency",
+            types: ["u32","u32","u32","felt252","enum","u32","enum"],
+            customTypes: ["AgencyType","AgencyStatus"],
+          },
+        }
+      );
+    })(),
+    IntelligenceReport: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, report_id: RecsType.Number, source_agency_id: RecsType.Number, target_player_id: RecsType.Number, intelligence_data: RecsType.BigInt, reliability_score: RecsType.Number, timestamp: RecsType.BigInt, status: RecsType.Number },
+        {
+          metadata: {
+            name: "IntelligenceReport",
+            types: ["u32","u32","u32","u32","u32","felt252","u32","u64","enum"],
+            customTypes: ["AgencyStatus"],
+          },
+        }
+      );
+    })(),
+    SpyNetwork: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, network_id: RecsType.Number, network_name: RecsType.BigInt, number_of_spies: RecsType.Number, intel_reliability: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "SpyNetwork",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["AgencyStatus"],
+          },
+        }
+      );
+    })(),
+    Armory: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, armory_id: RecsType.Number, armory_name: RecsType.BigInt, weapon_inventory: RecsType.Number, ammo_inventory: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "Armory",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["MillitaryStatus"],
+          },
+        }
+      );
+    })(),
+    Barracks: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, barracks_id: RecsType.Number, barrack_name: RecsType.BigInt, capacity: RecsType.Number, current_soldiers: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "Barracks",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["MillitaryStatus"],
+          },
+        }
+      );
+    })(),
+    CommandCenter: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, center_id: RecsType.Number, center_name: RecsType.BigInt, coordination_level: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "CommandCenter",
+            types: ["u32","u32","u32","felt252","u32","enum"],
+            customTypes: ["MillitaryStatus"],
+          },
+        }
+      );
+    })(),
+    TrainingFacility: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, facility_id: RecsType.Number, facility_name: RecsType.BigInt, training_capacity: RecsType.Number, current_training: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "TrainingFacility",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["MillitaryStatus"],
+          },
+        }
+      );
+    })(),
+    InnovationCenter: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, center_id: RecsType.Number, center_name: RecsType.BigInt, innovation_points: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "InnovationCenter",
+            types: ["u32","u32","u32","felt252","u32","enum"],
+            customTypes: ["ResearchStatus"],
+          },
+        }
+      );
+    })(),
+    Laboratory: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, lab_id: RecsType.Number, lab_name: RecsType.BigInt, research_capacity: RecsType.Number, ongoing_projects: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "Laboratory",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["ResearchStatus"],
+          },
+        }
+      );
+    })(),
+    TestingGround: (() => {
+      return defineComponent(
+        world,
+        { game_id: RecsType.Number, player_id: RecsType.Number, ground_id: RecsType.Number, ground_name: RecsType.BigInt, test_capacity: RecsType.Number, ongiong_tests: RecsType.Number, status: RecsType.Number },
+        {
+          metadata: {
+            name: "TestingGround",
+            types: ["u32","u32","u32","felt252","u32","u32","enum"],
+            customTypes: ["ResearchStatus"],
+          },
+        }
+      );
+    })(),
     Airport: (() => {
       return defineComponent(
         world,
@@ -165,25 +412,12 @@ export function defineContractComponents(world: World) {
     UrbanBattlefield: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, battlefield_id: RecsType.Number, player_id: RecsType.Number, size: RecsType.Number, weather: { game_id: RecsType.Number, weather_condition: RecsType.Number, visibility: RecsType.Number, movement_penalty: RecsType.Number, comms_interference: RecsType.Number }, control: RecsType.Number },
+        { game_id: RecsType.Number, battlefield_id: RecsType.Number, player_id: RecsType.Number, size: RecsType.Number, weather: { weather_condition: RecsType.Number, visibility: RecsType.Number, movement_penalty: RecsType.Number, comms_interference: RecsType.Number }, control: RecsType.Number },
         {
           metadata: {
             name: "UrbanBattlefield",
-            types: ["u32","u8","u32","u32","u32","enum","u8","u8","u8","u16"],
+            types: ["u32","u8","u32","u32","enum","u8","u8","u8","u16"],
             customTypes: ["WeatherEffect","WeatherCondition"],
-          },
-        }
-      );
-    })(),
-    WeatherEffect: (() => {
-      return defineComponent(
-        world,
-        { game_id: RecsType.Number, weather_condition: RecsType.Number, visibility: RecsType.Number, movement_penalty: RecsType.Number, comms_interference: RecsType.Number },
-        {
-          metadata: {
-            name: "WeatherEffect",
-            types: ["u32","enum","u8","u8","u8"],
-            customTypes: ["WeatherCondition"],
           },
         }
       );
@@ -191,11 +425,11 @@ export function defineContractComponents(world: World) {
     Game: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, next_to_move: RecsType.BigInt, minimum_moves: RecsType.Number, over: RecsType.Boolean, player_count: RecsType.Number, unit_count: RecsType.Number, nonce: RecsType.Number, price: RecsType.BigInt, clock: RecsType.BigInt, penalty: RecsType.BigInt, limit: RecsType.Number, winner: RecsType.BigInt, arena_host: RecsType.BigInt, seed: RecsType.BigInt, available_home_bases: { base1: RecsType.BigInt, base2: RecsType.BigInt, base3: RecsType.BigInt, base4: RecsType.BigInt, base5: RecsType.BigInt }, player_name: RecsType.BigInt },
+        { game_id: RecsType.Number, next_to_move: RecsType.BigInt, minimum_moves: RecsType.Number, over: RecsType.Boolean, player_count: RecsType.Number, unit_count: RecsType.Number, nonce: RecsType.Number, price: RecsType.BigInt, clock: RecsType.BigInt, penalty: RecsType.BigInt, limit: RecsType.Number, winner: RecsType.BigInt, arena_host: RecsType.BigInt, seed: RecsType.BigInt, available_home_bases: { base1: RecsType.BigInt, base2: RecsType.BigInt, base3: RecsType.BigInt, base4: RecsType.BigInt }, player_name: RecsType.BigInt },
         {
           metadata: {
             name: "Game",
-            types: ["u32","contractaddress","u8","bool","u8","u32","u32","u256","u64","u64","u32","contractaddress","contractaddress","felt252","felt252","felt252","felt252","felt252","felt252","felt252"],
+            types: ["u32","contractaddress","u8","bool","u8","u32","u32","u256","u64","u64","u32","contractaddress","contractaddress","felt252","felt252","felt252","felt252","felt252","felt252"],
             customTypes: ["HomeBasesTuple"],
           },
         }
@@ -204,11 +438,11 @@ export function defineContractComponents(world: World) {
     Player: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, index: RecsType.Number, address: RecsType.BigInt, name: RecsType.BigInt, supply: { infantry: RecsType.Number, armored: RecsType.Number, air: RecsType.Number, naval: RecsType.Number, cyber: RecsType.Number }, last_action: RecsType.BigInt, rank: RecsType.Number, player_score: { score: RecsType.Number, kills: RecsType.Number, deaths: RecsType.Number, assists: RecsType.Number }, home_base: RecsType.Number },
+        { game_id: RecsType.Number, index: RecsType.Number, address: RecsType.BigInt, name: RecsType.BigInt, supply: { infantry: RecsType.Number, armored: RecsType.Number, air: RecsType.Number, naval: RecsType.Number, cyber: RecsType.Number }, last_action: RecsType.BigInt, rank: RecsType.Number, player_score: { score: RecsType.Number, kills: RecsType.Number, deaths: RecsType.Number, assists: RecsType.Number }, home_base: RecsType.Number, commands_remaining: RecsType.Number, turn_start_time: RecsType.BigInt },
         {
           metadata: {
             name: "Player",
-            types: ["u32","u32","contractaddress","felt252","u32","u32","u32","u32","u32","u64","u8","u32","u16","u16","u16","enum"],
+            types: ["u32","u32","contractaddress","felt252","u32","u32","u32","u32","u32","u64","u8","u32","u16","u16","u16","enum","u8","u64"],
             customTypes: ["UnitsSupply","PlayerScore","BattlefieldName"],
           },
         }
@@ -217,11 +451,11 @@ export function defineContractComponents(world: World) {
     AirUnit: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, accessories: { missiles: RecsType.Number, flares: RecsType.Number, fuel: RecsType.Number, radar_jammer: RecsType.Number }, health: { hull_integrity: RecsType.Number, engine_health: RecsType.Number }, position: { coord: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } }, battlefield_name: RecsType.Number, altitude: RecsType.Number, max_speed: RecsType.Number },
+        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, accessories: { missiles: RecsType.Number, flares: RecsType.Number, fuel: RecsType.Number, radar_jammer: RecsType.Number }, health: { hull_integrity: RecsType.Number, engine_health: RecsType.Number }, position: { coord: { x: RecsType.BigInt, y: RecsType.BigInt, z: RecsType.BigInt } }, battlefield_name: RecsType.Number, altitude: RecsType.Number, max_speed: RecsType.Number },
         {
           metadata: {
             name: "AirUnit",
-            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u32","u32","u32","enum","u32","u32"],
+            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u256","u256","u256","enum","u32","u32"],
             customTypes: ["AirUnitAccessories","AirUnitHealth","Position","Vec3","BattlefieldName"],
           },
         }
@@ -230,11 +464,11 @@ export function defineContractComponents(world: World) {
     Armored: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, accuracy: RecsType.Number, firepower: RecsType.Number, range: RecsType.BigInt, accessories: { fuel: RecsType.Number, main_gun_ammunition: RecsType.Number, secondary_gun_ammunition: RecsType.Number, smoke_grenades: RecsType.Number, repair_kits: RecsType.Number, active_protection_system: RecsType.Number }, armored_health: { hull_integrity: RecsType.Number, turret_integrity: RecsType.Number, track_integrity: RecsType.Number }, position: { coord: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } }, battlefield_name: RecsType.Number },
+        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, accuracy: RecsType.Number, firepower: RecsType.Number, range: RecsType.BigInt, accessories: { fuel: RecsType.Number, main_gun_ammunition: RecsType.Number, secondary_gun_ammunition: RecsType.Number, smoke_grenades: RecsType.Number, repair_kits: RecsType.Number, active_protection_system: RecsType.Number }, armored_health: { hull_integrity: RecsType.Number, turret_integrity: RecsType.Number, track_integrity: RecsType.Number }, position: { coord: { x: RecsType.BigInt, y: RecsType.BigInt, z: RecsType.BigInt } }, battlefield_name: RecsType.Number },
         {
           metadata: {
             name: "Armored",
-            types: ["u32","u32","u32","u8","u32","u64","u32","u32","u32","u8","u8","u8","u32","u32","u32","u32","u32","u32","enum"],
+            types: ["u32","u32","u32","u8","u32","u64","u32","u32","u32","u8","u8","u8","u32","u32","u32","u256","u256","u256","enum"],
             customTypes: ["ArmoredAccessories","ArmoredHealth","Position","Vec3","BattlefieldName"],
           },
         }
@@ -243,11 +477,11 @@ export function defineContractComponents(world: World) {
     CyberUnit: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, hacking_range: RecsType.BigInt, encryption_strength: RecsType.Number, stealth: RecsType.Number, accessories: { malware: RecsType.Number, firewalls: RecsType.Number, vpn_tokens: RecsType.Number, encryption_keys: RecsType.Number, decryption_tools: RecsType.Number }, health: { system_integrity: RecsType.Number, anti_virus_strength: RecsType.Number }, position: { coord: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } }, battlefield_name: RecsType.Number, bandwidth: RecsType.Number, processing_power: RecsType.Number },
+        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, hacking_range: RecsType.BigInt, encryption_strength: RecsType.Number, stealth: RecsType.Number, accessories: { malware: RecsType.Number, firewalls: RecsType.Number, vpn_tokens: RecsType.Number, encryption_keys: RecsType.Number, decryption_tools: RecsType.Number }, health: { system_integrity: RecsType.Number, anti_virus_strength: RecsType.Number }, position: { coord: { x: RecsType.BigInt, y: RecsType.BigInt, z: RecsType.BigInt } }, battlefield_name: RecsType.Number, bandwidth: RecsType.Number, processing_power: RecsType.Number },
         {
           metadata: {
             name: "CyberUnit",
-            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u32","u32","u32","u32","enum","u32","u32"],
+            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u32","u256","u256","u256","enum","u32","u32"],
             customTypes: ["CyberUnitAccessories","CyberUnitHealth","Position","Vec3","BattlefieldName"],
           },
         }
@@ -256,11 +490,11 @@ export function defineContractComponents(world: World) {
     Infantry: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, accessories: { ammunition: RecsType.Number, first_aid_kit: RecsType.Number, molotov: RecsType.Number, grenade: RecsType.Number }, health: { current: RecsType.Number, max: RecsType.Number }, position: { coord: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } }, battlefield_name: RecsType.Number },
+        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, accessories: { ammunition: RecsType.Number, first_aid_kit: RecsType.Number, molotov: RecsType.Number, grenade: RecsType.Number }, health: { current: RecsType.Number, max: RecsType.Number }, position: { coord: { x: RecsType.BigInt, y: RecsType.BigInt, z: RecsType.BigInt } }, battlefield_name: RecsType.Number },
         {
           metadata: {
             name: "Infantry",
-            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u32","u32","u32","enum"],
+            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u32","u256","u256","u256","enum"],
             customTypes: ["InfantryAccessories","InfantryHealth","Position","Vec3","BattlefieldName"],
           },
         }
@@ -269,11 +503,11 @@ export function defineContractComponents(world: World) {
     Ship: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, ship_accessories: { fuel: RecsType.Number, main_gun_ammunition: RecsType.Number, missile_ammunition: RecsType.Number, torpedo_ammunition: RecsType.Number, anti_air_ammunition: RecsType.Number, sonar_charges: RecsType.Number, repair_drones: RecsType.Number }, ship_health: { hull_integrity: RecsType.Number, engine_integrity: RecsType.Number, weapon_systems_integrity: RecsType.Number, shield_strength: RecsType.Number }, position: { coord: { x: RecsType.Number, y: RecsType.Number, z: RecsType.Number } }, battlefield_name: RecsType.Number },
+        { game_id: RecsType.Number, unit_id: RecsType.Number, player_id: RecsType.Number, range: RecsType.BigInt, firepower: RecsType.Number, accuracy: RecsType.Number, ship_accessories: { fuel: RecsType.Number, main_gun_ammunition: RecsType.Number, missile_ammunition: RecsType.Number, torpedo_ammunition: RecsType.Number, anti_air_ammunition: RecsType.Number, sonar_charges: RecsType.Number, repair_drones: RecsType.Number }, ship_health: { hull_integrity: RecsType.Number, engine_integrity: RecsType.Number, weapon_systems_integrity: RecsType.Number, shield_strength: RecsType.Number }, position: { coord: { x: RecsType.BigInt, y: RecsType.BigInt, z: RecsType.BigInt } }, battlefield_name: RecsType.Number },
         {
           metadata: {
             name: "Ship",
-            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u8","u8","u32","u32","u32","u32","u32","u32","u32","enum"],
+            types: ["u32","u32","u32","u64","u32","u8","u32","u32","u32","u32","u32","u8","u8","u32","u32","u32","u32","u256","u256","u256","enum"],
             customTypes: ["ShipAccessories","ShipHealth","Position","Vec3","BattlefieldName"],
           },
         }
@@ -321,11 +555,11 @@ export function defineContractComponents(world: World) {
     UnitState: (() => {
       return defineComponent(
         world,
-        { game_id: RecsType.Number, player_id: RecsType.Number, unit_id: RecsType.Number, unit_type: RecsType.Number, x: RecsType.Number, y: RecsType.Number, z: RecsType.Number, mode: RecsType.Number, environment: { terrain: RecsType.Number, cover_level: RecsType.Number, elevation: RecsType.Number } },
+        { game_id: RecsType.Number, player_id: RecsType.Number, unit_id: RecsType.Number, unit_type: RecsType.Number, x: RecsType.BigInt, y: RecsType.BigInt, z: RecsType.BigInt, mode: RecsType.Number, environment: { terrain: RecsType.Number, cover_level: RecsType.Number, elevation: RecsType.Number } },
         {
           metadata: {
             name: "UnitState",
-            types: ["u32","u32","u32","u8","u32","u32","u32","enum","enum","u8","u8"],
+            types: ["u32","u32","u32","u8","u256","u256","u256","enum","enum","u8","u8"],
             customTypes: ["UnitMode","EnvironmentInfo","TerrainType"],
           },
         }

@@ -38,7 +38,7 @@ export class BattlefieldCameraManager {
       position: new Vector3(15, 8, -15),
       lookAtOffset: new Vector3(0, 2, 0)
     });
-    this.cameraOffsets.set(BattlefieldName.Skullcrag, {
+    this.cameraOffsets.set(BattlefieldName.SavageCoast, {
       position: new Vector3(-10, 12, -10),
       lookAtOffset: new Vector3(0, 5, 0)
     });
@@ -46,7 +46,7 @@ export class BattlefieldCameraManager {
       position: new Vector3(5, 15, -25),
       lookAtOffset: new Vector3(0, 3, 0)
     });
-    this.cameraOffsets.set(BattlefieldName.SavageCoast, {
+    this.cameraOffsets.set(BattlefieldName.Skullcrag, {
       position: new Vector3(-5, 7, -18),
       lookAtOffset: new Vector3(0, 1, 0)
     });

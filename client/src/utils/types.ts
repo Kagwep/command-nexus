@@ -4,6 +4,7 @@ import { useTurn } from "../hooks/useTurn";
 import { usePhase } from "../hooks/usePhase";
 import { useGame } from "../hooks/useGame";
 import { useGetPlayersForGame } from "../hooks/useGetPlayersForGame";
+import { Uint256 } from "starknet";
 
 export interface Player {
   address: string;  // Player's address
@@ -108,6 +109,13 @@ export enum BattlefieldName {
   SavageCoast,
 }
 
+export interface EncodedVector3 {
+  x: Uint256;
+  y: Uint256;
+  z: Uint256;
+}
+
+
 
 export interface GameState {
   player: ReturnType<typeof useMe>['me'];
@@ -122,6 +130,19 @@ export interface GameState {
 export interface Region {
   name: BattlefieldName;
   points: Vector3[];
+}
+
+export interface Deploy {
+  game_id: number;            // u32
+  battlefield_id: number;     // u8
+  unit: number;               // u8
+  supply: number;             // u32
+  x: Uint256;                  // u256
+  y: Uint256;                  // u256
+  z: Uint256;                  // u256
+  terrain_num: number;        // u8
+  cover_level: number;        // u8
+  elevation: number;          // u8
 }
 
 
@@ -140,6 +161,14 @@ export enum AbilityType {
 
 export interface UnitAbilities {
   [key: string]: number;
+}
+
+
+export enum ToastType {
+  Success = "success",
+  Error = "error",
+  Warning = "warning",
+  Info = "info"
 }
 
 
@@ -193,4 +222,42 @@ export interface AnimationMapping {
 
 export type UnitAnimations = {
   [key in UnitType] : AnimationMapping
+}
+
+export const SCALING_FACTOR = 1_000_000_000_000_000_000n; // 1e18 as a BigInt
+
+
+export interface InfantryAccessories {
+  ammunition: number;
+  first_aid_kit: number;
+  molotov: number;
+  grenade: number;
+}
+
+export interface InfantryHealth {
+  current: number;
+  max: number;
+}
+
+export interface Vec3 {
+  x: bigint;
+  y: bigint;
+  z: bigint;
+}
+
+export interface Position {
+  coord: Vec3;
+}
+
+export interface Infantry {
+  game_id: number;
+  unit_id: number;
+  player_id: number;
+  range: bigint;
+  firepower: number;
+  accuracy: number;
+  accessories: InfantryAccessories;
+  health: InfantryHealth;
+  position: Position;
+  battlefield_name: BattlefieldName;
 }

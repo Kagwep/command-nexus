@@ -1,6 +1,6 @@
 import { validateAndParseAddress } from 'starknet';
 import { feltToStr, unpackU128toNumberArray } from './unpack';
-import { Player } from './types';
+import { Infantry, Player } from './types';
 
 export const sanitizeGame = (game: any) => {
   return {
@@ -17,6 +17,11 @@ export const sanitizePlayer = (player: any): Player => {
     name: feltToStr(player.name),
   };
 };
+
+export const sanitizeInfantry = (infantry: any): Infantry => {
+  return infantry as Infantry; //add more santizing
+};
+
 
 export const bigIntAddressToString = (address: bigint) => {
   return removeLeadingZeros(validateAndParseAddress(address));

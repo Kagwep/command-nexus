@@ -1,6 +1,6 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3,Animation } from '@babylonjs/core';
-import {  UnitType,UnitAbilities, AbilityType, Agent } from "../../utils/types";
+import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
@@ -1335,37 +1335,65 @@ export default class CommandNexusGui {
         this.abilityMode = null
     }
 
-    // Method to create the toast notification
-    public showToast(message: string): void {
-        // Create a background panel for the toast
-        const toastPanel = new GUI.Rectangle();
-        toastPanel.width = "800px";
-        toastPanel.height = "80px";
-        toastPanel.cornerRadius = 10;
-        toastPanel.color = "white";  // Border color
-        toastPanel.thickness = 0;    // Border thickness
-        toastPanel.background = "rgba(0, 80, 40, 0.9)";  // Background color of the toast
-        toastPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        toastPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
-        toastPanel.paddingBottom = "20px"; // Position the toast slightly above the bottom
+// Method to create the toast notification with message type
+// Method to create the toast notification with message type as enum
+public showToast(message: string, toastType: ToastType = ToastType.Info): void {
+    // Create a background panel for the toast
+    const toastPanel = new GUI.Rectangle();
+    toastPanel.width = "800px";
+    toastPanel.height = "80px";
+    toastPanel.cornerRadius = 10;
+    toastPanel.color = "white";  // Border color
+    toastPanel.thickness = 0;    // Border thickness
+    toastPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    toastPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    toastPanel.paddingBottom = "20px"; // Position the toast slightly above the bottom
 
-        // Create the text block to show the message
-        const toastText = new GUI.TextBlock();
-        toastText.text = message;
-        toastText.color = "cyan";
-        toastText.fontSize = 15;
-        toastText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        toastText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+    // Determine background and text colors based on the message type
+    let backgroundColor = "rgba(0, 80, 40, 0.9)";  // Default: success (greenish)
+    let textColor = "cyan";  // Default text color for success/info
 
-        // Add the text block to the panel
-        toastPanel.addControl(toastText);
-
-        // Add the panel to the GUI
-        this.gui.addControl(toastPanel);
-
-        // Add animation: fade in, stay visible, and then fade out
-        this.animateToast(toastPanel);
+    switch (toastType) {
+        case ToastType.Error:
+            backgroundColor = "rgba(139, 0, 0, 0.9)";  // Red background for errors
+            textColor = "white";
+            break;
+        case ToastType.Warning:
+            backgroundColor = "rgba(255, 165, 0, 0.9)";  // Orange background for warnings
+            textColor = "black";
+            break;
+        case ToastType.Success:
+            backgroundColor = "rgba(0, 128, 0, 0.9)";  // Green background for success
+            textColor = "cyan";
+            break;
+        case ToastType.Info:
+        default:
+            backgroundColor = "rgba(0, 80, 40, 0.9)";  // Default to greenish
+            textColor = "cyan";
+            break;
     }
+
+    // Set the background color of the toast
+    toastPanel.background = backgroundColor;
+
+    // Create the text block to show the message
+    const toastText = new GUI.TextBlock();
+    toastText.text = message;
+    toastText.color = textColor;
+    toastText.fontSize = 15;
+    toastText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+    toastText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+
+    // Add the text block to the panel
+    toastPanel.addControl(toastText);
+
+    // Add the panel to the GUI
+    this.gui.addControl(toastPanel);
+
+    // Add animation: fade in, stay visible, and then fade out
+    this.animateToast(toastPanel);
+}
+
 
     private kickPlayer = async (player_index: number, game_id: number) => {
         try {

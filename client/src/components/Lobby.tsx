@@ -35,13 +35,13 @@ const Lobby: React.FC = () => {
 
   const { players } = useGetPlayersForGame(game_id);
 
-  let me: Player;
+  const { me } = useMe();
   
-  if (players.length > 0 && account.address) {
-      
-    me = players.find((p) => p.address === account.address)
+  // if (players.length > 0 && account.address) {
+    
+  //   me = players.find((p) => p.address === account.address)
 
-  }
+  // }
 
   const [leaveLoading, setLeaveLoading] = useState(false);
   const [startLoading, setStartLoading] = useState(false);
@@ -50,12 +50,17 @@ const Lobby: React.FC = () => {
 
   useEffect(() => {
     if (me) {
-      if (players.findIndex((player) => player.address === me.address) === -1) {
+      const playerIndex = players.findIndex((player) => {
+        return player.address === me.address;
+      });
+      
+      if (playerIndex === -1) {
         set_game_state(GameState.MainMenu);
+      } else {
+        console.log('Player still in game:', players[playerIndex]);
       }
     }
-  }, [players]);
-
+  }, [me, players, set_game_state, GameState]);
 
   console.log("51456454464",game)
   console.log("51456454464",game_id)

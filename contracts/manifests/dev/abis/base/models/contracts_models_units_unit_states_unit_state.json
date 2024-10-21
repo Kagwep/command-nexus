@@ -323,6 +323,20 @@
     "interface_name": "contracts::models::units::unit_states::Iunit_state"
   },
   {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
     "type": "enum",
     "name": "contracts::models::units::unit_states::UnitMode",
     "variants": [
@@ -430,15 +444,15 @@
       },
       {
         "name": "x",
-        "type": "core::integer::u32"
+        "type": "core::integer::u256"
       },
       {
         "name": "y",
-        "type": "core::integer::u32"
+        "type": "core::integer::u256"
       },
       {
         "name": "z",
-        "type": "core::integer::u32"
+        "type": "core::integer::u256"
       },
       {
         "name": "mode",

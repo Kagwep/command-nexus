@@ -1,10 +1,13 @@
 import { create } from 'zustand';
 import GameState from './gamestate';
-import { AbilityType, AnimationMapping, BannerLevel, Battle, BattlefieldName, Region, UnitAbilities, UnitType } from './types';
+import { AbilityType, AnimationMapping, BannerLevel, Battle, BattlefieldName, EncodedVector3, Region, UnitAbilities, UnitType } from './types';
 import { LogType } from '../hooks/useLogs';
 import { Event } from './events';
 import { Vector3 } from '@babylonjs/core';
 import { removeLeadingZeros } from './sanitizer';
+import { positions } from '@mui/system';
+import { bigintToU256 } from "../lib/lib_utils/starknet";
+import { Uint256ToBigint } from '../lib/lib_utils/starknet';
 
 export enum Phase {
   DEPLOY,
@@ -165,6 +168,60 @@ export type Network =
     }
 }
 
+export function numberToUnitType(unitNumber: number): string {
+  switch (unitNumber) {
+      case 1:
+          return "Infantry";
+      case 2:
+          return "Armored";
+      case 3:
+          return "Air";
+      case 4:
+          return "Naval";
+      case 5:
+          return "Cyber";
+      default:
+          throw new Error(`Invalid unit type: ${unitNumber}`);
+  }
+}
+
+
+export function unitTypeToInt(unit: UnitType): number {
+  switch (unit) {
+      case UnitType.Infantry:
+          return 1;
+      case UnitType.Armored:
+          return 2;
+      case UnitType.Air:
+          return 3;
+      case UnitType.Naval:
+          return 4;
+      case UnitType.Cyber:
+          return 5;
+      default:
+          throw new Error(`Invalid unit type: ${unit}`);
+  }
+}
+
+
+
+export function battlefieldTypeToInt(battlefield: BattlefieldName): number {
+  switch (battlefield) {
+      case BattlefieldName.RadiantShores:
+          return 1;
+      case BattlefieldName.Ironforge:
+          return 2;
+      case BattlefieldName.Skullcrag:
+          return 3;
+      case BattlefieldName.NovaWarhound:
+          return 4;
+      case BattlefieldName.SavageCoast:
+          return 5;
+      default:
+          throw new Error(`Invalid region: ${battlefield}`);
+  }
+}
+
       // Define animation mappings
 export const tankAnimationMapping: AnimationMapping = {
         idle: ["Idle", "Stand"],
@@ -260,7 +317,7 @@ export const RadiantShoresPoints: Vector3[] = [
 
 
 
-export const SavageCoastPoints: Vector3[] = [
+export const SkullcragPoints: Vector3[] = [
   new Vector3(-210.01917913768062, 3.334695195105759, 213.63762816982944),
   new Vector3(-175.03646913444982, -4.724697113037109, 130.5347643517446),
   new Vector3(-196.65097201368565, -4.724697113037102, 76.48515275188214),
@@ -274,7 +331,7 @@ export const regions: Region[] = [
   { name: BattlefieldName.RadiantShores, points: RadiantShoresPoints },
   { name: BattlefieldName.Ironforge, points: IronforgePoints },
   { name: BattlefieldName.NovaWarhound, points: NovaWarhoundPoints },
-  { name: BattlefieldName.SavageCoast, points: SavageCoastPoints },
+  { name: BattlefieldName.Skullcrag, points: SkullcragPoints },
   // Add Skullcrag when you have its points
 ];
 
@@ -282,3 +339,31 @@ export const regions: Region[] = [
 export const isHost = (arena: string, address: string) => {
   return arena === removeLeadingZeros(address);
 };
+
+const OFFSET = BigInt(2 ** 255); // Half of the u256 range (for 256-bit unsigned integers)
+const SCALE = BigInt(1e18); // Use SCALE to maintain high precision
+
+// Encoder: Shift the position by adding the OFFSET to handle negative values.
+export const positionEncoder = (position: Vector3): EncodedVector3 => {
+
+  const x = BigInt(Math.floor(position.x * Number(SCALE))) + OFFSET;
+  const y = BigInt(Math.floor(position.y * Number(SCALE))) + OFFSET;
+  const z = BigInt(Math.floor(position.z * Number(SCALE))) + OFFSET;
+
+  return {
+    x: bigintToU256(x),
+    y: bigintToU256(y),
+    z: bigintToU256(z)
+  };
+};
+
+// Decoder: Subtract the OFFSET and divide by SCALE to recover the original value.
+export const positionDecoder = (encodedPosition: EncodedVector3): Vector3 => {
+
+  const x = Number(Uint256ToBigint(encodedPosition.x )- OFFSET) / Number(SCALE);
+  const y = Number(Uint256ToBigint(encodedPosition.y )- OFFSET) / Number(SCALE);
+  const z = Number(Uint256ToBigint(encodedPosition.z) - OFFSET) / Number(SCALE);
+
+  return new Vector3(parseFloat(x.toString()), parseFloat(y.toString()), parseFloat(z.toString()));
+};
+

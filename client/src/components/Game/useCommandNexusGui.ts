@@ -6,7 +6,7 @@ import { Player } from '../../utils/types';
 import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Account, AccountInterface } from 'starknet';
 
-export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number, phase: Phase, game: any, players: Player[],arena,nexus) => {
+export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number, phase: Phase, game: any, players: Player[],arena,nexus,getAccount) => {
   const guiRef = useRef<CommandNexusGui | null>(null);
   const [isGuiReady, setIsGuiReady] = useState(false);
 
@@ -20,9 +20,7 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
     return guiRef.current;
   }, []);
 
-  const getAccount = () : AccountInterface | Account => {
-    return account
-  }
+
 
   useEffect(() => {
     if (scene) {

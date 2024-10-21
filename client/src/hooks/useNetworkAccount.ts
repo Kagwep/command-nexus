@@ -44,7 +44,7 @@ export default function useNetworkAccount() {
   }, [network]);
 
   useEffect(() => {
-    console.log("Account info updated:", accountInfo);
+    //console.log("Account info updated:", accountInfo);
   }, [accountInfo]);
 
   return accountInfo;

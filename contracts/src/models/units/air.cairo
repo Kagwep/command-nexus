@@ -48,7 +48,7 @@ enum AirUnitAction {
 impl AirUnitIMpl of AirUnitTrait{
   
     #[inline(always)]
-  fn new(game_id: u32,unit_id: u32, player_id:u32,x: u32,y: u32, z: u32,battlefield_name: BattlefieldName) -> AirUnit{
+  fn new(game_id: u32,unit_id: u32, player_id:u32,x: u256,y: u256, z: u256,battlefield_name: BattlefieldName) -> AirUnit{
     let new_position  = Vec3{
         x,
         y,

@@ -14,7 +14,7 @@ function Home() {
   const { players } = useGetPlayers();
   const { me } = useMe();
 
-  console.log(" Lets see whats happening ",players, me)
+  //console.log(" Lets see whats happening ",players, me)
 
   return (
     <>

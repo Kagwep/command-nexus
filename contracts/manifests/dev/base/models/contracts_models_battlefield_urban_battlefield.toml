@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x63305dbcfa7a0cb3d91fb0687bc5e210da1f2199b5d4a6bcac7ef6aa51ccc7c"
-original_class_hash = "0x63305dbcfa7a0cb3d91fb0687bc5e210da1f2199b5d4a6bcac7ef6aa51ccc7c"
+class_hash = "0x24cd49dcfa73ba497e2da489c8bc07dcc195312ef90cee8ba725c2473ffe31d"
+original_class_hash = "0x24cd49dcfa73ba497e2da489c8bc07dcc195312ef90cee8ba725c2473ffe31d"
 abi = "manifests/dev/abis/base/models/contracts_models_battlefield_urban_battlefield.json"
 name = "contracts::models::battlefield::urban_battlefield"
 

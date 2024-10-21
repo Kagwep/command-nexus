@@ -1,6 +1,6 @@
 kind = "DojoModel"
-class_hash = "0x2f17aba9b2f2252e1bf6e08532dd379a66a4d2a689d603005319adda1d8bae2"
-original_class_hash = "0x2f17aba9b2f2252e1bf6e08532dd379a66a4d2a689d603005319adda1d8bae2"
+class_hash = "0x10fc1f799aeea1972f618f317f93b9b38fe17c062ea3146cf021dc640e30d10"
+original_class_hash = "0x10fc1f799aeea1972f618f317f93b9b38fe17c062ea3146cf021dc640e30d10"
 abi = "manifests/dev/abis/base/models/contracts_models_units_unit_states_unit_state.json"
 name = "contracts::models::units::unit_states::unit_state"
 
@@ -26,17 +26,17 @@ key = true
 
 [[members]]
 name = "x"
-type = "u32"
+type = "u256"
 key = false
 
 [[members]]
 name = "y"
-type = "u32"
+type = "u256"
 key = false
 
 [[members]]
 name = "z"
-type = "u32"
+type = "u256"
 key = false
 
 [[members]]

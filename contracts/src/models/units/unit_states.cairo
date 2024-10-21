@@ -38,9 +38,9 @@ struct UnitState {
     unit_id: u32,
     #[key]
     unit_type: u8,  // 0: infantry, 1: armored, 2: air, 3: naval, 4: cyber
-    x: u32,
-    y: u32,
-    z: u32,
+    x: u256,
+    y: u256,
+    z: u256,
     mode: UnitMode,
     environment: EnvironmentInfo,
 }
@@ -225,7 +225,7 @@ impl UnitImpl of UnitTrait {
 #[generate_trait]
 impl UnitStateImpl of UnitStateTrait {
     
-    fn new(game_id: u32,player_id: u32,unit_id: u32,unit_type: u8, x: u32,y: u32,z: u32,environment:EnvironmentInfo) -> UnitState {
+    fn new(game_id: u32,player_id: u32,unit_id: u32,unit_type: u8, x: u256,y: u256,z: u256,environment:EnvironmentInfo) -> UnitState {
         UnitState {
             game_id,
             player_id,
@@ -247,7 +247,7 @@ impl UnitStateImpl of UnitStateTrait {
         self.environment = enviroment;
     }
 
-    fn update_position(ref self: UnitState, x: u32,y: u32,z: u32){
+    fn update_position(ref self: UnitState, x: u256,y: u256,z: u256){
         self.x =x;
         self.y = y;
         self.z = z;

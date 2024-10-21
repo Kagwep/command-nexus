@@ -1,0 +1,40 @@
+kind = "DojoModel"
+class_hash = "0x508437b851b5a90edc6340c04f203ce7171da80f2563d8c585dddfc10563b88"
+original_class_hash = "0x508437b851b5a90edc6340c04f203ce7171da80f2563d8c585dddfc10563b88"
+abi = "manifests/dev/abis/base/models/contracts_models_assets_millitary_training_facility.json"
+name = "contracts::models::assets::millitary::training_facility"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "facility_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "facility_name"
+type = "felt252"
+key = false
+
+[[members]]
+name = "training_capacity"
+type = "u32"
+key = false
+
+[[members]]
+name = "current_training"
+type = "u32"
+key = false
+
+[[members]]
+name = "status"
+type = "MillitaryStatus"
+key = false

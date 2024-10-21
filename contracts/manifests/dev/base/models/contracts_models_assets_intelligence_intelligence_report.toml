@@ -1,0 +1,50 @@
+kind = "DojoModel"
+class_hash = "0x52b13c594234f8221fe8eef38618cea9e92e37ade714954f72141f19ca14d3e"
+original_class_hash = "0x52b13c594234f8221fe8eef38618cea9e92e37ade714954f72141f19ca14d3e"
+abi = "manifests/dev/abis/base/models/contracts_models_assets_intelligence_intelligence_report.json"
+name = "contracts::models::assets::intelligence::intelligence_report"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "report_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "source_agency_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "target_player_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "intelligence_data"
+type = "felt252"
+key = false
+
+[[members]]
+name = "reliability_score"
+type = "u32"
+key = false
+
+[[members]]
+name = "timestamp"
+type = "u64"
+key = false
+
+[[members]]
+name = "status"
+type = "AgencyStatus"
+key = false

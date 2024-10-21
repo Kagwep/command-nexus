@@ -52,7 +52,7 @@ enum NavalAction {
 
 #[generate_trait]
 impl ShipImpl of ShipTrait {
-    fn new(game_id: u32, unit_id: u32, player_id: u32, x: u32, y: u32, z: u32, battlefield_name: BattlefieldName) -> Ship {
+    fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> Ship {
         Ship {
             game_id,
             unit_id,

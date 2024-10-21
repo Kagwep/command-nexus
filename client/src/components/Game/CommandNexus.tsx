@@ -12,6 +12,8 @@ import { useCommandNexusGui } from './useCommandNexusGui';
 import HavokPhysics from '@babylonjs/havok';
 import { useGameState } from './GameState';
 import useNetworkAccount from '../../hooks/useNetworkAccount';
+import { Account, AccountInterface } from 'starknet';
+import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -25,6 +27,7 @@ const CommandNexus = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<Scene | null>(null);
   const engineRef = useRef<Engine | null>(null);
+  const [isSceneReady, setIsSceneReady] = useState(false);
   
   const {
     setup: {
@@ -36,6 +39,7 @@ const CommandNexus = () => {
   const { phase } = usePhase();
   const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
   const { account, address, status, isConnected } = useNetworkAccount();
+  const { infantryUnits} = useInfantryUnits();
 
   const game = useGame();
   const { players } = useGetPlayersForGame(game_id);
@@ -46,8 +50,12 @@ const CommandNexus = () => {
   }, []);
 
   const {getGameState,gameState} = useGameState();
+
+  const getAccount = () : AccountInterface | Account => {
+    return account
+  }
   
-  const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn, phase, game, players,arena,nexus);
+  const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn, phase, game, players,arena,nexus,getAccount);
 
   const updateSceneAndGUI = () => {
       if (sceneRef.current && !isLoading && isGuiReady) {
@@ -73,7 +81,7 @@ const CommandNexus = () => {
               camera.collisionRadius = new Vector3(1, 1, 1);
               
               scene.collisionsEnabled = true;
-              sceneRef.current = scene;
+              
               const havokPlugin = await HavokPhysics();
               const physicsPlugin = new HavokPlugin(true, havokPlugin);
               scene.enablePhysics(undefined, physicsPlugin);
@@ -85,9 +93,11 @@ const CommandNexus = () => {
               gameState.player = me
 
               console.log(me)
+
+              sceneRef.current = scene;
               
-              await setupScene(scene, camera, engineRef.current, getGui, getGameState, gameState,arena,nexus);
-        
+              await setupScene(sceneRef.current, camera, engineRef.current, getGui, getGameState, gameState,arena,nexus,getAccount);
+              setIsSceneReady(true);
               
               setIsLoading(false);
           };
@@ -110,9 +120,11 @@ const CommandNexus = () => {
               if (sceneRef.current) {
                   sceneRef.current.dispose();
                   sceneRef.current = null;
+                  setIsSceneReady(false);
               }
               engineRef.current?.dispose();
               engineRef.current = null;
+              
           };
       }
   }, []);
@@ -120,6 +132,17 @@ const CommandNexus = () => {
   useEffect(() => {
       updateSceneAndGUI();
   }, [player, isItMyTurn, turn, phase, game, players, isLoading, isGuiReady]);
+
+  useEffect(() => {
+    console.log(isSceneReady)
+    if (isSceneReady && sceneRef.current && infantryUnits) {
+      console.log("Updating scene metadata with infantry units");
+      sceneRef.current.metadata = {
+        ...sceneRef.current.metadata,
+        infantryUnits: infantryUnits
+      };
+    }
+  }, [isSceneReady, infantryUnits]);
 
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;
 }

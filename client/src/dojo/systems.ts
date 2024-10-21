@@ -174,7 +174,7 @@ export async function setupWorld(provider: DojoProvider) {
         ]);
       } catch (error) {
         console.error('Error executing deploy forces:', error.message);
-        throw error;
+        return error;
       }
     };
 
@@ -183,7 +183,7 @@ export async function setupWorld(provider: DojoProvider) {
         return await executeAndCheck(account, contractName, 'patrol', [ gameId, unitId, unitType,startX, startY,startZ]);
       } catch (error) {
         console.error('Error executing patrol:', error);
-        throw error;
+        return error;
       }
     };
 

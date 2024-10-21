@@ -34,7 +34,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
   phase: Phase,
   game: any,
   players: Player[]
-},arena,nexus) => {
+},arena,nexus,getAccount) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
 
@@ -61,7 +61,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const nameList: string[] = ["Road_01", "Road_01.001", "Landscape_01", "EnergyRes_RenewablePlant_Wall_01", "EnergyRes_NaturalGasFacility_Wall_01","Water_01"];
 
-    const result = await SceneLoader.ImportMeshAsync('', '/models/', "next.glb");
+    const result = await SceneLoader.ImportMeshAsync('', '/models/', "nexusres1.glb");
 
     function checkNameUsingIncludes(name: string): boolean {
    //
@@ -82,11 +82,11 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
         obstacles.push(mesh)
       }
 
-      if (mesh.name === "NavMesh01"){
- 
-        mesh.visibility = 0;
-        mesh.isPickable = false
-      }
+      // if (mesh.name === "NavMesh01"){
+      //   console.log("present")
+      //   mesh.visibility = 0;
+      //   mesh.isPickable = false
+      // }
 
 
 
@@ -102,11 +102,11 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             break;
         
         case "TransportHub_Seaport_Port_Crane_03":
-            const savageCoastLandmark = mesh as Mesh;
-            battlefieldCameraManager.registerLandmark(BattlefieldName.SavageCoast, savageCoastLandmark);
+            const skullcragLandmark = mesh as Mesh;
+            battlefieldCameraManager.registerLandmark(BattlefieldName.Skullcrag, skullcragLandmark);
 
-            if(gameState.player.home_base === "SavageCoast"){
-              const selectedBattlefield = BattlefieldName.SavageCoast; // This would come from user input
+            if(gameState.player.home_base === "Skullcrag"){
+              const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
             break;
@@ -121,16 +121,18 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             }
             break;
 
-        case "EnergyRes_NaturalGasFacility_Tank_10":
+        case "MilitaryBase_Сontainer_02_primitive1":
               const radiantShoresLandmark = mesh as Mesh;
               battlefieldCameraManager.registerLandmark(BattlefieldName.RadiantShores, radiantShoresLandmark);
+
+              console.log("found ............................................")
   
               if(gameState.player.home_base === "RadiantShores"){
                 const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
                 battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
               }
               break;
-    
+    //TransportHub_Seaport_Port_Crane_03
         default:
             // Handle unknown or other meshes
             console.log("Unknown mesh.");
@@ -280,7 +282,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
               });
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
-          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,arena,nexus);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,arena,nexus,getAccount);
           await multiAgentNav.initialize();
 
           // Create your custom mesh
@@ -542,7 +544,7 @@ areaSystemThree.addArea(RadiantShoresPoints, {
   alpha: 0.5
 });
 
-const SavageCoastPoints: Vector3[] = [
+const SkullcragPoints: Vector3[] = [
   new Vector3(-210.01917913768062, 3.334695195105759, 213.63762816982944),
   new Vector3(-175.03646913444982, -4.724697113037109, 130.5347643517446),
   new Vector3(-196.65097201368565, -4.724697113037102, 76.48515275188214),
@@ -554,8 +556,8 @@ const SavageCoastPoints: Vector3[] = [
 
 const areaSystemFour = new NexusAreaSystem(scene);
 
-areaSystemFour.addArea(SavageCoastPoints, {
-  name: "SavageCoast",
+areaSystemFour.addArea(SkullcragPoints, {
+  name: "Skullcrag",
   color: new Color4(0, 1, 0, 0.5),
   alpha: 0.5
 });

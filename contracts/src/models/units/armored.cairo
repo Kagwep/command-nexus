@@ -50,7 +50,7 @@ enum ArmoredAction {
 #[generate_trait]
 impl ArmoredImpl of ArmoredTrait {
 
-    fn new(game_id: u32, unit_id: u32, player_id: u32, x: u32, y: u32, z: u32, battlefield_name: BattlefieldName) -> Armored {
+    fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> Armored {
         Armored {
             game_id,
             unit_id,

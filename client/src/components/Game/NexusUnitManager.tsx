@@ -1,13 +1,16 @@
 import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
-import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, BattlefieldName } from '../../utils/types';
-import { regions, soldierAnimationMapping, tankAnimationMapping } from '../../utils/nexus';
+import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, BattlefieldName, Deploy, ToastType, Infantry, EncodedVector3 } from '../../utils/types';
+import { regions, soldierAnimationMapping, tankAnimationMapping, positionEncoder, positionDecoder,unitTypeToInt,battlefieldTypeToInt, numberToUnitType } from '../../utils/nexus';
 import { Weapon } from './BulletSystem';
 import { SoundManager } from './SoundManager';
 import { RayCaster } from './RayCaster';
 import { GameState } from './GameState';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
+import { Account, AccountInterface } from 'starknet';
+import { bigintToU256 } from '../../lib/lib_utils/starknet';
+
 
 class NexusUnitManager {
     private scene: Scene;
@@ -42,6 +45,9 @@ class NexusUnitManager {
     private battlefieldCameraManager;
     private arena;
     private nexus;
+    private getAccount: () => AccountInterface | Account;
+    private game;
+    private infantryUnits: Map<string, Infantry> = new Map();
 
     constructor(
         scene: Scene, 
@@ -54,14 +60,16 @@ class NexusUnitManager {
         ArmoredAssetContainer: AssetContainer,
         battlefieldCameraManager: BattlefieldCameraManager,
         arena,
-        nexus
+        nexus,
+        getAccount,
+   
     ) {
         this.scene = scene;
         this.navigationPlugin = navigationPlugin;
         this.ground = ground;
         this.pointNavPre = pointNavPre;
         this.getGui= getGui;
-        console.log(InfantryAssetContainer)
+       // console.log(InfantryAssetContainer)
         this.unitAssets[UnitType.Infantry] = InfantryAssetContainer;
         this.unitAssets[UnitType.Armored] = ArmoredAssetContainer;
         this.unitAnimations = {
@@ -78,6 +86,9 @@ class NexusUnitManager {
           this.battlefieldCameraManager = battlefieldCameraManager;
           this.arena = arena,
           this.nexus = nexus;
+          this.getAccount = getAccount;
+          this.addInfantryUnits();
+   
          // this.initializeCameraPosition();
         
     }
@@ -89,8 +100,8 @@ class NexusUnitManager {
             this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
           }
 
-          if(this.getGameState().player.home_base === "SavageCoast"){
-            const selectedBattlefield = BattlefieldName.SavageCoast; // This would come from user input
+          if(this.getGameState().player.home_base === "Skullcrag"){
+            const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
             this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
           }
 
@@ -103,6 +114,11 @@ class NexusUnitManager {
             const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
             this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
           }
+
+        //   if(this.getGameState().player.home_base === "Skullcrag"){
+        //     const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
+        //     this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
+        //   }
 
 
     }
@@ -158,7 +174,7 @@ class NexusUnitManager {
         this.navMeshIndices =positions
         this.indices = this.navmeshdebug.getIndices();
 
-        console.log(this.navMeshIndices)
+        //console.log(this.navMeshIndices)
 
 
         //new InteractiveGridObstructionSystem(this.scene, 300, 1);
@@ -179,9 +195,9 @@ class NexusUnitManager {
             this.pointNavPre.visibility = 0;
             this.soundManager.stopSound("move")
             this.getGui().showActionsMenu(this.activeUnitType);
-            const elevation = this.getElevationAtPosition(this.activePosition)
-            const coverPosition = this.getCoverLevel(this.activePosition)
-            console.log(elevation,coverPosition);
+            //const elevation = this.getElevationAtPosition(this.activePosition)
+           // const coverPosition = this.getCoverLevel(this.activePosition)
+           // console.log(elevation,coverPosition);
             // Implement stop walk animation here if needed
             //this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent.animations.movement, 1.3, this.selectedAgent.animations.idle, 1.0, true, 0.05));
         
@@ -212,6 +228,7 @@ class NexusUnitManager {
         rootMesh.position = Vector3.Zero(); // Reset position relative to navAgent
 
         const agentPosition = this.navigationPlugin.getClosestPoint(position);
+       
         const agentIndex = this.crowd.addAgent(agentPosition, agentParams, navAgent);
 
         const animations: AgentAnimations   = this.mapAnimations(result.animationGroups, this.unitAnimations[unitType]);
@@ -260,16 +277,16 @@ class NexusUnitManager {
 
 
     private setupPointerObservable(): void {
-        this.scene.onPointerObservable.add((pointerInfo) => {
+        this.scene.onPointerObservable.add(async (pointerInfo) => {
             if (pointerInfo.type === PointerEventTypes.POINTERTAP && pointerInfo.pickInfo?.hit) {
-                this.handlePointerTap(pointerInfo.pickInfo.pickedMesh as Mesh);
+                await this.handlePointerTap(pointerInfo.pickInfo.pickedMesh as Mesh);
             }
         });
     }
 
 
 
-    private handlePointerTap(mesh: Mesh): void {
+    private async handlePointerTap(mesh: Mesh): Promise<void> {
         const startingPoint = this.getGroundPosition();
         console.log(mesh.name, mesh.absolutePosition)
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
@@ -421,6 +438,8 @@ class NexusUnitManager {
             }
         }else if (mesh.name.includes("ground") && this.getGui().getDeploymentMode()) {
 
+            console.log("0.0.0.0...0.0..")
+
             const {unit: unitType, position} = this.getGui().getSelectedUnitAndDeployPosition();
             this.activePosition = startingPoint;
 
@@ -432,7 +451,35 @@ class NexusUnitManager {
             const player_base = this.getGameState().player.home_base;
 
             if (player_base === BattlefieldName[clickedRegion]){
-                this.addAgent(unitType, startingPoint)
+
+                const encodedPosition= positionEncoder(startingPoint);
+                const unit = unitTypeToInt(unitType);
+                const  battlefieldId = battlefieldTypeToInt(clickedRegion);
+                
+
+                const deployInfo: Deploy = {
+                    game_id: this.getGameState().game.game_id,
+                    battlefield_id: battlefieldId,
+                    unit: unit,
+                    supply: 1,
+                    x: encodedPosition.x,
+                    y: encodedPosition.y,
+                    z: encodedPosition.z,
+                    terrain_num: 1,
+                    cover_level: 50,
+                    elevation: 0
+                }
+
+                try {
+                    // Wait for the kickPlayer function to complete before hiding the panel
+                    await this.deployUnit(deployInfo);
+                   
+                } catch (error: any) {
+                    this.getGui().showToast(error.message);
+                }
+    
+                
+               //a this.addAgent(unitType, startingPoint)
             }else{
                 console.log("can not deploy here")
                 this.getGui().showToast(`You can only delpy units from your base region ${player_base}`);
@@ -979,6 +1026,113 @@ class NexusUnitManager {
         }
     
         return pathMesh;
+    }
+
+    private deployUnit = async (deploy: Deploy) => {
+        try {
+    
+          const result  = await this.nexus.deploy_forces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
+          console.log(result)
+
+          if (result?.message) {
+            const match = result.message.match(/Failure reason: 0x[0-9a-f]+\s\(([^)]+)\)/i);
+            if (match && match[1]) {
+                // Remove single quotes from the extracted error message
+                const cleanedMessage = match[1].replace(/['"]+/g, '');
+                
+                // readable message like "Turn Timeout" without quotes
+                this.getGui().showToast(cleanedMessage, ToastType.Error);
+            }
+        }
+
+        if (result?.execution_status) {
+            
+            if (result?.execution_status === 'SUCCEEDED') {
+                // Remove single quotes from the extracted error message
+                const cleanedMessage = `Deployed ${numberToUnitType(deploy.unit)}`;
+                
+                // readable message like "Turn Timeout" without quotes
+                this.getGui().showToast(cleanedMessage, ToastType.Success);
+            }
+        }
+        
+
+        } catch (error: any) {
+          this.getGui().showToast(error.message);
+        } finally {
+          
+        }
+      };
+
+      private addInfantryUnits() {
+        this.scene.onBeforeRenderObservable.add(() => {
+           // console.log(this.crowd)
+            if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryUnits) && this.crowd) {
+               // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
+                
+                this.scene.metadata.infantryUnits.forEach(unitData => {
+                    if (!this.infantryUnits.has(unitData.unit_id) ) {
+                        // This is a new unit
+                       // console.log('New infantry unit detected:', unitData);
+                        this.infantryUnits.set(unitData.unit_id, unitData);
+                        this.handleNewInfantryUnit(unitData);
+                    } else {
+                        // Update existing unit data
+                        this.infantryUnits.set(unitData.unit_id, unitData);
+                    }
+                });
+
+                // Optionally, remove units that no longer exist in the metadata
+                this.removeNonExistentUnits();
+
+               // console.log('Updated infantryUnits Map:', this.infantryUnits);
+            }
+        });
+    }
+
+    private handleNewInfantryUnit(unitData: Infantry) {
+
+        const x = bigintToU256(unitData.position.coord.x)
+        const y = bigintToU256(unitData.position.coord.y)
+        const z = bigintToU256(unitData.position.coord.z)
+
+        const pos: EncodedVector3 = {x,y,z}
+
+        const startingPoint = positionDecoder(pos)
+        console.log(startingPoint)
+
+        console.log(".............",this.crowd)
+
+
+        this.addAgent(UnitType.Infantry, startingPoint)
+        // Perform operations for new units here
+        // For example:
+        // - Create a 3D model for the unit
+        // - Set up event listeners
+        // - Initialize unit-specific logic
+     //   console.log('Performing operations for new unit:', unitData);
+        // Add your custom logic here
+    }
+
+    private removeNonExistentUnits() {
+        const currentUnitIds = new Set(this.scene.metadata.infantryUnits.map(u => u.unit_id));
+        for (const [id, unit] of this.infantryUnits) {
+            if (!currentUnitIds.has(id)) {
+                this.infantryUnits.delete(id);
+                console.log('Removed non-existent unit:', unit);
+                // Perform any cleanup operations for removed units here
+            }
+        }
+    }
+
+    // Method to get all current infantry units
+    public getInfantryUnits(): any[] {
+        return Array.from(this.infantryUnits.values());
+    }
+
+    // Method to get a specific infantry unit by ID
+    public getInfantryUnit(id: string): any | undefined {
+        return this.infantryUnits.get(id);
     }
  
 }

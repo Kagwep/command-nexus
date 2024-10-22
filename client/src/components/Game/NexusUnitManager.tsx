@@ -1066,14 +1066,14 @@ class NexusUnitManager {
 
       private addInfantryUnits() {
         this.scene.onBeforeRenderObservable.add(() => {
-           // console.log(this.crowd)
+           // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryUnits) && this.crowd) {
                // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
                 
                 this.scene.metadata.infantryUnits.forEach(unitData => {
                     if (!this.infantryUnits.has(unitData.unit_id) ) {
                         // This is a new unit
-                       // console.log('New infantry unit detected:', unitData);
+                       console.log('New infantry unit detected:', unitData);
                         this.infantryUnits.set(unitData.unit_id, unitData);
                         this.handleNewInfantryUnit(unitData);
                     } else {

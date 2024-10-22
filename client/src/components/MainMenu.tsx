@@ -32,12 +32,11 @@ const MainMenu: React.FC = () => {
   const prevGameStateRef = useRef<GameState | null>(null);
 
   
-
-
   const gameEntitiesOne = useEntityQuery([HasValue(Game, { arena_host: BigInt(account.address) })]);
   console.log(gameEntitiesOne)
   const gameEntity = useMemo(() => gameEntitiesOne.length > 0 ? gameEntitiesOne[0] : undefined, [gameEntitiesOne]);
   const game = useComponentValue(Game, gameEntity);
+
 
   console.log(account,game)
 
@@ -71,7 +70,15 @@ const MainMenu: React.FC = () => {
 
   const [hours, setHours] = useState<number | null>(null);
   const [minutes, setMinutes] = useState(5);
+  useEffect(() => {
+    if (game) {
+     // setIsLoading(false);
+      console.log('Game updated:', game);
 
+      set_game_id(game.game_id);
+
+    }
+  }, [game]);
 // In useEffect, pass the current player and game explicitly
 useEffect(() => {
   const gameChanged = game !== prevGameRef.current;

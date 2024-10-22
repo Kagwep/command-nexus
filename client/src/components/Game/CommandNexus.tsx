@@ -142,7 +142,7 @@ const CommandNexus = () => {
         infantryUnits: infantryUnits
       };
     }
-  }, [isSceneReady, infantryUnits]);
+  }, [isSceneReady, infantryUnits,game]);
 
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;
 }

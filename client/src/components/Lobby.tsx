@@ -69,11 +69,12 @@ const Lobby: React.FC = () => {
 
   useEffect(() => {
     // console.log(game)
-    if (game && Number(game.seed?.toString(16)) !== 0) {
+    if (game && game.seed !== undefined && Number(game.seed?.toString(16)) !== 0) {
       // Game has started
+      console.log(".......................",game.seed?.toString(16))
       set_game_state(GameState.Game);
     }
-  }, [game?.seed]);
+  }, [game]);
 
   const isHost = (arena: string, address: string) => {
     return arena === removeLeadingZeros(address);

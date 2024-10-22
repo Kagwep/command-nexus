@@ -11,7 +11,9 @@ export function useGetPlayersForGame(gameId: number | undefined) {
     },
   } = useDojo();
 
-  const playerEntities = useEntityQuery([Has(Player), HasValue(Player, { game_id: gameId })]);
+  const playerEntities = useEntityQuery([Has(Player), HasValue(Player, { game_id: gameId })],{
+    updateOnValueChange: true
+  });
   const players = useMemo(
     () =>
       playerEntities

@@ -1,10 +1,10 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3,Animation } from '@babylonjs/core';
-import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType } from "../../utils/types";
+import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType, Infantry, Armored } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
-import { Button, Control, Rectangle } from "@babylonjs/gui";
+import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
 import { Player } from "../../utils/types";
 import { useRef } from "react";
 import { Account } from "@dojoengine/torii-client";
@@ -42,6 +42,7 @@ export default class CommandNexusGui {
     private arena;
     private nexus;
     private game;
+    private infoPanel: Rectangle;
    
 
 
@@ -76,6 +77,7 @@ export default class CommandNexusGui {
         this.game = game;
         this.player = player
         this.getAccount = getAccount;
+        this.initializeInfoPanel();
        
     }
 
@@ -101,6 +103,21 @@ export default class CommandNexusGui {
         this.gui.addControl(this.innerArc);
     }
 
+
+    private initializeInfoPanel (){
+        this.infoPanel = new Rectangle("infoPanel");
+        this.infoPanel.width = "250px";
+        this.infoPanel.height = "300px";
+        this.infoPanel.cornerRadius = 10;
+        this.infoPanel.thickness = 0;
+        this.infoPanel.background = this.PANEL_COLOR;
+        this.infoPanel.alpha = 0.9;
+        this.infoPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.infoPanel.left = "20px";
+        this.infoPanel.isVisible = false;
+        
+        this.gui.addControl(this.infoPanel);
+    }
 
 
 
@@ -1448,6 +1465,103 @@ public showToast(message: string, toastType: ToastType = ToastType.Info): void {
         this.game = game
     }
     
+    public showInfantryInfo(infantry: Infantry): void {
+        this.clearPanel();
+        const stack = this.createBasePanel("/images/unit2.png", "");
+    
+        // Critical infantry stats with icons
+        this.addStatRow(stack, "/images/health.png",'HP',`${infantry.health.current}/${infantry.health.max}`);
+        this.addStatRow(stack, "/images/firepower.png",'FP' ,infantry.firepower.toString());
+        this.addStatRow(stack, "/images/accuracy.png", 'ACC',`${infantry.accuracy}%`);
+        this.addStatRow(stack, "/images/range.png",'Range' ,`${infantry.range}m`);
+    
+        this.infoPanel.isVisible = true;
+      }
+    
+      public showArmoredInfo(armored: Armored): void {
+        this.clearPanel();
+        const stack = this.createBasePanel("/images/unit3.png", "");
+    
+        // Critical armored stats with icons
+        this.addStatRow(stack, "/images/hull.png", 'Hull' ,`${armored.armored_health.hull_integrity}%`);
+        this.addStatRow(stack, "/images/firepower.png",'FP' ,armored.firepower.toString());
+        this.addStatRow(stack, "/images/ammo.png",'ACC' ,armored.accessories.main_gun_ammunition.toString());
+        this.addStatRow(stack, "/images/range.png", 'Range',`${armored.range}m`);
+    
+        this.infoPanel.isVisible = true;
+      }
+    
+      private createBasePanel(iconPath: string, unitType: string): StackPanel {
+        const stack = new StackPanel();
+        stack.width = "100%";
+        stack.background = this.PANEL_COLOR;
+        
+
+        
+        
+        // Unit type icon
+        const icon = new Image("unitIcon", iconPath);
+        icon.width = "60px";
+        icon.height = "60px";
+        icon.paddingTop = "10px";
+        stack.addControl(icon);
+        
+        // Unit type label
+        const typeText = new TextBlock();
+        typeText.text = unitType;
+        typeText.color = "#ffffff";
+        typeText.height = "30px";
+        typeText.fontSize = 18;
+        typeText.paddingBottom = "10px";
+        stack.addControl(typeText);
+    
+        this.infoPanel.addControl(stack);
+        return stack;
+      }
+    
+      private addStatRow(parent: GUI.StackPanel, iconPath: string, label: string, value: string): void {
+        const row = new Rectangle();
+        row.height = "35px";
+        row.thickness = 0;
+        row.background = this.PANEL_COLOR;
+        row.paddingLeft = "10px";
+        row.paddingRight = "15px";
+        
+        // Stat icon
+        const icon = new Image("statIcon", iconPath);
+        icon.width = "20px";
+        icon.height = "20px";
+        icon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        row.addControl(icon);
+        
+        // Label text
+        const labelText = new TextBlock();
+        labelText.text = label;
+        labelText.color = "#88ff88"; // or whatever color you prefer
+        labelText.fontSize = 14;
+        labelText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelText.left = "30px"; // Space after icon
+        row.addControl(labelText);
+        
+        // Value text
+        const valueText = new TextBlock();
+        valueText.text = value;
+        valueText.color = "#ffffff";
+        valueText.fontSize = 14;
+        valueText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        row.addControl(valueText);
+        
+        parent.addControl(row);
+    }
+    
+      private clearPanel(): void {
+        const controls = this.infoPanel.getDescendants();
+        controls.forEach(control => control.dispose());
+      }
+    
+      public hide(): void {
+        this.infoPanel.isVisible = false;
+      }
 
 }
 

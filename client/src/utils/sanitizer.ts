@@ -1,6 +1,6 @@
 import { validateAndParseAddress } from 'starknet';
 import { feltToStr, unpackU128toNumberArray } from './unpack';
-import { Infantry, Player } from './types';
+import { Armored, Infantry, Player, } from './types';
 
 export const sanitizeGame = (game: any) => {
   return {
@@ -20,6 +20,11 @@ export const sanitizePlayer = (player: any): Player => {
 
 export const sanitizeInfantry = (infantry: any): Infantry => {
   return infantry as Infantry; //add more santizing
+};
+
+
+export const sanitizeArmored = (armored: any): Armored => {
+  return armored as Armored; //add more santizing
 };
 
 

@@ -14,6 +14,7 @@ import { useGameState } from './GameState';
 import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Account, AccountInterface } from 'starknet';
 import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
+import { useArmoredUnits } from '@/hooks/useGetArmoredUnits';
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
@@ -39,7 +40,16 @@ const CommandNexus = () => {
   const { phase } = usePhase();
   const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
   const { account, address, status, isConnected } = useNetworkAccount();
-  const { infantryUnits} = useInfantryUnits();
+  const { infantryUnits,
+    lastSyncTime,
+    syncNow,
+    entitiesCount} = useInfantryUnits();
+    
+  const { armoredUnits,
+    isSyncing,
+    lastSyncTime: armoredLastAsyncTime,
+    syncNow: syncArmoredNow,
+    entitiesCount: etitiesCountArmored} = useArmoredUnits();
 
   const game = useGame();
   const { players } = useGetPlayersForGame(game_id);
@@ -139,7 +149,8 @@ const CommandNexus = () => {
       console.log("Updating scene metadata with infantry units");
       sceneRef.current.metadata = {
         ...sceneRef.current.metadata,
-        infantryUnits: infantryUnits
+        infantryUnits: infantryUnits,
+        armoredUnits: armoredUnits,
       };
     }
   }, [isSceneReady, infantryUnits,game]);

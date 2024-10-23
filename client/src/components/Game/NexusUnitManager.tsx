@@ -1,7 +1,7 @@
 import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
-import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, BattlefieldName, Deploy, ToastType, Infantry, EncodedVector3 } from '../../utils/types';
+import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, BattlefieldName, Deploy, ToastType, Infantry, EncodedVector3, Armored } from '../../utils/types';
 import { regions, soldierAnimationMapping, tankAnimationMapping, positionEncoder, positionDecoder,unitTypeToInt,battlefieldTypeToInt, numberToUnitType } from '../../utils/nexus';
 import { Weapon } from './BulletSystem';
 import { SoundManager } from './SoundManager';
@@ -10,6 +10,7 @@ import { GameState } from './GameState';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { Account, AccountInterface } from 'starknet';
 import { bigintToU256 } from '../../lib/lib_utils/starknet';
+
 
 
 class NexusUnitManager {
@@ -48,6 +49,8 @@ class NexusUnitManager {
     private getAccount: () => AccountInterface | Account;
     private game;
     private infantryUnits: Map<string, Infantry> = new Map();
+    private armoredUnits: Map<string, Infantry> = new Map();
+    
 
     constructor(
         scene: Scene, 
@@ -87,7 +90,7 @@ class NexusUnitManager {
           this.arena = arena,
           this.nexus = nexus;
           this.getAccount = getAccount;
-          this.addInfantryUnits();
+          this.addUnits();
    
          // this.initializeCameraPosition();
         
@@ -158,6 +161,9 @@ class NexusUnitManager {
         });
     }
 
+
+
+
     private createDebugNavMesh(navmeshData): void {
         this.navmeshdebug = this.navigationPlugin.createDebugNavMesh(this.scene);
         this.navigationPlugin.buildFromNavmeshData(navmeshData);
@@ -208,7 +214,7 @@ class NexusUnitManager {
         console.log("called..............")
     }
 
-    private addAgent(unitType: UnitType, position: Vector3): Agent {
+    private addAgent(unitType: UnitType, position: Vector3,unitData: any): Agent {
         const agentParams = {
             radius: 0.3,
             height: 0.01,
@@ -242,9 +248,11 @@ class NexusUnitManager {
             cUnitType: unitType
         };
 
-        rootMesh.metadata = { agentIndex: this.agents.length };
+        const newUnitData = { ...unitData, unitType };
+
+        rootMesh.metadata = { agentIndex: this.agents.length, UnitData: newUnitData };
         rootMesh.getChildMeshes().forEach(childMesh => {
-            childMesh.metadata = { agentIndex: this.agents.length };
+            childMesh.metadata = { agentIndex: this.agents.length, UnitData: newUnitData };
         });
 
         this.agents.push(agent);
@@ -288,8 +296,27 @@ class NexusUnitManager {
 
     private async handlePointerTap(mesh: Mesh): Promise<void> {
         const startingPoint = this.getGroundPosition();
-        console.log(mesh.name, mesh.absolutePosition)
+        console.log(mesh.name, mesh.metadata)
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
+            if (this.selectedAgent){
+                switch (mesh.metadata.UnitData.unitType) {
+                    case UnitType.Infantry:
+                        console.log("..")
+                        this.getGui().showInfantryInfo(mesh.metadata.UnitData);
+                        break;
+                    case UnitType.Armored:
+                        console.log("*-*")
+                        this.getGui().showArmoredInfo(mesh.metadata.UnitData);
+                        break;
+                    // case UnitType.Naval:
+
+                    // case UnitType.Air:
+
+                    // case UnitType.Cyber:
+                    default:
+                       console.log(mesh.metadata.UnitData.unitType);
+                }
+            }
             if (this.selectedAgent && this.selectedAgent.idx !== mesh.metadata.agentIndex && this.getGui().getAbilityMode() == AbilityType.Attack) {
                 console.log("different", this.selectedAgent.visualMesh);
                 console.log(this.getGui().getAbilityMode());
@@ -471,7 +498,7 @@ class NexusUnitManager {
                 }
 
                 try {
-                    // Wait for the kickPlayer function to complete before hiding the panel
+                    // Wait for the kickPlayer function to complete before hiding the infoPanel
                     await this.deployUnit(deployInfo);
                    
                 } catch (error: any) {
@@ -1042,6 +1069,8 @@ class NexusUnitManager {
                 
                 // readable message like "Turn Timeout" without quotes
                 this.getGui().showToast(cleanedMessage, ToastType.Error);
+
+                this.getGui().handleDeployement();
             }
         }
 
@@ -1064,7 +1093,7 @@ class NexusUnitManager {
         }
       };
 
-      private addInfantryUnits() {
+      private addUnits() {
         this.scene.onBeforeRenderObservable.add(() => {
            // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryUnits) && this.crowd) {
@@ -1087,6 +1116,28 @@ class NexusUnitManager {
 
                // console.log('Updated infantryUnits Map:', this.infantryUnits);
             }
+
+            if (this.scene.metadata && Array.isArray(this.scene.metadata.armoredUnits) && this.crowd) {
+                // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
+                 
+                 this.scene.metadata.armoredUnits.forEach(unitData => {
+                     if (!this.armoredUnits.has(unitData.unit_id) ) {
+                         // This is a new unit
+                        console.log('New Armored unit detected:', unitData);
+                         this.armoredUnits.set(unitData.unit_id, unitData);
+                         this.handleNewArmoredUnit(unitData);
+                     } else {
+                         // Update existing unit data
+                         this.armoredUnits.set(unitData.unit_id, unitData);
+                     }
+                 });
+ 
+                 // Optionally, remove units that no longer exist in the metadata
+                 this.removeNonExistentArmoredUnits();
+ 
+                // console.log('Updated infantryUnits Map:', this.infantryUnits);
+             }
+
         });
     }
 
@@ -1104,7 +1155,31 @@ class NexusUnitManager {
         console.log(".............",this.crowd)
 
 
-        this.addAgent(UnitType.Infantry, startingPoint)
+        this.addAgent(UnitType.Infantry, startingPoint,unitData)
+        // Perform operations for new units here
+        // For example:
+        // - Create a 3D model for the unit
+        // - Set up event listeners
+        // - Initialize unit-specific logic
+     //   console.log('Performing operations for new unit:', unitData);
+        // Add your custom logic here
+    }
+
+    private handleNewArmoredUnit(unitData: Armored) {
+
+        const x = bigintToU256(unitData.position.coord.x)
+        const y = bigintToU256(unitData.position.coord.y)
+        const z = bigintToU256(unitData.position.coord.z)
+
+        const pos: EncodedVector3 = {x,y,z}
+
+        const startingPoint = positionDecoder(pos)
+        console.log(startingPoint)
+
+        console.log(".............",this.crowd)
+
+
+        this.addAgent(UnitType.Armored, startingPoint,unitData)
         // Perform operations for new units here
         // For example:
         // - Create a 3D model for the unit
@@ -1119,6 +1194,17 @@ class NexusUnitManager {
         for (const [id, unit] of this.infantryUnits) {
             if (!currentUnitIds.has(id)) {
                 this.infantryUnits.delete(id);
+                console.log('Removed non-existent unit:', unit);
+                // Perform any cleanup operations for removed units here
+            }
+        }
+    }
+
+    private removeNonExistentArmoredUnits() {
+        const currentUnitIds = new Set(this.scene.metadata.armoredUnits.map(u => u.unit_id));
+        for (const [id, unit] of this.armoredUnits) {
+            if (!currentUnitIds.has(id)) {
+                this.armoredUnits.delete(id);
                 console.log('Removed non-existent unit:', unit);
                 // Perform any cleanup operations for removed units here
             }

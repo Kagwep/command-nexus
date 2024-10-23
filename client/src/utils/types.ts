@@ -261,3 +261,31 @@ export interface Infantry {
   position: Position;
   battlefield_name: BattlefieldName;
 }
+
+export interface ArmoredAccessories {
+  fuel: number;
+  main_gun_ammunition: number;
+  secondary_gun_ammunition: number;
+  smoke_grenades: number;
+  repair_kits: number;
+  active_protection_system: number;
+}
+
+export interface ArmoredHealth {
+  hull_integrity: number;
+  turret_integrity: number;
+  track_integrity: number;
+}
+
+export interface Armored {
+  game_id: number;
+  unit_id: number;
+  player_id: number;
+  accuracy: number;
+  firepower: number;
+  range: bigint;
+  accessories: ArmoredAccessories;
+  armored_health: ArmoredHealth;
+  position: Position;
+  battlefield_name: number;
+}

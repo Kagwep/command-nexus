@@ -94,6 +94,7 @@ export async function setup({ network, setCreateBurner, ...config }: SetupProps 
     burnerManager,
     updates,
     world,
+    toriiClient
   };
 }
 

@@ -1,6 +1,9 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::{Position, Vec3};
 
+const SCALE: u256 = 1000000000000000000; // 1e18
+const OFFSET: u256 = 2; 
+
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
 struct Infantry {
@@ -10,7 +13,7 @@ struct Infantry {
     unit_id: u32,
     #[key]
     player_id: u32,
-    range: u64,
+    range: u256,
     firepower: u32,
     accuracy: u8,
     accessories: InfantryAccessories,
@@ -59,7 +62,7 @@ impl InfantryImpl of InfantryTrait{
             game_id,
             unit_id,
             player_id,
-            range:100,
+            range:300,
             firepower:100,
             accuracy: 100,
             accessories: InfantryAccessories {
@@ -138,6 +141,51 @@ impl InfantryImpl of InfantryTrait{
         }
     }
 
+    fn is_position_occupied(ref self: Infantry,x:u256,y:u256,z:u256){
+
+        let position = self.position.coord;
+
+        let new_position = Vec3{
+            x,
+            y,
+            z
+        };
+
+        assert(current_pos != new_position, 'Infantry: Position occupied');
+    }
+
+    fn is_in_range(self: UnitState, x: u256, y: u256, z: u256) -> bool {
+        let position = self.position.coord;
+        let new_position = Vec3 { x, y, z };
+        //  SCALE but not offset
+        let range = self.range * SCALE;
+    
+        let dx = if new_position.x >= position.x { 
+            new_position.x - position.x 
+        } else { 
+            position.x - new_position.x 
+        };
+        let dy = if new_position.y >= position.y { 
+            new_position.y - position.y 
+        } else { 
+            position.y - new_position.y 
+        };
+        let dz = if new_position.z >= position.z { 
+            new_position.z - position.z 
+        } else { 
+            position.z - new_position.z 
+        };
+    
+        // Since dx already contains one SCALE factor
+        let dx_squared = (dx * dx);
+        let dy_squared = (dy * dy);
+        let dz_squared = (dz * dz);
+    
+        let distance_squared = (dx_squared + dy_squared + dz_squared) * OFFSET;
+        let range_squared = range * range;
+    
+        distance_squared <= range_squared
+    }
     
 
 

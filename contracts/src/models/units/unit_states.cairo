@@ -36,8 +36,6 @@ struct UnitState {
     player_id: u32,
     #[key]
     unit_id: u32,
-    #[key]
-    unit_type: u8,  // 0: infantry, 1: armored, 2: air, 3: naval, 4: cyber
     x: u256,
     y: u256,
     z: u256,
@@ -93,14 +91,13 @@ struct AbilityState {
     #[key]
     player_id: u32,
     is_active: bool,
-    cooldown: u32,
+    cooldown: u64,
     effectiveness: u32,  // 0-100, representing percentage
     unit: UnitType,
-    cooldown_increase: u32,
     units_abilities_state: UnitAbilities,
 }
 
-const MAX_ABILITY_LEVEL: u8 = 10;
+const MAX_ABILITY_LEVEL: u8 = 100;
 
 
 #[generate_trait]
@@ -119,7 +116,6 @@ impl AbilityStateImpl of AbilityStateTrait {
             cooldown: 0,
             effectiveness: 100,  // Start at 100% effectiveness
             unit: unit_type,
-            cooldown_increase: 0,
             units_abilities_state,
         }
     }
@@ -175,6 +171,64 @@ impl AbilityStateImpl of AbilityStateTrait {
             AbilityType::Submerge => self.units_abilities_state.submerge_level = level,
         }
     }
+
+    fn check_unit_available(self: AbilityState) -> bool {
+        self.is_active
+    }
+
+    fn is_on_cooldown(self: AbilityState, current_time: u64) -> bool {
+        self.cooldown > current_time
+    }
+
+    fn update_cooldown(ref self: AbilityState,current_time: u64, duration: u64) {
+        self.cooldown = current_time + duration;
+    }
+
+    // Comprehensive validation before ability use
+    fn validate_for_use(self: AbilityState, ability_type: AbilityType, current_time: u64) {
+        // Check if unit is active
+        assert(self.check_unit_available(), 'Unit is not active');
+        
+        // Check if ability is off cooldown
+        assert(!self.is_on_cooldown(current_time), 'Ability is on cooldown');
+
+        // Check ability level based on type
+        match ability_type {
+            AbilityType::Move => {
+                assert(self.units_abilities_state.move_level > 0, 'Unit: Out of movement');
+            },
+            AbilityType::Attack => {
+                assert(self.units_abilities_state.attack_level > 0, 'Unit: Cannot attack');
+            },
+            AbilityType::Defend => {
+                assert(self.units_abilities_state.defend_level > 0, 'Unit: Cannot defend');
+            },
+            AbilityType::Patrol => {
+                assert(self.units_abilities_state.patrol_level > 0, 'Unit: Cannot patrol');
+            },
+            AbilityType::Stealth => {
+                assert(self.units_abilities_state.stealth_level > 0, 'Unit: Cannot stealth');
+            },
+            AbilityType::Recon => {
+                assert(self.units_abilities_state.recon_level > 0, 'Unit: Cannot recon');
+            },
+            AbilityType::Hack => {
+                assert(self.units_abilities_state.hack_level > 0, 'Unit: Cannot hack');
+            },
+            AbilityType::Repair => {
+                assert(self.units_abilities_state.repair_level > 0, 'Unit: Cannot repair');
+            },
+            AbilityType::Airlift => {
+                assert(self.units_abilities_state.airlift_level > 0, 'Unit: Cannot airlift');
+            },
+            AbilityType::Bombard => {
+                assert(self.units_abilities_state.bombard_level > 0, 'Unit: Cannot bombard');
+            },
+            AbilityType::Submerge => {
+                assert(self.units_abilities_state.submerge_level > 0, 'Unit: Cannot submerge');
+            },
+        }
+    }
     
 }
 
@@ -185,16 +239,16 @@ impl UnitImpl of UnitTrait {
     fn initialize_unit_abilities(unit_type: UnitType) -> UnitAbilities {
         match unit_type {
             UnitType::Infantry => UnitAbilities {
-                move_level: 2, attack_level: 2, defend_level: 2,
-                patrol_level: 1, stealth_level: 1, recon_level: 0,
+                move_level: 100, attack_level: 50, defend_level: 50,
+                patrol_level: 100, stealth_level: 20, recon_level: 0,
                 hack_level: 0, repair_level: 0, airlift_level: 0,
                 bombard_level: 0, submerge_level: 0
             },
             UnitType::Armored => UnitAbilities {
-                move_level: 1, attack_level: 3, defend_level: 3,
-                patrol_level: 1, stealth_level: 0, recon_level: 0,
-                hack_level: 0, repair_level: 1, airlift_level: 0,
-                bombard_level: 2, submerge_level: 0
+                move_level: 100, attack_level: 100, defend_level: 70,
+                patrol_level: 10, stealth_level: 0, recon_level: 0,
+                hack_level: 0, repair_level: 50, airlift_level: 0,
+                bombard_level: 50, submerge_level: 0
             },
             UnitType::Naval => UnitAbilities {
                 move_level: 2, attack_level: 2, defend_level: 2,
@@ -225,12 +279,11 @@ impl UnitImpl of UnitTrait {
 #[generate_trait]
 impl UnitStateImpl of UnitStateTrait {
     
-    fn new(game_id: u32,player_id: u32,unit_id: u32,unit_type: u8, x: u256,y: u256,z: u256,environment:EnvironmentInfo) -> UnitState {
+    fn new(game_id: u32,player_id: u32,unit_id: u32, x: u256,y: u256,z: u256,environment:EnvironmentInfo) -> UnitState {
         UnitState {
             game_id,
             player_id,
             unit_id,
-            unit_type,  // 0: infantry, 1: armored, 2: air, 3: naval, 4: cyber
             x,
             y,
             z,
@@ -270,6 +323,8 @@ impl UnitStateImpl of UnitStateTrait {
             _ => 0,
         }
     }
+
+    
 
     
 }

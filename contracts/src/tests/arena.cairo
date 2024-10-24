@@ -60,7 +60,7 @@ fn test_join() {
     assert(game.player_count == 4, 'Game: wrong player count');
     assert(game.player() >= 0, 'Game: wrong player index');
 
-    let mut player_index: u8 = 0;
+    let mut player_index: u32 = 0;
     
 
     let player = get!(world,(game_id,player_index),Player);
@@ -114,7 +114,7 @@ fn test_leave_kick() {
     systems.arena.leave(game_id);
 
 
-    let mut player_index: u8 = 1;
+    let mut player_index: u32 = 1;
     
     let player = get!(world,(game_id,player_index),Player);
 
@@ -168,7 +168,7 @@ fn test_start() {
 
     assert(game.limit != 0, 'Game: Did not Start');
 
-    let mut player_index: u8 = 0;
+    let mut player_index: u32 = 0;
     
     let player = get!(world,(game_id,player_index),Player);
 

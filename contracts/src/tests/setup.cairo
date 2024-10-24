@@ -2,19 +2,11 @@ mod setup {
 
 
     use core::debug::PrintTrait;
-
-   
-
     use starknet::ContractAddress;
     use starknet::testing::set_contract_address;
 
-   
-
     use dojo::world::{IWorldDispatcherTrait, IWorldDispatcher};
     use dojo::test_utils::{spawn_test_world, deploy_contract};
-
-
-
     use contracts::models::game::{game, Game};
     use contracts::models::player::{player, Player};
     use contracts::models::battlefield::{urban_battlefield, UrbanBattlefield};
@@ -49,7 +41,7 @@ mod setup {
     //     starknet::contract_address_const::<'ANYONE'>()
     // }
 
-    #[derive(Drop)]
+    #[derive(Copy, Drop)]
     struct Systems {
         arena: IArenaDispatcher,
         nexus: INexusDispatcher,

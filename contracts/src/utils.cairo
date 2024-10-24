@@ -15,6 +15,7 @@ mod helper {
     use contracts::models::units::cyber::{CyberUnit};
     use contracts::models::units::naval::{Ship};
     use contracts::models::units::armored::{Armored};
+    use contracts::models::units::position::{Vec3};
 
 
     #[generate_trait]
@@ -91,6 +92,71 @@ mod helper {
             let player_key = (game.game_id, game.player());
             get!(world, player_key.into(), (Player))
         }
+
+        fn is_in_range( range:u256,x: u256, y: u256, z: u256) -> bool {
+            let position = self.position.coord;
+            let new_position = Vec3 { x, y, z };
+            //  SCALE but not offset
+
+            let (distance,range_squared) = Self::get_distance(range,new_position,position);
+
+            (distance_squared <= range_squared)
+        }
+
+
+        fn get_distance(range: u256, new_position: Vec3, position: Vec3) -> (u256, u256){
+
+            let range = range * SCALE;
+
+            let range = range * SCALE;
+
+            let range_squared = range * range;
+            
+
+            let dx = if new_position.x >= position.x { 
+                new_position.x - position.x 
+            } else { 
+                position.x - new_position.x 
+            };
+            let dy = if new_position.y >= position.y { 
+                new_position.y - position.y 
+            } else { 
+                position.y - new_position.y 
+            };
+            let dz = if new_position.z >= position.z { 
+                new_position.z - position.z 
+            } else { 
+                position.z - new_position.z 
+            };
+        
+            // Since dx already contains one SCALE factor
+            let dx_squared = (dx * dx);
+            let dy_squared = (dy * dy);
+            let dz_squared = (dz * dz);
+        
+            let distance_squared = (dx_squared + dy_squared + dz_squared) * OFFSET;
+
+            (distance_squared,range_squared)
+        }
+
+        fn get_distance_difference(distance_squared:u256, range_squared:u256) -> u256{
+           if distance_squared >= range_squared { 
+                distance_squared - range_squared 
+            } else { 
+                range_squared - distance_squared 
+            }
+        }
+
+        fn calculate_movement_cost(distance_squared: u256) -> u256 {
+            // Distance at which movement cost increases (100 spaces)
+            let movement_unit = 100 * SCALE;  
+            let movement_unit_squared = movement_unit * movement_unit;
+            
+            // Calculate cost, rounding up
+            // e.g., 250 units = 3 movement cost
+            (distance_squared + movement_unit_squared - 1) / movement_unit_squared
+        }
+
     }
 }
 

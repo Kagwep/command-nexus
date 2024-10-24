@@ -1,6 +1,8 @@
 use contracts::models::player::{Player, PlayerTrait, PlayerAssert,UnitType,UnitTypeTrait,UnitTypeImpl};
-use contracts::models::units::unit_states::{UnitMode,UnitState,UnitStateTrait,EnvironmentInfo,TerrainType,TerrainTypeTrait,AbilityStateTrait};
+use contracts::models::units::unit_states::{
+    UnitMode,UnitState,UnitStateTrait,EnvironmentInfo,TerrainType,TerrainTypeTrait,AbilityType,AbilityState,AbilityStateTrait};
 use contracts::models::battlefield::BattlefieldName;
+
 
 #[dojo::interface]
 trait INexus {
@@ -66,7 +68,9 @@ trait INexusInternal {
         game_id: u32,
         unit_id: u32,
         unit_type: UnitType,
-        player: Player
+        player: Player,
+        operation: AbilityType,
+        x:u256,y:u256,z:u256
     );
 
     fn _update_unit_state(
@@ -221,6 +225,12 @@ mod nexus {
             if remaining_commands == 0{
                 game.advance_turn();
                 player.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+                set!(world,(new_player));
+
+
             }
 
             set!(world, (player));
@@ -250,12 +260,18 @@ mod nexus {
                 Option::None => panic(array!['Invalid unit Type'])
             };
 
+            let operation = AbilityType::Patrol;
+
             // Handle unit type-specific operations
             self._handle_unit_type_operation(
                 game.game_id,
                 unit_id,
                 unit_type,
                 attacker,
+                operation,
+                start_x,
+                start_y,
+                start_z
             );
 
             // Update the unit state to patrolling mode
@@ -284,12 +300,17 @@ mod nexus {
             Option::None => panic(array!['Invalid unit Type'])
         };
 
+        let operation = AbilityType::Attack;
+
+
             // Handle unit type-specific operations
-            self._handle_unit_type_operation(
+        self._handle_unit_type_operation(
             game.game_id,
             unit_id,
             unit_t,
-            attacker
+            attacker,
+            operation,
+            x,y,z
         );
 
         // Update the unit state to patrolling mode
@@ -318,13 +339,18 @@ mod nexus {
                 Option::Some(unit) => unit,
                 Option::None => panic(array!['Invalid unit Type'])
             };
+
+            let operation = AbilityType::Defend;
+
  
                 // Handle unit type-specific operations
             self._handle_unit_type_operation(
                 game.game_id,
                 unit_id,
                 unit_type,
-                player
+                player,
+                operation,
+                x,y,z
             );
     
             // Update the unit state to patrolling mode
@@ -342,6 +368,7 @@ mod nexus {
         }
         
         fn move_unit(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u256, dest_y: u256, dest_z: u256) {
+
             let player_address = get_caller_address();
             let mut game = get!(world, game_id, (Game));
  
@@ -353,13 +380,20 @@ mod nexus {
                 Option::Some(unit) => unit,
                 Option::None => panic(array!['Invalid unit Type'])
             };
+
+            let operation = AbilityType::Move;
+
  
              // Handle unit type-specific operations
             self._handle_unit_type_operation(
              game.game_id,
              unit_id,
              unit_type,
-             player
+             player,
+             operation,
+             dest_x,
+             dest_y,
+             dest_z
            );
  
          // Update the unit state to patrolling mode
@@ -373,6 +407,7 @@ mod nexus {
              dest_y,
              dest_z
          );
+
         }
         
         fn stealth(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type:u8,x:u256,y:u256,z:u256) {
@@ -387,13 +422,18 @@ mod nexus {
                 Option::Some(unit) => unit,
                 Option::None => panic(array!['Invalid unit Type'])
             };
+
+            let operation = AbilityType::Stealth;
+
  
              // Handle unit type-specific operations
             self._handle_unit_type_operation(
                 game.game_id,
                 unit_id,
                 unit_type,
-                player
+                player,
+                operation,
+                x,y,z
             );
     
             // Update the unit state to patrolling mode
@@ -422,12 +462,18 @@ mod nexus {
                 Option::None => panic(array!['Invalid unit Type'])
             };
  
+            let operation = AbilityType::Recon;
+
              // Handle unit type-specific operations
-        self._handle_unit_type_operation(
+          self._handle_unit_type_operation(
              game.game_id,
              unit_id,
              unit_type,
-             player
+             player,
+             operation,
+             area_x,
+             area_y,
+             area_z
            );
  
          // Update the unit state to patrolling mode
@@ -455,13 +501,19 @@ mod nexus {
                 Option::Some(unit) => unit,
                 Option::None => panic(array!['Invalid unit Type'])
             };
- 
+
+            let operation = AbilityType::Repair;
+
              // Handle unit type-specific operations
             self._handle_unit_type_operation(
                 game.game_id,
                 unit_id,
                 unit_type,
-                player
+                player,
+                operation,
+                area_x,
+                area_y,
+                area_z
             );
     
             // Update the unit state to patrolling mode
@@ -526,13 +578,49 @@ mod nexus {
             game_id: u32,
             unit_id: u32,
             unit_type: UnitType,
-            player: Player
+            player: Player,
+            operation: AbilityType,
+            x: u256,
+            y: u256,
+            z: u256
         )  {
+
+            if let unit_type = UnitType::Infantry {
+                let _infantry_unit = HelperTrait::find_unit_infantry(world,game_id, player.index, unit_id);
+                
+                if let operation = AbilityType::Move {
+
+                    let mut unit_abilities = get!(world,(game_id,unit_id,player.index),AbilityState);
+
+                    let current_time = get_block_timestamp();
+
+                    unit_abilities.validate_for_use(AbilityType::Move, current_time);
+
+                    let mut unit_state = get!(world,(game_id,player.index,unit_id),UnitState);
+
+                    let mut unit = get!(world,(game_id,unit_id,player_id),Infantry);
+
+                    unit.is_position_occupied(x,y,z);
+
+                    let new_position = Vec3 { x, y, z };
+
+                    let (distance,range_squared) = HelperTrait::get_distance(range.range,unit.position.coord,position);
+                    
+                    let move_cost = HelperTrait::calculate_movement_cost(distance);
+
+                    let movement_cost_u8: u8 = movement_cost.try_into().unwrap();
+
+                    unit_abilities.decrease_ability_level(movement_cost_u8);
+
+
+                    
+                }
+            }
 
             match unit_type {
                 UnitType::Infantry => {
                     assert(player.supply.infantry > 0, 'No Infantry Units Available');
-                    let _infantry_unit = HelperTrait::find_unit_infantry(world,game_id, player.index, unit_id);
+                    
                 },
                 UnitType::Armored => {
                     assert(player.supply.armored > 0, 'No Armored Units Available');
@@ -550,6 +638,8 @@ mod nexus {
             }
         }
 
+
+
         // Function to update unit state
         fn _update_unit_state(
             ref world: IWorldDispatcher,
@@ -562,8 +652,7 @@ mod nexus {
             y: u256,
             z: u256
         ) {
-            let unit_int = UnitTypeTrait::to_int(unit_type);
-            let mut unit_state: UnitState = HelperTrait::unit_state(world,game_id, unit_id, player_index, unit_int);
+            let mut unit_state: UnitState = HelperTrait::unit_state(world,game_id, unit_id, player_index);
             assert(unit_state.mode != new_mode, 'Unit already in this mode');
 
             unit_state.mode = new_mode;
@@ -585,9 +674,7 @@ mod nexus {
             x:u256,y:u256,z:u256
         ) {
 
-            let unit_value = UnitTypeTrait::to_int(unit_type);
-
-            let unit_state = UnitStateTrait::new(game_id,player.index,unit_id,unit_value, x,y,z,environment);
+            let unit_state = UnitStateTrait::new(game_id,player.index,unit_id, x,y,z,environment);
             let ability_state = AbilityStateTrait::new(game_id, unit_id, unit_type, player.index);
 
 

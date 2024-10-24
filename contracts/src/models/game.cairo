@@ -119,13 +119,13 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn player(self: Game) -> u32 {
-        let index = self.nonce / TURN_ADVANCE % self.player_count.into();
+        let index = self.nonce  % self.player_count.into();
         index.into()
     }
 
     #[inline(always)]
     fn next_player(self: Game) -> u32 {
-        let index = (self.nonce / TURN_ADVANCE + 1) % self.player_count.into();
+        let index = (self.nonce  + 1) % self.player_count.into();
         index.into()
     }
 
@@ -281,7 +281,7 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn advance_turn(ref self: Game) {
-        self.nonce += TURN_ADVANCE;
+        self.nonce += 1;
     }
 
     #[inline(always)]

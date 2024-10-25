@@ -63,7 +63,7 @@ trait INexusInternal {
     );
 
 
-    fn _handle_unit_type_operation(
+    fn _handle_unit_type_action(
         ref world: IWorldDispatcher,
         game_id: u32,
         unit_id: u32,
@@ -84,6 +84,39 @@ trait INexusInternal {
         y: u256,
         z: u256
     );
+
+    fn _handle_unit_move(
+        ref world: IWorldDispatcher,
+        game_id: u32,
+        unit_id: u32,
+        unit_type: UnitType,
+        player_id: u32,
+        x: u256,
+        y: u256,
+        z: u256,
+    ) -> bool;
+
+    fn _handle_operation(
+        ref world: IWorldDispatcher,
+        game_id: u32, 
+        unit_id: u32,
+        unit_type: UnitType,
+        operation: AbilityType,
+        player: Player,
+        x: u256,
+        y: u256,
+        z: u256
+    );
+
+    fn _handle_unit_attack(
+        ref world: IWorldDispatcher,
+        game_id: u32,
+        unit_id: u32,
+        player_id: u32,
+        x: u256,
+        y: u256,
+        z: u256,
+    );
 }
 
 #[dojo::contract(allow_ref_self)]
@@ -92,14 +125,14 @@ mod nexus {
     use starknet::{ContractAddress, get_caller_address,get_block_timestamp};
     use contracts::models::{
         battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
-        units::unit_states::{UnitMode,UnitState,TerrainTypeTrait,EnvironmentInfo,UnitStateTrait,UnitTrait,AbilityState,AbilityStateTrait},
+        units::unit_states::{UnitMode,UnitState,TerrainTypeTrait,EnvironmentInfo,UnitStateTrait,UnitTrait,AbilityType,AbilityState,AbilityStateTrait},
         
     };
 
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert,UnitType,UnitTypeTrait,UnitTypeImpl};
     use contracts::models::game::{Game, GameTrait, GameAssert};
 
-    use contracts::utils::helper::{HelperTrait};
+    use contracts::utils::helper::{HelperTrait,Unit};
 
     use contracts::models::units::air::{
         AirUnit,
@@ -115,6 +148,8 @@ mod nexus {
     use contracts::models::units::naval::{Ship,ShipTrait};
     
     use contracts::models::units::cyber::{CyberUnitTrait,CyberUnit};
+
+    use contracts::models::position::{Position,Vec3};
 
 
     mod errors {
@@ -263,7 +298,7 @@ mod nexus {
             let operation = AbilityType::Patrol;
 
             // Handle unit type-specific operations
-            self._handle_unit_type_operation(
+            self._handle_unit_type_action(
                 game.game_id,
                 unit_id,
                 unit_type,
@@ -304,7 +339,7 @@ mod nexus {
 
 
             // Handle unit type-specific operations
-        self._handle_unit_type_operation(
+        self._handle_unit_type_action(
             game.game_id,
             unit_id,
             unit_t,
@@ -344,7 +379,7 @@ mod nexus {
 
  
                 // Handle unit type-specific operations
-            self._handle_unit_type_operation(
+            self._handle_unit_type_action(
                 game.game_id,
                 unit_id,
                 unit_type,
@@ -385,7 +420,7 @@ mod nexus {
 
  
              // Handle unit type-specific operations
-            self._handle_unit_type_operation(
+            self._handle_unit_type_action(
              game.game_id,
              unit_id,
              unit_type,
@@ -427,7 +462,7 @@ mod nexus {
 
  
              // Handle unit type-specific operations
-            self._handle_unit_type_operation(
+            self._handle_unit_type_action(
                 game.game_id,
                 unit_id,
                 unit_type,
@@ -465,7 +500,7 @@ mod nexus {
             let operation = AbilityType::Recon;
 
              // Handle unit type-specific operations
-          self._handle_unit_type_operation(
+          self._handle_unit_type_action(
              game.game_id,
              unit_id,
              unit_type,
@@ -505,7 +540,7 @@ mod nexus {
             let operation = AbilityType::Repair;
 
              // Handle unit type-specific operations
-            self._handle_unit_type_operation(
+            self._handle_unit_type_action(
                 game.game_id,
                 unit_id,
                 unit_type,
@@ -573,7 +608,7 @@ mod nexus {
 
     impl NexusInternalImpl of super::INexusInternal<ContractState> {
         // Function to handle unit type-specific operations
-        fn _handle_unit_type_operation(
+        fn _handle_unit_type_action(
             ref world: IWorldDispatcher,
             game_id: u32,
             unit_id: u32,
@@ -584,58 +619,24 @@ mod nexus {
             y: u256,
             z: u256
         )  {
-
-            if let unit_type = UnitType::Infantry {
-                let _infantry_unit = HelperTrait::find_unit_infantry(world,game_id, player.index, unit_id);
-                
-                if let operation = AbilityType::Move {
-
-                    let mut unit_abilities = get!(world,(game_id,unit_id,player.index),AbilityState);
-
-                    let current_time = get_block_timestamp();
-
-                    unit_abilities.validate_for_use(AbilityType::Move, current_time);
-
-                    let mut unit_state = get!(world,(game_id,player.index,unit_id),UnitState);
-
-                    let mut unit = get!(world,(game_id,unit_id,player_id),Infantry);
-
-                    unit.is_position_occupied(x,y,z);
-
-                    let new_position = Vec3 { x, y, z };
-
-                    let (distance,range_squared) = HelperTrait::get_distance(range.range,unit.position.coord,position);
-                    
-                    let move_cost = HelperTrait::calculate_movement_cost(distance);
-
-                    let movement_cost_u8: u8 = movement_cost.try_into().unwrap();
-
-                    unit_abilities.decrease_ability_level(movement_cost_u8);
-
-
-                    
-                }
-            }
-
-            match unit_type {
-                UnitType::Infantry => {
-                    assert(player.supply.infantry > 0, 'No Infantry Units Available');
-                    
-                },
-                UnitType::Armored => {
-                    assert(player.supply.armored > 0, 'No Armored Units Available');
-                    let _armored_unit = HelperTrait::find_unit_armored(world,game_id, player.index, unit_id);
-                },
-                UnitType::Air => {
-                    assert(player.supply.air > 0, 'No Air Units Available');
-                    let _air_unit = HelperTrait::find_unit_air(world,game_id, player.index, unit_id);
-                },
-                UnitType::Naval => {
-                    assert(player.supply.naval > 0, 'No Naval Units Available');
-                    let _naval_unit = HelperTrait::find_unit_naval(world,game_id, player.index, unit_id);
-                },
-                _ => panic(array!['Invalid Unit Type'])
-            }
+            assert(
+                unit_type == UnitType::Infantry || 
+                unit_type == UnitType::Armored || 
+                unit_type == UnitType::Air || 
+                unit_type == UnitType::Naval,
+                'Invalid Unit Type'
+            );
+        
+            self._handle_operation(
+                game_id,
+                unit_id,
+                unit_type,
+                operation,
+                player,
+                x,
+                y,
+                z
+            )
         }
 
 
@@ -710,6 +711,173 @@ mod nexus {
 
         }
 
+        fn _handle_unit_move(
+            ref world: IWorldDispatcher,
+            game_id: u32,
+            unit_id: u32,
+            unit_type: UnitType,
+            player_id: u32,
+            x: u256,
+            y: u256,
+            z: u256,
+        ) -> bool {
+
+            // Operation type check
+            let operation = AbilityType::Move;
+            
+            // Get unit abilities and validate
+            let mut unit_abilities = get!(world, (game_id, unit_id, player_id), AbilityState);
+            let current_time = get_block_timestamp();
+            unit_abilities.validate_for_use(AbilityType::Move, current_time);
+    
+            // Get unit state and infantry
+            let mut unit_state = get!(world, (game_id, player_id, unit_id), UnitState);
+
+            // 
+            let mut unit = get_unit(world, game_id, player_id, unit_id, unit_type);
+
+             // Validate unit has energy
+             unit.has_energy();
+    
+            // Check if position is occupied
+            let new_position = Vec3 { x, y, z };
+            unit.is_position_occupied(x, y, z);
+    
+            // Calculate distance and movement cost
+            let (distance, _) = HelperTrait::get_distance(
+                unit.get_range,
+                unit.get_position().coord,
+                new_position
+            );
+            
+            let move_cost = HelperTrait::calculate_movement_cost(distance);
+    
+            // Convert costs
+            let movement_cost_u8: u8 = move_cost.try_into().unwrap();
+            let energy_cost: u32 = move_cost.try_into().unwrap();
+    
+            // Update ability level and energy
+            unit_abilities.decrease_ability_level(AbilityType::Move, movement_cost_u8);
+            unit.consume_energy(energy_cost);
+    
+            // Update unit position
+            unit.set_position(Position {coord: new_position});
+    
+            // Set updated components
+            set!(world, (unit, unit_abilities, unit_state));
+    
+            true
+        }
+
+        fn _handle_operation(
+            ref world: IWorldDispatcher,
+            game_id: u32, 
+            unit_id: u32, 
+            unit_type: UnitType, 
+            operation: AbilityType, 
+            player: Player
+         ) {
+            match operation {
+                AbilityType::Move => {
+                    self._handle_unit_move(
+                        game_id,
+                        unit_id,
+                        unit_type,
+                        player.index,
+                        x,
+                        y,
+                        z,
+                    )
+                },
+                AbilityType::Attack => {
+                    handle_attack(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Defend => {
+                    handle_defend(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Patrol => {
+                    handle_patrol(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Stealth => {
+                    handle_stealth(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Recon => {
+                    handle_recon(world, game_id, unit_id, unit_type, player) 
+                },
+                AbilityType::Hack => {
+                    handle_hack(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Repair => {
+                    handle_repair(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Airlift => {
+                    handle_airlift(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Bombard => {
+                    handle_bombard(world, game_id, unit_id, unit_type, player)
+                },
+                AbilityType::Submerge => {
+                    handle_submerge(world, game_id, unit_id, unit_type, player)
+                },
+                _ => panic(array!['Invalid operation'])
+            }
+         }
+
+
+         fn _handle_unit_attack(
+            ref world: IWorldDispatcher,
+            game_id: u32,
+            unit_id: u32,
+            player_id: u32,
+            x: u256,
+            y: u256,
+            z: u256,
+        ) -> bool {
+
+            // Operation type check
+            let operation = AbilityType::Attack;
+            
+            // Get unit abilities and validate
+            let mut unit_abilities = get!(world, (game_id, unit_id, player_id), AbilityState);
+            let current_time = get_block_timestamp();
+            unit_abilities.validate_for_use(AbilityType::Attack, current_time);
+    
+            // Get unit state and infantry
+            let mut unit_state = get!(world, (game_id, player_id, unit_id), UnitState);
+            let mut unit = get!(world, (game_id, unit_id, player_id), Infantry);
+    
+             // Validate unit has energy
+             unit.has_energy();
+    
+            // Check if position is occupied
+            let new_position = Vec3 { x, y, z };
+            unit.is_position_occupied(x, y, z);
+    
+            // Calculate distance and movement cost
+            let (distance, _) = HelperTrait::get_distance(
+                unit.range,
+                unit.position.coord,
+                new_position
+            );
+            
+            let move_cost = HelperTrait::calculate_movement_cost(distance);
+    
+            // Convert costs
+            let movement_cost_u8: u8 = move_cost.try_into().unwrap();
+            let energy_cost: u32 = move_cost.try_into().unwrap();
+    
+            // Update ability level and energy
+            unit_abilities.decrease_ability_level(AbilityType::Move, movement_cost_u8);
+            unit.consume_energy(energy_cost);
+    
+            // Update unit position
+            unit.position = Position {coord: new_position};
+    
+            // Set updated components
+            set!(world, (unit, unit_abilities, unit_state));
+    
+            true
+        }
     }
 }
 

@@ -1,8 +1,6 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::{Position, Vec3};
-
-const SCALE: u256 = 1000000000000000000; // 1e18
-const OFFSET: u256 = 2; 
+use contracts::constants::{SCALE,OFFSET};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -14,6 +12,7 @@ struct Infantry {
     #[key]
     player_id: u32,
     range: u256,
+    energy: u32,
     firepower: u32,
     accuracy: u8,
     accessories: InfantryAccessories,
@@ -26,8 +25,6 @@ struct Infantry {
 struct InfantryAccessories {
     ammunition: u32,
     first_aid_kit: u32,
-    molotov: u32,
-    grenade: u32, 
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
@@ -38,8 +35,6 @@ struct InfantryHealth {
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum InfantryAction {
-    ThrowGrenade,
-    UseMolotov,
     UseFirstAidKit,
     Patrol,
 }
@@ -63,13 +58,12 @@ impl InfantryImpl of InfantryTrait{
             unit_id,
             player_id,
             range:300,
+            energy: 100,
             firepower:100,
             accuracy: 100,
             accessories: InfantryAccessories {
                 ammunition: 100,
-                first_aid_kit: 100,
-                molotov: 4,
-                grenade: 4, 
+                first_aid_kit: 100 
             },
             health: InfantryHealth { current: 100, max: 100 },
             position: Position {
@@ -91,29 +85,12 @@ impl InfantryImpl of InfantryTrait{
         self.accessories.ammunition += amount;
     }
 
-    #[inline(always)]
-    fn throw_molotov(ref self:Infantry){
-        if self.accessories.molotov > 0 {
-            self.accessories.molotov -= 1;
-            // Add molotov throwing logic here
-        } 
-    }
-
 
     #[inline(always)]
     fn use_first_aid_kit(ref self: Infantry) {
         if self.accessories.first_aid_kit > 0 {
             self.accessories.first_aid_kit -= 1;
             // Add healing logic here
-        }
-    }
-
-    #[inline(always)]
-    fn throw_grenade(ref self: Infantry) {
-        if self.accessories.grenade > 0 {
-            self.accessories.grenade -= 1;
-            
-            // Add grenade throwing logic here
         }
     }
 
@@ -141,20 +118,31 @@ impl InfantryImpl of InfantryTrait{
         }
     }
 
-    fn is_position_occupied(ref self: Infantry,x:u256,y:u256,z:u256){
 
-        let position = self.position.coord;
-
-        let new_position = Vec3{
-            x,
-            y,
-            z
-        };
-
-        assert(current_pos != new_position, 'Infantry: Position occupied');
+    #[inline(always)]
+    fn consume_energy(ref self: Infantry,amount: u32) {
+        if self.energy > amount {
+            self.energy -= amount;
+        }else{
+            self.energy = 0
+        }
     }
 
-    fn is_in_range(self: UnitState, x: u256, y: u256, z: u256) -> bool {
+    #[inline(always)]
+    fn has_energy(ref self: Infantry) {
+     assert(self.energy > 0, 'Infantry: Not engough energy' )
+    }
+
+    fn is_position_occupied(ref self: Infantry, x: u256, y: u256, z: u256) {
+        let current_pos = self.position.coord;
+        
+        // If all coordinates match, it's occupied
+        if (current_pos.x == x && current_pos.y == y && current_pos.z == z) {
+            assert(false, 'Infantry: Position occupied');
+        }
+    }
+
+    fn is_in_range(self: Infantry, x: u256, y: u256, z: u256) -> bool {
         let position = self.position.coord;
         let new_position = Vec3 { x, y, z };
         //  SCALE but not offset
@@ -186,8 +174,16 @@ impl InfantryImpl of InfantryTrait{
     
         distance_squared <= range_squared
     }
-    
 
-
+    fn get_range(self: Infantry) -> u256{
+        self.range
+    }
+    fn get_position(self: Infantry) -> Position{
+        self.position
+    }
+    fn set_position(ref self: Infantry, pos: Position){
+        self.position = pos
+    }
 }
+
 

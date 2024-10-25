@@ -15,6 +15,7 @@ struct Armored {
     accuracy: u8,
     firepower: u32,
     range: u64,
+    energy: u32,
     accessories: ArmoredAccessories,
     armored_health: ArmoredHealth,
     position: Position,
@@ -23,27 +24,20 @@ struct Armored {
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct ArmoredAccessories {
-    fuel: u32,
-    main_gun_ammunition: u32,
-    secondary_gun_ammunition: u32,
-    smoke_grenades: u8,
+    ammunition: u32,
     repair_kits: u8,
-    active_protection_system: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct ArmoredHealth {
-    hull_integrity: u32,
-    turret_integrity: u32,
-    track_integrity: u32,
+    current: u32,
+    max: u32,
 }
 
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum ArmoredAction {
     FireMainGun,
-    FireSecondaryGun,
-    DeploySmoke,
     UseRepairKit,
 }
 
@@ -59,17 +53,12 @@ impl ArmoredImpl of ArmoredTrait {
             firepower: 100,
             range: 3000,
             accessories: ArmoredAccessories {
-                fuel: 1000,
-                main_gun_ammunition: 40,
-                secondary_gun_ammunition: 1000,
-                smoke_grenades: 12,
+                ammunition: 40,
                 repair_kits: 3,
-                active_protection_system: 5,
             },
             armored_health: ArmoredHealth {
-                hull_integrity: 100,
-                turret_integrity: 100,
-                track_integrity: 100,
+                current: 100,
+                max: 100,
             },
             position: Position { coord: Vec3 {x, y, z} },
             battlefield_name,
@@ -84,20 +73,6 @@ impl ArmoredImpl of ArmoredTrait {
         if ability_state.is_active && self.accessories.main_gun_ammunition > 0 {
             self.accessories.main_gun_ammunition -= 1;
             // main gun firing logic 
-        }
-    }
-
-    fn fire_secondary_gun(ref self: Armored, ref ability_state: AbilityState) {
-        if ability_state.is_active && self.accessories.secondary_gun_ammunition > 0 {
-            self.accessories.secondary_gun_ammunition -= 1;
-            // secondary gun firing logic 
-        }
-    }
-
-    fn deploy_smoke_grenade(ref self: Armored, ref ability_state: AbilityState) {
-        if ability_state.is_active && self.accessories.smoke_grenades > 0 {
-            self.accessories.smoke_grenades -= 1;
-            // smoke grenade deployment logic 
         }
     }
 
@@ -131,40 +106,22 @@ impl ArmoredImpl of ArmoredTrait {
         }
     }
 
-    fn activate_protection_system(ref self: Armored, ref ability_state: AbilityState) {
+    fn activate_protection_system(ref self: Armored,) {
         if ability_state.is_active && self.accessories.active_protection_system > 0 {
             self.accessories.active_protection_system -= 1;
             // active protection system logic 
     }
     }
 
-    fn take_damage(ref self: Armored, hull_damage: u32, turret_damage: u32, track_damage: u32, ref ability_state: AbilityState) {
+    fn take_damage(ref self: Armored, hull_damage: u32) {
         if ability_state.is_active {
             // Handle hull damage
-            if hull_damage >= self.armored_health.hull_integrity {
+            if hull_damage >= self.armored_health.current {
                 self.armored_health.hull_integrity = 0;
             } else {
                 self.armored_health.hull_integrity -= hull_damage;
             }
 
-            // Handle turret damage
-            if turret_damage >= self.armored_health.turret_integrity {
-                self.armored_health.turret_integrity = 0;
-            } else {
-                self.armored_health.turret_integrity -= turret_damage;
-            }
-
-            // Handle track damage
-            if track_damage >= self.armored_health.track_integrity {
-                self.armored_health.track_integrity = 0;
-            } else {
-                self.armored_health.track_integrity -= track_damage;
-            }
-
-            // Check if the unit is destroyed
-            if self.armored_health.hull_integrity == 0 {
-                ability_state.is_active = false;  // Unit is destroyed
-            }
         }
     }
     fn move_to(ref self: Armored, new_position: Position, ref ability_state: AbilityState) {
@@ -174,12 +131,70 @@ impl ArmoredImpl of ArmoredTrait {
         }
     }
 
-    fn consume_fuel(ref self: Armored, amount: u32, ref ability_state: AbilityState) {
-        if ability_state.is_active && self.accessories.fuel >= amount {
-            self.accessories.fuel -= amount;
-        } else if ability_state.is_active {
-            self.accessories.fuel = 0;
-            ability_state.is_active = false;  // Unit runs out of fuel and becomes inactive
+
+    #[inline(always)]
+    fn consume_energy(ref self: Armored,amount: u32) {
+        if self.energy > amount {
+            self.energy -= amount;
+        }else{
+            self.energy = 0
         }
+    }
+
+    #[inline(always)]
+    fn has_energy(ref self: Armored) {
+     assert(self.energy > 0, 'Armored: Not engough energy' )
+    }
+
+    fn is_position_occupied(ref self: Armored, x: u256, y: u256, z: u256) {
+        let current_pos = self.position.coord;
+        
+        // If all coordinates match, it's occupied
+        if (current_pos.x == x && current_pos.y == y && current_pos.z == z) {
+            assert(false, 'Armored: Position occupied');
+        }
+    }
+
+    fn is_in_range(self: Armored, x: u256, y: u256, z: u256) -> bool {
+        let position = self.position.coord;
+        let new_position = Vec3 { x, y, z };
+        //  SCALE but not offset
+        let range = self.range * SCALE;
+    
+        let dx = if new_position.x >= position.x { 
+            new_position.x - position.x 
+        } else { 
+            position.x - new_position.x 
+        };
+        let dy = if new_position.y >= position.y { 
+            new_position.y - position.y 
+        } else { 
+            position.y - new_position.y 
+        };
+        let dz = if new_position.z >= position.z { 
+            new_position.z - position.z 
+        } else { 
+            position.z - new_position.z 
+        };
+    
+        // Since dx already contains one SCALE factor
+        let dx_squared = (dx * dx);
+        let dy_squared = (dy * dy);
+        let dz_squared = (dz * dz);
+    
+        let distance_squared = (dx_squared + dy_squared + dz_squared) * OFFSET;
+        let range_squared = range * range;
+    
+        distance_squared <= range_squared
+    }
+
+    fn get_range(self: Armored) -> u256{
+        self.range
+    }
+    fn get_position(self: Armored) -> Position{
+        self.position
+    }
+    fn set_position(ref self: Armored, pos: Position){
+        self.position = pos
     }
 }

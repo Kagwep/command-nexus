@@ -1,12 +1,85 @@
 use starknet::ContractAddress;
 use dojo::world::{IWorldDispatcher, IWorldDispatcherTrait};
+use contracts::models::position::{Vec3,Position};
+
+#[derive(Drop)]
+enum NexusUnit {
+    Infantry: Infantry,
+    Armored: Armored,
+    Air: AirUnit,
+    Naval: Ship
+}
 
 
+#[derive(Drop)]
+enum NexusUnit {
+    Infantry: Infantry,
+    Armored: Armored,
+    Air: AirUnit,
+    Naval: Ship
+}
 
+#[generate_trait]
+impl NexusUnitImpl of NexusUnitTrait {
+    fn has_energy(self: NexusUnit) -> bool {
+        match self {
+            NexusUnit::Infantry(infantry) => infantry.has_energy(),
+            NexusUnit::Armored(armored) => armored.has_energy(),
+            NexusUnit::Air(air) => air.has_energy(),
+            NexusUnit::Naval(naval) => naval.has_energy(),
+        }
+    }
+
+    fn consume_energy(ref self: NexusUnit, amount: u32) {
+        match self {
+            NexusUnit::Infantry(ref mut infantry) => infantry.consume_energy(amount),
+            NexusUnit::Armored(ref mut armored) => armored.consume_energy(amount),
+            NexusUnit::Air(ref mut air) => air.consume_energy(amount),
+            NexusUnit::Naval(ref mut naval) => naval.consume_energy(amount),
+        }
+    }
+
+    fn is_position_occupied(ref self: NexusUnit, x: u256, y: u256, z: u256) -> bool {
+        match self {
+            NexusUnit::Infantry(ref infantry) => infantry.is_position_occupied(x, y, z),
+            NexusUnit::Armored(ref armored) => armored.is_position_occupied(x, y, z),
+            NexusUnit::Air(ref air) => air.is_position_occupied(x, y, z),
+            NexusUnit::Naval(ref naval) => naval.is_position_occupied(x, y, z),
+        }
+    }
+
+    fn get_range(self: NexusUnit) -> u32 {
+        match self {
+            NexusUnit::Infantry(infantry) => infantry.get_range(),
+            NexusUnit::Armored(armored) => armored.get_range(),
+            NexusUnit::Air(air) => air.get_range(),
+            NexusUnit::Naval(naval) => naval.get_range(),
+        }
+    }
+
+    fn get_position(self: NexusUnit) -> Position {
+        match self {
+            NexusUnit::Infantry(infantry) => infantry.get_position(),
+            NexusUnit::Armored(armored) => armored.get_position(),
+            NexusUnit::Air(air) => air.get_position(),
+            NexusUnit::Naval(naval) => naval.get_position(),
+        }
+    }
+
+    fn set_position(ref self: NexusUnit, pos: Position) {
+        match self {
+            NexusUnit::Infantry(ref mut infantry) => infantry.set_position(pos),
+            NexusUnit::Armored(ref mut armored) => armored.set_position(pos),
+            NexusUnit::Air(ref mut air) => air.set_position(pos),
+            NexusUnit::Naval(ref mut naval) => naval.set_position(pos),
+        }
+    }
+}
 
 mod helper {
     use super::ContractAddress;
     use super::IWorldDispatcher;
+    use super::Unit;
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert};
     use contracts::models::units::unit_states::{UnitMode,UnitState};
@@ -15,8 +88,11 @@ mod helper {
     use contracts::models::units::cyber::{CyberUnit};
     use contracts::models::units::naval::{Ship};
     use contracts::models::units::armored::{Armored};
-    use contracts::models::units::position::{Vec3};
+    use contracts::models::position::{Vec3,Position};
+    use contracts::constants::{SCALE,OFFSET};
 
+
+    
 
     #[generate_trait]
     impl HelperImpl of HelperTrait {
@@ -41,8 +117,32 @@ mod helper {
             get!(world, (game_id,unit_id, player_id), (Ship))
         }
 
-        fn unit_state(world: IWorldDispatcher, game_id: u32,unit_id:u32, index: u32,unit_type:u8) -> UnitState {
-            get!(world, (game_id,index,unit_id,unit_type), (UnitState))
+        fn get_unit(
+            world: IWorldDispatcher,
+            game_id: u32,
+            player_id: u32,
+            unit_id: u32,
+            unit_type: UnitType
+        ) -> Unit {
+            match unit_type {
+                UnitType::Infantry => Unit::Infantry(
+                    get!(world, (game_id, unit_id, player_id), Infantry)
+                ),
+                UnitType::Armored => Unit::Armored(
+                    get!(world, (game_id, unit_id, player_id), Armored)
+                ),
+                UnitType::Air => Unit::Air(
+                    get!(world, (game_id, unit_id, player_id), AirUnit)
+                ),
+                UnitType::Naval => Unit::Naval(
+                    get!(world, (game_id, unit_id, player_id), Ship)
+                ),
+                _ => panic(array!['Invalid unit type'])
+            }
+        }
+
+        fn unit_state(world: IWorldDispatcher, game_id: u32,unit_id:u32, index: u32) -> UnitState {
+            get!(world, (game_id,index,unit_id), (UnitState))
         }
 
         fn find_player(world: IWorldDispatcher, game: Game, account: ContractAddress) -> Option<Player> {
@@ -93,12 +193,12 @@ mod helper {
             get!(world, player_key.into(), (Player))
         }
 
-        fn is_in_range( range:u256,x: u256, y: u256, z: u256) -> bool {
-            let position = self.position.coord;
+        fn is_in_range(position: Position, range:u256,x: u256, y: u256, z: u256) -> bool {
+            let position = position.coord;
             let new_position = Vec3 { x, y, z };
             //  SCALE but not offset
 
-            let (distance,range_squared) = Self::get_distance(range,new_position,position);
+            let (distance_squared,range_squared) = Self::get_distance(range,new_position,position);
 
             (distance_squared <= range_squared)
         }

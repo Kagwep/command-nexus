@@ -1,1 +1,3 @@
 const ALL_BASES_AVAILABLE: felt252 = 0x3e;
+const SCALE: u256 = 1000000000000000000; // 1e18
+const OFFSET: u256 = 2; 

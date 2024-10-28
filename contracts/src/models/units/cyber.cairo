@@ -66,12 +66,11 @@ impl CyberUnitImpl of CyberUnitTrait {
                 decryption_tools: 15,
             },
             health: CyberUnitHealth {
-                system_integrity: 100,
-                anti_virus_strength: 100,
+                current: 100,
+                max: 100,
             },
             position: Position { coord: Vec3{x, y, z} },
             battlefield_name,
-            bandwidth: 1000,
             processing_power: 100,
         }
     }

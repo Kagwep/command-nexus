@@ -132,7 +132,7 @@ mod nexus {
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert,UnitType,UnitTypeTrait,UnitTypeImpl};
     use contracts::models::game::{Game, GameTrait, GameAssert};
 
-    use contracts::utils::helper::{HelperTrait,Unit};
+    use contracts::utils::helper::{HelperTrait,Unit,NexusUnit,NexusUnitTrait};
 
     use contracts::models::units::air::{
         AirUnit,
@@ -378,7 +378,7 @@ mod nexus {
             let operation = AbilityType::Defend;
 
  
-                // Handle unit type-specific operations
+            // Handle unit type-specific operations
             self._handle_unit_type_action(
                 game.game_id,
                 unit_id,
@@ -734,7 +734,7 @@ mod nexus {
             let mut unit_state = get!(world, (game_id, player_id, unit_id), UnitState);
 
             // 
-            let mut unit = get_unit(world, game_id, player_id, unit_id, unit_type);
+            let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
 
              // Validate unit has energy
              unit.has_energy();

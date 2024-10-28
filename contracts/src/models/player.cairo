@@ -4,7 +4,7 @@ use contracts::models::battlefield::{BattlefieldName};
 
 const INITIAL_MOVES: u8 = 8;
 const ACTION_MOVES: u8 = 3;
-const TURN_TIME_LIMIT_SECONDS: u64 = 20000;
+const TURN_TIME_LIMIT_SECONDS: u64 = 2000;
 
 mod errors {
     const PLAYER_INVALID_RANK: felt252 = 'Player: invalid rank';

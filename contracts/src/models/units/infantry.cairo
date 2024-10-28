@@ -1,6 +1,6 @@
-use contracts::models::battlefield::BattlefieldName;
+use contracts::models::battlefield::{BattlefieldName,WeatherCondition,WeatherConditionTrait};
 use contracts::models::position::{Position, Vec3};
-use contracts::constants::{SCALE,OFFSET};
+use contracts::constants::{SCALE,OFFSET,BASE_ENERGY_COST,DISTANCE_ENERGY_MULTIPLIER,MAX_ACCURACY_PENALTY};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -13,7 +13,6 @@ struct Infantry {
     player_id: u32,
     range: u256,
     energy: u32,
-    firepower: u32,
     accuracy: u8,
     accessories: InfantryAccessories,
     health: InfantryHealth,
@@ -59,7 +58,6 @@ impl InfantryImpl of InfantryTrait{
             player_id,
             range:300,
             energy: 100,
-            firepower:100,
             accuracy: 100,
             accessories: InfantryAccessories {
                 ammunition: 100,
@@ -129,10 +127,11 @@ impl InfantryImpl of InfantryTrait{
     }
 
     #[inline(always)]
-    fn has_energy(ref self: Infantry) {
+    fn has_energy(self: Infantry) {
      assert(self.energy > 0, 'Infantry: Not engough energy' )
     }
 
+    #[inline(always)]
     fn is_position_occupied(ref self: Infantry, x: u256, y: u256, z: u256) {
         let current_pos = self.position.coord;
         
@@ -142,6 +141,7 @@ impl InfantryImpl of InfantryTrait{
         }
     }
 
+    #[inline(always)]
     fn is_in_range(self: Infantry, x: u256, y: u256, z: u256) -> bool {
         let position = self.position.coord;
         let new_position = Vec3 { x, y, z };
@@ -175,14 +175,54 @@ impl InfantryImpl of InfantryTrait{
         distance_squared <= range_squared
     }
 
+    #[inline(always)]
     fn get_range(self: Infantry) -> u256{
         self.range
     }
+
+    #[inline(always)]
     fn get_position(self: Infantry) -> Position{
         self.position
     }
+
+    #[inline(always)]
     fn set_position(ref self: Infantry, pos: Position){
         self.position = pos
+    }
+
+    fn calculate_hit_probability(ref self: Infantry, distance: u256, weather_condition: WeatherCondition) -> u32 {
+
+        let base_hit_chance = self.accuracy;
+
+        let distance_factor = (distance * DISTANCE_ENERGY_MULTIPLIER) / 100;
+        let energy_cost = BASE_ENERGY_COST + (distance_factor * distance_factor);
+
+        if energy_cost > 100 {
+            self.energy = 0;
+        } else {
+            self.energy -= energy_cost
+        }
+
+        let penalty = (distance * distance) / 100;
+
+        let impact_on_accuracy = weather_condition.calculate_weather_impact();
+    
+        let accuracy_penalty = if penalty > MAX_ACCURACY_PENALTY {
+            MAX_ACCURACY_PENALTY
+        } else {
+            penalty
+        };
+
+        let base_accuracy = if base_hit_chance > accuracy_penalty {
+            base_hit_chance - accuracy_penalty
+        } else {
+            0
+        };
+
+        (base_accuracy * impact_on_accuracy) / 100
+
+
+
     }
 }
 

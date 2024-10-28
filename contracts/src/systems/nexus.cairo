@@ -30,7 +30,7 @@ trait INexus {
         start_z: u256,
     );
 
-    fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x: u256,y: u256,z: u256,);
+    fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_type: u8,x: u256,y: u256,z: u256,);
 
     fn defend(ref world: IWorldDispatcher, game_id: u32, unit_id: u32,unit_type: u8, x: u256, y: u256, z: u256);
 
@@ -132,7 +132,9 @@ mod nexus {
     use contracts::models::player::{Player, PlayerTrait, PlayerAssert,UnitType,UnitTypeTrait,UnitTypeImpl};
     use contracts::models::game::{Game, GameTrait, GameAssert};
 
-    use contracts::utils::helper::{HelperTrait,Unit,NexusUnit,NexusUnitTrait};
+    use contracts::utils::helper::{HelperTrait};
+
+    use contracts::utils::{NexusUnit,NexusUnitTrait};
 
     use contracts::models::units::air::{
         AirUnit,
@@ -150,6 +152,8 @@ mod nexus {
     use contracts::models::units::cyber::{CyberUnitTrait,CyberUnit};
 
     use contracts::models::position::{Position,Vec3};
+
+    use contracts::models::constants::{MAX_POINT_BONUS,BASE_DAMAGE};
 
 
     mod errors {
@@ -322,7 +326,8 @@ mod nexus {
             );
         }
         
-        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_action:u8,unit_type: u8,x:u256,y:u256,z:u256) {
+        fn attack(ref world: IWorldDispatcher, game_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,unit_type: u8,x:u256,y:u256,z:u256) {
+            
            let player_address = get_caller_address();
            let mut game = get!(world, game_id, (Game));
 
@@ -333,32 +338,32 @@ mod nexus {
            let unit_t = match  UnitTypeTrait::from_int(unit_type) {
             Option::Some(unit) => unit,
             Option::None => panic(array!['Invalid unit Type'])
-        };
+            };
 
-        let operation = AbilityType::Attack;
+            let operation = AbilityType::Attack;
 
 
-            // Handle unit type-specific operations
-        self._handle_unit_type_action(
-            game.game_id,
-            unit_id,
-            unit_t,
-            attacker,
-            operation,
-            x,y,z
-        );
+                // Handle unit type-specific operations
+            self._handle_unit_type_action(
+                game.game_id,
+                unit_id,
+                unit_t,
+                attacker,
+                operation,
+                x,y,z
+            );
 
-        // Update the unit state to patrolling mode
-        self._update_unit_state(
-            game.game_id,
-            attacker.index,
-            unit_id,
-            unit_t,
-            UnitMode::Attacking,
-            x,
-            y,
-            z
-        );
+            // Update the unit state to patrolling mode
+            self._update_unit_state(
+                game.game_id,
+                attacker.index,
+                unit_id,
+                unit_t,
+                UnitMode::Attacking,
+                x,
+                y,
+                z
+            );
 
         }
         
@@ -745,7 +750,7 @@ mod nexus {
     
             // Calculate distance and movement cost
             let (distance, _) = HelperTrait::get_distance(
-                unit.get_range,
+                unit.get_range(),
                 unit.get_position().coord,
                 new_position
             );
@@ -764,7 +769,12 @@ mod nexus {
             unit.set_position(Position {coord: new_position});
     
             // Set updated components
-            set!(world, (unit, unit_abilities, unit_state));
+            match unit {
+                NexusUnit::Infantry(infantry) => set!(world, (infantry, unit_abilities, unit_state)),
+                NexusUnit::Armored(armored) => set!(world, (armored, unit_abilities, unit_state)),
+                NexusUnit::Air(air) => set!(world, (air, unit_abilities, unit_state)),
+                NexusUnit::Naval(naval) => set!(world, (naval, unit_abilities, unit_state)),
+            }
     
             true
         }
@@ -772,10 +782,13 @@ mod nexus {
         fn _handle_operation(
             ref world: IWorldDispatcher,
             game_id: u32, 
-            unit_id: u32, 
-            unit_type: UnitType, 
-            operation: AbilityType, 
-            player: Player
+            unit_id: u32,
+            unit_type: UnitType,
+            operation: AbilityType,
+            player: Player,
+            x: u256,
+            y: u256,
+            z: u256
          ) {
             match operation {
                 AbilityType::Move => {
@@ -838,43 +851,58 @@ mod nexus {
             let operation = AbilityType::Attack;
             
             // Get unit abilities and validate
-            let mut unit_abilities = get!(world, (game_id, unit_id, player_id), AbilityState);
+            let mut unit_abilities_attacker = get!(world, (game_id, attacker_id, player_id), AbilityState);
             let current_time = get_block_timestamp();
-            unit_abilities.validate_for_use(AbilityType::Attack, current_time);
+            unit_abilities_attacker.validate_for_use(AbilityType::Attack, current_time);
     
-            // Get unit state and infantry
-            let mut unit_state = get!(world, (game_id, player_id, unit_id), UnitState);
-            let mut unit = get!(world, (game_id, unit_id, player_id), Infantry);
-    
-             // Validate unit has energy
-             unit.has_energy();
-    
-            // Check if position is occupied
-            let new_position = Vec3 { x, y, z };
-            unit.is_position_occupied(x, y, z);
-    
-            // Calculate distance and movement cost
-            let (distance, _) = HelperTrait::get_distance(
-                unit.range,
-                unit.position.coord,
-                new_position
-            );
+            // Get unit state 
+            let mut unit_state_attacker = get!(world, (game_id, player_id, attacker_id), UnitState);
+
+            let mut unit_state_target = get!(world, (game_id, player_id, attacker_id), UnitState);
+
+            let attack_points  = unit_state_attacker.attacking_mode_points();
+
+            let target_points  = unit_state_target.attacked_mode_points();
             
-            let move_cost = HelperTrait::calculate_movement_cost(distance);
+            let attack_damage = HelperTrait::compute_damage(world,attacker_id,attacker,target,target_id,player_id);
+
+            let mut unit_attacker = HelperTrait::get_unit(world, game_id, player_id, attacker_id, unit_type);
+
+
+            let mut unit_target = HelperTrait::get_unit(world, game_id, player_id, target_id, unit_type);
     
-            // Convert costs
-            let movement_cost_u8: u8 = move_cost.try_into().unwrap();
-            let energy_cost: u32 = move_cost.try_into().unwrap();
+            // Validate unit has energy
+            unit_attacker.has_energy();
     
-            // Update ability level and energy
-            unit_abilities.decrease_ability_level(AbilityType::Move, movement_cost_u8);
-            unit.consume_energy(energy_cost);
-    
-            // Update unit position
-            unit.position = Position {coord: new_position};
+                        // Calculate base damage multiplier based on points (0-40% bonus)
+            let point_bonus_multiplier = if attack_points > target_points {
+                // If attacker has advantage, bonus of up to 40%
+                let difference = attack_points - target_points;
+                if difference > MAX_POINT_BONUS {
+                    140 // Cap at 40% bonus
+                } else {
+                    100 + difference
+                }
+            } else {
+                // If defender has advantage, reduction of up to 40%
+                let difference = target_points - attack_points;
+                if difference > MAX_POINT_BONUS {
+                    60 // Cap at 40% reduction
+                } else {
+                    100 - difference
+                }
+            };
+
+            // Calculate initial damage
+            let mut final_damage = (BASE_DAMAGE * point_bonus_multiplier) / 100;
+
+            unit_target.take_damage(final_damage);
+
+            unit_attacker.consume_energy()
+
     
             // Set updated components
-            set!(world, (unit, unit_abilities, unit_state));
+            set!(world, (unit_attacker,unit_abilities_attacker, unit_state_attacker, unit_state_target,unit_target));
     
             true
         }

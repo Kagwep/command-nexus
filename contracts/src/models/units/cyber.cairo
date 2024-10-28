@@ -1,6 +1,7 @@
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::position::{Position,Vec3};
 use contracts::models::units::unit_states::AbilityState;
+use contracts::constants::{SCALE,OFFSET};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -14,42 +15,37 @@ struct CyberUnit {
     hacking_range: u64,
     encryption_strength: u32,
     stealth: u8,
+    range: u256,
     accessories: CyberUnitAccessories,
     health: CyberUnitHealth,
     position: Position,
     battlefield_name: BattlefieldName,
-    bandwidth: u32,
-    processing_power: u32,
+    energy: u32,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct CyberUnitAccessories {
     malware: u32,
-    firewalls: u32,
-    vpn_tokens: u32,
-    encryption_keys: u32,
-    decryption_tools: u32,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct CyberUnitHealth {
-    system_integrity: u32,
-    anti_virus_strength: u32,
+    current: u32,
+    max: u32,
 }
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
 enum CyberUnitAction {
     Attack,
-    DeployMalware, 
-    ExecuteHack,   
-    StrengthenFirewall,
-    UseVPN,
+    DeployMalware,
 }
 
 
 
 #[generate_trait]
 impl CyberUnitImpl of CyberUnitTrait {
+
+    #[inline(always)]
     fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> CyberUnit {
         CyberUnit {
             game_id,
@@ -58,12 +54,9 @@ impl CyberUnitImpl of CyberUnitTrait {
             hacking_range: 1000,  // Global range for cyber units
             encryption_strength: 100,
             stealth: 90,
+            range: 400,
             accessories: CyberUnitAccessories {
                 malware: 50,
-                firewalls: 3,
-                vpn_tokens: 10,
-                encryption_keys: 20,
-                decryption_tools: 15,
             },
             health: CyberUnitHealth {
                 current: 100,
@@ -71,148 +64,116 @@ impl CyberUnitImpl of CyberUnitTrait {
             },
             position: Position { coord: Vec3{x, y, z} },
             battlefield_name,
-            processing_power: 100,
+            energy: 100
         }
     }
 
+    #[inline(always)]
     fn update_accessories(ref self: CyberUnit, new_accessories: CyberUnitAccessories) {
         self.accessories = new_accessories;
     }
 
-    fn deploy_malware(ref self: CyberUnit, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active && self.accessories.malware > 0 {
+    #[inline(always)]
+    fn deploy_malware(ref self: CyberUnit) {
+        if self.accessories.malware > 0 {
             self.accessories.malware -= 1;
-            // Add malware deployment logic here
-            true
-        } else {
-            false
-        }
-    }
-
-    fn strengthen_firewall(ref self: CyberUnit, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active && self.accessories.firewalls > 0 {
-            self.accessories.firewalls -= 1;
-            let new_integrity = self.health.system_integrity + 20;
-            if new_integrity > 100 {
-                self.health.system_integrity = 100;
-            } else {
-                self.health.system_integrity = new_integrity;
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    fn use_vpn(ref self: CyberUnit, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active && self.accessories.vpn_tokens > 0 {
-            self.accessories.vpn_tokens -= 1;
-            let new_stealth = self.stealth + 10;
-            if new_stealth > 100 {
-                self.stealth = 100;
-            } else {
-                self.stealth = new_stealth;
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    fn encrypt_data(ref self: CyberUnit, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active && self.accessories.encryption_keys > 0 {
-            self.accessories.encryption_keys -= 1;
-            let new_strength = self.encryption_strength + 10;
-            if new_strength > 200 {
-                self.encryption_strength = 200;
-            } else {
-                self.encryption_strength = new_strength;
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    fn decrypt_data(ref self: CyberUnit, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active && self.accessories.decryption_tools > 0 {
-            self.accessories.decryption_tools -= 1;
-            // Add decryption logic here
-            true
-        } else {
-            false
-        }
-    }
-
-    fn take_cyber_damage(ref self: CyberUnit, system_damage: u32, anti_virus_damage: u32, ref ability_state: AbilityState) {
-        if ability_state.is_active {
-            if system_damage >= self.health.system_integrity {
-                self.health.system_integrity = 0;
-                ability_state.is_active = false;  // Cyber unit is compromised
-            } else {
-                self.health.system_integrity -= system_damage;
-            }
-
-            if anti_virus_damage >= self.health.anti_virus_strength {
-                self.health.anti_virus_strength = 0;
-            } else {
-                self.health.anti_virus_strength -= anti_virus_damage;
-            }
-        }
-    }
-
-    fn move_to(ref self: CyberUnit, new_position: Position, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active {
-            self.position = new_position;
-            true
-        } else {
-            false
-        }
-    }
-
-    fn calculate_hacking_success_chance(self: CyberUnit, target_encryption: u32) -> u8 {
-        let base_chance: u8 = 50;
         
-        // Calculate encryption difference bonus
-        let encryption_diff: u8 = if self.encryption_strength > target_encryption {
-            let diff = (self.encryption_strength - target_encryption) / 10;
-            if diff > 40 {
-                40
-            } else {
-                diff.try_into().unwrap()
-            }
+        } 
+    }
+
+    #[inline(always)]
+    fn take_damage(ref self: CyberUnit, damage: u32, ) {
+
+        if damage >= self.health.current {
+            self.health.current = 0;
+
         } else {
-            0
+            self.health.current -= damage;
+        }
+    
+    }
+
+    #[inline(always)]
+    fn move_to(ref self: CyberUnit, new_position: Position) {
+        if self.health.current > 0 {
+            self.position = new_position;
+            
+        } 
+    }
+
+    #[inline(always)]
+    fn consume_energy(ref self: CyberUnit,amount: u32) {
+        if self.energy > amount {
+            self.energy -= amount;
+        }else{
+            self.energy = 0
+        }
+    }
+
+    #[inline(always)]
+    fn has_energy(self: CyberUnit) {
+     assert(self.energy > 0, 'CyberUnit: Not engough energy' )
+    }
+
+    #[inline(always)]
+    fn is_position_occupied(ref self: CyberUnit, x: u256, y: u256, z: u256) {
+        let current_pos = self.position.coord;
+        
+        // If all coordinates match, it's occupied
+        if (current_pos.x == x && current_pos.y == y && current_pos.z == z) {
+            assert(false, 'CyberUnit: Position occupied');
+        }
+    }
+
+    #[inline(always)]
+    fn is_in_range(self: CyberUnit, x: u256, y: u256, z: u256) -> bool {
+        let position = self.position.coord;
+        let new_position = Vec3 { x, y, z };
+        //  SCALE but not offset
+        let range = self.range * SCALE;
+    
+        let dx = if new_position.x >= position.x { 
+            new_position.x - position.x 
+        } else { 
+            position.x - new_position.x 
         };
-
-        // Calculate stealth bonus
-        let stealth_bonus: u8 = (self.stealth / 5).try_into().unwrap();
-
-        // Calculate total chance
-        let total_chance = base_chance + encryption_diff + stealth_bonus;
-
-        // Ensure the result doesn't exceed 95
-        if total_chance > 95 {
-            95
-        } else {
-            total_chance
-        }
+        let dy = if new_position.y >= position.y { 
+            new_position.y - position.y 
+        } else { 
+            position.y - new_position.y 
+        };
+        let dz = if new_position.z >= position.z { 
+            new_position.z - position.z 
+        } else { 
+            position.z - new_position.z 
+        };
+    
+        // Since dx already contains one SCALE factor
+        let dx_squared = (dx * dx);
+        let dy_squared = (dy * dy);
+        let dz_squared = (dz * dz);
+    
+        let distance_squared = (dx_squared + dy_squared + dz_squared) * OFFSET;
+        let range_squared = range * range;
+    
+        distance_squared <= range_squared
     }
 
-    fn can_hack(self: @CyberUnit, target_position: Position) -> bool {
-        // Cyber units can hack globally, so we always return true
-        true
+    #[inline(always)]
+    fn get_range(self: CyberUnit) -> u256{
+        self.range
     }
 
-    fn consume_bandwidth(ref self: CyberUnit, amount: u32, ref ability_state: AbilityState) -> bool {
-        if ability_state.is_active && self.bandwidth >= amount {
-            self.bandwidth -= amount;
-            true
-        } else {
-            if self.bandwidth < amount {
-                ability_state.is_active = false;  // Cyber unit runs out of bandwidth and becomes inactive
-            }
-            false
-        }
+    #[inline(always)]
+    fn get_position(self: CyberUnit) -> Position{
+        self.position
     }
+
+    #[inline(always)]
+    fn set_position(ref self: CyberUnit, pos: Position){
+        self.position = pos
+    }
+
+
+
 }

@@ -2,6 +2,7 @@ use starknet::ContractAddress;
 use contracts::models::position::{Position,Vec3};
 use contracts::models::battlefield::BattlefieldName;
 use contracts::models::units::unit_states::AbilityState;
+use contracts::constants::{SCALE,OFFSET};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -14,7 +15,7 @@ struct Armored {
     player_id: u32,
     accuracy: u8,
     firepower: u32,
-    range: u64,
+    range: u256,
     energy: u32,
     accessories: ArmoredAccessories,
     armored_health: ArmoredHealth,
@@ -44,6 +45,7 @@ enum ArmoredAction {
 #[generate_trait]
 impl ArmoredImpl of ArmoredTrait {
 
+    #[inline(always)]
     fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> Armored {
         Armored {
             game_id,
@@ -52,6 +54,7 @@ impl ArmoredImpl of ArmoredTrait {
             accuracy: 85,
             firepower: 100,
             range: 3000,
+            energy: 100,
             accessories: ArmoredAccessories {
                 ammunition: 40,
                 repair_kits: 3,
@@ -65,69 +68,47 @@ impl ArmoredImpl of ArmoredTrait {
         }
     }
 
+    #[inline(always)]
     fn update_accessories(ref self: Armored, new_accessories: ArmoredAccessories) {
         self.accessories = new_accessories;
     }
 
-    fn fire_main_gun(ref self: Armored, ref ability_state: AbilityState) {
-        if ability_state.is_active && self.accessories.main_gun_ammunition > 0 {
-            self.accessories.main_gun_ammunition -= 1;
-            // main gun firing logic 
+    #[inline(always)]
+    fn fire_main_gun(ref self: Armored) {
+        if self.accessories.ammunition > 0 {
+            self.accessories.ammunition -= 1;
         }
     }
 
-    fn use_repair_kit(ref self: Armored, ref ability_state: AbilityState) {
-        if ability_state.is_active && self.accessories.repair_kits > 0 {
+    #[inline(always)]
+    fn use_repair_kit(ref self: Armored) {
+        if self.accessories.repair_kits > 0 {
             self.accessories.repair_kits -= 1;
             
             // Repair hull integrity
-            let new_hull = self.armored_health.hull_integrity + 20;
-            if new_hull > 100 {
-                self.armored_health.hull_integrity = 100;
+            let new_hull = self.armored_health.current + 20;
+            if new_hull > self.armored_health.max {
+                self.armored_health.current = 100;
             } else {
-                self.armored_health.hull_integrity = new_hull;
-            }
-
-            // Repair turret integrity
-            let new_turret = self.armored_health.turret_integrity + 20;
-            if new_turret > 100 {
-                self.armored_health.turret_integrity = 100;
-            } else {
-                self.armored_health.turret_integrity = new_turret;
-            }
-
-            // Repair track integrity
-            let new_track = self.armored_health.track_integrity + 20;
-            if new_track > 100 {
-                self.armored_health.track_integrity = 100;
-            } else {
-                self.armored_health.track_integrity = new_track;
+                self.armored_health.current = new_hull;
             }
         }
     }
 
-    fn activate_protection_system(ref self: Armored,) {
-        if ability_state.is_active && self.accessories.active_protection_system > 0 {
-            self.accessories.active_protection_system -= 1;
-            // active protection system logic 
-    }
-    }
-
+    #[inline(always)]
     fn take_damage(ref self: Armored, hull_damage: u32) {
-        if ability_state.is_active {
             // Handle hull damage
             if hull_damage >= self.armored_health.current {
-                self.armored_health.hull_integrity = 0;
+                self.armored_health.current = 0;
             } else {
-                self.armored_health.hull_integrity -= hull_damage;
+                self.armored_health.current -= hull_damage;
             }
-
-        }
     }
-    fn move_to(ref self: Armored, new_position: Position, ref ability_state: AbilityState) {
-        if ability_state.is_active && self.armored_health.track_integrity > 0 {
+
+    #[inline(always)]
+    fn move_to(ref self: Armored, new_position: Position) {
+        if self.armored_health.current > 0 {
             self.position = new_position;
-            //consume fuel based on distance moved
         }
     }
 
@@ -142,10 +123,11 @@ impl ArmoredImpl of ArmoredTrait {
     }
 
     #[inline(always)]
-    fn has_energy(ref self: Armored) {
+    fn has_energy( self: Armored) {
      assert(self.energy > 0, 'Armored: Not engough energy' )
     }
 
+    #[inline(always)]
     fn is_position_occupied(ref self: Armored, x: u256, y: u256, z: u256) {
         let current_pos = self.position.coord;
         
@@ -155,6 +137,7 @@ impl ArmoredImpl of ArmoredTrait {
         }
     }
 
+    #[inline(always)]
     fn is_in_range(self: Armored, x: u256, y: u256, z: u256) -> bool {
         let position = self.position.coord;
         let new_position = Vec3 { x, y, z };
@@ -188,12 +171,17 @@ impl ArmoredImpl of ArmoredTrait {
         distance_squared <= range_squared
     }
 
+    #[inline(always)]
     fn get_range(self: Armored) -> u256{
         self.range
     }
+
+    #[inline(always)]
     fn get_position(self: Armored) -> Position{
         self.position
     }
+
+    #[inline(always)]
     fn set_position(ref self: Armored, pos: Position){
         self.position = pos
     }

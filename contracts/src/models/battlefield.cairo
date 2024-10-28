@@ -118,6 +118,21 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
     }
 }
 
+
+
+#[generate_trait]
+impl WeatherConditionImpl of WeatherConditionTrait {
+    fn calculate_weather_impact(self: WeatherCondition) -> u32 {
+        match self {
+            WeatherCondition::None => 100, // No impact
+            WeatherCondition::Clear => 100, // Perfect conditions
+            WeatherCondition::Rainy => 70,  // 30% accuracy reduction
+            WeatherCondition::Foggy => 50,  // 50% accuracy reduction
+            WeatherCondition::Stormy => 30, // 70% accuracy reduction
+        }
+    }
+}
+
 #[generate_trait]
 impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
 

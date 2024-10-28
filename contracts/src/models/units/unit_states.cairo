@@ -324,6 +324,36 @@ impl UnitStateImpl of UnitStateTrait {
         }
     }
 
+
+    fn attacked_mode_points (self: UnitState) -> u32 {
+        match self.mode {
+            UnitMode::Idle => 0,      // No bonus for idle targets
+            UnitMode::Moving => 25,    // Moving targets are challenging
+            UnitMode::Attacking => 30, // Engaged in combat
+            UnitMode::Defending => 35, // Well protected
+            UnitMode::Patrolling => 15, // Regular movement
+            UnitMode::Stealthed => 40, // Highest reward
+            UnitMode::Reconning => 20, // Aware and mobile
+            UnitMode::Healing => 20,   // Vulnerable but aware
+            UnitMode::Retreating => 15, // Predictable movement
+            UnitMode::Repairing => 10, // Stationary but defensive
+        }
+    }
+
+    fn attacking_mode_points(self: UnitState) -> u32 {
+        match self.mode {
+            UnitMode::Idle => 25,      // Bonus for quick reaction from idle
+            UnitMode::Moving => 15,     // Shooting while moving is harder
+            UnitMode::Attacking => 10,  // Already in combat stance
+            UnitMode::Defending => 20,  // Breaking defensive position to attack
+            UnitMode::Patrolling => 20, // Transitioning from patrol to combat
+            UnitMode::Stealthed => 40,  // Highest reward for stealth attack
+            UnitMode::Reconning => 30,  // Good position for ambush
+            UnitMode::Healing => 5,     // Difficult to attack while healing
+            UnitMode::Retreating => 5,  // Difficult to attack while retreating
+            UnitMode::Repairing => 5,   // Difficult to attack while repairing
+        }
+    }
     
 
     

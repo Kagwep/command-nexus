@@ -26,6 +26,7 @@ struct CyberUnit {
 #[derive(Copy, Drop, Serde, Introspect)]
 struct CyberUnitAccessories {
     malware: u32,
+    repair_kits: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
@@ -57,6 +58,7 @@ impl CyberUnitImpl of CyberUnitTrait {
             range: 400,
             accessories: CyberUnitAccessories {
                 malware: 50,
+                repair_kits: 3,
             },
             health: CyberUnitHealth {
                 current: 100,
@@ -80,6 +82,22 @@ impl CyberUnitImpl of CyberUnitTrait {
         
         } 
     }
+
+    #[inline(always)]
+    fn use_repair_kit(ref self: CyberUnit) {
+        if self.accessories.repair_kits > 0 {
+            self.accessories.repair_kits -= 1;
+            
+            // Repair hull integrity
+            let new_hull = self.health.current + 20;
+            if new_hull > self.health.max {
+                self.health.current = 100;
+            } else {
+                self.health.current = new_hull;
+            }
+        }
+    }
+
 
     #[inline(always)]
     fn take_damage(ref self: CyberUnit, damage: u32, ) {

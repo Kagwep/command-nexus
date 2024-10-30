@@ -1,0 +1,65 @@
+kind = "DojoModel"
+class_hash = "0x5bfa74296fa0188a827bcfb4eda22a4fd4ed7b06dde6df9e51a4d1dff1dc8a9"
+original_class_hash = "0x5bfa74296fa0188a827bcfb4eda22a4fd4ed7b06dde6df9e51a4d1dff1dc8a9"
+abi = "manifests/dev/abis/base/models/contracts_models_units_cyber_cyber_unit.json"
+name = "contracts::models::units::cyber::cyber_unit"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "unit_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "hacking_range"
+type = "u64"
+key = false
+
+[[members]]
+name = "encryption_strength"
+type = "u32"
+key = false
+
+[[members]]
+name = "stealth"
+type = "u8"
+key = false
+
+[[members]]
+name = "range"
+type = "u256"
+key = false
+
+[[members]]
+name = "accessories"
+type = "CyberUnitAccessories"
+key = false
+
+[[members]]
+name = "health"
+type = "CyberUnitHealth"
+key = false
+
+[[members]]
+name = "position"
+type = "Position"
+key = false
+
+[[members]]
+name = "battlefield_name"
+type = "BattlefieldName"
+key = false
+
+[[members]]
+name = "energy"
+type = "u32"
+key = false

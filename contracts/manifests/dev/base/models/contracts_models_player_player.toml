@@ -1,0 +1,60 @@
+kind = "DojoModel"
+class_hash = "0x328fc86db967c0f12fb934d262ab400434f2031508cf32c20a2ae4e8ac507ef"
+original_class_hash = "0x328fc86db967c0f12fb934d262ab400434f2031508cf32c20a2ae4e8ac507ef"
+abi = "manifests/dev/abis/base/models/contracts_models_player_player.json"
+name = "contracts::models::player::player"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "index"
+type = "u32"
+key = true
+
+[[members]]
+name = "address"
+type = "starknet::ContractAddress"
+key = false
+
+[[members]]
+name = "name"
+type = "felt252"
+key = false
+
+[[members]]
+name = "supply"
+type = "UnitsSupply"
+key = false
+
+[[members]]
+name = "last_action"
+type = "u64"
+key = false
+
+[[members]]
+name = "rank"
+type = "u8"
+key = false
+
+[[members]]
+name = "player_score"
+type = "PlayerScore"
+key = false
+
+[[members]]
+name = "home_base"
+type = "BattlefieldName"
+key = false
+
+[[members]]
+name = "commands_remaining"
+type = "u8"
+key = false
+
+[[members]]
+name = "turn_start_time"
+type = "u64"
+key = false

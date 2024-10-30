@@ -1,4 +1,4 @@
-use contracts::models::battlefield::{BattlefieldName,WeatherCondition,WeatherConditionTrait};
+use contracts::models::battlefield::{BattlefieldName,WeatherCondition,WeatherConditionTrait,BattlefieldNameTrait};
 use contracts::models::position::{Position, Vec3};
 use contracts::constants::{SCALE,OFFSET,BASE_ENERGY_COST,DISTANCE_ENERGY_MULTIPLIER,MAX_ACCURACY_PENALTY};
 
@@ -190,36 +190,37 @@ impl InfantryImpl of InfantryTrait{
         self.position = pos
     }
 
+    #[inline(always)]
     fn calculate_hit_probability(ref self: Infantry, distance: u256, weather_condition: WeatherCondition) -> u32 {
 
-        let base_hit_chance = self.accuracy;
+        let base_hit_chance: u32 = self.accuracy.into();
 
-        let distance_factor = (distance * DISTANCE_ENERGY_MULTIPLIER) / 100;
-        let energy_cost = BASE_ENERGY_COST + (distance_factor * distance_factor);
+        let distance_factor = (distance * DISTANCE_ENERGY_MULTIPLIER.into()) / 100;
+        let energy_cost = BASE_ENERGY_COST.into() + (distance_factor * distance_factor);
 
         if energy_cost > 100 {
             self.energy = 0;
         } else {
-            self.energy -= energy_cost
+            self.energy -= energy_cost.try_into().unwrap();
         }
 
         let penalty = (distance * distance) / 100;
 
         let impact_on_accuracy = weather_condition.calculate_weather_impact();
     
-        let accuracy_penalty = if penalty > MAX_ACCURACY_PENALTY {
+        let accuracy_penalty: u32 = if penalty > MAX_ACCURACY_PENALTY.into(){
             MAX_ACCURACY_PENALTY
         } else {
-            penalty
+            penalty.try_into().unwrap()
         };
 
-        let base_accuracy = if base_hit_chance > accuracy_penalty {
-            base_hit_chance - accuracy_penalty
+        let base_accuracy: u32 = if base_hit_chance > accuracy_penalty.into() {
+            base_hit_chance - accuracy_penalty.into()
         } else {
             0
         };
 
-        (base_accuracy * impact_on_accuracy) / 100
+        ((base_accuracy * impact_on_accuracy.into()) / 100).into()
 
 
 

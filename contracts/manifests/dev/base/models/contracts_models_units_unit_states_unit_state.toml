@@ -1,0 +1,45 @@
+kind = "DojoModel"
+class_hash = "0x2232c996f542a880ddc0724efe34afd04ea691241988523d6765a303819bcbf"
+original_class_hash = "0x2232c996f542a880ddc0724efe34afd04ea691241988523d6765a303819bcbf"
+abi = "manifests/dev/abis/base/models/contracts_models_units_unit_states_unit_state.json"
+name = "contracts::models::units::unit_states::unit_state"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "unit_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "x"
+type = "u256"
+key = false
+
+[[members]]
+name = "y"
+type = "u256"
+key = false
+
+[[members]]
+name = "z"
+type = "u256"
+key = false
+
+[[members]]
+name = "mode"
+type = "UnitMode"
+key = false
+
+[[members]]
+name = "environment"
+type = "EnvironmentInfo"
+key = false

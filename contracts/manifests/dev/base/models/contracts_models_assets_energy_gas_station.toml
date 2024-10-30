@@ -1,0 +1,40 @@
+kind = "DojoModel"
+class_hash = "0x7469b684b8715771037d96abdaac217d33ad03f5c02b276ae87e541758435d6"
+original_class_hash = "0x7469b684b8715771037d96abdaac217d33ad03f5c02b276ae87e541758435d6"
+abi = "manifests/dev/abis/base/models/contracts_models_assets_energy_gas_station.json"
+name = "contracts::models::assets::energy::gas_station"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "station_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "station_name"
+type = "felt252"
+key = false
+
+[[members]]
+name = "fuel_available"
+type = "u32"
+key = false
+
+[[members]]
+name = "fuel_price"
+type = "u32"
+key = false
+
+[[members]]
+name = "status"
+type = "EnergyStatus"
+key = false

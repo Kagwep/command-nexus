@@ -72,6 +72,24 @@ impl NexusUnitImpl of NexusUnitTrait {
             NexusUnit::Naval(mut naval) => naval.set_position(pos),
         }
     }
+
+    fn heal(ref self: NexusUnit, amount: u32) {
+        match self {
+            NexusUnit::Infantry(mut infantry) => infantry.heal(amount),
+            NexusUnit::Armored(mut armored) => armored.use_repair_kit(),
+            NexusUnit::Air(mut air) => air.use_repair_kit(),
+            NexusUnit::Naval(mut naval) => naval.use_repair_kit(),
+        }
+    }
+
+    fn take_damage(ref self: NexusUnit, amount: u32) {
+        match self {
+            NexusUnit::Infantry(mut infantry) => infantry.take_damage(amount),
+            NexusUnit::Armored(mut armored) => armored.take_damage(amount),
+            NexusUnit::Air(mut air) => air.take_damage(amount),
+            NexusUnit::Naval(mut naval) => naval.take_damage(amount),
+        }
+    }
 }
 
 mod helper {
@@ -81,13 +99,14 @@ mod helper {
     use contracts::models::game::{Game, GameTrait, GameAssert};
     use contracts::models::player::{Player,UnitType, PlayerTrait, PlayerAssert};
     use contracts::models::units::unit_states::{UnitMode,UnitState};
-    use contracts::models::units::infantry::{Infantry};
-    use contracts::models::units::air::{AirUnit};
-    use contracts::models::units::cyber::{CyberUnit};
-    use contracts::models::units::naval::{Ship};
-    use contracts::models::units::armored::{Armored};
+    use contracts::models::units::infantry::{Infantry,InfantryTrait};
+    use contracts::models::units::air::{AirUnit,AirUnitTrait};
+    use contracts::models::units::cyber::{CyberUnit,CyberUnitTrait};
+    use contracts::models::units::naval::{Ship,ShipTrait};
+    use contracts::models::units::armored::{Armored,ArmoredTrait};
     use contracts::models::position::{Vec3,Position};
     use contracts::constants::{SCALE,OFFSET};
+    use contracts::models::battlefield::{WeatherCondition,UrbanBattlefield,UrbanBattlefieldTrait,BattlefieldName,BattlefieldNameTrait};
 
 
     
@@ -267,7 +286,67 @@ mod helper {
             (distance_squared + movement_unit_squared - 1) / movement_unit_squared
         }
 
-        fn compute_damage(world: IWorldDispatcher,attacker_id: u32, attacker: UnitType, target: UnitType,target_id: u32,player_id: u32) -> u32 {
+
+        fn calculate_defend_cost(unit: NexusUnit) -> u32{
+            match unit {
+                NexusUnit::Infantry(_infantry) => 2,  
+                NexusUnit::Armored(_armored) => 4,   
+                NexusUnit::Air(_air) => 3,           
+                NexusUnit::Naval(_naval) => 5,        
+            }
+        }
+
+
+        fn calculate_patrol_cost(unit: NexusUnit) -> u32{
+            match unit {
+                NexusUnit::Infantry(_infantry) => 1,  
+                NexusUnit::Armored(_armored) => 3,   
+                NexusUnit::Air(_air) => 2,           
+                NexusUnit::Naval(_naval) => 3,        
+            }
+        }
+
+
+        fn calculate_stealth_cost(unit: NexusUnit) -> u32{
+            match unit {
+                NexusUnit::Infantry(_infantry) => 1,  
+                NexusUnit::Armored(_armored) => 5,   
+                NexusUnit::Air(_air) => 3,           
+                NexusUnit::Naval(_naval) => 4,        
+            }
+        }
+
+
+        fn calculate_recon_cost(unit: NexusUnit) -> u32{
+            match unit {
+                NexusUnit::Infantry(_infantry) => 2,  
+                NexusUnit::Armored(_armored) => 3,   
+                NexusUnit::Air(_air) => 1,           
+                NexusUnit::Naval(_naval) => 2,        
+            }
+        }
+
+        fn calculate_heal_cost(unit: NexusUnit) -> u32{
+            match unit {
+                NexusUnit::Infantry(_infantry) => 2,  
+                NexusUnit::Armored(_armored) => 4,   
+                NexusUnit::Air(_air) => 5,           
+                NexusUnit::Naval(_naval) => 6,        
+            }
+        }
+
+        fn calculate_heal_value(unit: NexusUnit) -> u32 {
+            match unit {
+                NexusUnit::Infantry(_infantry) => 15,    // Basic infantry can heal moderately
+                NexusUnit::Armored(_armored) => 25,      // Armored units need more substantial repairs
+                NexusUnit::Air(_air) => 20,              // Aircraft repairs are significant
+                NexusUnit::Naval(_naval) => 30,          // Naval units need largest repairs
+            }
+        }
+
+        fn compute_damage(world: IWorldDispatcher,game_id:u32,attacker_id: u32, attacker: UnitType, target: UnitType,target_id: u32,player_id: u32,player_target_id: u32) -> u32 {
+
+
 
             match (attacker, target) {
 
@@ -276,11 +355,17 @@ mod helper {
 
                     let mut infantry_attacker = get!(world, (game_id, attacker_id, player_id),Infantry);
 
-                    assert(infantry_attacker.accessories > 0, 'Infantry: No ammo')
+                    let battle_field_name = infantry_attacker.battlefield_name;
 
-                    let mut infantry_target = get!(world, (game_id, target_id, player_id),Infantry);
+                    let battle_field = get!(world,(game_id,battle_field_name.to_battlefield_id()),UrbanBattlefield);
 
-                    let (distance_squared,range_squared) = Self::get_distance(infantry_attacker.range, infantry_target.position.coord, infantry_attacker.position.coord)
+                    let weather_condition = battle_field.weather.weather_condition;
+
+                    assert(infantry_attacker.accessories.ammunition > 0, 'Infantry: No ammo');
+
+                    let mut infantry_target = get!(world, (game_id, target_id, player_target_id),Infantry);
+
+                    let (distance_squared,range_squared) = Self::get_distance(infantry_attacker.range, infantry_target.position.coord, infantry_attacker.position.coord);
 
                     assert(distance_squared <= range_squared, 'Infantry: Out of range');
                     
@@ -288,7 +373,7 @@ mod helper {
 
                     let hit_probability = infantry_attacker.calculate_hit_probability(distance_coverage, weather_condition);
 
-                    let is_critical = hit_probability >= 90;
+                    let is_critical = hit_probability >= 90_u32;
 
                     let mut  damage = 0;
 
@@ -298,17 +383,107 @@ mod helper {
 
                    damage
 
+                },
+                (UnitType::Infantry, UnitType::Armored) => {
 
+                    let mut infantry_attacker = get!(world, (game_id, attacker_id, player_id),Infantry);
+
+                    let battle_field_name = infantry_attacker.battlefield_name;
+
+                    let battle_field = get!(world,(game_id,battle_field_name.to_battlefield_id()),UrbanBattlefield);
+
+                    let weather_condition = battle_field.weather.weather_condition;
+
+                    assert(infantry_attacker.accessories.ammunition > 0, 'Infantry: No ammo');
+
+                    let mut infantry_target = get!(world, (game_id, target_id, player_target_id),Infantry);
+
+                    let (distance_squared,range_squared) = Self::get_distance(infantry_attacker.range, infantry_target.position.coord, infantry_attacker.position.coord);
+
+                    assert(distance_squared <= range_squared, 'Infantry: Out of range');
+                    
+                    let distance_coverage = (distance_squared /range_squared) * 100;
+
+                    let hit_probability = infantry_attacker.calculate_hit_probability(distance_coverage, weather_condition);
+
+                    let is_critical = hit_probability >= 98;
+
+                    let mut  damage = 0;
+
+                    if is_critical {
+                        damage =  20;
+                    }
+
+                   damage 
 
                 },
-                (UnitType::Infantry, UnitType::Armored) => 0,
                 (UnitType::Infantry, UnitType::Air) => 0,
                 (UnitType::Infantry, UnitType::Naval) => 0,
                 (UnitType::Infantry, UnitType::Cyber) =>0,
                 
                 // Armored matchups
-                (UnitType::Armored, UnitType::Infantry) =>0,
-                (UnitType::Armored, UnitType::Armored) => 0,
+                (UnitType::Armored, UnitType::Infantry) =>{
+                    let mut armored_attacker = get!(world, (game_id, attacker_id, player_id),Armored);
+
+                    let battle_field_name = armored_attacker.battlefield_name;
+
+                    let battle_field = get!(world,(game_id,battle_field_name.to_battlefield_id()),UrbanBattlefield);
+
+                    let weather_condition = battle_field.weather.weather_condition;
+
+                    assert(armored_attacker.accessories.ammunition > 0, 'Armored: No ammo');
+
+                    let mut armored_target = get!(world, (game_id, target_id, player_target_id),Armored);
+
+                    let (distance_squared,range_squared) = Self::get_distance(armored_attacker.range, armored_target.position.coord, armored_attacker.position.coord);
+
+                    assert(distance_squared <= range_squared, 'Armored: Out of range');
+                    
+                    let distance_coverage = (distance_squared /range_squared) * 100;
+
+                    let hit_probability = armored_attacker.calculate_hit_probability(distance_coverage, weather_condition);
+
+                    let is_critical = hit_probability >= 20;
+
+                    let mut  damage = 0;
+
+                    if is_critical {
+                        damage =  20;
+                    }
+
+                   damage 
+                },
+                (UnitType::Armored, UnitType::Armored) => {
+                    let mut armored_attacker = get!(world, (game_id, attacker_id, player_id),Armored);
+
+                    let battle_field_name = armored_attacker.battlefield_name;
+
+                    let battle_field = get!(world,(game_id,battle_field_name.to_battlefield_id()),UrbanBattlefield);
+
+                    let weather_condition = battle_field.weather.weather_condition;
+
+                    assert(armored_attacker.accessories.ammunition > 0, 'Armored: No ammo');
+
+                    let mut armored_target = get!(world, (game_id, target_id, player_target_id),Armored);
+
+                    let (distance_squared,range_squared) = Self::get_distance(armored_attacker.range, armored_target.position.coord, armored_attacker.position.coord);
+
+                    assert(distance_squared <= range_squared, 'Armored: Out of range');
+                    
+                    let distance_coverage = (distance_squared /range_squared) * 100;
+
+                    let hit_probability = armored_attacker.calculate_hit_probability(distance_coverage, weather_condition);
+
+                    let is_critical = hit_probability >= 20;
+
+                    let mut  damage = 0;
+
+                    if is_critical {
+                        damage =  20;
+                    }
+
+                   damage
+                },
                 (UnitType::Armored, UnitType::Air) => 0,
                 (UnitType::Armored, UnitType::Naval) => 0,
                 (UnitType::Armored, UnitType::Cyber) => 0,

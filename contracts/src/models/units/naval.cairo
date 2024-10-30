@@ -29,6 +29,7 @@ struct ShipAccessories {
 
     gun_ammunition: u32,
     missile_ammunition: u32,
+    repair_kits: u8,
 
 }
 
@@ -59,6 +60,7 @@ impl ShipImpl of ShipTrait {
             ship_accessories: ShipAccessories {
                 gun_ammunition: 200,
                 missile_ammunition: 50,
+                repair_kits: 7,
             },
             ship_health: ShipHealth {
                 current: 100,
@@ -73,6 +75,21 @@ impl ShipImpl of ShipTrait {
     #[inline(always)]
     fn update_accessories(ref self: Ship, new_accessories: ShipAccessories) {
         self.ship_accessories = new_accessories;
+    }
+
+    #[inline(always)]
+    fn use_repair_kit(ref self: Ship) {
+        if self.ship_accessories.repair_kits > 0 {
+            self.ship_accessories.repair_kits -= 1;
+            
+            // Repair hull integrity
+            let new_hull = self.ship_health.current + 20;
+            if new_hull > self.ship_health.max {
+                self.ship_health.current = 100;
+            } else {
+                self.ship_health.current = new_hull;
+            }
+        }
     }
 
     #[inline(always)]

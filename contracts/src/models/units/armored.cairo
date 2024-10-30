@@ -1,8 +1,8 @@
 use starknet::ContractAddress;
 use contracts::models::position::{Position,Vec3};
-use contracts::models::battlefield::BattlefieldName;
+use contracts::models::battlefield::{BattlefieldName,WeatherCondition,WeatherConditionTrait};
 use contracts::models::units::unit_states::AbilityState;
-use contracts::constants::{SCALE,OFFSET};
+use contracts::constants::{SCALE,OFFSET,DISTANCE_ENERGY_MULTIPLIER,BASE_ENERGY_COST,MAX_ACCURACY_PENALTY};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
@@ -184,5 +184,41 @@ impl ArmoredImpl of ArmoredTrait {
     #[inline(always)]
     fn set_position(ref self: Armored, pos: Position){
         self.position = pos
+    }
+
+    #[inline(always)]
+    fn calculate_hit_probability(ref self: Armored, distance: u256, weather_condition: WeatherCondition) -> u32 {
+
+        let base_hit_chance: u256= self.accuracy.into();
+
+        let distance_factor = (distance * DISTANCE_ENERGY_MULTIPLIER.into()) / 100;
+        let energy_cost = (BASE_ENERGY_COST.into()-1) + (distance_factor * distance_factor);
+
+        if energy_cost > 100 {
+            self.energy = 0;
+        } else {
+            self.energy -= energy_cost.try_into().unwrap()
+        }
+
+        let penalty = (distance * distance) / 100;
+
+        let impact_on_accuracy = weather_condition.calculate_weather_impact();
+    
+        let accuracy_penalty = if penalty > MAX_ACCURACY_PENALTY.into() {
+            MAX_ACCURACY_PENALTY.into()
+        } else {
+            penalty
+        };
+
+        let base_accuracy = if base_hit_chance > accuracy_penalty {
+            base_hit_chance - accuracy_penalty
+        } else {
+            0
+        };
+
+        ((base_accuracy * impact_on_accuracy.into()) / 100).try_into().unwrap()
+
+
+
     }
 }

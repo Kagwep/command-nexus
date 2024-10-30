@@ -1,0 +1,40 @@
+kind = "DojoModel"
+class_hash = "0x4bc66c1a60f0b19a6795aebb07febc7035e4bf6d5316609df417f9accf915f8"
+original_class_hash = "0x4bc66c1a60f0b19a6795aebb07febc7035e4bf6d5316609df417f9accf915f8"
+abi = "manifests/dev/abis/base/models/contracts_models_assets_energy_gas_storage.json"
+name = "contracts::models::assets::energy::gas_storage"
+
+[[members]]
+name = "game_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "player_id"
+type = "u32"
+key = true
+
+[[members]]
+name = "storage_id"
+type = "u32"
+key = false
+
+[[members]]
+name = "storage_name"
+type = "felt252"
+key = false
+
+[[members]]
+name = "capacity"
+type = "u32"
+key = false
+
+[[members]]
+name = "current_storage"
+type = "u32"
+key = false
+
+[[members]]
+name = "status"
+type = "EnergyStatus"
+key = false

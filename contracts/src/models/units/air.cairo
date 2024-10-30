@@ -27,12 +27,13 @@ struct AirUnit {
 #[derive(Copy, Drop, Serde, Introspect)]
 struct AirUnitAccessories {
     missiles: u32,
+    repair_kits: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
 struct AirUnitHealth {
     current: u32,
-    max: u8,
+    max: u32,
 }
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
@@ -60,6 +61,7 @@ impl AirUnitIMpl of AirUnitTrait{
         energy:100,
         accessories: AirUnitAccessories {
             missiles: 16,
+            repair_kits: 5,
         },
         health: AirUnitHealth {
             current: 100,
@@ -79,6 +81,23 @@ impl AirUnitIMpl of AirUnitTrait{
   fn update_accessories(ref self: AirUnit, new_accessories: AirUnitAccessories) {
     self.accessories = new_accessories;
   }
+
+
+  #[inline(always)]
+  fn use_repair_kit(ref self: AirUnit) {
+      if self.accessories.repair_kits > 0 {
+          self.accessories.repair_kits -= 1;
+          
+          // Repair hull integrity
+          let new_health = self.health.current + 20;
+          if new_health > self.health.max {
+              self.health.current = 100;
+          } else {
+              self.health.current = new_health;
+          }
+      }
+  }
+
 
   #[inline(always)]
   fn fire_missile(ref self: AirUnit) {

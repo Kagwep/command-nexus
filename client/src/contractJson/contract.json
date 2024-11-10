@@ -1,7 +1,7 @@
 {
     "_format": "hh-sol-artifact-1",
     "contractName": "command-nexus",
-    "sourceName": "contracts/command-nexus.sol",
+    "sourceName": "command_nexus/command-nexus.sol",
     "abi": [
       {
         "inputs": [],

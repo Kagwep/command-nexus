@@ -1026,9 +1026,9 @@
   dependencies:
     "@ethersproject/bignumber" "^5.7.0"
 
-"@ethersproject/contracts@5.7.0":
+"@ethersproject/command_nexus@5.7.0":
   version "5.7.0"
-  resolved "https://registry.yarnpkg.com/@ethersproject/contracts/-/contracts-5.7.0.tgz#c305e775abd07e48aa590e1a877ed5c316f8bd1e"
+  resolved "https://registry.yarnpkg.com/@ethersproject/command_nexus/-/command_nexus-5.7.0.tgz#c305e775abd07e48aa590e1a877ed5c316f8bd1e"
   integrity sha512-5GJbzEU3X+d33CdfPhcyS+z8MzsTrBGk/sc+G+59+tPa9yFkl6HQ9D6L0QMgNTA9q8dT0XKxxkyp883XsQvbbg==
   dependencies:
     "@ethersproject/abi" "^5.7.0"
@@ -5023,7 +5023,7 @@ ethers@^5.7.2:
     "@ethersproject/bignumber" "5.7.0"
     "@ethersproject/bytes" "5.7.0"
     "@ethersproject/constants" "5.7.0"
-    "@ethersproject/contracts" "5.7.0"
+    "@ethersproject/command_nexus" "5.7.0"
     "@ethersproject/hash" "5.7.0"
     "@ethersproject/hdnode" "5.7.0"
     "@ethersproject/json-wallets" "5.7.0"

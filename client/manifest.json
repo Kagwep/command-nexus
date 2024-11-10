@@ -1002,7 +1002,7 @@
     "address": "0x6019ff874cb7cf5f8ac22d824f37dcece028bfc1e634fd0150e5bae5186e17e",
     "transaction_hash": "0x7071c79b293ef70e515b5c4e011448d7c349858df1607447b73fb8540fe0f3e",
     "block_number": 3,
-    "seed": "contracts",
+    "seed": "command_nexus",
     "metadata": {
       "profile_name": "dev",
       "rpc_url": "http://localhost:5050/"
@@ -1016,7 +1016,7 @@
     "abi": null,
     "name": "dojo::base::base"
   },
-  "contracts": [
+  "command_nexus": [
     {
       "kind": "DojoContract",
       "address": "0x6799df4857c44d232fefd3baa777acfb715844d5ea7ff2e97ed2bde5ae25ccc",
@@ -1081,7 +1081,7 @@
         {
           "type": "impl",
           "name": "ArenaImpl",
-          "interface_name": "contracts::systems::arena::IArena"
+          "interface_name": "command_nexus::systems::arena::IArena"
         },
         {
           "type": "struct",
@@ -1099,7 +1099,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::systems::arena::IArena",
+          "name": "command_nexus::systems::arena::IArena",
           "items": [
             {
               "type": "function",
@@ -1202,11 +1202,11 @@
         {
           "type": "impl",
           "name": "IDojoInitImpl",
-          "interface_name": "contracts::systems::arena::arena::IDojoInit"
+          "interface_name": "command_nexus::systems::arena::arena::IDojoInit"
         },
         {
           "type": "interface",
-          "name": "contracts::systems::arena::arena::IDojoInit",
+          "name": "command_nexus::systems::arena::arena::IDojoInit",
           "items": [
             {
               "type": "function",
@@ -1266,7 +1266,7 @@
         },
         {
           "type": "event",
-          "name": "contracts::systems::arena::arena::Event",
+          "name": "command_nexus::systems::arena::arena::Event",
           "kind": "enum",
           "variants": [
             {
@@ -1281,7 +1281,7 @@
       "writes": [],
       "computed": [],
       "init_calldata": [],
-      "name": "contracts::systems::arena::arena"
+      "name": "command_nexus::systems::arena::arena"
     },
     {
       "kind": "DojoContract",
@@ -1347,11 +1347,11 @@
         {
           "type": "impl",
           "name": "NexusImpl",
-          "interface_name": "contracts::systems::nexus::INexus"
+          "interface_name": "command_nexus::systems::nexus::INexus"
         },
         {
           "type": "interface",
-          "name": "contracts::systems::nexus::INexus",
+          "name": "command_nexus::systems::nexus::INexus",
           "items": [
             {
               "type": "function",
@@ -1642,11 +1642,11 @@
         {
           "type": "impl",
           "name": "IDojoInitImpl",
-          "interface_name": "contracts::systems::nexus::nexus::IDojoInit"
+          "interface_name": "command_nexus::systems::nexus::nexus::IDojoInit"
         },
         {
           "type": "interface",
-          "name": "contracts::systems::nexus::nexus::IDojoInit",
+          "name": "command_nexus::systems::nexus::nexus::IDojoInit",
           "items": [
             {
               "type": "function",
@@ -1706,7 +1706,7 @@
         },
         {
           "type": "event",
-          "name": "contracts::systems::nexus::nexus::Event",
+          "name": "command_nexus::systems::nexus::nexus::Event",
           "kind": "enum",
           "variants": [
             {
@@ -1721,7 +1721,7 @@
       "writes": [],
       "computed": [],
       "init_calldata": [],
-      "name": "contracts::systems::nexus::nexus"
+      "name": "command_nexus::systems::nexus::nexus"
     }
   ],
   "models": [
@@ -2083,11 +2083,11 @@
         {
           "type": "impl",
           "name": "cableImpl",
-          "interface_name": "contracts::models::assets::communication::Icable"
+          "interface_name": "command_nexus::models::assets::communication::Icable"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::Cable",
+          "name": "command_nexus::models::assets::communication::Cable",
           "members": [
             {
               "name": "game_id",
@@ -2117,7 +2117,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::communication::Icable",
+          "name": "command_nexus::models::assets::communication::Icable",
           "items": [
             {
               "type": "function",
@@ -2125,7 +2125,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::communication::Cable"
+                  "type": "command_nexus::models::assets::communication::Cable"
                 }
               ],
               "outputs": [],
@@ -2135,12 +2135,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::communication::cable::Event",
+          "name": "command_nexus::models::assets::communication::cable::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::communication::cable"
+      "name": "command_nexus::models::assets::communication::cable"
     },
     {
       "kind": "DojoModel",
@@ -2505,11 +2505,11 @@
         {
           "type": "impl",
           "name": "communicationImpl",
-          "interface_name": "contracts::models::assets::communication::Icommunication"
+          "interface_name": "command_nexus::models::assets::communication::Icommunication"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::Cable",
+          "name": "command_nexus::models::assets::communication::Cable",
           "members": [
             {
               "name": "game_id",
@@ -2539,7 +2539,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::CommunicationTower",
+          "name": "command_nexus::models::assets::communication::CommunicationTower",
           "members": [
             {
               "name": "game_id",
@@ -2569,7 +2569,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::SatelliteDish",
+          "name": "command_nexus::models::assets::communication::SatelliteDish",
           "members": [
             {
               "name": "game_id",
@@ -2599,7 +2599,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::RelayStation",
+          "name": "command_nexus::models::assets::communication::RelayStation",
           "members": [
             {
               "name": "game_id",
@@ -2629,7 +2629,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::ControlCenter",
+          "name": "command_nexus::models::assets::communication::ControlCenter",
           "members": [
             {
               "name": "game_id",
@@ -2659,7 +2659,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::Communication",
+          "name": "command_nexus::models::assets::communication::Communication",
           "members": [
             {
               "name": "game_id",
@@ -2671,29 +2671,29 @@
             },
             {
               "name": "cable",
-              "type": "contracts::models::assets::communication::Cable"
+              "type": "command_nexus::models::assets::communication::Cable"
             },
             {
               "name": "communication_tower",
-              "type": "contracts::models::assets::communication::CommunicationTower"
+              "type": "command_nexus::models::assets::communication::CommunicationTower"
             },
             {
               "name": "satellite_dish",
-              "type": "contracts::models::assets::communication::SatelliteDish"
+              "type": "command_nexus::models::assets::communication::SatelliteDish"
             },
             {
               "name": "relay_station",
-              "type": "contracts::models::assets::communication::RelayStation"
+              "type": "command_nexus::models::assets::communication::RelayStation"
             },
             {
               "name": "control_center",
-              "type": "contracts::models::assets::communication::ControlCenter"
+              "type": "command_nexus::models::assets::communication::ControlCenter"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::communication::Icommunication",
+          "name": "command_nexus::models::assets::communication::Icommunication",
           "items": [
             {
               "type": "function",
@@ -2701,7 +2701,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::communication::Communication"
+                  "type": "command_nexus::models::assets::communication::Communication"
                 }
               ],
               "outputs": [],
@@ -2711,12 +2711,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::communication::communication::Event",
+          "name": "command_nexus::models::assets::communication::communication::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::communication::communication"
+      "name": "command_nexus::models::assets::communication::communication"
     },
     {
       "kind": "DojoModel",
@@ -3076,11 +3076,11 @@
         {
           "type": "impl",
           "name": "communication_towerImpl",
-          "interface_name": "contracts::models::assets::communication::Icommunication_tower"
+          "interface_name": "command_nexus::models::assets::communication::Icommunication_tower"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::CommunicationTower",
+          "name": "command_nexus::models::assets::communication::CommunicationTower",
           "members": [
             {
               "name": "game_id",
@@ -3110,7 +3110,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::communication::Icommunication_tower",
+          "name": "command_nexus::models::assets::communication::Icommunication_tower",
           "items": [
             {
               "type": "function",
@@ -3118,7 +3118,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::communication::CommunicationTower"
+                  "type": "command_nexus::models::assets::communication::CommunicationTower"
                 }
               ],
               "outputs": [],
@@ -3128,12 +3128,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::communication::communication_tower::Event",
+          "name": "command_nexus::models::assets::communication::communication_tower::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::communication::communication_tower"
+      "name": "command_nexus::models::assets::communication::communication_tower"
     },
     {
       "kind": "DojoModel",
@@ -3493,11 +3493,11 @@
         {
           "type": "impl",
           "name": "control_centerImpl",
-          "interface_name": "contracts::models::assets::communication::Icontrol_center"
+          "interface_name": "command_nexus::models::assets::communication::Icontrol_center"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::ControlCenter",
+          "name": "command_nexus::models::assets::communication::ControlCenter",
           "members": [
             {
               "name": "game_id",
@@ -3527,7 +3527,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::communication::Icontrol_center",
+          "name": "command_nexus::models::assets::communication::Icontrol_center",
           "items": [
             {
               "type": "function",
@@ -3535,7 +3535,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::communication::ControlCenter"
+                  "type": "command_nexus::models::assets::communication::ControlCenter"
                 }
               ],
               "outputs": [],
@@ -3545,12 +3545,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::communication::control_center::Event",
+          "name": "command_nexus::models::assets::communication::control_center::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::communication::control_center"
+      "name": "command_nexus::models::assets::communication::control_center"
     },
     {
       "kind": "DojoModel",
@@ -3910,11 +3910,11 @@
         {
           "type": "impl",
           "name": "relay_stationImpl",
-          "interface_name": "contracts::models::assets::communication::Irelay_station"
+          "interface_name": "command_nexus::models::assets::communication::Irelay_station"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::RelayStation",
+          "name": "command_nexus::models::assets::communication::RelayStation",
           "members": [
             {
               "name": "game_id",
@@ -3944,7 +3944,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::communication::Irelay_station",
+          "name": "command_nexus::models::assets::communication::Irelay_station",
           "items": [
             {
               "type": "function",
@@ -3952,7 +3952,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::communication::RelayStation"
+                  "type": "command_nexus::models::assets::communication::RelayStation"
                 }
               ],
               "outputs": [],
@@ -3962,12 +3962,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::communication::relay_station::Event",
+          "name": "command_nexus::models::assets::communication::relay_station::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::communication::relay_station"
+      "name": "command_nexus::models::assets::communication::relay_station"
     },
     {
       "kind": "DojoModel",
@@ -4327,11 +4327,11 @@
         {
           "type": "impl",
           "name": "satellite_dishImpl",
-          "interface_name": "contracts::models::assets::communication::Isatellite_dish"
+          "interface_name": "command_nexus::models::assets::communication::Isatellite_dish"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::communication::SatelliteDish",
+          "name": "command_nexus::models::assets::communication::SatelliteDish",
           "members": [
             {
               "name": "game_id",
@@ -4361,7 +4361,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::communication::Isatellite_dish",
+          "name": "command_nexus::models::assets::communication::Isatellite_dish",
           "items": [
             {
               "type": "function",
@@ -4369,7 +4369,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::communication::SatelliteDish"
+                  "type": "command_nexus::models::assets::communication::SatelliteDish"
                 }
               ],
               "outputs": [],
@@ -4379,12 +4379,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::communication::satellite_dish::Event",
+          "name": "command_nexus::models::assets::communication::satellite_dish::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::communication::satellite_dish"
+      "name": "command_nexus::models::assets::communication::satellite_dish"
     },
     {
       "kind": "DojoModel",
@@ -4734,11 +4734,11 @@
         {
           "type": "impl",
           "name": "airportImpl",
-          "interface_name": "contracts::models::assets::transportation::Iairport"
+          "interface_name": "command_nexus::models::assets::transportation::Iairport"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Airport",
+          "name": "command_nexus::models::assets::transportation::Airport",
           "members": [
             {
               "name": "game_id",
@@ -4760,7 +4760,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::transportation::Iairport",
+          "name": "command_nexus::models::assets::transportation::Iairport",
           "items": [
             {
               "type": "function",
@@ -4768,7 +4768,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::transportation::Airport"
+                  "type": "command_nexus::models::assets::transportation::Airport"
                 }
               ],
               "outputs": [],
@@ -4778,12 +4778,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::transportation::airport::Event",
+          "name": "command_nexus::models::assets::transportation::airport::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::transportation::airport"
+      "name": "command_nexus::models::assets::transportation::airport"
     },
     {
       "kind": "DojoModel",
@@ -5133,11 +5133,11 @@
         {
           "type": "impl",
           "name": "depotImpl",
-          "interface_name": "contracts::models::assets::transportation::Idepot"
+          "interface_name": "command_nexus::models::assets::transportation::Idepot"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Depot",
+          "name": "command_nexus::models::assets::transportation::Depot",
           "members": [
             {
               "name": "game_id",
@@ -5159,7 +5159,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::transportation::Idepot",
+          "name": "command_nexus::models::assets::transportation::Idepot",
           "items": [
             {
               "type": "function",
@@ -5167,7 +5167,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::transportation::Depot"
+                  "type": "command_nexus::models::assets::transportation::Depot"
                 }
               ],
               "outputs": [],
@@ -5177,12 +5177,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::transportation::depot::Event",
+          "name": "command_nexus::models::assets::transportation::depot::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::transportation::depot"
+      "name": "command_nexus::models::assets::transportation::depot"
     },
     {
       "kind": "DojoModel",
@@ -5532,11 +5532,11 @@
         {
           "type": "impl",
           "name": "railway_stationImpl",
-          "interface_name": "contracts::models::assets::transportation::Irailway_station"
+          "interface_name": "command_nexus::models::assets::transportation::Irailway_station"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::RailwayStation",
+          "name": "command_nexus::models::assets::transportation::RailwayStation",
           "members": [
             {
               "name": "game_id",
@@ -5558,7 +5558,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::transportation::Irailway_station",
+          "name": "command_nexus::models::assets::transportation::Irailway_station",
           "items": [
             {
               "type": "function",
@@ -5566,7 +5566,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::transportation::RailwayStation"
+                  "type": "command_nexus::models::assets::transportation::RailwayStation"
                 }
               ],
               "outputs": [],
@@ -5576,12 +5576,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::transportation::railway_station::Event",
+          "name": "command_nexus::models::assets::transportation::railway_station::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::transportation::railway_station"
+      "name": "command_nexus::models::assets::transportation::railway_station"
     },
     {
       "kind": "DojoModel",
@@ -5931,11 +5931,11 @@
         {
           "type": "impl",
           "name": "seaportImpl",
-          "interface_name": "contracts::models::assets::transportation::Iseaport"
+          "interface_name": "command_nexus::models::assets::transportation::Iseaport"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Seaport",
+          "name": "command_nexus::models::assets::transportation::Seaport",
           "members": [
             {
               "name": "game_id",
@@ -5957,7 +5957,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::transportation::Iseaport",
+          "name": "command_nexus::models::assets::transportation::Iseaport",
           "items": [
             {
               "type": "function",
@@ -5965,7 +5965,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::transportation::Seaport"
+                  "type": "command_nexus::models::assets::transportation::Seaport"
                 }
               ],
               "outputs": [],
@@ -5975,12 +5975,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::transportation::seaport::Event",
+          "name": "command_nexus::models::assets::transportation::seaport::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::transportation::seaport"
+      "name": "command_nexus::models::assets::transportation::seaport"
     },
     {
       "kind": "DojoModel",
@@ -6340,11 +6340,11 @@
         {
           "type": "impl",
           "name": "transportationImpl",
-          "interface_name": "contracts::models::assets::transportation::Itransportation"
+          "interface_name": "command_nexus::models::assets::transportation::Itransportation"
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Airport",
+          "name": "command_nexus::models::assets::transportation::Airport",
           "members": [
             {
               "name": "game_id",
@@ -6366,7 +6366,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Seaport",
+          "name": "command_nexus::models::assets::transportation::Seaport",
           "members": [
             {
               "name": "game_id",
@@ -6388,7 +6388,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::RailwayStation",
+          "name": "command_nexus::models::assets::transportation::RailwayStation",
           "members": [
             {
               "name": "game_id",
@@ -6410,7 +6410,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Depot",
+          "name": "command_nexus::models::assets::transportation::Depot",
           "members": [
             {
               "name": "game_id",
@@ -6432,7 +6432,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::assets::transportation::Transportation",
+          "name": "command_nexus::models::assets::transportation::Transportation",
           "members": [
             {
               "name": "game_id",
@@ -6444,25 +6444,25 @@
             },
             {
               "name": "airport",
-              "type": "contracts::models::assets::transportation::Airport"
+              "type": "command_nexus::models::assets::transportation::Airport"
             },
             {
               "name": "seaport",
-              "type": "contracts::models::assets::transportation::Seaport"
+              "type": "command_nexus::models::assets::transportation::Seaport"
             },
             {
               "name": "railway_station",
-              "type": "contracts::models::assets::transportation::RailwayStation"
+              "type": "command_nexus::models::assets::transportation::RailwayStation"
             },
             {
               "name": "depot",
-              "type": "contracts::models::assets::transportation::Depot"
+              "type": "command_nexus::models::assets::transportation::Depot"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::assets::transportation::Itransportation",
+          "name": "command_nexus::models::assets::transportation::Itransportation",
           "items": [
             {
               "type": "function",
@@ -6470,7 +6470,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::assets::transportation::Transportation"
+                  "type": "command_nexus::models::assets::transportation::Transportation"
                 }
               ],
               "outputs": [],
@@ -6480,12 +6480,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::assets::transportation::transportation::Event",
+          "name": "command_nexus::models::assets::transportation::transportation::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::assets::transportation::transportation"
+      "name": "command_nexus::models::assets::transportation::transportation"
     },
     {
       "kind": "DojoModel",
@@ -6840,11 +6840,11 @@
         {
           "type": "impl",
           "name": "scoreboardImpl",
-          "interface_name": "contracts::models::battlefield::Iscoreboard"
+          "interface_name": "command_nexus::models::battlefield::Iscoreboard"
         },
         {
           "type": "struct",
-          "name": "contracts::models::battlefield::Scoreboard",
+          "name": "command_nexus::models::battlefield::Scoreboard",
           "members": [
             {
               "name": "game_id",
@@ -6870,7 +6870,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::battlefield::Iscoreboard",
+          "name": "command_nexus::models::battlefield::Iscoreboard",
           "items": [
             {
               "type": "function",
@@ -6878,7 +6878,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::battlefield::Scoreboard"
+                  "type": "command_nexus::models::battlefield::Scoreboard"
                 }
               ],
               "outputs": [],
@@ -6888,12 +6888,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::battlefield::scoreboard::Event",
+          "name": "command_nexus::models::battlefield::scoreboard::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::battlefield::scoreboard"
+      "name": "command_nexus::models::battlefield::scoreboard"
     },
     {
       "kind": "DojoModel",
@@ -7253,11 +7253,11 @@
         {
           "type": "impl",
           "name": "urban_battlefieldImpl",
-          "interface_name": "contracts::models::battlefield::Iurban_battlefield"
+          "interface_name": "command_nexus::models::battlefield::Iurban_battlefield"
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::WeatherCondition",
+          "name": "command_nexus::models::battlefield::WeatherCondition",
           "variants": [
             {
               "name": "None",
@@ -7283,7 +7283,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::battlefield::WeatherEffect",
+          "name": "command_nexus::models::battlefield::WeatherEffect",
           "members": [
             {
               "name": "game_id",
@@ -7291,7 +7291,7 @@
             },
             {
               "name": "weather_condition",
-              "type": "contracts::models::battlefield::WeatherCondition"
+              "type": "command_nexus::models::battlefield::WeatherCondition"
             },
             {
               "name": "visibility",
@@ -7309,7 +7309,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::battlefield::UrbanBattlefield",
+          "name": "command_nexus::models::battlefield::UrbanBattlefield",
           "members": [
             {
               "name": "game_id",
@@ -7329,7 +7329,7 @@
             },
             {
               "name": "weather",
-              "type": "contracts::models::battlefield::WeatherEffect"
+              "type": "command_nexus::models::battlefield::WeatherEffect"
             },
             {
               "name": "control",
@@ -7339,7 +7339,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::battlefield::Iurban_battlefield",
+          "name": "command_nexus::models::battlefield::Iurban_battlefield",
           "items": [
             {
               "type": "function",
@@ -7347,7 +7347,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::battlefield::UrbanBattlefield"
+                  "type": "command_nexus::models::battlefield::UrbanBattlefield"
                 }
               ],
               "outputs": [],
@@ -7357,12 +7357,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::battlefield::urban_battlefield::Event",
+          "name": "command_nexus::models::battlefield::urban_battlefield::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::battlefield::urban_battlefield"
+      "name": "command_nexus::models::battlefield::urban_battlefield"
     },
     {
       "kind": "DojoModel",
@@ -7717,11 +7717,11 @@
         {
           "type": "impl",
           "name": "weather_effectImpl",
-          "interface_name": "contracts::models::battlefield::Iweather_effect"
+          "interface_name": "command_nexus::models::battlefield::Iweather_effect"
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::WeatherCondition",
+          "name": "command_nexus::models::battlefield::WeatherCondition",
           "variants": [
             {
               "name": "None",
@@ -7747,7 +7747,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::battlefield::WeatherEffect",
+          "name": "command_nexus::models::battlefield::WeatherEffect",
           "members": [
             {
               "name": "game_id",
@@ -7755,7 +7755,7 @@
             },
             {
               "name": "weather_condition",
-              "type": "contracts::models::battlefield::WeatherCondition"
+              "type": "command_nexus::models::battlefield::WeatherCondition"
             },
             {
               "name": "visibility",
@@ -7773,7 +7773,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::battlefield::Iweather_effect",
+          "name": "command_nexus::models::battlefield::Iweather_effect",
           "items": [
             {
               "type": "function",
@@ -7781,7 +7781,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::battlefield::WeatherEffect"
+                  "type": "command_nexus::models::battlefield::WeatherEffect"
                 }
               ],
               "outputs": [],
@@ -7791,12 +7791,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::battlefield::weather_effect::Event",
+          "name": "command_nexus::models::battlefield::weather_effect::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::battlefield::weather_effect"
+      "name": "command_nexus::models::battlefield::weather_effect"
     },
     {
       "kind": "DojoModel",
@@ -8206,7 +8206,7 @@
         {
           "type": "impl",
           "name": "gameImpl",
-          "interface_name": "contracts::models::game::Igame"
+          "interface_name": "command_nexus::models::game::Igame"
         },
         {
           "type": "enum",
@@ -8238,7 +8238,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::game::HomeBasesTuple",
+          "name": "command_nexus::models::game::HomeBasesTuple",
           "members": [
             {
               "name": "base1",
@@ -8264,7 +8264,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::game::Game",
+          "name": "command_nexus::models::game::Game",
           "members": [
             {
               "name": "game_id",
@@ -8324,7 +8324,7 @@
             },
             {
               "name": "available_home_bases",
-              "type": "contracts::models::game::HomeBasesTuple"
+              "type": "command_nexus::models::game::HomeBasesTuple"
             },
             {
               "name": "player_name",
@@ -8334,7 +8334,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::game::Igame",
+          "name": "command_nexus::models::game::Igame",
           "items": [
             {
               "type": "function",
@@ -8342,7 +8342,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::game::Game"
+                  "type": "command_nexus::models::game::Game"
                 }
               ],
               "outputs": [],
@@ -8352,12 +8352,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::game::game::Event",
+          "name": "command_nexus::models::game::game::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::game::game"
+      "name": "command_nexus::models::game::game"
     },
     {
       "kind": "DojoModel",
@@ -8732,11 +8732,11 @@
         {
           "type": "impl",
           "name": "playerImpl",
-          "interface_name": "contracts::models::player::Iplayer"
+          "interface_name": "command_nexus::models::player::Iplayer"
         },
         {
           "type": "struct",
-          "name": "contracts::models::player::UnitsSupply",
+          "name": "command_nexus::models::player::UnitsSupply",
           "members": [
             {
               "name": "infantry",
@@ -8762,7 +8762,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::player::PlayerScore",
+          "name": "command_nexus::models::player::PlayerScore",
           "members": [
             {
               "name": "score",
@@ -8784,7 +8784,7 @@
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::BattlefieldName",
+          "name": "command_nexus::models::battlefield::BattlefieldName",
           "variants": [
             {
               "name": "None",
@@ -8814,7 +8814,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::player::Player",
+          "name": "command_nexus::models::player::Player",
           "members": [
             {
               "name": "game_id",
@@ -8834,7 +8834,7 @@
             },
             {
               "name": "supply",
-              "type": "contracts::models::player::UnitsSupply"
+              "type": "command_nexus::models::player::UnitsSupply"
             },
             {
               "name": "last_action",
@@ -8846,17 +8846,17 @@
             },
             {
               "name": "player_score",
-              "type": "contracts::models::player::PlayerScore"
+              "type": "command_nexus::models::player::PlayerScore"
             },
             {
               "name": "home_base",
-              "type": "contracts::models::battlefield::BattlefieldName"
+              "type": "command_nexus::models::battlefield::BattlefieldName"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::player::Iplayer",
+          "name": "command_nexus::models::player::Iplayer",
           "items": [
             {
               "type": "function",
@@ -8864,7 +8864,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::player::Player"
+                  "type": "command_nexus::models::player::Player"
                 }
               ],
               "outputs": [],
@@ -8874,12 +8874,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::player::player::Event",
+          "name": "command_nexus::models::player::player::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::player::player"
+      "name": "command_nexus::models::player::player"
     },
     {
       "kind": "DojoModel",
@@ -9269,11 +9269,11 @@
         {
           "type": "impl",
           "name": "air_unitImpl",
-          "interface_name": "contracts::models::units::air::Iair_unit"
+          "interface_name": "command_nexus::models::units::air::Iair_unit"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::air::AirUnitAccessories",
+          "name": "command_nexus::models::units::air::AirUnitAccessories",
           "members": [
             {
               "name": "missiles",
@@ -9295,7 +9295,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::air::AirUnitHealth",
+          "name": "command_nexus::models::units::air::AirUnitHealth",
           "members": [
             {
               "name": "hull_integrity",
@@ -9309,7 +9309,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Vec3",
+          "name": "command_nexus::models::position::Vec3",
           "members": [
             {
               "name": "x",
@@ -9327,17 +9327,17 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Position",
+          "name": "command_nexus::models::position::Position",
           "members": [
             {
               "name": "coord",
-              "type": "contracts::models::position::Vec3"
+              "type": "command_nexus::models::position::Vec3"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::BattlefieldName",
+          "name": "command_nexus::models::battlefield::BattlefieldName",
           "variants": [
             {
               "name": "None",
@@ -9367,7 +9367,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::air::AirUnit",
+          "name": "command_nexus::models::units::air::AirUnit",
           "members": [
             {
               "name": "game_id",
@@ -9395,19 +9395,19 @@
             },
             {
               "name": "accessories",
-              "type": "contracts::models::units::air::AirUnitAccessories"
+              "type": "command_nexus::models::units::air::AirUnitAccessories"
             },
             {
               "name": "health",
-              "type": "contracts::models::units::air::AirUnitHealth"
+              "type": "command_nexus::models::units::air::AirUnitHealth"
             },
             {
               "name": "position",
-              "type": "contracts::models::position::Position"
+              "type": "command_nexus::models::position::Position"
             },
             {
               "name": "battlefield_name",
-              "type": "contracts::models::battlefield::BattlefieldName"
+              "type": "command_nexus::models::battlefield::BattlefieldName"
             },
             {
               "name": "altitude",
@@ -9421,7 +9421,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::air::Iair_unit",
+          "name": "command_nexus::models::units::air::Iair_unit",
           "items": [
             {
               "type": "function",
@@ -9429,7 +9429,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::air::AirUnit"
+                  "type": "command_nexus::models::units::air::AirUnit"
                 }
               ],
               "outputs": [],
@@ -9439,12 +9439,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::air::air_unit::Event",
+          "name": "command_nexus::models::units::air::air_unit::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::air::air_unit"
+      "name": "command_nexus::models::units::air::air_unit"
     },
     {
       "kind": "DojoModel",
@@ -9824,11 +9824,11 @@
         {
           "type": "impl",
           "name": "armoredImpl",
-          "interface_name": "contracts::models::units::armored::Iarmored"
+          "interface_name": "command_nexus::models::units::armored::Iarmored"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::armored::ArmoredAccessories",
+          "name": "command_nexus::models::units::armored::ArmoredAccessories",
           "members": [
             {
               "name": "fuel",
@@ -9858,7 +9858,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::armored::ArmoredHealth",
+          "name": "command_nexus::models::units::armored::ArmoredHealth",
           "members": [
             {
               "name": "hull_integrity",
@@ -9876,7 +9876,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Vec3",
+          "name": "command_nexus::models::position::Vec3",
           "members": [
             {
               "name": "x",
@@ -9894,17 +9894,17 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Position",
+          "name": "command_nexus::models::position::Position",
           "members": [
             {
               "name": "coord",
-              "type": "contracts::models::position::Vec3"
+              "type": "command_nexus::models::position::Vec3"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::BattlefieldName",
+          "name": "command_nexus::models::battlefield::BattlefieldName",
           "variants": [
             {
               "name": "None",
@@ -9934,7 +9934,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::armored::Armored",
+          "name": "command_nexus::models::units::armored::Armored",
           "members": [
             {
               "name": "game_id",
@@ -9962,25 +9962,25 @@
             },
             {
               "name": "accessories",
-              "type": "contracts::models::units::armored::ArmoredAccessories"
+              "type": "command_nexus::models::units::armored::ArmoredAccessories"
             },
             {
               "name": "armored_health",
-              "type": "contracts::models::units::armored::ArmoredHealth"
+              "type": "command_nexus::models::units::armored::ArmoredHealth"
             },
             {
               "name": "position",
-              "type": "contracts::models::position::Position"
+              "type": "command_nexus::models::position::Position"
             },
             {
               "name": "battlefield_name",
-              "type": "contracts::models::battlefield::BattlefieldName"
+              "type": "command_nexus::models::battlefield::BattlefieldName"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::armored::Iarmored",
+          "name": "command_nexus::models::units::armored::Iarmored",
           "items": [
             {
               "type": "function",
@@ -9988,7 +9988,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::armored::Armored"
+                  "type": "command_nexus::models::units::armored::Armored"
                 }
               ],
               "outputs": [],
@@ -9998,12 +9998,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::armored::armored::Event",
+          "name": "command_nexus::models::units::armored::armored::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::armored::armored"
+      "name": "command_nexus::models::units::armored::armored"
     },
     {
       "kind": "DojoModel",
@@ -10393,11 +10393,11 @@
         {
           "type": "impl",
           "name": "cyber_unitImpl",
-          "interface_name": "contracts::models::units::cyber::Icyber_unit"
+          "interface_name": "command_nexus::models::units::cyber::Icyber_unit"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::cyber::CyberUnitAccessories",
+          "name": "command_nexus::models::units::cyber::CyberUnitAccessories",
           "members": [
             {
               "name": "malware",
@@ -10423,7 +10423,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::cyber::CyberUnitHealth",
+          "name": "command_nexus::models::units::cyber::CyberUnitHealth",
           "members": [
             {
               "name": "system_integrity",
@@ -10437,7 +10437,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Vec3",
+          "name": "command_nexus::models::position::Vec3",
           "members": [
             {
               "name": "x",
@@ -10455,17 +10455,17 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Position",
+          "name": "command_nexus::models::position::Position",
           "members": [
             {
               "name": "coord",
-              "type": "contracts::models::position::Vec3"
+              "type": "command_nexus::models::position::Vec3"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::BattlefieldName",
+          "name": "command_nexus::models::battlefield::BattlefieldName",
           "variants": [
             {
               "name": "None",
@@ -10495,7 +10495,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::cyber::CyberUnit",
+          "name": "command_nexus::models::units::cyber::CyberUnit",
           "members": [
             {
               "name": "game_id",
@@ -10523,19 +10523,19 @@
             },
             {
               "name": "accessories",
-              "type": "contracts::models::units::cyber::CyberUnitAccessories"
+              "type": "command_nexus::models::units::cyber::CyberUnitAccessories"
             },
             {
               "name": "health",
-              "type": "contracts::models::units::cyber::CyberUnitHealth"
+              "type": "command_nexus::models::units::cyber::CyberUnitHealth"
             },
             {
               "name": "position",
-              "type": "contracts::models::position::Position"
+              "type": "command_nexus::models::position::Position"
             },
             {
               "name": "battlefield_name",
-              "type": "contracts::models::battlefield::BattlefieldName"
+              "type": "command_nexus::models::battlefield::BattlefieldName"
             },
             {
               "name": "bandwidth",
@@ -10549,7 +10549,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::cyber::Icyber_unit",
+          "name": "command_nexus::models::units::cyber::Icyber_unit",
           "items": [
             {
               "type": "function",
@@ -10557,7 +10557,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::cyber::CyberUnit"
+                  "type": "command_nexus::models::units::cyber::CyberUnit"
                 }
               ],
               "outputs": [],
@@ -10567,12 +10567,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::cyber::cyber_unit::Event",
+          "name": "command_nexus::models::units::cyber::cyber_unit::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::cyber::cyber_unit"
+      "name": "command_nexus::models::units::cyber::cyber_unit"
     },
     {
       "kind": "DojoModel",
@@ -10952,11 +10952,11 @@
         {
           "type": "impl",
           "name": "infantryImpl",
-          "interface_name": "contracts::models::units::infantry::Iinfantry"
+          "interface_name": "command_nexus::models::units::infantry::Iinfantry"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::infantry::InfantryAccessories",
+          "name": "command_nexus::models::units::infantry::InfantryAccessories",
           "members": [
             {
               "name": "ammunition",
@@ -10978,7 +10978,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::infantry::InfantryHealth",
+          "name": "command_nexus::models::units::infantry::InfantryHealth",
           "members": [
             {
               "name": "current",
@@ -10992,7 +10992,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Vec3",
+          "name": "command_nexus::models::position::Vec3",
           "members": [
             {
               "name": "x",
@@ -11010,17 +11010,17 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Position",
+          "name": "command_nexus::models::position::Position",
           "members": [
             {
               "name": "coord",
-              "type": "contracts::models::position::Vec3"
+              "type": "command_nexus::models::position::Vec3"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::BattlefieldName",
+          "name": "command_nexus::models::battlefield::BattlefieldName",
           "variants": [
             {
               "name": "None",
@@ -11050,7 +11050,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::infantry::Infantry",
+          "name": "command_nexus::models::units::infantry::Infantry",
           "members": [
             {
               "name": "game_id",
@@ -11078,25 +11078,25 @@
             },
             {
               "name": "accessories",
-              "type": "contracts::models::units::infantry::InfantryAccessories"
+              "type": "command_nexus::models::units::infantry::InfantryAccessories"
             },
             {
               "name": "health",
-              "type": "contracts::models::units::infantry::InfantryHealth"
+              "type": "command_nexus::models::units::infantry::InfantryHealth"
             },
             {
               "name": "position",
-              "type": "contracts::models::position::Position"
+              "type": "command_nexus::models::position::Position"
             },
             {
               "name": "battlefield_name",
-              "type": "contracts::models::battlefield::BattlefieldName"
+              "type": "command_nexus::models::battlefield::BattlefieldName"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::infantry::Iinfantry",
+          "name": "command_nexus::models::units::infantry::Iinfantry",
           "items": [
             {
               "type": "function",
@@ -11104,7 +11104,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::infantry::Infantry"
+                  "type": "command_nexus::models::units::infantry::Infantry"
                 }
               ],
               "outputs": [],
@@ -11114,12 +11114,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::infantry::infantry::Event",
+          "name": "command_nexus::models::units::infantry::infantry::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::infantry::infantry"
+      "name": "command_nexus::models::units::infantry::infantry"
     },
     {
       "kind": "DojoModel",
@@ -11499,11 +11499,11 @@
         {
           "type": "impl",
           "name": "shipImpl",
-          "interface_name": "contracts::models::units::naval::Iship"
+          "interface_name": "command_nexus::models::units::naval::Iship"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::naval::ShipAccessories",
+          "name": "command_nexus::models::units::naval::ShipAccessories",
           "members": [
             {
               "name": "fuel",
@@ -11537,7 +11537,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::naval::ShipHealth",
+          "name": "command_nexus::models::units::naval::ShipHealth",
           "members": [
             {
               "name": "hull_integrity",
@@ -11559,7 +11559,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Vec3",
+          "name": "command_nexus::models::position::Vec3",
           "members": [
             {
               "name": "x",
@@ -11577,17 +11577,17 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::position::Position",
+          "name": "command_nexus::models::position::Position",
           "members": [
             {
               "name": "coord",
-              "type": "contracts::models::position::Vec3"
+              "type": "command_nexus::models::position::Vec3"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "contracts::models::battlefield::BattlefieldName",
+          "name": "command_nexus::models::battlefield::BattlefieldName",
           "variants": [
             {
               "name": "None",
@@ -11617,7 +11617,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::naval::Ship",
+          "name": "command_nexus::models::units::naval::Ship",
           "members": [
             {
               "name": "game_id",
@@ -11645,25 +11645,25 @@
             },
             {
               "name": "ship_accessories",
-              "type": "contracts::models::units::naval::ShipAccessories"
+              "type": "command_nexus::models::units::naval::ShipAccessories"
             },
             {
               "name": "ship_health",
-              "type": "contracts::models::units::naval::ShipHealth"
+              "type": "command_nexus::models::units::naval::ShipHealth"
             },
             {
               "name": "position",
-              "type": "contracts::models::position::Position"
+              "type": "command_nexus::models::position::Position"
             },
             {
               "name": "battlefield_name",
-              "type": "contracts::models::battlefield::BattlefieldName"
+              "type": "command_nexus::models::battlefield::BattlefieldName"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::naval::Iship",
+          "name": "command_nexus::models::units::naval::Iship",
           "items": [
             {
               "type": "function",
@@ -11671,7 +11671,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::naval::Ship"
+                  "type": "command_nexus::models::units::naval::Ship"
                 }
               ],
               "outputs": [],
@@ -11681,12 +11681,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::naval::ship::Event",
+          "name": "command_nexus::models::units::naval::ship::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::naval::ship"
+      "name": "command_nexus::models::units::naval::ship"
     },
     {
       "kind": "DojoModel",
@@ -12031,11 +12031,11 @@
         {
           "type": "impl",
           "name": "player_stateImpl",
-          "interface_name": "contracts::models::units::playerstate::Iplayer_state"
+          "interface_name": "command_nexus::models::units::playerstate::Iplayer_state"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::playerstate::UnitsSupply",
+          "name": "command_nexus::models::units::playerstate::UnitsSupply",
           "members": [
             {
               "name": "game_id",
@@ -12069,7 +12069,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::playerstate::PlayerState",
+          "name": "command_nexus::models::units::playerstate::PlayerState",
           "members": [
             {
               "name": "game_id",
@@ -12081,13 +12081,13 @@
             },
             {
               "name": "supply",
-              "type": "contracts::models::units::playerstate::UnitsSupply"
+              "type": "command_nexus::models::units::playerstate::UnitsSupply"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::playerstate::Iplayer_state",
+          "name": "command_nexus::models::units::playerstate::Iplayer_state",
           "items": [
             {
               "type": "function",
@@ -12095,7 +12095,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::playerstate::PlayerState"
+                  "type": "command_nexus::models::units::playerstate::PlayerState"
                 }
               ],
               "outputs": [],
@@ -12105,12 +12105,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::playerstate::player_state::Event",
+          "name": "command_nexus::models::units::playerstate::player_state::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::playerstate::player_state"
+      "name": "command_nexus::models::units::playerstate::player_state"
     },
     {
       "kind": "DojoModel",
@@ -12475,11 +12475,11 @@
         {
           "type": "impl",
           "name": "units_supplyImpl",
-          "interface_name": "contracts::models::units::playerstate::Iunits_supply"
+          "interface_name": "command_nexus::models::units::playerstate::Iunits_supply"
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::playerstate::UnitsSupply",
+          "name": "command_nexus::models::units::playerstate::UnitsSupply",
           "members": [
             {
               "name": "game_id",
@@ -12513,7 +12513,7 @@
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::playerstate::Iunits_supply",
+          "name": "command_nexus::models::units::playerstate::Iunits_supply",
           "items": [
             {
               "type": "function",
@@ -12521,7 +12521,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::playerstate::UnitsSupply"
+                  "type": "command_nexus::models::units::playerstate::UnitsSupply"
                 }
               ],
               "outputs": [],
@@ -12531,12 +12531,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::playerstate::units_supply::Event",
+          "name": "command_nexus::models::units::playerstate::units_supply::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::playerstate::units_supply"
+      "name": "command_nexus::models::units::playerstate::units_supply"
     },
     {
       "kind": "DojoModel",
@@ -12911,7 +12911,7 @@
         {
           "type": "impl",
           "name": "ability_stateImpl",
-          "interface_name": "contracts::models::units::unit_states::Iability_state"
+          "interface_name": "command_nexus::models::units::unit_states::Iability_state"
         },
         {
           "type": "enum",
@@ -12929,7 +12929,7 @@
         },
         {
           "type": "enum",
-          "name": "contracts::models::player::UnitType",
+          "name": "command_nexus::models::player::UnitType",
           "variants": [
             {
               "name": "None",
@@ -12959,7 +12959,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::unit_states::UnitAbilities",
+          "name": "command_nexus::models::units::unit_states::UnitAbilities",
           "members": [
             {
               "name": "move_level",
@@ -13009,7 +13009,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::unit_states::AbilityState",
+          "name": "command_nexus::models::units::unit_states::AbilityState",
           "members": [
             {
               "name": "game_id",
@@ -13037,7 +13037,7 @@
             },
             {
               "name": "unit",
-              "type": "contracts::models::player::UnitType"
+              "type": "command_nexus::models::player::UnitType"
             },
             {
               "name": "cooldown_increase",
@@ -13045,13 +13045,13 @@
             },
             {
               "name": "units_abilities_state",
-              "type": "contracts::models::units::unit_states::UnitAbilities"
+              "type": "command_nexus::models::units::unit_states::UnitAbilities"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::unit_states::Iability_state",
+          "name": "command_nexus::models::units::unit_states::Iability_state",
           "items": [
             {
               "type": "function",
@@ -13059,7 +13059,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::unit_states::AbilityState"
+                  "type": "command_nexus::models::units::unit_states::AbilityState"
                 }
               ],
               "outputs": [],
@@ -13069,12 +13069,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::unit_states::ability_state::Event",
+          "name": "command_nexus::models::units::unit_states::ability_state::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::unit_states::ability_state"
+      "name": "command_nexus::models::units::unit_states::ability_state"
     },
     {
       "kind": "DojoModel",
@@ -13449,11 +13449,11 @@
         {
           "type": "impl",
           "name": "unit_stateImpl",
-          "interface_name": "contracts::models::units::unit_states::Iunit_state"
+          "interface_name": "command_nexus::models::units::unit_states::Iunit_state"
         },
         {
           "type": "enum",
-          "name": "contracts::models::units::unit_states::UnitMode",
+          "name": "command_nexus::models::units::unit_states::UnitMode",
           "variants": [
             {
               "name": "Idle",
@@ -13499,7 +13499,7 @@
         },
         {
           "type": "enum",
-          "name": "contracts::models::units::unit_states::TerrainType",
+          "name": "command_nexus::models::units::unit_states::TerrainType",
           "variants": [
             {
               "name": "UrbanStreet",
@@ -13521,11 +13521,11 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::unit_states::EnvironmentInfo",
+          "name": "command_nexus::models::units::unit_states::EnvironmentInfo",
           "members": [
             {
               "name": "terrain",
-              "type": "contracts::models::units::unit_states::TerrainType"
+              "type": "command_nexus::models::units::unit_states::TerrainType"
             },
             {
               "name": "cover_level",
@@ -13539,7 +13539,7 @@
         },
         {
           "type": "struct",
-          "name": "contracts::models::units::unit_states::UnitState",
+          "name": "command_nexus::models::units::unit_states::UnitState",
           "members": [
             {
               "name": "game_id",
@@ -13571,17 +13571,17 @@
             },
             {
               "name": "mode",
-              "type": "contracts::models::units::unit_states::UnitMode"
+              "type": "command_nexus::models::units::unit_states::UnitMode"
             },
             {
               "name": "environment",
-              "type": "contracts::models::units::unit_states::EnvironmentInfo"
+              "type": "command_nexus::models::units::unit_states::EnvironmentInfo"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "contracts::models::units::unit_states::Iunit_state",
+          "name": "command_nexus::models::units::unit_states::Iunit_state",
           "items": [
             {
               "type": "function",
@@ -13589,7 +13589,7 @@
               "inputs": [
                 {
                   "name": "model",
-                  "type": "contracts::models::units::unit_states::UnitState"
+                  "type": "command_nexus::models::units::unit_states::UnitState"
                 }
               ],
               "outputs": [],
@@ -13599,12 +13599,12 @@
         },
         {
           "type": "event",
-          "name": "contracts::models::units::unit_states::unit_state::Event",
+          "name": "command_nexus::models::units::unit_states::unit_state::Event",
           "kind": "enum",
           "variants": []
         }
       ],
-      "name": "contracts::models::units::unit_states::unit_state"
+      "name": "command_nexus::models::units::unit_states::unit_state"
     }
   ]
 }

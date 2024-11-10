@@ -935,7 +935,7 @@ packages:
   '@ethersproject/constants@5.7.0':
     resolution: {integrity: sha512-DHI+y5dBNvkpYUMiRQyxRBYBefZkJfo70VUkUAsRjcPs47muV9evftfZ0PJVCXYbAiCgght0DtcF9srFQmIgWA==}
 
-  '@ethersproject/contracts@5.7.0':
+  '@ethersproject/command_nexus@5.7.0':
     resolution: {integrity: sha512-5GJbzEU3X+d33CdfPhcyS+z8MzsTrBGk/sc+G+59+tPa9yFkl6HQ9D6L0QMgNTA9q8dT0XKxxkyp883XsQvbbg==}
 
   '@ethersproject/hash@5.7.0':
@@ -6136,7 +6136,7 @@ snapshots:
     dependencies:
       '@ethersproject/bignumber': 5.7.0
 
-  '@ethersproject/contracts@5.7.0':
+  '@ethersproject/command_nexus@5.7.0':
     dependencies:
       '@ethersproject/abi': 5.7.0
       '@ethersproject/abstract-provider': 5.7.0
@@ -9101,7 +9101,7 @@ snapshots:
       '@ethersproject/bignumber': 5.7.0
       '@ethersproject/bytes': 5.7.0
       '@ethersproject/constants': 5.7.0
-      '@ethersproject/contracts': 5.7.0
+      '@ethersproject/command_nexus': 5.7.0
       '@ethersproject/hash': 5.7.0
       '@ethersproject/hdnode': 5.7.0
       '@ethersproject/json-wallets': 5.7.0

@@ -26,9 +26,9 @@ export interface InitGameProps {
 
 const InitGame = () => {
 
-  const { account, address, status, isConnected } = useNetworkAccount();
+  const { account } = useNetworkAccount();
   
-  const { game_state, battleReport, setBattleReport } = useElementStore((state) => state);
+  const { game_state } = useElementStore((state) => state);
 
   return (
 

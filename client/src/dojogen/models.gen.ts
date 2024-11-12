@@ -1530,7 +1530,7 @@ export const schema: CommandNexusSchemaType = {
 			energy: 0,
 			accessories: { fieldOrder: ['missiles', 'repair_kits'], missiles: 0, repair_kits: 0, },
 			health: { fieldOrder: ['current', 'max'], current: 0, max: 0, },
-			position: { fieldOrder: ['coord'], coord: Vec3, },
+			position: { fieldOrder: ['coord'], coord: { fieldOrder: ['x', 'y', 'z'], x: 0, y: 0, z: 0, }, },
 			battlefield_name: BattlefieldName.None,
 			altitude: 0,
 			max_speed: 0,

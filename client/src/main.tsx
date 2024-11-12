@@ -5,11 +5,13 @@ import App from "./App.tsx";
 
 import "./index.css";
 import { init } from "@dojoengine/sdk";
-import { Schema, schema } from "./bindings.ts";
 import { dojoConfig } from "../dojoConfig.ts";
-import { DojoContextProvider } from "./DojoContext.tsx";
+import { DojoContextProvider } from "./dojo/DojoContext.tsx";
 import { setupBurnerManager } from "@dojoengine/create-burner";
 import { StarknetProvider } from "./providers.tsx";
+import { SDKProvider } from './context/SDKContext.tsx';
+import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
+
 /**
  * Initializes and bootstraps the Dojo application.
  * Sets up the SDK, burner manager, and renders the root component.
@@ -19,7 +21,7 @@ import { StarknetProvider } from "./providers.tsx";
 async function main() {
 
     console.log( dojoConfig)
-    const sdk = await init<Schema>(
+    const sdk = await init<CommandNexusSchemaType>(
         {
             client: {
                 rpcUrl: dojoConfig.rpcUrl,
@@ -40,11 +42,13 @@ async function main() {
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
             <StarknetProvider>
-                <DojoContextProvider
-                    burnerManager={await setupBurnerManager(dojoConfig)}
-                >
-                    <App sdk={sdk} />
-                </DojoContextProvider>
+              <SDKProvider sdk={sdk}>
+                    <DojoContextProvider
+                        burnerManager={await setupBurnerManager(dojoConfig)}
+                    >
+                        <App />
+                    </DojoContextProvider>
+                </SDKProvider>
             </StarknetProvider>
         </StrictMode>
     );

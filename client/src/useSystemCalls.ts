@@ -1,6 +1,6 @@
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojoStore } from "./App";
-import { useDojo } from "./useDojo";
+import { useDojo } from "./dojo/useDojo";
 import { v4 as uuidv4 } from "uuid";
 
 /**

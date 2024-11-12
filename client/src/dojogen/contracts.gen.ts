@@ -2,7 +2,9 @@ import { DojoProvider } from "@dojoengine/core";
 import { Account } from "starknet";
 import * as models from "./models.gen";
 
-export async function setupWorld(provider: DojoProvider) {
+export type IClient = Awaited<ReturnType<typeof client>>;
+
+export async function client(provider: DojoProvider) {
 
 	const arena_create = async (snAccount: Account, playerName: number, price: number, penalty: number) => {
 		try {

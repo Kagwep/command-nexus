@@ -197,6 +197,24 @@ export function unitTypeToInt(unit: UnitType): number {
 }
 
 
+export function battlefieldTypeToString(battlefield: BattlefieldName): string {
+  switch (battlefield) {
+      case BattlefieldName.RadiantShores:
+          return "RadiantShores";
+      case BattlefieldName.Ironforge:
+          return "Ironforge";
+      case BattlefieldName.Skullcrag:
+          return "Skullcrag";
+      case BattlefieldName.NovaWarhound:
+          return "NovaWarhound";
+      case BattlefieldName.SavageCoast:
+          return "SavageCoast";
+      default:
+          throw new Error(`Invalid region: ${battlefield}`);
+  }
+}
+
+
 
 export function battlefieldTypeToInt(battlefield: BattlefieldName): number {
   switch (battlefield) {

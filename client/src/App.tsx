@@ -45,20 +45,18 @@ function About() {
 }
 
 function App() {
-  const network = useElementStore((state) => state.network);
+
 
   return (
     <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route 
-          path="/" 
-          element={network ? <InitGame /> : <Intro onOnboardComplete={() => {}} />} 
-        />
-        <Route path="/about" element={<About />} />
-      </Routes>
+        <Navbar />
+        <Routes>
+            <Route path="/" element={<InitGame />} />
+            <Route path="/about" element={<About />} />
+            <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
     </BrowserRouter>
-  );
+);
 }
 
 export default App;

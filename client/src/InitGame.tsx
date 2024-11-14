@@ -6,6 +6,7 @@ import Lobby from './components/Lobby';
 import useNetworkAccount from "./hooks/useNetworkAccount";
 import CommandNexus from "./components/Game/CommandNexus";
 
+
 const LoadingScreen = () => {
   const [loadingText, setLoadingText] = useState("ESTABLISHING CONNECTION");
   const [dots, setDots] = useState(0);
@@ -98,6 +99,8 @@ const LoadingScreen = () => {
 const InitGame = () => {
   const { account } = useNetworkAccount();
   const { game_state } = useElementStore((state) => state);
+
+  
 
   return (
     <>

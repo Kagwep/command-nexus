@@ -5,7 +5,7 @@ import '@babylonjs/loaders';
 import { WeatherSystem, WeatherType } from './CommandNexusWeather';
 import { useDojo } from '../../dojo/useDojo';
 import { Phase } from '../../utils/nexus';
-import { BattlefieldName,  Player, UnitType } from '../../utils/types';
+import { BattlefieldName } from '../../dojogen/models.gen';
 import { CameraSlidingCollision } from './CameraCollisionSystem';
 import NexusAreaSystem from './BattleField';
 import TankSystem, { ArmoredAction } from './Armored';
@@ -16,6 +16,7 @@ import InfantrySystem from './Infantry';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { GameState } from './GameState';
 import { AccountInterface, Account } from 'starknet';
+import { Game,Player } from '../../dojogen/models.gen';
 
 interface MeshN extends Mesh {
   idx?: number;
@@ -29,13 +30,12 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui, getGameState: () => GameState | null,gameState: {
-  player: Player,
+export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui | null, getGameState: () => GameState | null,gameState: {
+  player: Player | null,
   turn: number,
-  phase: Phase,
-  game: any,
+  game: Game | undefined,
   players: Player[]
-},arena: any,nexus: any,getAccount: () => AccountInterface | Account) => {
+},client:any,getAccount: () => AccountInterface | Account) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
 
@@ -90,13 +90,13 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
       // }
 
 
-
+     if (gameState.player){
       switch (mesh.name) {
         case "IntelAgency_Buildings_14":
             const novaWarhoundLandmark = mesh as Mesh;
             battlefieldCameraManager.registerLandmark(BattlefieldName.NovaWarhound, novaWarhoundLandmark);
 
-            if(gameState.player.home_base === "NovaWarhound"){
+            if(gameState.player.home_base === BattlefieldName.NovaWarhound){
               const selectedBattlefield = BattlefieldName.NovaWarhound; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
@@ -106,7 +106,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             const skullcragLandmark = mesh as Mesh;
             battlefieldCameraManager.registerLandmark(BattlefieldName.Skullcrag, skullcragLandmark);
 
-            if(gameState.player.home_base === "Skullcrag"){
+            if(gameState.player.home_base === BattlefieldName.Skullcrag){
               const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
@@ -116,7 +116,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             const ironForgeLandmark = mesh as Mesh;
             battlefieldCameraManager.registerLandmark(BattlefieldName.Ironforge, ironForgeLandmark);
 
-            if(gameState.player.home_base === "Ironforge"){
+            if(gameState.player.home_base === BattlefieldName.Ironforge){
               const selectedBattlefield = BattlefieldName.Ironforge; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
@@ -128,7 +128,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
               console.log("found ............................................")
   
-              if(gameState.player.home_base === "RadiantShores"){
+              if(gameState.player.home_base === BattlefieldName.RadiantShores){
                 const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
                 battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
               }
@@ -138,8 +138,10 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             // Handle unknown or other meshes
             console.log("Unknown mesh.");
             break;
-    }
+       }
       
+     }
+   
       addPhysicsAggregate(mesh);
     })
 
@@ -283,7 +285,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
               });
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
-          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,arena,nexus,getAccount);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount);
           await multiAgentNav.initialize();
 
           // Create your custom mesh
@@ -577,7 +579,7 @@ const keys = { w: false, s: false, a: false, d: false, q: false, e: false, r: fa
 scene.onKeyboardObservable.add((kbInfo) => {
   const key = kbInfo.event.key.toLowerCase();
   if (key in keys) {
-    keys[key] = kbInfo.type === KeyboardEventTypes.KEYDOWN;
+    keys[key as keyof { w: boolean; s: boolean; a: boolean; d: boolean; q: boolean; e: boolean; r: boolean; f: boolean; }] = kbInfo.type === KeyboardEventTypes.KEYDOWN;
   }
 });
 
@@ -597,7 +599,7 @@ scene.onBeforeRenderObservable.add(() => {
   if (keys['r']) camera.radius -= ZOOM_SPEED;
   if (keys['f']) camera.radius += ZOOM_SPEED;
 
-  camera.radius = Math.max(camera.lowerRadiusLimit, Math.min(camera.radius, camera.upperRadiusLimit));
+  camera.radius = Math.max(camera.lowerRadiusLimit!, Math.min(camera.radius, camera.upperRadiusLimit!));
 });
 
 
@@ -612,5 +614,5 @@ export const updateScene = (
   gui: CommandNexusGui | null, 
   state: { player: Player, isItMyTurn: boolean, turn: number, phase: Phase, game:any, players: Player[] }
 ) => {
-  console.log(gui.getDeploymentMode())
+  console.log(gui?.getDeploymentMode())
 };

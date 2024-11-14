@@ -2,11 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Scene } from '@babylonjs/core';
 import CommandNexusGui from './CommandNexusGui';
 import { isHost, Phase } from '../../utils/nexus';
-import { Player } from '../../utils/types';
+import { Player } from '../../dojogen/models.gen';
 import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Account, AccountInterface } from 'starknet';
 
-export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number, phase: Phase, game: any, players: Player[],arena: any,nexus: any,getAccount: () => AccountInterface | Account) => {
+export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number,  game: any, players: Player[],client: any,getAccount: () => AccountInterface | Account) => {
   const guiRef = useRef<CommandNexusGui | null>(null);
   const [isGuiReady, setIsGuiReady] = useState(false);
 
@@ -33,7 +33,7 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
 
       // Create new GUI
       try {
-        guiRef.current = new CommandNexusGui(scene,arena,nexus,game,player,getAccount);
+        guiRef.current = new CommandNexusGui(scene,client,game,player,getAccount);
         setIsGuiReady(true);
         scene.onPointerDown = (evt, pickResult) => {
             if (pickResult.hit) {
@@ -86,7 +86,7 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
         console.error("Error updating GUI:", error);
       }
     }
-  }, [isGuiReady, player, isItMyTurn, turn, phase, game, players]);
+  }, [isGuiReady, player, isItMyTurn, turn,  game, players]);
 
   return { getGui,gui: guiRef.current, isGuiReady };
 };

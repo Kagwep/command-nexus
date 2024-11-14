@@ -2,47 +2,46 @@ import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3,Animation } from '@babylonjs/core';
 import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType, Infantry, Armored } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
-import { abilityStringToEnum, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
+import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
-import { Player } from "../../utils/types";
+import { Player } from "../../dojogen/models.gen";
 import { useRef } from "react";
-import { Account } from "@dojoengine/torii-client";
-import { AccountInterface } from "starknet";
+import { Account, AccountInterface } from "starknet";
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
-    private mainMenuPanel: GUI.Rectangle;
-    private unitsPanel: GUI.Rectangle;
-    private marketplacePanel: GUI.Rectangle;
-    private actionsPanel: GUI.Rectangle;
-    private playerPanel : GUI.Rectangle;
-    private opponentsPanel : GUI.Rectangle;
-    private turnInfoText: GUI.TextBlock;
+    private mainMenuPanel: GUI.Rectangle = new Rectangle;
+    private unitsPanel: GUI.Rectangle = new Rectangle;
+    private marketplacePanel: GUI.Rectangle = new Rectangle;
+    private actionsPanel: GUI.Rectangle = new Rectangle;
+    private playerPanel: GUI.Rectangle = new Rectangle;
+    private opponentsPanel: GUI.Rectangle = new Rectangle;
+    private turnInfoText: GUI.TextBlock = new TextBlock;
     private selectedUnitId: number | null = null;
     private ACCENT_COLOR = "#4CAF50";
     private player:Player;
-    private abilityMode:AbilityType| null;
-    private baseText: GUI.TextBlock;
-    private rankText: GUI.TextBlock;
+    private abilityMode: AbilityType | null = 0;
+    private baseText: GUI.TextBlock = new TextBlock;
+    private rankText: GUI.TextBlock = new TextBlock;
     //private kickButton: GUI.Button;
     private getAccount: () => AccountInterface | Account;
 
 
-    private deployButton: GUI.Ellipse;
+    private deployButton: GUI.Ellipse = new GUI.Ellipse;
     private isDeploymentMode: boolean = false;
-    public selectedUnit: UnitType;
-    private unitSelectionPanel: GUI.Rectangle;
-    private closeButton: GUI.Button;
-    private deployPosition: Vector3 | null;
+    public selectedUnit: UnitType | null = null;
+    private unitSelectionPanel: GUI.Rectangle = new Rectangle;
+    private closeButton: GUI.Button = new Button;
+    private deployPosition: Vector3 | null = new Vector3;
     private unitButtons: GUI.Button[] = []
-    private outerArc: Rectangle;
-    private innerArc: Rectangle;
-    private imagePlaceholder: Rectangle;
+    private outerArc: Rectangle = new Rectangle;
+    private innerArc: Rectangle = new Rectangle;
+    private imagePlaceholder: Rectangle = new Rectangle;
     private arena;
     private nexus;
     private game;
-    private infoPanel: Rectangle;
+    private infoPanel: Rectangle = new Rectangle;
    
 
 
@@ -57,7 +56,7 @@ export default class CommandNexusGui {
     private unitRows: Map<string, GUI.TextBlock> = new Map();
     private scoreRows: Map<string, GUI.TextBlock> = new Map();
     private supplyRows: Map<string, GUI.TextBlock> = new Map();
-    constructor(scene: Scene,arena,nexus,game,player, getAccount) {
+    constructor(scene: Scene,client: any,game: any,player: Player, getAccount:  () => AccountInterface | Account ) {
         this.gui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
         this.createTopBar();
         this.createMainMenuButton();
@@ -72,8 +71,8 @@ export default class CommandNexusGui {
         this.createUnitSelectionPanel();
 
         this.createArcs();
-        this.arena = arena;
-        this.nexus = nexus;
+        this.arena = client.arena;
+        this.nexus = client.nexus;
         this.game = game;
         this.player = player
         this.getAccount = getAccount;
@@ -718,7 +717,7 @@ export default class CommandNexusGui {
 
     public updatePlayerInfo(playerData: Player): void {
 
-       this.baseText.text = playerData.home_base
+       this.baseText.text = battlefieldTypeToString(playerData.home_base)
        this.rankText.text = getBannerLevelString(playerData.rank)
         
         Object.entries(playerData).forEach(([key, value]) => {
@@ -1183,6 +1182,7 @@ export default class CommandNexusGui {
     }
 
     public getSelectedUnitAndDeployPosition(): DeployInfo {
+        
         return {unit: this.selectedUnit, position: this.deployPosition};
       }
 
@@ -1245,7 +1245,7 @@ export default class CommandNexusGui {
 
             const abilityEnum = abilityStringToEnum(capitalizeFirstLetter(ability));
 
-            const abilityImagePath = this.getAbilityImage(abilityEnum);
+            const abilityImagePath = abilityEnum ? this.getAbilityImage(abilityEnum): "";
 
            // console.log(abilityImagePath,abilityEnum, ability)
     
@@ -1281,7 +1281,7 @@ export default class CommandNexusGui {
             // Handle click event
             button.onPointerUpObservable.add(() => {
                 console.log(`${ability} ability used`);
-                this.abilityMode = abilityEnum;
+                this.abilityMode = abilityEnum ? abilityEnum: null;
             });
     
             // Add hover effect
@@ -1447,9 +1447,9 @@ public showToast(message: string, toastType: ToastType = ToastType.Info): void {
         fadeOut.setKeys(fadeOutKeys);
 
         // Run fade in, wait for 3 seconds, then fade out
-        this.gui.getScene().beginDirectAnimation(panel, [fadeIn], 0, 20, false, 1, () => {
+        this.gui.getScene()?.beginDirectAnimation(panel, [fadeIn], 0, 20, false, 1, () => {
             setTimeout(() => {
-                this.gui.getScene().beginDirectAnimation(panel, [fadeOut], 0, 30, false, 1, () => {
+                this.gui.getScene()?.beginDirectAnimation(panel, [fadeOut], 0, 30, false, 1, () => {
                     // Remove the toast after fading out
                     panel.dispose();
                 });

@@ -3,15 +3,16 @@ import GameState from '../utils/gamestate';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useDojo } from '../dojo/useDojo';
 import { useToast } from './UI/use-toast';
-import { useComponentValue, useEntityQuery } from '@dojoengine/react';
-import { HasValue, getComponentValue } from '@dojoengine/recs';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from './UI/table';
 import GameRow from './GameRow';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import WalletButton from './WalletButton';
-import { useNetworkAccount } from '../contexts/WalletContex';
-
-import { CombineAction } from '@babylonjs/core';
+import { useNetworkAccount } from '../context/WalletContex';
+import { useSDK } from '../context/SDKContext';
+import { useDojoStore } from '../lib/utils';
+import { Account, addAddressPadding } from 'starknet';
+import { bigIntAddressToString } from '../utils/sanitizer';
+import { Game } from '../dojogen/models.gen';
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -19,35 +20,60 @@ const MainMenu: React.FC = () => {
     (state) => state
   );
 
+  const [game, setGame] = useState<Game | null>(null);
+  const [player, setPlayer] = useState(null);
+
   const {
     setup: {
-      client: { arena },
-      clientComponents: { Game, Player },
+      client
     },
   } = useDojo();
 
+  const sdk = useSDK();
+
   const { account, address, status, isConnected } = useNetworkAccount();
 
-  const prevGameIdRef = useRef<number | null>(null);
-  const prevGameStateRef = useRef<GameState | null>(null);
+  const state = useDojoStore((state) => state);
+  const entities = useDojoStore((state) => state.entities);
 
+  useEffect(() => {
+    const fetchEntities = async () => {
+
+      if(!account) return;
+        try {
+            await sdk.getEntities(
+                {
+                    command_nexus: {
+                        Game: {
+                            $: { },
+                        },
+                    },
+                },
+                (resp) => {
+                    if (resp.error) {
+                        console.error(
+                            "resp.error.message:",
+                            resp.error.message
+                        );
+                        return;
+                    }
+                    if (resp.data) {
+                        state.setEntities(resp.data);
+                    }
+                }
+            );
+        } catch (error) {
+            console.error("Error querying entities:", error);
+        }
+    };
+
+    fetchEntities();
+}, [sdk, account?.address]);
   
-  const gameEntitiesOne = useEntityQuery([HasValue(Game, { arena_host: BigInt(account.address) })]);
-  console.log(gameEntitiesOne)
-  const gameEntity = useMemo(() => gameEntitiesOne.length > 0 ? gameEntitiesOne[0] : undefined, [gameEntitiesOne]);
-  const game = useComponentValue(Game, gameEntity);
-
-
-  console.log(account,game)
-
-  const playerEntities = useEntityQuery([HasValue(Player, { address: BigInt(account.address) })]);
-  const playerEntity = useMemo(() => playerEntities.length > 0 ? playerEntities[0] : undefined, [playerEntities]);
-  const player = useComponentValue(Player, playerEntity);
-
   const prevGameRef = useRef(game);
   const prevPlayerRef = useRef(player);
 
-  const updateGameState = useCallback((currentPlayer, currentGame) => {
+  const updateGameState = useCallback((currentPlayer: any, currentGame: any) => {
     console.log("Inside updateGameState callback with params:", currentPlayer);
   
     // If either player or game exists, set the game state to Lobby
@@ -106,11 +132,7 @@ useEffect(() => {
 
     try {
       const totalSeconds = hours ? hours * 3600 + minutes * 60 : minutes * 60;
-      let result = await arena.create(account, player_name, /* price */ BigInt(0), /* penalty*/ totalSeconds);
-      toast({
-        variant: 'default',
-        description: <code className="text-white text-xs">{result.execution_status}</code>,
-      });
+      let result = await (await client).arena.create(account as Account, player_name, /* price */ 0, /* penalty*/ totalSeconds);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -119,17 +141,6 @@ useEffect(() => {
     }
   };
 
-  const gameEntities: any = useEntityQuery([HasValue(Game, { seed: BigInt(0) })]);
-  const games = useMemo(
-    () =>
-      gameEntities
-        .map((id: any) => getComponentValue(Game, id))
-        .sort((a: any, b: any) => b.id - a.id)
-        .filter((game: any) => game.arena !== 0n),
-    [gameEntities, Game]
-  );
-
-  if (!games) return null;
   return (
     <div className="font-vt323 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <div className="container mx-auto px-4 py-8">
@@ -143,7 +154,7 @@ useEffect(() => {
             </div>
           </header>
 
-          {games.length === 0 ? (
+          { Object.keys(entities).length === 0 ? (
             <div className="text-center py-12 bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-2xl">
               <h2 className="text-3xl mb-6">No active games. Start your adventure!</h2>
               <DialogCreateJoin
@@ -176,9 +187,13 @@ useEffect(() => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {games.map((game: any) => (
-                      <GameRow key={game.id} game={game} setPlayerName={setPlayerName} />
-                    ))}
+                    {Object.entries(entities).map(([entityId,entity])=> {
+                      const game = entity.models.command_nexus.Game;
+                      bigIntAddressToString(entity.models.command_nexus.Game.arena_host) === account?.address ? setGame(game): setGame(null);
+                      const player = bigIntAddressToString(entity.models.command_nexus.Player.address) === account?.address ? entity.models.command_nexus.Player : null;
+                      setPlayer(player)
+                      return <GameRow key={entityId} game={game} setPlayerName={setPlayerName} />
+                    })}
                   </TableBody>
                 </Table>
               </div>

@@ -22,8 +22,8 @@ class NexusUnitManager {
     private agents: Agent[] = [];
     private selectedAgent: Agent | null = null;
     public navmeshdebug;
-    private guiRef: CommandNexusGui | null;
-    private getGui: () => CommandNexusGui;
+   // private guiRef: CommandNexusGui | null;
+    private getGui: () => CommandNexusGui | null;
     private unitAssets: UnitAssetContainers = {
         [UnitType.Infantry]: new AssetContainer(),
         [UnitType.Armored]: new AssetContainer(),
@@ -57,14 +57,13 @@ class NexusUnitManager {
         navigationPlugin: RecastJSPlugin, 
         ground: Mesh, 
         pointNavPre: GroundMesh,
-        getGui: () => CommandNexusGui,
-        getGameState: () => GameState,
+        getGui: () => CommandNexusGui | null,
+        getGameState: () => GameState | null,
         InfantryAssetContainer: AssetContainer,
         ArmoredAssetContainer: AssetContainer,
         battlefieldCameraManager: BattlefieldCameraManager,
-        arena,
-        nexus,
-        getAccount,
+        client: any,
+        getAccount: () => AccountInterface | Account
    
     ) {
         this.scene = scene;

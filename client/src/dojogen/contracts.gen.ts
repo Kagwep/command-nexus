@@ -6,7 +6,7 @@ export type IClient = Awaited<ReturnType<typeof client>>;
 
 export async function client(provider: DojoProvider) {
 
-	const arena_create = async (snAccount: Account, playerName: number, price: number, penalty: number) => {
+	const arena_create = async (snAccount: Account, playerName: string, price: number, penalty: number) => {
 		try {
 			return await provider.execute(
 				snAccount,

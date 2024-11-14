@@ -1,24 +1,26 @@
+import { useDojo } from '../dojo/useDojo';
+import { sanitizePlayer } from '../utils/sanitizer';
 import { useElementStore } from '../utils/nexus';
-import { useEffect } from 'react';
+import { Player } from '../utils/types';
+import { Has, HasValue, getComponentValue } from '@dojoengine/recs';
+import { useEffect, useMemo, useState } from 'react';
 import { useDojoStore } from '../lib/utils';
-import { useSDK } from '../context/SDKContext';
 import { useNetworkAccount } from '../context/WalletContex';
+import { useSDK } from '../context/SDKContext';
 
-export const useArmoredUnits = () => {
-
+export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
+  
   const { game_id } = useElementStore((state) => state);
+  const { account } = useNetworkAccount();
+
+  if(!game_id) return {players:[],playerNames:[]};
+
+  if(!account) return {players:[],playerNames:[]};
 
   const state = useDojoStore((state) => state);
   const entities = useDojoStore((state) => state.entities);
 
   const sdk = useSDK();
-
-  const { account } = useNetworkAccount();
-
-  if(!game_id) return;
-
-  if(!account) return;
-
 
   useEffect(() => {
     const fetchEntities = async () => {
@@ -26,7 +28,7 @@ export const useArmoredUnits = () => {
             await sdk.getEntities(
                 {
                     command_nexus: {
-                        Armored: {
+                        Player: {
                             $: {
                                 where: {
                                     game_id: {
@@ -60,12 +62,18 @@ export const useArmoredUnits = () => {
 
 
 
-  const armoredUnits =  Object.values(entities)
-  .map(entity => entity.models.command_nexus.Armored)
-  .filter(Boolean); 
+const players = Object.values(entities)
+.map(entity => entity.models.command_nexus.Player)
+.filter(player => player && player.game_id === game_id);  // Add gameId filter
+
+
+  const playerNames = useMemo(() => {
+    return players.map((player) => player.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [players]);
 
   return {
-    armoredUnits,
-    entitiesCount: armoredUnits.length
+    players,
+    playerNames,
   };
-};
+}

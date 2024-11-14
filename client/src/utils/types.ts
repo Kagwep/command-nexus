@@ -1,7 +1,6 @@
 import { AnimationGroup, AssetContainer, Mesh, TransformNode, Vector3 } from "@babylonjs/core";
 import { useMe } from "../hooks/useMe";
 import { useTurn } from "../hooks/useTurn";
-import { usePhase } from "../hooks/usePhase";
 import { useGame } from "../hooks/useGame";
 import { useGetPlayersForGame } from "../hooks/useGetPlayersForGame";
 import { Uint256 } from "starknet";
@@ -121,7 +120,6 @@ export interface GameState {
   player: ReturnType<typeof useMe>['me'];
   isItMyTurn: ReturnType<typeof useMe>['isItMyTurn'];
   turn: ReturnType<typeof useTurn>['turn'];
-  phase: ReturnType<typeof usePhase>['phase'];
   game: ReturnType<typeof useGame>;
   players: ReturnType<typeof useGetPlayersForGame>['players'];
 }
@@ -189,7 +187,7 @@ export enum UnitMode {
 
 
 export interface DeployInfo {
-   unit: UnitType; position: Vector3 | null
+   unit: UnitType | null; position: Vector3 | null
 }
 
 export type UnitAssetContainers = {

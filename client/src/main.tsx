@@ -11,6 +11,8 @@ import { setupBurnerManager } from "@dojoengine/create-burner";
 import { StarknetProvider } from "./providers.tsx";
 import { SDKProvider } from './context/SDKContext.tsx';
 import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
+import { OnboardingProvider } from "./context/OnboardingContext.tsx";
+import AppInitializer from "./components/AppInitializer.tsx";
 
 /**
  * Initializes and bootstraps the Dojo application.
@@ -41,15 +43,9 @@ async function main() {
 
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
-            <StarknetProvider>
-              <SDKProvider sdk={sdk}>
-                    <DojoContextProvider
-                        burnerManager={await setupBurnerManager(dojoConfig)}
-                    >
-                        <App />
-                    </DojoContextProvider>
-                </SDKProvider>
-            </StarknetProvider>
+            <OnboardingProvider>
+                <AppInitializer sdk={sdk} />
+            </OnboardingProvider>
         </StrictMode>
     );
 }

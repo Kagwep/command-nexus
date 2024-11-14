@@ -7,7 +7,7 @@ export class WeatherSystem {
   private currentWeather: WeatherType;
   private particleSystem: ParticleSystem | null;
   private countdown: number;
-  private emitterSphere: AbstractMesh | null;
+  private emitterSphere: AbstractMesh | null = null;
   private camera: ArcRotateCamera;
 
   constructor(scene: Scene, camera: ArcRotateCamera) {
@@ -108,13 +108,13 @@ export class WeatherSystem {
     sunLight.intensity = 0.4;
 
     // Create a point light that follows the camera
-    const cameraLight = new PointLight("cameraLight", this.scene.activeCamera.position, this.scene);
+    const cameraLight = new PointLight("cameraLight", this.scene.activeCamera!.position, this.scene);
     cameraLight.intensity = 0.5;
     cameraLight.range = 500; // Adjust this value as needed
 
     // Make the camera light follow the camera
     this.scene.registerBeforeRender(() => {
-        cameraLight.position = this.scene.activeCamera.position;
+        cameraLight.position = this.scene.activeCamera!.position;
     });
 
     // Add very low intensity ambient light to prevent complete darkness
@@ -149,7 +149,7 @@ export class WeatherSystem {
 
     // Make the camera light follow the camera
     this.scene.registerBeforeRender(() => {
-        cameraLight.position = this.scene.activeCamera.position;
+        cameraLight.position = this.scene.activeCamera!.position;
     });
 
     // Add very low intensity ambient light
@@ -169,7 +169,7 @@ export class WeatherSystem {
 
     // Optional: Add volumetric fog for more depth
     const volumetricFog = new VolumetricLightScatteringPostProcess(
-        'volumetric', 1.0, this.camera, null, 50, Texture.BILINEAR_SAMPLINGMODE
+        'volumetric', 1.0, this.camera, undefined, 50, Texture.BILINEAR_SAMPLINGMODE
     );
     volumetricFog.exposure = 0.15;
     volumetricFog.decay = 0.95;

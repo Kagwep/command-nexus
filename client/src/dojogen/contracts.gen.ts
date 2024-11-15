@@ -1,5 +1,5 @@
 import { DojoProvider } from "@dojoengine/core";
-import { Account } from "starknet";
+import { Account, cairo } from "starknet";
 import * as models from "./models.gen";
 
 export type IClient = Awaited<ReturnType<typeof client>>;
@@ -7,13 +7,14 @@ export type IClient = Awaited<ReturnType<typeof client>>;
 export async function client(provider: DojoProvider) {
 
 	const arena_create = async (snAccount: Account, playerName: string, price: number, penalty: number) => {
+	
 		try {
 			return await provider.execute(
 				snAccount,
 				{
 					contractName: "arena",
 					entrypoint: "create",
-					calldata: [playerName, price, penalty],
+					calldata: [playerName, cairo.uint256(BigInt(price)), penalty],
 				},
 				"command_nexus",
 			);
@@ -22,7 +23,7 @@ export async function client(provider: DojoProvider) {
 		}
 	};
 
-	const arena_join = async (snAccount: Account, gameId: number, playerName: number) => {
+	const arena_join = async (snAccount: Account, gameId: number, playerName: string) => {
 		try {
 			return await provider.execute(
 				snAccount,

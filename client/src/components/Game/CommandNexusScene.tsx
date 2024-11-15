@@ -30,10 +30,10 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui | null, getGameState: () => GameState | null,gameState: {
-  player: Player | null,
+export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui, getGameState: () => GameState,gameState: {
+  player: Player,
   turn: number,
-  game: Game | undefined,
+  game: Game,
   players: Player[]
 },client:any,getAccount: () => AccountInterface | Account) => {
   

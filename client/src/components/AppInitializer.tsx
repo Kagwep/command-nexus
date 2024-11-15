@@ -1,5 +1,4 @@
 import { SDK } from "@dojoengine/sdk";
-import { StarknetProvider } from "../providers";
 import { DojoContextProvider } from "../dojo/DojoContext";
 import { SDKProvider } from "../context/SDKContext";
 import { BurnerManager, setupBurnerManager } from "@dojoengine/create-burner";
@@ -153,7 +152,6 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     }
 
     return (
-        <StarknetProvider>
             <SDKProvider sdk={sdk}>
                 <DojoContextProvider 
                     burnerManager={burnerManager}
@@ -163,7 +161,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
                     </NetworkAccountProvider>
                 </DojoContextProvider>
             </SDKProvider>
-        </StarknetProvider>
+ 
     );
 };
 

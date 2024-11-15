@@ -15,7 +15,7 @@ export function useGetPlayersForGame(gameId: number | undefined): {players: Play
 
     const { account } = useNetworkAccount();
 
-    if(!game_id) return {players: []} ;
+    if(game_id < 0) return {players: []} ;
 
     if(!account) return {players: []} ;
 

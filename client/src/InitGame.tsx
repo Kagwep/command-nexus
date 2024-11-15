@@ -105,7 +105,7 @@ const InitGame = () => {
   return (
     <>
       {account ? (
-        <div className="bg-black pb-4">
+        <div className="bg-black pb-4 py-12">
           {game_state === GameState.MainMenu && <MainMenu />}
           {game_state === GameState.Lobby && <Lobby />}
           {game_state === GameState.Game && <CommandNexus />}

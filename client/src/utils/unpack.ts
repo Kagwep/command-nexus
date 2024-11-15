@@ -18,3 +18,16 @@ export const feltToStr = (felt: any): string => {
   const byteArray = new Uint8Array(hexString.match(/.{1,2}/g).map((byte: any) => parseInt(byte, 16)));
   return new TextDecoder().decode(byteArray);
 };
+
+
+export function hexToUtf8(hex) {
+  hex = hex.replace(/^0x/, ''); // Remove "0x" prefix if present
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2) {
+      const char = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+      if (/[ -~]/.test(char)) { // Only add printable ASCII characters
+          str += char;
+      }
+  }
+  return str.trim();
+}

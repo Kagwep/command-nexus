@@ -70,6 +70,49 @@ const MainMenu: React.FC = () => {
     fetchEntities();
 }, [sdk, account?.address]);
   
+
+useEffect(() => {
+  let unsubscribe: (() => void) | undefined;
+
+  const subscribe = async () => {
+      const subscription = await sdk.subscribeEntityQuery(
+          {
+              command_nexus: {
+                  Game: {
+                      $: {
+                      },
+                  },
+              },
+          },
+          (response) => {
+              if (response.error) {
+                  console.error(
+                      "Error setting up entity sync:",
+                      response.error
+                  );
+              } else if (
+                  response.data &&
+                  response.data[0].entityId !== "0x0"
+              ) {
+                  console.log("subscribed", response.data[0]);
+                  state.updateEntity(response.data[0]);
+              }
+          },
+          { logging: true }
+      );
+
+      unsubscribe = () => subscription.cancel();
+  };
+
+  subscribe();
+
+  return () => {
+      if (unsubscribe) {
+          unsubscribe();
+      }
+  };
+}, [sdk, account.address]);
+
   const prevGameRef = useRef(game);
   const prevPlayerRef = useRef(player);
 
@@ -96,6 +139,33 @@ const MainMenu: React.FC = () => {
 
   const [hours, setHours] = useState<number | null>(null);
   const [minutes, setMinutes] = useState(5);
+
+  useEffect(() => {
+    Object.entries(entities).forEach(([entityId, entity]) => {
+      const currentGame = entity.models.command_nexus.Game;
+  
+      // Ensure currentGame exists before comparing its arena_host property
+      if (currentGame && bigIntAddressToString(currentGame.arena_host) === account?.address) {
+        setGame(currentGame);
+      } else {
+        setGame(null);
+      }
+      
+      const currentPlayer = entity.models.command_nexus.Player;
+      // Ensure currentPlayer exists before comparing its address property
+      if (currentPlayer && bigIntAddressToString(currentPlayer.address) === account?.address) {
+        setPlayer(currentPlayer);
+        if (currentPlayer?.game_id >= 0) {
+          set_game_id(currentPlayer.game_id);
+          console.log(".......................",currentPlayer.game_id)
+          set_game_state(GameState.Lobby);
+        }
+      } else {
+        setPlayer(null);
+      }
+    });
+  }, [entities, account?.address]);
+
   useEffect(() => {
     if (game) {
      // setIsLoading(false);
@@ -147,7 +217,7 @@ useEffect(() => {
         <div className="flex flex-col justify-center items-center gap-8">
           <header className="w-full flex justify-between items-center mb-6">
             <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-green">
-              Command Nexus
+              {/* Command Nexus */}
             </h1>
             <div className="flex items-center gap-4">
               <WalletButton />
@@ -174,47 +244,85 @@ useEffect(() => {
               />
             </div>
           ) : (
-            <div className="w-full max-w-4xl bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
-              <div className="p-6 bg-cover bg-center" style={{backgroundImage: "url('https://res.cloudinary.com/dydj8hnhz/image/upload/v1722350662/p1qgfdio6sv1khctclnq.webp')"}}>
-                <h2 className="text-3xl font-bold mb-4">Active Games</h2>
-                <Table className="w-full">
-                  <TableHeader>
-                    <TableRow className="bg-gray-700 bg-opacity-60">
-                      <TableHead className="py-3 text-left">Host</TableHead>
-                      <TableHead className="py-3 text-center">ID</TableHead>
-                      <TableHead className="py-3 text-center">Players</TableHead>
-                      <TableHead className="py-3"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {Object.entries(entities).map(([entityId,entity])=> {
-                      const game = entity.models.command_nexus.Game;
-                      bigIntAddressToString(entity.models.command_nexus.Game.arena_host) === account?.address ? setGame(game): setGame(null);
-                      const player = bigIntAddressToString(entity.models.command_nexus.Player.address) === account?.address ? entity.models.command_nexus.Player : null;
-                      setPlayer(player)
-                      return <GameRow key={entityId} game={game} setPlayerName={setPlayerName} />
-                    })}
-                  </TableBody>
-                </Table>
+            <div className="w-full max-w-4xl">
+            {/* Command Center Header */}
+            <div className="border border-green-500/30 rounded-t-lg bg-black/60 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <h2 className="text-green-400 font-mono text-xl">ACTIVE OPERATIONS</h2>
+                </div>
+                <div className="text-green-500/60 font-mono text-sm">
+                  [SECURE CHANNEL]
+                </div>
               </div>
-              <div className="bg-gray-900 p-4 flex justify-end">
+            </div>
+      
+            {/* Main Content Area */}
+            <div className="border-l border-r border-green-500/30 bg-black/40">
+              <div className="p-6">
+                {/* Grid overlay effect */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,0,0.03)1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)1px,transparent_1px)] bg-[size:20px_20px] pointer-events-none" />
+                  
+                  <Table className="w-full relative">
+                    <TableHeader>
+                      <TableRow className="border-green-500/30 bg-green-900/20">
+                        <TableHead className="text-green-400 font-mono text-left">COMMANDER</TableHead>
+                        <TableHead className="text-green-400 font-mono text-center">OP-ID</TableHead>
+                        <TableHead className="text-green-400 font-mono text-center">SQUAD STATUS</TableHead>
+                        <TableHead className="text-green-400 font-mono text-right">ACTIONS</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {Object.entries(entities).map(([entityId, entity]) => {
+                        if (entity.models.command_nexus.Game) {
+                          const game = entity.models.command_nexus.Game;
+                          return (
+                            <GameRow 
+                              key={entityId} 
+                              game={game} 
+                              setPlayerName={setPlayerName}
+                            />
+                          );
+                        }
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+      
+            {/* Control Panel Footer */}
+            <div className="border border-green-500/30 rounded-b-lg bg-black/60 p-4">
+              <div className="flex justify-between items-center">
+                <div className="text-green-500/60 font-mono text-sm">
+                  STATUS: READY FOR DEPLOYMENT
+                </div>
                 <DialogCreateJoin
                   onClick={createNewGame}
                   playerName={player_name}
                   setPlayerName={setPlayerName}
-                  dialogTitle="Create a new game"
-                  buttonText="Create"
-                  buttonTextDisplayed="Create a New Game"
+                  dialogTitle="INITIALIZE NEW OPERATION"
+                  buttonText="DEPLOY"
+                  buttonTextDisplayed={
+                    <div className="flex items-center space-x-2">
+                      <span>◈</span>
+                      <span>INITIATE NEW OPERATION</span>
+                      <span>◈</span>
+                    </div>
+                  }
                   hours={hours}
                   setHours={setHours}
                   minutes={minutes}
                   setMinutes={setMinutes}
                   limit={round_limit}
-                  setLimit={(value: number) => setRoundLimit(value)}
+                  setLimit={setRoundLimit}
                   isCreating={true}
                 />
               </div>
             </div>
+          </div>
           )}
         </div>
       </div>

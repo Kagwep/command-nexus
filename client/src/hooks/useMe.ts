@@ -4,6 +4,7 @@ import { useDojo } from '../dojo/useDojo';
 import { useTurn } from './useTurn';
 import { Player } from '../dojogen/models.gen';
 import useNetworkAccount from './useNetworkAccount';
+import { removeLeadingZeros } from '../utils/sanitizer';
 
 export function useMe(): { me: Player | null; isItMyTurn: boolean } {
   
@@ -22,12 +23,8 @@ export function useMe(): { me: Player | null; isItMyTurn: boolean } {
   useEffect(() => {
 
     if (players.length > 0 && account.address) {
-      
-      const me = players.find((p) => p.address === account.address);
-      if (!me) return;
-      const player  = me ? me : null;
-      
-      setMe(player as React.SetStateAction<Player | null>);
+      const me = players.find((p) => removeLeadingZeros(p.address) === account.address);
+      setMe(me as unknown as Player);
     }
   }, [account, players.length]);
 

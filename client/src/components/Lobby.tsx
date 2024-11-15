@@ -2,7 +2,7 @@ import GameState from '../utils/gamestate';
 import { useElementStore } from '../utils/nexus';
 import { Button } from './UI/button';
 import { useEffect } from 'react';
-import { removeLeadingZeros } from '../utils/sanitizer';
+import { removeLeadingZeros, shortAddress } from '../utils/sanitizer';
 import { useDojo } from '../dojo/useDojo';
 import { toast, useToast } from './UI/use-toast';
 import { useGetPlayersForGame } from '../hooks/useGetPlayersForGame';
@@ -14,13 +14,15 @@ import { Player } from '../utils/types';
 import { useState } from 'react';
 import WalletButton from './WalletButton';
 import Loading from './Loading';
-import { useNetworkAccount } from '../contexts/WalletContex';
+import { useNetworkAccount } from '../context/WalletContex';
+import { Account } from 'starknet';
+import { hexToUtf8 } from '../utils/unpack';
 
 
 const Lobby: React.FC = () => {
   const {
     setup: {
-      client: { arena }
+      client
     },
   } = useDojo();
 
@@ -31,7 +33,7 @@ const Lobby: React.FC = () => {
 
   const game = useGame();
 
-  console.log(game_id)
+  //console.log(game_id,game )
 
   const { players } = useGetPlayersForGame(game_id);
 
@@ -77,7 +79,8 @@ const Lobby: React.FC = () => {
   }, [game]);
 
   const isHost = (arena: string, address: string) => {
-    return arena === removeLeadingZeros(address);
+
+    return removeLeadingZeros(arena) === removeLeadingZeros(address);
   };
 
   const startGame = async () => {
@@ -92,12 +95,7 @@ const Lobby: React.FC = () => {
     try {
       setStartLoading(true);
       console.log("loading..........",game_id, round_limit)
-      const response = await arena.start(account, game_id, round_limit);
-      console.log(response.execution_status);
-      toast({
-        variant: 'default',
-        description: <code className="text-white text-xs">{response.execution_status}</code>,
-      });
+      const response = await (await client).arena.start(account as Account, game_id, round_limit);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -111,10 +109,10 @@ const Lobby: React.FC = () => {
   const leaveGame = async (game_id: number) => {
     try {
       setLeaveLoading(true);
-      if (isHost(game.arena, account.address)) {
-        await arena.delete_game(account, game.id);
+      if (isHost(game.arena_host, account.address)) {
+        await (await client).arena.delete(account as Account, game.game_id);
       } else {
-        await arena.leave(account, game_id);
+        await (await client).arena.leave(account as Account, game_id);
       }
 
       set_game_id(0);
@@ -132,7 +130,7 @@ const Lobby: React.FC = () => {
   const kickPlayer = async (player_index: number, game_id: number) => {
     try {
       setKickLoading(true);
-      await arena.kick(account, game_id, player_index);
+      await (await client).arena.kick(account as Account, game_id, player_index);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -146,7 +144,7 @@ const Lobby: React.FC = () => {
   const transferHost = async (player_index: number, game_id: number) => {
     try {
       setTransferLoading(true);
-      await arena.transfer(account, game_id, player_index);
+      await (await client).arena.transfer(account as Account, game_id, player_index);
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -164,105 +162,192 @@ const Lobby: React.FC = () => {
   // console.log(account.address)
 
   return (
-    <div className="font-vt323 min-h-screen bg-cover bg-center bg-no-repeat text-green-100" 
-         style={{backgroundImage: "url('')"}}>
-      <div className="flex flex-col justify-center items-center gap-6 p-4">
-        <header className="w-full flex justify-between items-center bg-green-950 bg-opacity-80 p-4 rounded-lg">
-          <Button
-            isLoading={leaveLoading}
-            isDisabled={leaveLoading}
-            variant="tertiary"
+    <div className="font-mono min-h-screen bg-gray-900 text-green-400 relative">
+      {/* Grid overlay effect */}
+      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(0,255,0,0.03)1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)1px,transparent_1px)] bg-[size:20px_20px]" />
+
+      <div className="relative z-10 flex flex-col justify-center items-center gap-6 p-4">
+        {/* Command Center Header */}
+        <header className="w-full flex justify-between items-center bg-black/60 border border-green-500/30 p-4 rounded-lg backdrop-blur-sm">
+          <button
+            disabled={leaveLoading}
             onClick={() => leaveGame(game.game_id)}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="relative group px-4 py-2"
           >
-            Leave
-          </Button>
-          <h1 className="text-4xl font-bold text-center text-green-300">Command Nexus</h1>
+            <div className="absolute inset-0 bg-red-900/20 border border-red-500/30 
+                          group-hover:bg-red-900/30 transition-all duration-300" />
+            <span className="relative text-red-400 group-hover:text-red-300">
+              ◀ ABORT MISSION
+            </span>
+          </button>
+
+          <h1 className="text-4xl font-mono text-green-400 flex items-center space-x-3">
+            <span>⌘</span>
+            <span>COMMAND NEXUS</span>
+            <span>⌘</span>
+          </h1>
+
           <WalletButton />
         </header>
 
-        <main className="w-full max-w-6xl bg-green-950 bg-opacity-80 p-8 rounded-lg shadow-lg">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-semibold">Game #{game.game_id}</h2>
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center"><FaUsers className="mr-2" />{players.length}/4 Players</span>
-              <span className="flex items-center"><FaClock className="mr-2" />Turn: {game.clock}</span>
-              <span className="flex items-center"><FaTrophy className="mr-2" />Limit: {game.limit}</span>
-              <span className="flex items-center"><FaCoins className="mr-2" />Price: {game.price.toString()}</span>
+        {/* Main Command Interface */}
+        <main className="w-full max-w-6xl bg-black/60 border border-green-500/30 p-8 rounded-lg backdrop-blur-sm">
+          {/* Operation Status Bar */}
+          <div className="flex justify-between items-center mb-6 border-b border-green-500/30 pb-4">
+            <h2 className="text-3xl font-mono">OPERATION #{game.game_id}</h2>
+            <div className="flex items-center space-x-6">
+              <StatusIndicator icon={<FaUsers />} label="SQUAD STRENGTH" value={`${players.length}/4`} />
+              <StatusIndicator icon={<FaClock />} label="OPERATION TIME" value={parseInt(game.clock.toString())} />
+              <StatusIndicator icon={<FaTrophy />} label="MISSION LIMIT" value={parseInt(game.limit.toString())} />
+              <StatusIndicator icon={<FaCoins />} label="RESOURCES" value={parseInt(game.price.toString())} />
             </div>
           </div>
 
+          {/* Tactical Information Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="bg-green-900 p-4 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">Game Info</h3>
-              <p>Minimum Moves: {game.minimum_moves}</p>
-              <p>Next to Move: Player {game.next_to_move.toString()}</p>
-              <p>Penalty: {game.penalty.toString()}</p>
-              <p>Seed: {game.seed.toString()}</p>
+            {/* Operation Parameters */}
+            <div className="bg-black/40 border border-green-500/20 p-4 rounded-lg">
+              <h3 className="text-xl font-mono mb-4 pb-2 border-b border-green-500/30 flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2" />
+                TACTICAL DATA
+              </h3>
+              <div className="space-y-2 font-mono text-sm">
+                <DataRow label="MINIMUM OPERATIONS" value={game.minimum_moves} />
+                <DataRow label="NEXT COMMANDER" value={`UNIT ${parseInt(game.next_to_move.toString())}`} />
+                <DataRow label="OPERATION PENALTY" value={parseInt(game.penalty.toString())} />
+                <DataRow label="TACTICAL SEED" value={parseInt(game.seed.toString())} />
+              </div>
             </div>
-            <div className="bg-green-900 p-4 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">Available Home Bases</h3>
-              {Object.entries(game.available_home_bases).map(([base, status]) => (
-                <p key={base}>{base}: {status.toString() === '0' ? 'Occupied' : 'Available'}</p>
-              ))}
+
+            {/* Base Status */}
+            <div className="bg-black/40 border border-green-500/20 p-4 rounded-lg">
+              <h3 className="text-xl font-mono mb-4 pb-2 border-b border-green-500/30 flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2" />
+                FORWARD OPERATING BASES
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                {Object.entries(game.available_home_bases).map(([base, status]) => (
+                  <div 
+                    key={base}
+                    className={`p-2 border ${
+                      parseInt(status.toString()) === 0 
+                        ? 'border-red-500/30 bg-red-900/10' 
+                        : 'border-green-500/30 bg-green-900/10'
+                    } rounded`}
+                  >
+                    <span className="font-mono text-sm">
+                      {base.toUpperCase()}: {parseInt(status.toString()) === 0 ? 'OCCUPIED' : 'AVAILABLE'}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          <Table className="w-full">
-            <TableHeader>
-              <TableRow className="bg-green-800">
-                <TableHead>Name</TableHead>
-                <TableHead>Address</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {players.map((player) => (
-                <TableRow key={player.address} className="hover:bg-green-800">
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {isHost(game.arena, player.address) && <FaFire className="text-red-500" />}
-                      {player.name}
-                    </div>
-                  </TableCell>
-                  <TableCell>{player.address}</TableCell>
-                  <TableCell>
-                    {isHost(game.arena, me.address) && player.address !== me.address && (
-                      <Button
-                        isLoading={kickLoading}
-                        isDisabled={kickLoading}
-                        size="sm"
-                        variant="tertiary"
-                        className="bg-red-600 hover:bg-red-700 text-white"
-                        onClick={() => kickPlayer(player.index, game.game_id)}
-                      >
-                        Kick
-                      </Button>
-                    )}
-                  </TableCell>
+          {/* Squad Roster */}
+          <div className="border border-green-500/20 rounded-lg overflow-hidden">
+            <Table className="w-full">
+              <TableHeader>
+                <TableRow className="bg-green-900/20 border-b border-green-500/30">
+                  <TableHead className="font-mono text-green-400">OPERATIVE</TableHead>
+                  <TableHead className="font-mono text-green-400">IDENTIFIER</TableHead>
+                  <TableHead className="font-mono text-green-400">COMMAND</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {players.map((player) => (
+                  <TableRow 
+                    key={player.address} 
+                    className="border-b border-green-500/10 hover:bg-green-900/10"
+                  >
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {isHost(game.arena_host, player.address) && (
+                          <div className="relative">
+                            <FaFire className="text-red-500" />
+                            <div className="absolute inset-0 animate-ping bg-red-500 rounded-full opacity-20" />
+                          </div>
+                        )}
+                        <span className="font-mono">{hexToUtf8(player.name)}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-green-400/70">
+                      {shortAddress(player.address)}
+                    </TableCell>
+                    <TableCell>
+                      {isHost(game.arena_host, me.address) && player.address !== me.address && (
+                        <button
+                          disabled={kickLoading}
+                          onClick={() => kickPlayer(player.index, game.game_id)}
+                          className="relative group px-4 py-1"
+                        >
+                          <div className="absolute inset-0 bg-red-900/20 border border-red-500/30 
+                                        group-hover:bg-red-900/30 transition-all duration-300" />
+                          <span className="relative text-red-400 group-hover:text-red-300 font-mono">
+                            TERMINATE
+                          </span>
+                        </button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
 
-          {isHost(game.arena, account.address) ? (
-            <div className="mt-6 flex justify-end">
-              <Button
-                isLoading={startLoading}
-                isDisabled={startLoading || players.length < 2}
-                className="bg-green-600 hover:bg-green-700 text-white"
+          {/* Command Actions */}
+          <div className="mt-6 flex justify-end">
+            {isHost(game.arena_host, account.address) ? (
+              <button
+                disabled={startLoading || players.length < 2}
                 onClick={startGame}
+                className="relative group px-6 py-2 font-mono"
               >
-                Start the Game
-              </Button>
-            </div>
-          ) : (
-            <Loading text="Waiting for the game to start" />
-          )}
+                <div className="absolute inset-0 bg-green-900/20 border border-green-500/30 
+                              group-hover:bg-green-900/30 transition-all duration-300" />
+                <span className="relative text-green-400 group-hover:text-green-300 flex items-center space-x-2">
+                  <span>◈</span>
+                  <span>INITIATE OPERATION</span>
+                  <span>◈</span>
+                </span>
+              </button>
+            ) : (
+              <div className="flex items-center space-x-3 text-green-400/70 font-mono">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span>AWAITING MISSION START</span>
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </div>
   );
 };
+
+// Utility Components
+const StatusIndicator: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}> = ({ icon, label, value }) => (
+  <div className="flex flex-col items-center">
+    <div className="flex items-center space-x-2 text-green-400/70">
+      {icon}
+      <span className="font-mono text-xs">{label}</span>
+    </div>
+    <span className="font-mono text-green-400">{value}</span>
+  </div>
+);
+
+const DataRow: React.FC<{
+  label: string;
+  value: string | number;
+}> = ({ label, value }) => (
+  <div className="flex justify-between items-center">
+    <span className="text-green-400/70">{label}:</span>
+    <span className="text-green-400">{value}</span>
+  </div>
+);
+
 
 export default Lobby;

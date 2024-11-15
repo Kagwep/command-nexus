@@ -3,7 +3,7 @@ import { Wallet } from 'lucide-react';
 import { Button } from './UI/button';
 import { useDojo } from '../dojo/useDojo';
 import { useElementStore } from '../utils/nexus';
-import { useNetworkAccount } from '../contexts/WalletContex';
+import { useNetworkAccount } from '../context/WalletContex';
 
 const WalletButton = () => {
   const { account, address, status, isConnected } = useNetworkAccount();

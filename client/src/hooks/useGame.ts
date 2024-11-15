@@ -10,21 +10,27 @@ export const useGame = () => {
 
   const { game_id } = useElementStore((state) => state);
 
+
   const state = useDojoStore((state) => state);
 
   const sdk = useSDK();
 
   const { account } = useNetworkAccount();
 
-  if(!game_id) return;
+ 
+
+  if(game_id < 0) return;
 
   if(!account) return;
+
 
       // Following the same pattern as useGetPlayersForGame
     const entityId = useMemo(
         () => getEntityIdFromKeys([BigInt(game_id)]),
         [game_id]
     );
+
+    console.log(",,,,,,,,,,,,,,,,,",entityId)
 
     useEffect(() => {
       let unsubscribe: (() => void) | undefined;
@@ -146,6 +152,8 @@ export const useGame = () => {
 
 
   const game = useModel(entityId, "command_nexus-Game");
+
+  console.log(game)
 
 
   return game;

@@ -13,7 +13,7 @@ export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
   const { game_id } = useElementStore((state) => state);
   const { account } = useNetworkAccount();
 
-  if(!game_id) return {players:[],playerNames:[]};
+  if(game_id < 0) return {players:[],playerNames:[]};
 
   if(!account) return {players:[],playerNames:[]};
 

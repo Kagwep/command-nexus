@@ -14,6 +14,7 @@ import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
 import { OnboardingProvider } from "./context/OnboardingContext.tsx";
 import AppInitializer from "./components/AppInitializer.tsx";
 
+
 /**
  * Initializes and bootstraps the Dojo application.
  * Sets up the SDK, burner manager, and renders the root component.
@@ -43,9 +44,11 @@ async function main() {
 
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
-            <OnboardingProvider>
-                <AppInitializer sdk={sdk} />
-            </OnboardingProvider>
+            <StarknetProvider>
+                <OnboardingProvider>
+                    <AppInitializer sdk={sdk} />
+                </OnboardingProvider>
+            </StarknetProvider>
         </StrictMode>
     );
 }

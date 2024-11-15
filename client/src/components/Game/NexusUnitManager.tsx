@@ -1,7 +1,7 @@
 import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
-import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, BattlefieldName, Deploy, ToastType, Infantry, EncodedVector3, Armored } from '../../utils/types';
+import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, Deploy, ToastType, Infantry, EncodedVector3, Armored } from '../../utils/types';
 import { regions, soldierAnimationMapping, tankAnimationMapping, positionEncoder, positionDecoder,unitTypeToInt,battlefieldTypeToInt, numberToUnitType } from '../../utils/nexus';
 import { Weapon } from './BulletSystem';
 import { SoundManager } from './SoundManager';
@@ -10,7 +10,7 @@ import { GameState } from './GameState';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { Account, AccountInterface } from 'starknet';
 import { bigintToU256 } from '../../lib/lib_utils/starknet';
-
+import { BattlefieldName } from '../../dojogen/models.gen';
 
 
 class NexusUnitManager {
@@ -20,10 +20,10 @@ class NexusUnitManager {
     private pointNavPre: GroundMesh;
     private crowd: any; // Type this properly if you have type definitions for the crowd
     private agents: Agent[] = [];
-    private selectedAgent: Agent | null = null;
-    public navmeshdebug;
+    private selectedAgent: Agent;
+    public navmeshdebug: any;
    // private guiRef: CommandNexusGui | null;
-    private getGui: () => CommandNexusGui | null;
+    private getGui: () => CommandNexusGui;
     private unitAssets: UnitAssetContainers = {
         [UnitType.Infantry]: new AssetContainer(),
         [UnitType.Armored]: new AssetContainer(),
@@ -33,7 +33,7 @@ class NexusUnitManager {
     };
     private unitAnimations: UnitAnimations;
     private activeUnitType: UnitType;
-    private activePosition: Vector3;
+    private activePosition: Vector3 = new Vector3;
     private bulletSystem: Weapon;
     private soundManager: SoundManager;
     private navMeshIndices: any;
@@ -44,10 +44,9 @@ class NexusUnitManager {
     private rayCaster: RayCaster;
     private getGameState: () => GameState;
     private battlefieldCameraManager;
-    private arena;
-    private nexus;
+    private client;
     private getAccount: () => AccountInterface | Account;
-    private game;
+    private game: any;
     private infantryUnits: Map<string, Infantry> = new Map();
     private armoredUnits: Map<string, Infantry> = new Map();
     
@@ -57,8 +56,8 @@ class NexusUnitManager {
         navigationPlugin: RecastJSPlugin, 
         ground: Mesh, 
         pointNavPre: GroundMesh,
-        getGui: () => CommandNexusGui | null,
-        getGameState: () => GameState | null,
+        getGui: () => CommandNexusGui,
+        getGameState: () => GameState,
         InfantryAssetContainer: AssetContainer,
         ArmoredAssetContainer: AssetContainer,
         battlefieldCameraManager: BattlefieldCameraManager,
@@ -86,8 +85,7 @@ class NexusUnitManager {
           this.rayCaster = new RayCaster(scene);
           this.getGameState = getGameState;
           this.battlefieldCameraManager = battlefieldCameraManager;
-          this.arena = arena,
-          this.nexus = nexus;
+          this.client = client,
           this.getAccount = getAccount;
           this.addUnits();
    
@@ -97,25 +95,9 @@ class NexusUnitManager {
 
     initializeCameraPosition(){
 
-         if(this.getGameState().player.home_base === "NovaWarhound"){
-            const selectedBattlefield = BattlefieldName.NovaWarhound; // This would come from user input
-            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-          }
-
-          if(this.getGameState().player.home_base === "Skullcrag"){
-            const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
-            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-          }
-
-          if(this.getGameState().player.home_base === "Ironforge"){
-            const selectedBattlefield = BattlefieldName.Ironforge; // This would come from user input
-            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-          }
-
-          if(this.getGameState().player.home_base === "RadiantShores"){
-            const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
-            this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-          }
+    
+        const selectedBattlefield = this.getGameState()?.player?.home_base;
+        this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield!);
 
         //   if(this.getGameState().player.home_base === "Skullcrag"){
         //     const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
@@ -163,7 +145,7 @@ class NexusUnitManager {
 
 
 
-    private createDebugNavMesh(navmeshData): void {
+    private createDebugNavMesh(navmeshData: Uint8Array): void {
         this.navmeshdebug = this.navigationPlugin.createDebugNavMesh(this.scene);
         this.navigationPlugin.buildFromNavmeshData(navmeshData);
         this.navmeshdebug = this.navigationPlugin.createDebugNavMesh(this.scene);
@@ -198,15 +180,15 @@ class NexusUnitManager {
         this.crowd.onReachTargetObservable.add((agentInfos: any) => {
             console.log("Agent reached destination:", agentInfos.agentIndex);
             this.pointNavPre.visibility = 0;
-            this.soundManager.stopSound("move")
-            this.getGui().showActionsMenu(this.activeUnitType);
+            this.soundManager?.stopSound("move")
+            this.getGui()?.showActionsMenu(this.activeUnitType!);
             //const elevation = this.getElevationAtPosition(this.activePosition)
            // const coverPosition = this.getCoverLevel(this.activePosition)
            // console.log(elevation,coverPosition);
             // Implement stop walk animation here if needed
             //this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent.animations.movement, 1.3, this.selectedAgent.animations.idle, 1.0, true, 0.05));
         
-            this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent.animations.movement, 1.3, this.selectedAgent.animations.idle, 1.0, true, 0.05));
+            this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent?.animations.movement, 1.3, this.selectedAgent?.animations.idle, 1.0, true, 0.05));
 
 
         });
@@ -259,7 +241,7 @@ class NexusUnitManager {
         // Start with idle animation
         agent.animations.idle.start(true);
 
-        this.getGui().handleDeployement();
+        this.getGui()?.handleDeployement();
 
         return agent;
     }
@@ -269,7 +251,7 @@ class NexusUnitManager {
 
         for (const [key, nameParts] of Object.entries(mapping)) {
             const matchingAnimation = animationGroups.find(ag => 
-                nameParts.some(part => ag.name.toLowerCase().includes(part.toLowerCase()))
+                nameParts?.some(part => ag.name.toLowerCase().includes(part.toLowerCase()))
             );
 
             if (matchingAnimation) {
@@ -301,11 +283,11 @@ class NexusUnitManager {
                 switch (mesh.metadata.UnitData.unitType) {
                     case UnitType.Infantry:
                         console.log("..")
-                        this.getGui().showInfantryInfo(mesh.metadata.UnitData);
+                        this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
                         break;
                     case UnitType.Armored:
                         console.log("*-*")
-                        this.getGui().showArmoredInfo(mesh.metadata.UnitData);
+                        this.getGui()?.showArmoredInfo(mesh.metadata.UnitData);
                         break;
                     // case UnitType.Naval:
 
@@ -316,9 +298,9 @@ class NexusUnitManager {
                        console.log(mesh.metadata.UnitData.unitType);
                 }
             }
-            if (this.selectedAgent && this.selectedAgent.idx !== mesh.metadata.agentIndex && this.getGui().getAbilityMode() == AbilityType.Attack) {
+            if (this.selectedAgent && this.selectedAgent.idx !== mesh.metadata.agentIndex && this.getGui()?.getAbilityMode() == AbilityType.Attack) {
                 console.log("different", this.selectedAgent.visualMesh);
-                console.log(this.getGui().getAbilityMode());
+                console.log(this.getGui()?.getAbilityMode());
                 // Get the target agent
                 const targetAgent = this.agents[mesh.metadata.agentIndex];
 
@@ -386,7 +368,7 @@ class NexusUnitManager {
                             0.05
                         )
                     );
-                    this.soundManager.playSound("bulletFire");
+                    this.soundManager?.playSound("bulletFire");
             
                     console.log("Agent is now facing the target",this.selectedAgent.visualMesh);
 
@@ -404,12 +386,12 @@ class NexusUnitManager {
 
 
                     setTimeout(() => {
-                        this.soundManager.stopSound("bulletFire")
+                        this.soundManager?.stopSound("bulletFire")
                         this.scene.onBeforeRenderObservable.runCoroutineAsync(
                             this.animationBlending(
-                                this.selectedAgent.animations.attack,
+                                this.selectedAgent?.animations.attack,
                                 1.3,
-                                this.selectedAgent.animations.idle,
+                                this.selectedAgent?.animations.idle,
                                 1.0,
                                 true,
                                 0.05
@@ -417,22 +399,25 @@ class NexusUnitManager {
                         );
                         // this.selectedAgent.navAgent.rotate(Axis.Y, Math.PI, Space.LOCAL);
                         // this.selectedAgent.visualMesh.rotate(Axis.Y, Math.PI, Space.LOCAL);
-                        this.selectedAgent.navAgent.rotationQuaternion = originalRotation;
-                        this.selectedAgent.visualMesh.rotationQuaternion = agentRotation;
+                        if(this.selectedAgent){
+                            this.selectedAgent.navAgent.rotationQuaternion = originalRotation;
+                            this.selectedAgent.visualMesh.rotationQuaternion = agentRotation;
+    
+                            this.getGui()?.handleAttack();
+    
+                            console.log("Stopping attack animation and returning to idle");
+                        }
 
-                        this.getGui().handleAttack();
-
-                        console.log("Stopping attack animation and returning to idle");
                     }, 3000); // 3000 milliseconds = 3 seconds
                 } else {
                     console.log("Target agent or its navAgent not found");
                 }
             }
-            if(this.getGui().getAbilityMode() !== AbilityType.Attack){
+            if(this.getGui()?.getAbilityMode() !== AbilityType.Attack){
                  this.selectedAgent = this.agents[mesh.metadata.agentIndex];
             }
            
-        } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui().getDeploymentMode()) {
+        } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode()) {
             //console.log(this.getGui().getDeploymentMode())
             // const startingPoint = this.getGroundPosition();
 
@@ -457,16 +442,16 @@ class NexusUnitManager {
                 this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
         
                 if (this.selectedAgent.cUnitType === UnitType.Infantry){
-                    this.soundManager.playSound("move");
+                    this.soundManager?.playSound("move");
                 }
 
                 this.activeUnitType = this.selectedAgent.cUnitType;
             }
-        }else if (mesh.name.includes("ground") && this.getGui().getDeploymentMode()) {
+        }else if (mesh.name.includes("ground") && this.getGui()?.getDeploymentMode()) {
 
             console.log("0.0.0.0...0.0..")
 
-            const {unit: unitType, position} = this.getGui().getSelectedUnitAndDeployPosition();
+            const {unit: unitType, position} = this.getGui()?.getSelectedUnitAndDeployPosition();
             this.activePosition = startingPoint;
 
             const clickedRegion = this.getClickedRegion(startingPoint);
@@ -476,7 +461,7 @@ class NexusUnitManager {
 
             const player_base = this.getGameState().player.home_base;
 
-            if (player_base === BattlefieldName[clickedRegion]){
+            if (player_base === clickedRegion){
 
                 const encodedPosition= positionEncoder(startingPoint);
                 const unit = unitTypeToInt(unitType);
@@ -1057,7 +1042,7 @@ class NexusUnitManager {
     private deployUnit = async (deploy: Deploy) => {
         try {
     
-          const result  = await this.nexus.deploy_forces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
+          const result  = await this.client.nexus.deploy_forces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
           console.log(result)
 
           if (result?.message) {

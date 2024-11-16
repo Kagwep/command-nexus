@@ -17,6 +17,9 @@ import Loading from './Loading';
 import { useNetworkAccount } from '../context/WalletContex';
 import { Account } from 'starknet';
 import { hexToUtf8 } from '../utils/unpack';
+import { useDojoStore } from '../lib/utils';
+import { useSDK } from '../context/SDKContext';
+import Navbar from './Navbar';
 
 
 const Lobby: React.FC = () => {
@@ -26,7 +29,12 @@ const Lobby: React.FC = () => {
     },
   } = useDojo();
 
+  const sdk = useSDK();
+
   const { account, address, status, isConnected } = useNetworkAccount();
+
+  const state = useDojoStore((state) => state);
+  const entities = useDojoStore((state) => state.entities);
 
   const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
 
@@ -63,6 +71,62 @@ const Lobby: React.FC = () => {
       }
     }
   }, [me, players, set_game_state, GameState]);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+  
+    const subscribe = async () => {
+        const subscription = await sdk.subscribeEntityQuery(
+            {
+                command_nexus: {
+                    Game: {
+                        $: {
+                          where: {
+                            game_id: {
+                                $is:game_id,
+                            },
+                        },
+                        },
+                    },
+                    Player: {
+                      $: {
+                          where: {
+                              game_id: {
+                                  $is:game_id,
+                              },
+                          },
+                      },
+                  },
+                },
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(
+                        "Error setting up entity sync:",
+                        response.error
+                    );
+                } else if (
+                    response.data &&
+                    response.data[0].entityId !== "0x0"
+                ) {
+                    console.log("subscribed", response.data[0]);
+                    state.updateEntity(response.data[0]);
+                }
+            },
+            { logging: true }
+        );
+  
+        unsubscribe = () => subscription.cancel();
+    };
+  
+    subscribe();
+  
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+  }, [sdk, account.address]);
 
   console.log("51456454464",game)
   console.log("51456454464",game_id)
@@ -159,14 +223,23 @@ const Lobby: React.FC = () => {
     return;
   }
 
+    // Map base keys to battlefield names
+  const baseNameMapping = {
+    'base1': 'RadiantShores',
+    'base2': 'Ironforge',
+    'base3': 'Skullcrag',
+    'base4': 'NovaWarhound'
+  };
+
   // console.log(account.address)
 
   return (
     <div className="font-mono min-h-screen bg-gray-900 text-green-400 relative">
+       <Navbar />
       {/* Grid overlay effect */}
-      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(0,255,0,0.03)1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)1px,transparent_1px)] bg-[size:20px_20px]" />
+      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(0,255,0,0.03)1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)1px,transparent_1px)] bg-[size:20px_20px] mt-12" />
 
-      <div className="relative z-10 flex flex-col justify-center items-center gap-6 p-4">
+      <div className="relative z-10 flex flex-col justify-center items-center gap-6 p-4 mt-12">
         {/* Command Center Header */}
         <header className="w-full flex justify-between items-center bg-black/60 border border-green-500/30 p-4 rounded-lg backdrop-blur-sm">
           <button
@@ -213,7 +286,7 @@ const Lobby: React.FC = () => {
               </h3>
               <div className="space-y-2 font-mono text-sm">
                 <DataRow label="MINIMUM OPERATIONS" value={game.minimum_moves} />
-                <DataRow label="NEXT COMMANDER" value={`UNIT ${parseInt(game.next_to_move.toString())}`} />
+                <DataRow label="NEXT COMMANDER" value={`COMMANDER ${parseInt(game.next_to_move.toString())}`} />
                 <DataRow label="OPERATION PENALTY" value={parseInt(game.penalty.toString())} />
                 <DataRow label="TACTICAL SEED" value={parseInt(game.seed.toString())} />
               </div>
@@ -226,20 +299,24 @@ const Lobby: React.FC = () => {
                 FORWARD OPERATING BASES
               </h3>
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(game.available_home_bases).map(([base, status]) => (
-                  <div 
-                    key={base}
-                    className={`p-2 border ${
-                      parseInt(status.toString()) === 0 
-                        ? 'border-red-500/30 bg-red-900/10' 
-                        : 'border-green-500/30 bg-green-900/10'
-                    } rounded`}
-                  >
-                    <span className="font-mono text-sm">
-                      {base.toUpperCase()}: {parseInt(status.toString()) === 0 ? 'OCCUPIED' : 'AVAILABLE'}
-                    </span>
-                  </div>
-                ))}
+                {Object.entries(game.available_home_bases).map(([base, status]) => {
+                  const baseName = baseNameMapping[base] || base;
+                  
+                  return (
+                    <div 
+                      key={base}
+                      className={`p-2 border ${
+                        parseInt(status.toString()) === 0 
+                          ? 'border-red-500/30 bg-red-900/10' 
+                          : 'border-green-500/30 bg-green-900/10'
+                      } rounded`}
+                    >
+                      <span className="font-mono text-sm">
+                        {baseName.toUpperCase()}: {parseInt(status.toString()) === 0 ? 'OCCUPIED' : 'AVAILABLE'}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

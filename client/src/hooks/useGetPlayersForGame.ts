@@ -58,6 +58,64 @@ export function useGetPlayersForGame(gameId: number | undefined): {players: Play
       fetchEntities();
   }, [sdk, account.address]);
 
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+  
+    const subscribe = async () => {
+        const subscription = await sdk.subscribeEntityQuery(
+            {
+                command_nexus: {
+                    Game: {
+                        $: {
+                          where: {
+                            game_id: {
+                                $is:game_id,
+                            },
+                        },
+                        },
+                    },
+                    Player: {
+                      $: {
+                          where: {
+                              game_id: {
+                                  $is:game_id,
+                              },
+                          },
+                      },
+                  },
+                },
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(
+                        "Error setting up entity sync:",
+                        response.error
+                    );
+                } else if (
+                    response.data &&
+                    response.data[0].entityId !== "0x0"
+                ) {
+                    console.log("subscribed", response.data[0]);
+                    state.updateEntity(response.data[0]);
+                }
+            },
+            { logging: true }
+        );
+  
+        unsubscribe = () => subscription.cancel();
+    };
+  
+    subscribe();
+  
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+  }, [sdk, account.address]);
+
+  console.log(entities);
+
   const players = Object.values(entities)
   .map(entity => entity.models.command_nexus.Player)
   .filter(player => player && player.game_id === game_id);  // Add gameId filter

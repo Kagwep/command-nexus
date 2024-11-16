@@ -30,7 +30,7 @@ const ZOOM_SPEED = 5;
 
 
 
-export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine, getGui: () => CommandNexusGui, getGameState: () => GameState,gameState: {
+export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: Engine,player, getGui: () => CommandNexusGui, getGameState: () => GameState,gameState: {
   player: Player,
   turn: number,
   game: Game,
@@ -88,6 +88,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
       //   mesh.visibility = 0;
       //   mesh.isPickable = false
       // }
+      console
 
 
      if (gameState.player){
@@ -96,7 +97,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             const novaWarhoundLandmark = mesh as Mesh;
             battlefieldCameraManager.registerLandmark(BattlefieldName.NovaWarhound, novaWarhoundLandmark);
 
-            if(gameState.player.home_base === BattlefieldName.NovaWarhound){
+            if(gameState.player.home_base === "NovaWarhound" as unknown as BattlefieldName){
               const selectedBattlefield = BattlefieldName.NovaWarhound; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
@@ -106,7 +107,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             const skullcragLandmark = mesh as Mesh;
             battlefieldCameraManager.registerLandmark(BattlefieldName.Skullcrag, skullcragLandmark);
 
-            if(gameState.player.home_base === BattlefieldName.Skullcrag){
+            if(gameState.player.home_base === "Skullcrag" as unknown as BattlefieldName){
               const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
@@ -116,7 +117,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             const ironForgeLandmark = mesh as Mesh;
             battlefieldCameraManager.registerLandmark(BattlefieldName.Ironforge, ironForgeLandmark);
 
-            if(gameState.player.home_base === BattlefieldName.Ironforge){
+            if(gameState.player.home_base === "Ironforge" as unknown as BattlefieldName){
               const selectedBattlefield = BattlefieldName.Ironforge; // This would come from user input
               battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
             }
@@ -128,7 +129,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
               console.log("found ............................................")
   
-              if(gameState.player.home_base === BattlefieldName.RadiantShores){
+              if(gameState.player.home_base === "RadiantShores" as unknown as BattlefieldName){
                 const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
                 battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
               }

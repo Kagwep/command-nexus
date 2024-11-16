@@ -9,13 +9,13 @@ export const useInfantryUnits = () => {
   const { game_id } = useElementStore((state) => state);
 
   const state = useDojoStore((state) => state);
-  const entities = useDojoStore((state) => state.entities);
+  const entities = useDojoStore((state) => state.getEntitiesByModel("command_nexus","Infantry"));
 
   const sdk = useSDK();
 
   const { account } = useNetworkAccount();
 
-  if(!game_id) return;
+  if(game_id < 0) return;
 
   if(!account) return;
 
@@ -60,9 +60,67 @@ export const useInfantryUnits = () => {
 
 
 
+useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+  
+    const subscribe = async () => {
+        const subscription = await sdk.subscribeEntityQuery(
+            {
+                command_nexus: {
+                    Infantry: {
+                        $: {
+                            where: {
+                                game_id: {
+                                    $is:game_id,
+                                },
+                            },
+                        },
+                    },
+                    AbilityState: {
+                        $: {
+                            where: {
+                                game_id: {
+                                    $is:game_id,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(
+                        "Error setting up entity sync:",
+                        response.error
+                    );
+                } else if (
+                    response.data &&
+                    response.data[0].entityId !== "0x0"
+                ) {
+                    console.log("subscribed", response.data[0]);
+                    state.updateEntity(response.data[0]);
+                }
+            },
+            { logging: true }
+        );
+  
+        unsubscribe = () => subscription.cancel();
+    };
+  
+    subscribe();
+  
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+  }, [sdk, account.address]);
+
   const infantryUnits =  Object.values(entities)
   .map(entity => entity.models.command_nexus.Infantry)
   .filter(Boolean); 
+
+  console.log(entities);
 
   return {
     infantryUnits,

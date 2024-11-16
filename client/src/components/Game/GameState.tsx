@@ -6,6 +6,7 @@ import { useGetPlayersForGame } from '../../hooks/useGetPlayersForGame';
 import { useElementStore } from '../../utils/nexus';
 import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Game, Player } from '../../dojogen/models.gen';
+import { removeLeadingZeros } from '../../utils/sanitizer';
 
 
 export interface GameState {
@@ -35,7 +36,7 @@ export const useGameState = ():{
 
 
   const getGameState = useCallback((): GameState  => {
-      const me = players.find((p) => p.address === account?.address);
+      const me = players.find((p) => removeLeadingZeros(p.address) === account?.address);
 
       return {
         player: me ? me : null,

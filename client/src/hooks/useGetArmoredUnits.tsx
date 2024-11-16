@@ -15,7 +15,7 @@ export const useArmoredUnits = () => {
 
   const { account } = useNetworkAccount();
 
-  if(!game_id) return;
+  if(game_id  < 0) return;
 
   if(!account) return;
 

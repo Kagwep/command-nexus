@@ -16,6 +16,8 @@ import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
 import { useArmoredUnits } from '../../hooks/useGetArmoredUnits';
 import { Player } from '../../dojogen/models.gen';
 import GameState from '../../utils/gamestate';
+import { useDojoStore } from '../../lib/utils';
+import { useSDK } from '../../context/SDKContext';
 
 
 const GRID_SIZE = 40;
@@ -41,15 +43,13 @@ const CommandNexus = () => {
   const { me: player, isItMyTurn } = useMe();
   const { turn } = useTurn();
 
-  if (!player) return;
-
-  const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
+  const state = useDojoStore((state) => state);
+  const entities = useDojoStore((state) => state.entities);
+  const {  game_id} = useElementStore((state) => state);
   const { account, address, status, isConnected } = useNetworkAccount();
   const infantry = useInfantryUnits();
-
-
-  if (!account) return;
-    
+  const sdk = useSDK();
+ 
   const armored = useArmoredUnits();
 
   const game = useGame();
@@ -99,7 +99,9 @@ const CommandNexus = () => {
 
               const getGameState = () => nexusGameState ? nexusGameState.getGameState() : null;
               
-              await setupScene(sceneRef.current, camera, engineRef.current!, getGui,getGameState, nexusGameState?.gameState,client,getAccount);
+              if (player){
+                await setupScene(sceneRef.current, camera, engineRef.current!,player, getGui,getGameState, nexusGameState?.gameState,client,getAccount);
+              }
               setIsSceneReady(true);
               
               setIsLoading(false);
@@ -130,7 +132,7 @@ const CommandNexus = () => {
               
           };
       }
-  }, []);
+  }, [player?.address]);
 
 
   useEffect(() => {
@@ -143,7 +145,126 @@ const CommandNexus = () => {
         armoredUnits: armored?.armoredUnits,
       };
     }
-  }, [isSceneReady, infantry?.infantryUnits,game]);
+  }, [isSceneReady, infantry?.infantryUnits,game,armored?.armoredUnits]);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+
+    const subscribe = async () => {
+        const subscription = await sdk.subscribeEntityQuery(
+            {
+                command_nexus: {
+                    Game: {
+                        $: {
+                            where: {
+                                game_id: {
+                                    $is: game_id,
+                                },
+                            },
+                        },
+                    },
+                    Player: {
+                        $: {
+                            where: {
+                                game_id: {
+                                    $is: game_id,
+                                },
+                            },
+                        },
+                    },
+                    UnitState: {
+                        $: {
+                          where: {
+                            game_id: {
+                                $is: game_id,
+                            },
+                        },
+                        },
+                    },
+                    AbilityState: {
+                        $: {
+                          where: {
+                            game_id: {
+                                $is: game_id,
+                            },
+                        },
+                        },
+                    },
+                    AirUnit: {
+                        $: {
+                          where: {
+                            game_id: {
+                                $is: game_id,
+                            },
+                        },
+                        },
+                    },
+                    UrbanBattlefield: {
+                      $: {
+                        where: {
+                          game_id: {
+                              $is: game_id,
+                          },
+                      },
+                      },
+                  },
+                  Armored: {
+                    $: {
+                      where: {
+                        game_id: {
+                            $is: game_id,
+                        },
+                    },
+                    },
+                },
+                  Infantry: {
+                    $: {
+                      where: {
+                        game_id: {
+                            $is: game_id,
+                        },
+                    },
+                    },
+                },Ship: {
+                  $: {
+                    where: {
+                      game_id: {
+                          $is: game_id,
+                      },
+                  },
+                  },
+              },
+                },
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(
+                        "Error setting up entity sync:",
+                        response.error
+                    );
+                } else if (
+                    response.data &&
+                    response.data[0].entityId !== "0x0"
+                ) {
+                    console.log("subscribed", response.data[0]);
+                    state.updateEntity(response.data[0]);
+                }
+            },
+            { logging: true }
+        );
+
+        unsubscribe = () => subscription.cancel();
+    };
+
+    subscribe();
+
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+}, [sdk, account.address]);
+
 
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;
 }

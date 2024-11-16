@@ -13,6 +13,7 @@ import { useDojoStore } from '../lib/utils';
 import { Account, addAddressPadding } from 'starknet';
 import { bigIntAddressToString } from '../utils/sanitizer';
 import { Game } from '../dojogen/models.gen';
+import Navbar from './Navbar';
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -36,6 +37,8 @@ const MainMenu: React.FC = () => {
   const state = useDojoStore((state) => state);
   const entities = useDojoStore((state) => state.entities);
 
+
+  
   useEffect(() => {
     const fetchEntities = async () => {
 
@@ -45,6 +48,9 @@ const MainMenu: React.FC = () => {
                 {
                     command_nexus: {
                         Game: {
+                            $: { },
+                        },
+                        Player: {
                             $: { },
                         },
                     },
@@ -68,8 +74,55 @@ const MainMenu: React.FC = () => {
     };
 
     fetchEntities();
+    console.log("value changed")
 }, [sdk, account?.address]);
+
+useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
   
+    const subscribe = async () => {
+        const subscription = await sdk.subscribeEntityQuery(
+            {
+                command_nexus: {
+                    Game: {
+                        $: {
+                        },
+                    },
+                    Player: {
+                      $: {
+                      },
+                  },
+                },
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(
+                        "Error setting up entity sync:",
+                        response.error
+                    );
+                } else if (
+                    response.data &&
+                    response.data[0].entityId !== "0x0"
+                ) {
+                    console.log("subscribed", response.data[0]);
+                    state.updateEntity(response.data[0]);
+
+                }
+            },
+            { logging: true }
+        );
+  
+        unsubscribe = () => subscription.cancel();
+    };
+  
+    subscribe();
+  
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+  }, [sdk, account.address]);
 
 useEffect(() => {
   let unsubscribe: (() => void) | undefined;
@@ -78,8 +131,13 @@ useEffect(() => {
       const subscription = await sdk.subscribeEntityQuery(
           {
               command_nexus: {
-                  Game: {
+                  Infantry: {
                       $: {
+                          where: {
+                              game_id: {
+                                  $is:game?.game_id,
+                              },
+                          },
                       },
                   },
               },
@@ -111,7 +169,23 @@ useEffect(() => {
           unsubscribe();
       }
   };
-}, [sdk, account.address]);
+}, [sdk, game?.game_id]);
+
+  const [messageIndex, setMessageIndex] = useState(0);
+  const messages = [
+    'NO ACTIVE OPERATIONS DETECTED',
+    'AWAITING MISSION INITIALIZATION',
+    'COMMAND CENTER READY',
+    'TACTICAL SYSTEMS ONLINE'
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % messages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const prevGameRef = useRef(game);
   const prevPlayerRef = useRef(player);
@@ -140,7 +214,7 @@ useEffect(() => {
   const [hours, setHours] = useState<number | null>(null);
   const [minutes, setMinutes] = useState(5);
 
-  useEffect(() => {
+  const setStates = () => {
     Object.entries(entities).forEach(([entityId, entity]) => {
       const currentGame = entity.models.command_nexus.Game;
   
@@ -164,6 +238,10 @@ useEffect(() => {
         setPlayer(null);
       }
     });
+  }
+
+  useEffect(() => {
+    setStates();
   }, [entities, account?.address]);
 
   useEffect(() => {
@@ -203,6 +281,7 @@ useEffect(() => {
     try {
       const totalSeconds = hours ? hours * 3600 + minutes * 60 : minutes * 60;
       let result = await (await client).arena.create(account as Account, player_name, /* price */ 0, /* penalty*/ totalSeconds);
+
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -211,9 +290,12 @@ useEffect(() => {
     }
   };
 
+  //console.log(entities);
+
   return (
     <div className="font-vt323 min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      <div className="container mx-auto px-4 py-8">
+       <Navbar />
+      <div className="container mx-auto px-4 py-8 mt-12">
         <div className="flex flex-col justify-center items-center gap-8">
           <header className="w-full flex justify-between items-center mb-6">
             <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-blue-green">
@@ -226,7 +308,23 @@ useEffect(() => {
 
           { Object.keys(entities).length === 0 ? (
             <div className="text-center py-12 bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-2xl">
-              <h2 className="text-3xl mb-6">No active games. Start your adventure!</h2>
+                  <div className="relative border border-green-500/30 bg-black/40 p-8 rounded-lg mb-2">
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="flex items-center space-x-3 font-mono text-2xl text-green-400">
+                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span>{messages[messageIndex]}</span>
+                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                        </div>
+                        <div className="text-center font-mono text-green-400/70">
+                          INITIALIZE NEW OPERATION TO BEGIN MISSION
+                        </div>
+                      </div>
+                      
+                      {/* Optional scanning line effect */}
+                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-green-400/20 to-transparent animate-scan" />
+                      </div>
+                    </div>
               <DialogCreateJoin
                 onClick={createNewGame}
                 playerName={player_name}

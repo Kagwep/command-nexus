@@ -717,7 +717,7 @@ export default class CommandNexusGui {
 
     public updatePlayerInfo(playerData: Player): void {
 
-       this.baseText.text = battlefieldTypeToString(playerData.home_base)
+       this.baseText.text = playerData.home_base as unknown as string
        this.rankText.text = getBannerLevelString(playerData.rank)
         
         Object.entries(playerData).forEach(([key, value]) => {

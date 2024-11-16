@@ -58,7 +58,7 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
     });
   }, [entities, account?.address]);
 
-  console.log(game,player)
+  //console.log(game,player)
 
   const { players } = useGetPlayersForGame(game.game_id);
 

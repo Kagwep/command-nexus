@@ -161,7 +161,7 @@ class NexusUnitManager {
         this.navMeshIndices =positions
         this.indices = this.navmeshdebug.getIndices();
 
-        //console.log(this.navMeshIndices)
+       // console.log(this.navMeshIndices)
 
 
         //new InteractiveGridObstructionSystem(this.scene, 300, 1);
@@ -461,7 +461,10 @@ class NexusUnitManager {
 
             const player_base = this.getGameState().player.home_base;
 
-            if (player_base === clickedRegion){
+            console.log(player_base === clickedRegion);
+            console.log(player_base, clickedRegion)
+
+            if (player_base === BattlefieldName[clickedRegion] as unknown as BattlefieldName){
 
                 const encodedPosition= positionEncoder(startingPoint);
                 const unit = unitTypeToInt(unitType);
@@ -1041,8 +1044,10 @@ class NexusUnitManager {
 
     private deployUnit = async (deploy: Deploy) => {
         try {
+
+         console.log(deploy,this.getAccount(),await this.client)
     
-          const result  = await this.client.nexus.deploy_forces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
+          const result  = await (await this.client).nexus.deployForces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
           console.log(result)
 
           if (result?.message) {

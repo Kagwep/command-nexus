@@ -23,10 +23,29 @@ export function useMe(): { me: Player | null; isItMyTurn: boolean } {
   useEffect(() => {
 
     if (players.length > 0 && account.address) {
-      const me = players.find((p) => removeLeadingZeros(p.address) === account.address);
+      const me = (() => {
+        console.log("Finding player with these details:");
+        console.log("Account address:", account.address);
+        console.log("All players:", players);
+        
+        const found = players.find((p) => {
+            const cleanAddress = removeLeadingZeros(p.address);
+            console.log("Comparing:", {
+                playerAddress: p.address,
+                cleanAddress: cleanAddress,
+                accountAddress: account.address,
+                isMatch: cleanAddress === account.address
+            });
+            return cleanAddress === account.address;
+        });
+    
+        console.log("Found player:", found);
+        return found;
+    })();
       setMe(me as unknown as Player);
     }
   }, [account, players.length]);
+
 
   return {
     me,

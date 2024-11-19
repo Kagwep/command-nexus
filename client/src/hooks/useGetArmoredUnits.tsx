@@ -1,8 +1,9 @@
 import { useElementStore } from '../utils/nexus';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useDojoStore } from '../lib/utils';
 import { useSDK } from '../context/SDKContext';
 import { useNetworkAccount } from '../context/WalletContex';
+import { getEntityIdFromKeys } from '@dojoengine/utils';
 
 export const useArmoredUnits = () => {
 
@@ -10,6 +11,9 @@ export const useArmoredUnits = () => {
 
   const state = useDojoStore((state) => state);
   const entities = useDojoStore((state) => state.entities);
+
+
+
 
   const sdk = useSDK();
 

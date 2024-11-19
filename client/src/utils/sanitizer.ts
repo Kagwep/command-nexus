@@ -1,6 +1,7 @@
 import { validateAndParseAddress } from 'starknet';
 import { feltToStr, unpackU128toNumberArray } from './unpack';
-import { Armored, Infantry, Player, } from './types';
+import { Armored, Infantry,  } from './types';
+import { Player } from '@/dojogen/models.gen';
 
 export const sanitizeGame = (game: any) => {
   return {

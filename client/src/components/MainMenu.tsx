@@ -11,9 +11,11 @@ import { useNetworkAccount } from '../context/WalletContex';
 import { useSDK } from '../context/SDKContext';
 import { useDojoStore } from '../lib/utils';
 import { Account, addAddressPadding } from 'starknet';
-import { bigIntAddressToString } from '../utils/sanitizer';
+import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
 import { Game } from '../dojogen/models.gen';
 import Navbar from './Navbar';
+import { useGameStore, usePlayerStore } from '../utils/entitityStore';
+import { useGamePolling, usePlayerPolling } from '../hooks/useEntityPolling ';
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -36,6 +38,17 @@ const MainMenu: React.FC = () => {
 
   const state = useDojoStore((state) => state);
   const entities = useDojoStore((state) => state.entities);
+
+  const playerpol = usePlayerPolling(sdk.client)
+  const gamepol = useGamePolling(sdk.client)
+
+  const { entities: playerent, isLoading } = usePlayerStore()
+
+  const { entities: gameEntities, isLoading: gameIsLoading } = useGameStore()
+
+  console.log(playerent)
+  console.log(gameEntities)
+
 
 
   
@@ -215,34 +228,39 @@ useEffect(() => {
   const [minutes, setMinutes] = useState(5);
 
   const setStates = () => {
-    Object.entries(entities).forEach(([entityId, entity]) => {
-      const currentGame = entity.models.command_nexus.Game;
+    {Object.entries(gameEntities).map(([gameId, game]) => {
+      
   
       // Ensure currentGame exists before comparing its arena_host property
-      if (currentGame && bigIntAddressToString(currentGame.arena_host) === account?.address) {
-        setGame(currentGame);
+      if (game && removeLeadingZeros(game.arena_host) === account?.address) {
+        setGame(game);
       } else {
         setGame(null);
+    
       }
-      
-      const currentPlayer = entity.models.command_nexus.Player;
-      // Ensure currentPlayer exists before comparing its address property
-      if (currentPlayer && bigIntAddressToString(currentPlayer.address) === account?.address) {
-        setPlayer(currentPlayer);
-        if (currentPlayer?.game_id >= 0) {
-          set_game_id(currentPlayer.game_id);
-          console.log(".......................",currentPlayer.game_id)
-          set_game_state(GameState.Lobby);
-        }
-      } else {
-        setPlayer(null);
-      }
-    });
+     
+
+    })};
+
+
+    {Object.entries(playerent).map(([player_address, player]) => {
+              // Ensure currentPlayer exists before comparing its address property
+          if (player && removeLeadingZeros(player.address) === account?.address) {
+            setPlayer(player);
+            if (player?.game_id >= 0) {
+              set_game_id(player.game_id);
+              console.log(".......................",player.game_id)
+              set_game_state(GameState.Lobby);
+            }
+          } else {
+            setPlayer(null);
+          }
+        })}
   }
 
   useEffect(() => {
     setStates();
-  }, [entities, account?.address]);
+  }, [gameEntities,playerent, account?.address]);
 
   useEffect(() => {
     if (game) {
@@ -373,17 +391,15 @@ useEffect(() => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {Object.entries(entities).map(([entityId, entity]) => {
-                        if (entity.models.command_nexus.Game) {
-                          const game = entity.models.command_nexus.Game;
-                          return (
-                            <GameRow 
-                              key={entityId} 
-                              game={game} 
-                              setPlayerName={setPlayerName}
-                            />
-                          );
-                        }
+                    {Object.entries(gameEntities).map(([gameId, game]) => {
+                      console.log(game)
+                        return (
+                          <GameRow 
+                          key={gameId} 
+                          game={game}
+                          setPlayerName={setPlayerName}
+                        />
+                        )
                       })}
                     </TableBody>
                   </Table>

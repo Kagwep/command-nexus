@@ -287,3 +287,21 @@ export interface Armored {
   position: Position;
   battlefield_name: number;
 }
+
+// Types for raw entity data
+export interface PrimitiveValue {
+  type: 'primitive';
+  type_name: string;
+  value: string | number | boolean;
+  key: boolean;
+}
+
+export interface StructValue {
+  type: 'struct';
+  type_name: string;
+  value: Record<string, PrimitiveValue | StructValue>;
+  key: boolean;
+}
+
+export type RawEntityValue = PrimitiveValue | StructValue;
+export type RawEntity = Record<string, RawEntityValue>;

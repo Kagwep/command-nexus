@@ -126,7 +126,7 @@ export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
         subscription.current = sub
       })
 
-    const intervalId = setInterval(debouncedUpdate, 100)
+    const intervalId = setInterval(100)
 
     return () => {
       subscription.current?.cancel()

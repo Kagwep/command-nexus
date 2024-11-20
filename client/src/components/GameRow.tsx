@@ -12,14 +12,10 @@ import { useNetworkAccount } from '../context/WalletContex';
 import { useDojoStore } from '../lib/utils';
 import { bigIntAddressToString } from '../utils/sanitizer';
 import { Account } from 'starknet';
+import { Game } from '@/dojogen/models.gen';
 
 interface GameRowProps {
-  game: {
-    game_id: number;
-    arena: any;
-    player_count: number;
-    slots: number;
-  };
+  game: Game;
   setPlayerName: (name: string) => void;
 }
 

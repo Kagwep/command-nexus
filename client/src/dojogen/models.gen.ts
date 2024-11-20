@@ -803,7 +803,7 @@ export interface Player {
 	game_id: number;
 	index: number;
 	address: string;
-	name: number;
+	name: string;
 	supply: UnitsSupply;
 	last_action: number;
 	rank: number;
@@ -2075,7 +2075,7 @@ export const schema: CommandNexusSchemaType = {
 			game_id: 0,
 			index: 0,
 			address: "",
-			name: 0,
+			name: "0",
 			supply: { fieldOrder: ['infantry', 'armored', 'air', 'naval', 'cyber'], infantry: 0, armored: 0, air: 0, naval: 0, cyber: 0, },
 			last_action: 0,
 			rank: 0,

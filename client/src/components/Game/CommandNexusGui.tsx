@@ -1,11 +1,11 @@
 import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3,Animation } from '@babylonjs/core';
-import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType, Infantry, Armored } from "../../utils/types";
+import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType, Armored } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
-import { Player } from "../../dojogen/models.gen";
+import { Infantry, Player } from "../../dojogen/models.gen";
 import { useRef } from "react";
 import { Account, AccountInterface } from "starknet";
 
@@ -19,9 +19,10 @@ export default class CommandNexusGui {
     private opponentsPanel: GUI.Rectangle = new Rectangle;
     private turnInfoText: GUI.TextBlock = new TextBlock;
     private selectedUnitId: number | null = null;
+    private selectedUnitInfo :any;
     private ACCENT_COLOR = "#4CAF50";
     private player:Player;
-    private abilityMode: AbilityType | null = 0;
+    private abilityMode: AbilityType | null;
     private baseText: GUI.TextBlock = new TextBlock;
     private rankText: GUI.TextBlock = new TextBlock;
     //private kickButton: GUI.Button;
@@ -38,8 +39,7 @@ export default class CommandNexusGui {
     private outerArc: Rectangle = new Rectangle;
     private innerArc: Rectangle = new Rectangle;
     private imagePlaceholder: Rectangle = new Rectangle;
-    private arena;
-    private nexus;
+    private client;
     private game;
     private infoPanel: Rectangle = new Rectangle;
    
@@ -71,8 +71,7 @@ export default class CommandNexusGui {
         this.createUnitSelectionPanel();
 
         this.createArcs();
-        this.arena = client.arena;
-        this.nexus = client.nexus;
+        this.client = client;
         this.game = game;
         this.player = player
         this.getAccount = getAccount;
@@ -1255,6 +1254,7 @@ export default class CommandNexusGui {
                 ability,
                 abilityImagePath
             );
+             
             button.width = buttonSize;
             button.height = "50px";
             button.color = "white";
@@ -1279,9 +1279,50 @@ export default class CommandNexusGui {
             }
     
             // Handle click event
-            button.onPointerUpObservable.add(() => {
+            button.onPointerUpObservable.add(async () => {
                 console.log(`${ability} ability used`);
                 this.abilityMode = abilityEnum ? abilityEnum: null;
+                switch (this.abilityMode) {
+                    case AbilityType.Hack:
+                        console.log("Executing hacking protocol...");
+                        break;
+                    case AbilityType.Attack:
+                        console.log("Engaging in combat...");
+                        break;
+                    case AbilityType.Defend:
+                        console.log("Raising defenses...");
+                        break;
+                    case AbilityType.Patrol:
+                        console.log("Initiating patrol...");
+
+                        
+                       // const result  = await (await this.client).nexus.patrol(this.getAccount(), this.getGameState().game.game_id, unitId: number, unitType: number, startX: number, startY: number, startZ: number)
+                        //const result  = (await this.nexus).nexus.moveUnit(this.getAccount(), this.getGameState().game.game_id, unitId, unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z);
+                        // console.log(result)
+
+                        break;
+                    case AbilityType.Stealth:
+                        console.log("Entering stealth mode...");
+                        break;
+                    case AbilityType.Recon:
+                        console.log("Performing reconnaissance...");
+                        break;
+                    case AbilityType.Repair:
+                        console.log("Starting repairs...");
+                        break;
+                    case AbilityType.Airlift:
+                        console.log("Preparing for airlift...");
+                        break;
+                    case AbilityType.Bombard:
+                        console.log("Launching bombardment...");
+                        break;
+                    case AbilityType.Submerge:
+                        console.log("Submerging...");
+                        break;
+                    default:
+                        console.error("Unknown ability!");
+                }
+            
             });
     
             // Add hover effect
@@ -1345,6 +1386,7 @@ export default class CommandNexusGui {
     }
 
     public getAbilityMode(): AbilityType | null {
+        console.log(this.abilityMode)
         return this.abilityMode
     }
 
@@ -1412,6 +1454,69 @@ public showToast(message: string, toastType: ToastType = ToastType.Info): void {
 }
 
 
+public showToastSide(message: string, toastType: ToastType = ToastType.Info): void {
+    // Create a background panel for the toast
+    const toastPanel = new GUI.Rectangle();
+    toastPanel.width = "300px";  // Narrower for side display
+    toastPanel.height = "80px";
+    toastPanel.cornerRadius = 10;
+    toastPanel.color = "white";  // Border color
+    toastPanel.thickness = 0;    // Border thickness
+    toastPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT; // Changed to RIGHT
+    toastPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    toastPanel.paddingRight = "20px"; // Right padding instead of bottom
+    toastPanel.paddingTop = "20px";   // Add top padding
+
+    // Determine background and text colors based on the message type
+    let backgroundColor = "rgba(0, 80, 40, 0.9)";  // Default: success (greenish)
+    let textColor = "cyan";  // Default text color for success/info
+
+    switch (toastType) {
+        case ToastType.Error:
+            backgroundColor = "rgba(139, 0, 0, 0.9)";  // Red background for errors
+            textColor = "white";
+            break;
+        case ToastType.Warning:
+            backgroundColor = "rgba(255, 165, 0, 0.9)";  // Orange background for warnings
+            textColor = "black";
+            break;
+        case ToastType.Success:
+            backgroundColor = "rgba(0, 128, 0, 0.9)";  // Green background for success
+            textColor = "cyan";
+            break;
+        case ToastType.Info:
+        default:
+            backgroundColor = "rgba(0, 80, 40, 0.9)";  // Default to greenish
+            textColor = "cyan";
+            break;
+    }
+
+    // Set the background color of the toast
+    toastPanel.background = backgroundColor;
+
+    // Create the text block to show the message
+    const toastText = new GUI.TextBlock();
+    toastText.text = message;
+    toastText.color = textColor;
+    toastText.fontSize = 15;
+    toastText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT; // Changed to LEFT
+    toastText.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+    toastText.textWrapping = true; // Enable text wrapping
+    toastText.paddingLeft = "15px"; // Add some padding for text
+    toastText.paddingRight = "15px";
+
+    // Add the text block to the panel
+    toastPanel.addControl(toastText);
+
+    // Add the panel to the GUI
+    this.gui.addControl(toastPanel);
+
+    // Use the same animation function
+    this.animateToast(toastPanel);
+}
+
+
+
     private kickPlayer = async (player_index: number, game_id: number) => {
         try {
         //   setKickLoading(true);
@@ -1471,9 +1576,9 @@ public showToast(message: string, toastType: ToastType = ToastType.Info): void {
     
         // Critical infantry stats with icons
         this.addStatRow(stack, "/images/health.png",'HP',`${infantry.health.current}/${infantry.health.max}`);
-        this.addStatRow(stack, "/images/firepower.png",'FP' ,infantry.firepower.toString());
+        this.addStatRow(stack, "/images/energy.png",'EN' ,infantry.energy.toString());
         this.addStatRow(stack, "/images/accuracy.png", 'ACC',`${infantry.accuracy}%`);
-        this.addStatRow(stack, "/images/range.png",'Range' ,`${infantry.range}m`);
+        this.addStatRow(stack, "/images/range.png",'Range' ,`${parseInt(infantry.range.toString())}m`);
     
         this.infoPanel.isVisible = true;
       }
@@ -1561,6 +1666,14 @@ public showToast(message: string, toastType: ToastType = ToastType.Info): void {
     
       public hide(): void {
         this.infoPanel.isVisible = false;
+      }
+
+      public setSelectedUnitInfo(unit: any){
+        this.selectedUnitInfo = unit;
+      }
+
+      public getSelectedUnitInfo(){
+        return this.selectedUnitInfo;
       }
 
 }

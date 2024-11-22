@@ -13,6 +13,8 @@ function useModel<N extends keyof CommandNexusSchemaType, M extends keyof Comman
 ): CommandNexusSchemaType[N][M] | undefined {
     const [namespace, modelName] = model.split("-") as [N, M];
 
+    
+
     // Select only the specific model data for the given entityId
     const modelData = useDojoStore(
         (state) =>

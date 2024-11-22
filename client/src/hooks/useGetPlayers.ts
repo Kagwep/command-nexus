@@ -16,15 +16,60 @@ export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
   const { game_id } = useElementStore((state) => state);
   const { account } = useNetworkAccount();
 
+  const state = useDojoStore((state) => state);
+  const entities = useDojoStore((state) => state.entities);
+  const subscription = useRef<any>()
+  const sdk = useSDK()
+
+  const {
+    setup: {
+      contractComponents
+    },
+  } = useDojo();
 
   if(game_id < 0) return {players:[],playerNames:[]};
 
   if(!account) return {players:[],playerNames:[]};
 
-  const state = useDojoStore((state) => state);
-  const entities = useDojoStore((state) => state.entities);
-  const subscription = useRef<any>()
-  const sdk = useSDK();
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    const syncEntities = async () => {
+      if (game_id === undefined || game_id === null || isSyncing) return;
+      
+      setIsSyncing(true);
+      try {
+        await getSyncEntities(
+          sdk.client,
+          contractComponents as any,
+          undefined,
+          []
+        );
+        
+        setLastSyncTime(new Date());
+        console.log('Synced entities with chain');
+      } catch (error) {
+        console.error('Sync error:', error);
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+  
+    // Initial sync
+    syncEntities();
+  
+    // Set up interval for periodic sync
+    const intervalId = setInterval(syncEntities, 5000); // sync every 5 seconds
+  
+    // Cleanup function
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [game_id, sdk.client, isSyncing]); // Add any other dependencies that the sync function uses
+
+
 
   const client = sdk.client
 
@@ -236,3 +281,5 @@ const players = Object.values(state.entities)
     playerNames,
   };
 }
+
+

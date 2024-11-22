@@ -16,6 +16,7 @@ import { Game } from '../dojogen/models.gen';
 import Navbar from './Navbar';
 import { useGameStore, usePlayerStore } from '../utils/entitityStore';
 import { useGamePolling, usePlayerPolling } from '../hooks/useEntityPolling ';
+import { useEntityStore } from '../hooks/useEntityStore';
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -50,8 +51,10 @@ const MainMenu: React.FC = () => {
   // console.log(gameEntities)
 
 
+  Object.values(state.entities).forEach(entity => {
+      useEntityStore.getState().addEntity(entity);
+  });
 
-  
   useEffect(() => {
     const fetchEntities = async () => {
 
@@ -216,6 +219,7 @@ useEffect(() => {
               ) {
                   console.log("subscribed", response.data[0]);
                   state.updateEntity(response.data[0]);
+                  console.log(state.entities)
               }
           },
           { logging: true }

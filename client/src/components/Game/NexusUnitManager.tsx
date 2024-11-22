@@ -11,6 +11,7 @@ import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { Account, AccountInterface } from 'starknet';
 import { bigintToU256 } from '../../lib/lib_utils/starknet';
 import { BattlefieldName } from '../../dojogen/models.gen';
+import { StarknetErrorParser } from './ErrorParser';
 
 
 class NexusUnitManager {
@@ -229,7 +230,9 @@ class NexusUnitManager {
             cUnitType: unitType
         };
 
-        const newUnitData = { ...unitData, unitType };
+        const newUnitData = { ...unitData, 
+            
+         };
 
         rootMesh.metadata = { agentIndex: this.agents.length, UnitData: newUnitData };
         rootMesh.getChildMeshes().forEach(childMesh => {
@@ -278,11 +281,13 @@ class NexusUnitManager {
     private async handlePointerTap(mesh: Mesh): Promise<void> {
         const startingPoint = this.getGroundPosition();
         console.log(mesh.name, mesh.metadata)
+        console.log(this.selectedAgent)
+        console.log(mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode())
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             if (this.selectedAgent){
                 switch (mesh.metadata.UnitData.unitType) {
                     case UnitType.Infantry:
-                        console.log("..")
+                        console.log("..",mesh.metadata.UnitData)
                         this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
                         break;
                     case UnitType.Armored:
@@ -413,40 +418,64 @@ class NexusUnitManager {
                     console.log("Target agent or its navAgent not found");
                 }
             }
+            console.log(this.getGui()?.getAbilityMode() ,AbilityType.Attack)
             if(this.getGui()?.getAbilityMode() !== AbilityType.Attack){
                  this.selectedAgent = this.agents[mesh.metadata.agentIndex];
+                 this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
+                 this.getGui().setSelectedUnitInfo(this.selectedAgent);
             }
            
         } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode()) {
             //console.log(this.getGui().getDeploymentMode())
             // const startingPoint = this.getGroundPosition();
 
-        
-            if (startingPoint) {
-                this.pointNavPre.position = startingPoint;
-                this.pointNavPre.visibility = 1;
-                // Apply animation blending only to the selected agent
+            const encodedPosition= positionEncoder(startingPoint);
+            const unitId = this.selectedAgent.visualMesh.metadata.UnitData.unit_id
+            const unitType = 1
 
+            //gameId: number, unitId: number, unitType: number, destX: number, destY: number, destZ: number
 
-                    this.scene.onBeforeRenderObservable.runCoroutineAsync(
-                        this.animationBlending(
-                            this.selectedAgent.animations.idle,
-                            1.0,
-                            this.selectedAgent.animations.movement,
-                            1.3,
-                            true,
-                            0.05
-                        )
-                    );
+            const result  = await (await this.client).nexus.moveUnit(this.getAccount(), this.getGameState().game.game_id, unitId, unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z);
+           // console.log(result)
 
-                this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
-        
-                if (this.selectedAgent.cUnitType === UnitType.Infantry){
-                    this.soundManager?.playSound("move");
+            
+
+            if (result && result.transaction_hash){
+                if (startingPoint) {
+                    this.pointNavPre.position = startingPoint;
+                    this.pointNavPre.visibility = 1;
+                    // Apply animation blending only to the selected agent
+    
+    
+                        this.scene.onBeforeRenderObservable.runCoroutineAsync(
+                            this.animationBlending(
+                                this.selectedAgent.animations.idle,
+                                1.0,
+                                this.selectedAgent.animations.movement,
+                                1.3,
+                                true,
+                                0.05
+                            )
+                        );
+    
+                    this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
+    
+                    console.log(this.selectedAgent.cUnitType)
+            
+                    if (this.selectedAgent.cUnitType === UnitType.Infantry){
+                        this.soundManager?.playSound("move");
+                    }
+    
+                    this.activeUnitType = this.selectedAgent.cUnitType;
+                    this.getGui().showToastSide(`Moved`,ToastType.Success)
                 }
-
-                this.activeUnitType = this.selectedAgent.cUnitType;
+            }else{
+                const errorMessage = StarknetErrorParser.parseError(result);
+                console.log(errorMessage)
+                this.getGui().showToastSide(errorMessage,ToastType.Error)
             }
+
+
         }else if (mesh.name.includes("ground") && this.getGui()?.getDeploymentMode()) {
 
             console.log("0.0.0.0...0.0..")

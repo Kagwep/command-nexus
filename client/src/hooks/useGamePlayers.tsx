@@ -6,28 +6,21 @@ import { Game } from '@/dojogen/models.gen';
 const MAX_PLAYERS = 4; // or whatever your max player count is
 
 export const useGamePlayers = (game: Game) => {
-  // Pre-define all possible player entity IDs
-  const entityIds = Array.from(
-    { length: MAX_PLAYERS }, 
-    (_, index) => getEntityIdFromKeys([BigInt(game.game_id), BigInt(index)])
-  );
-
-  // Call hooks for all possible players (they'll be undefined if not in use)
-  const player0 = useModel(entityIds[0], "command_nexus-Player");
-  const player1 = useModel(entityIds[1], "command_nexus-Player");
-  const player2 = useModel(entityIds[2], "command_nexus-Player");
-  const player3 = useModel(entityIds[3], "command_nexus-Player");
-
-  console.log([player0, player1, player2, player3])
-
-  // Filter out players based on actual player count
-  const players = [player0, player1, player2, player3]
-    .slice(0, game.player_count);
+  // Pre-define maximum possible slots
+  const slots = Array.from({ length: MAX_PLAYERS }, (_, i) => i);
   
-  const playerEntityIds = entityIds.slice(0, game.player_count);
+  // Create all possible models but only return what's needed
+  const players = slots.map(index => {
+    const entityId = getEntityIdFromKeys([BigInt(game.game_id), BigInt(index)]);
+    return useModel(entityId, "command_nexus-Player");
+  });
+
+  const playerEntityIds = slots
+    .slice(0, game.player_count)
+    .map(index => getEntityIdFromKeys([BigInt(game.game_id), BigInt(index)]));
 
   return {
-    players,
+    players: players.slice(0, game.player_count),
     playerEntityIds
   };
 };

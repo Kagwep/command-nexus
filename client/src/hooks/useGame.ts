@@ -7,6 +7,9 @@ import { useNetworkAccount } from '../context/WalletContex';
 import { useDojoStore } from '../lib/utils';
 import { useGamePlayers } from './useGamePlayers';
 import useModels from './useModels';
+import { useGetPlayers } from './useGetPlayers';
+import { useGameInfantry } from './useGameInfantry';
+import { useEntityStore } from './useEntityStore';
 
 export const useGame = () => {
 
@@ -36,13 +39,10 @@ export const useGame = () => {
 
 
     const entityId1 = useMemo(
-      () => getEntityIdFromKeys([BigInt(game_id),BigInt(0)]),
-      [game_id]
+      () => getEntityIdFromKeys([BigInt(game_id),BigInt(1),BigInt(0)]),
+      [game_id,1,0]
   );
 
-  const entityId2 = useMemo(
-    () => getEntityIdFromKeys([BigInt(game_id),BigInt(1)]),
-    [game_id])
 
 
 
@@ -150,6 +150,8 @@ export const useGame = () => {
                     console.log(response)
                       console.log("subscribed", response.data[0]);
                       state.updateEntity(response.data[0]);
+                      useEntityStore.getState().addEntity(response.data[0]);
+                      console.log(state.entities)
                   }
               },
               { logging: true }
@@ -167,12 +169,17 @@ export const useGame = () => {
       };
   }, [sdk, account.address]);
 
-
   const game = useModel(entityId, "command_nexus-Game");
 
-   const modelData = useModels();
 
-   console.log(modelData)
+
+
+
+//   const infatry = useGameInfantry()
+
+//   console.log(infatry)
+
+
 
 
 

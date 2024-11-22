@@ -10,7 +10,6 @@ import { useTurn } from '../../hooks/useTurn';
 import { useCommandNexusGui } from './useCommandNexusGui';
 import HavokPhysics from '@babylonjs/havok';
 import { useGameState } from './GameState';
-import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Account, AccountInterface } from 'starknet';
 import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
 import { useArmoredUnits } from '../../hooks/useGetArmoredUnits';
@@ -18,6 +17,7 @@ import { Player } from '../../dojogen/models.gen';
 import GameState from '../../utils/gamestate';
 import { useDojoStore } from '../../lib/utils';
 import { useSDK } from '../../context/SDKContext';
+import { useNetworkAccount } from '../../context/WalletContex';
 
 
 const GRID_SIZE = 40;
@@ -147,123 +147,6 @@ const CommandNexus = () => {
     }
   }, [isSceneReady, infantry?.infantryUnits,game,armored?.armoredUnits]);
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-
-    const subscribe = async () => {
-        const subscription = await sdk.subscribeEntityQuery(
-            {
-                command_nexus: {
-                    Game: {
-                        $: {
-                            where: {
-                                game_id: {
-                                    $is: game_id,
-                                },
-                            },
-                        },
-                    },
-                    Player: {
-                        $: {
-                            where: {
-                                game_id: {
-                                    $is: game_id,
-                                },
-                            },
-                        },
-                    },
-                    UnitState: {
-                        $: {
-                          where: {
-                            game_id: {
-                                $is: game_id,
-                            },
-                        },
-                        },
-                    },
-                    AbilityState: {
-                        $: {
-                          where: {
-                            game_id: {
-                                $is: game_id,
-                            },
-                        },
-                        },
-                    },
-                    AirUnit: {
-                        $: {
-                          where: {
-                            game_id: {
-                                $is: game_id,
-                            },
-                        },
-                        },
-                    },
-                    UrbanBattlefield: {
-                      $: {
-                        where: {
-                          game_id: {
-                              $is: game_id,
-                          },
-                      },
-                      },
-                  },
-                  Armored: {
-                    $: {
-                      where: {
-                        game_id: {
-                            $is: game_id,
-                        },
-                    },
-                    },
-                },
-                  Infantry: {
-                    $: {
-                      where: {
-                        game_id: {
-                            $is: game_id,
-                        },
-                    },
-                    },
-                },Ship: {
-                  $: {
-                    where: {
-                      game_id: {
-                          $is: game_id,
-                      },
-                  },
-                  },
-              },
-                },
-            },
-            (response) => {
-                if (response.error) {
-                    console.error(
-                        "Error setting up entity sync:",
-                        response.error
-                    );
-                } else if (
-                    response.data &&
-                    response.data[0].entityId !== "0x0"
-                ) {
-                    console.log("subscribed", response.data[0]);
-                    state.updateEntity(response.data[0]);
-                }
-            },
-            { logging: true }
-        );
-
-        unsubscribe = () => subscription.cancel();
-    };
-
-    subscribe();
-
-    return () => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
-    };
-}, [sdk, account.address]);
 
 
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;

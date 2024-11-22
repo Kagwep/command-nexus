@@ -7,10 +7,9 @@ import GameState from '../utils/gamestate';
 import { useDojo } from '../dojo/useDojo';
 import { toast } from './UI/use-toast';
 import { DialogCreateJoin } from './DialogCreateJoin';
-import { useGetPlayersForGame } from '../hooks/useGetPlayersForGame';
 import { useNetworkAccount } from '../context/WalletContex';
 import { useDojoStore } from '../lib/utils';
-import { bigIntAddressToString } from '../utils/sanitizer';
+import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
 import { Account } from 'starknet';
 import { Game } from '@/dojogen/models.gen';
 
@@ -38,11 +37,11 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
 
       const currentPlayer = entity.models.command_nexus.Player;
 
-      if(currentPlayer){
-        console.log(bigIntAddressToString(currentPlayer.address),account?.address)
-      }
+      // if(currentPlayer){
+      //   console.log(bigIntAddressToString(currentPlayer.address),account?.address)
+      // }
       // Ensure currentPlayer exists before comparing its address property
-      if (currentPlayer && bigIntAddressToString(currentPlayer.address) === account?.address) {
+      if (currentPlayer && removeLeadingZeros(currentPlayer.address) === account?.address) {
         // console.log("....",feltToStr(currentPlayer.name))
         const name = feltToStr(currentPlayer.name).toString();
         textRef.current.textContent = hexToUtf8(name)
@@ -56,7 +55,7 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
 
   //console.log(game,player)
 
-  const { players } = useGetPlayersForGame(game.game_id);
+
 
   const joinGame = async (gameid: number) => {
     if (!player_name) {

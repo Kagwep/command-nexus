@@ -22,6 +22,7 @@ import { useSDK } from '../context/SDKContext';
 import Navbar from './Navbar';
 
 
+
 const Lobby: React.FC = () => {
   const {
     setup: {
@@ -45,6 +46,8 @@ const Lobby: React.FC = () => {
 
   const { players } = useGetPlayersForGame(game_id);
 
+
+
   const { me } = useMe();
   
   // if (players.length > 0 && account.address) {
@@ -58,19 +61,6 @@ const Lobby: React.FC = () => {
   const [kickLoading, setKickLoading] = useState(false);
   const [transferLoading, setTransferLoading] = useState(false);
 
-  useEffect(() => {
-    if (me) {
-      const playerIndex = players.findIndex((player) => {
-        return player.address === me.address;
-      });
-      
-      if (playerIndex === -1) {
-        set_game_state(GameState.MainMenu);
-      } else {
-        console.log('Player still in game:', players[playerIndex]);
-      }
-    }
-  }, [me, players, set_game_state, GameState]);
 
   useEffect(() => {
     let isSubscribed = true;

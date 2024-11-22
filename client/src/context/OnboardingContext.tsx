@@ -18,15 +18,11 @@ export const useOnboarding = () => {
 
 
 export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isOnboarded, setIsOnboarded] = useState(() => {
-        // Check localStorage on initial load
-        const stored = localStorage.getItem('isOnboarded');
-        return stored === 'true';
-    });
+    const [isOnboarded, setIsOnboarded] = useState(false);
 
     const completeOnboarding = () => {
         setIsOnboarded(true);
-        localStorage.setItem('isOnboarded', 'true');
+       // localStorage.setItem('isOnboarded', 'true');
     };
 
     const value = {

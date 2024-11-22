@@ -3,8 +3,8 @@ import { useGetPlayers } from './useGetPlayers';
 import { useDojo } from '../dojo/useDojo';
 import { useTurn } from './useTurn';
 import { Player } from '../dojogen/models.gen';
-import useNetworkAccount from './useNetworkAccount';
 import { removeLeadingZeros } from '../utils/sanitizer';
+import { useNetworkAccount } from '../context/WalletContex';
 
 export function useMe(): { me: Player | null; isItMyTurn: boolean } {
   

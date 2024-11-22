@@ -3,8 +3,8 @@ import { Scene } from '@babylonjs/core';
 import CommandNexusGui from './CommandNexusGui';
 import { isHost, Phase } from '../../utils/nexus';
 import { Player } from '../../dojogen/models.gen';
-import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Account, AccountInterface } from 'starknet';
+import { useNetworkAccount } from '../../context/WalletContex';
 
 export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number,  game: any, players: Player[],client: any,getAccount: () => AccountInterface | Account) => {
   const guiRef = useRef<CommandNexusGui | null>(null);

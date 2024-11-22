@@ -3,8 +3,8 @@ import { useElementStore } from './utils/nexus';
 import MainMenu from "./components/MainMenu";
 import GameState from './utils/gamestate';
 import Lobby from './components/Lobby';
-import useNetworkAccount from "./hooks/useNetworkAccount";
 import CommandNexus from "./components/Game/CommandNexus";
+import { useNetworkAccount } from "./context/WalletContex";
 
 
 const LoadingScreen = () => {

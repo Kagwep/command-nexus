@@ -31,154 +31,194 @@ export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
   const DEBOUNCE_DELAY = 100; // 100ms debounce delay
   let timeoutId: number;  // Changed from NodeJS.Timeout to number
   
-  const debouncedUpdate = () => {
-      if (timeoutId) {
-          clearTimeout(timeoutId);
-      }
+  // const debouncedUpdate = () => {
+  //     if (timeoutId) {
+  //         clearTimeout(timeoutId);
+  //     }
   
-      timeoutId = window.setTimeout(async () => {
-          try {
-              const entities = await client.getEntities({
-                  clause: {
-                      Member: {
-                          member: 'address',
-                          model: "command_nexus-Player",
-                          operator: 'Neq',
-                          value: {
-                              Primitive: {
-                                  ContractAddress: '0x0',
-                              },
-                          },
-                      },
-                  },
-                  limit: 4,
-                  dont_include_hashed_keys: true,
-                  offset: 0
-              });
+  //     timeoutId = window.setTimeout(async () => {
+  //         try {
+  //             const entities = await client.getEntities({
+  //                 clause: {
+  //                     Member: {
+  //                         member: 'address',
+  //                         model: "command_nexus-Player",
+  //                         operator: 'Neq',
+  //                         value: {
+  //                             Primitive: {
+  //                                 ContractAddress: '0x0',
+  //                             },
+  //                         },
+  //                     },
+  //                 },
+  //                 limit: 4,
+  //                 dont_include_hashed_keys: true,
+  //                 offset: 0
+  //             });
   
-              if (entities) {
-                //   state.setEntities(entities);
-                console.log(entities)
-                  setUpdateTrigger(prev => prev + 1);
-              }
-          } catch (error) {
-              console.error("Error in debouncedUpdate:", error);
-          }
-      }, DEBOUNCE_DELAY);
-  };
+  //             if (entities) {
+  //               //   state.setEntities(entities);
+  //               console.log(entities)
+  //                 setUpdateTrigger(prev => prev + 1);
+  //             }
+  //         } catch (error) {
+  //             console.error("Error in debouncedUpdate:", error);
+  //         }
+  //     }, DEBOUNCE_DELAY);
+  // };
 
   
-  const [updateTrigger, setUpdateTrigger] = useState(0);
+  // const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  const handleEntityUpdate = useCallback(async (hashed_keys: string, entity: any) => {
-    if (entity["command_nexus-Player"]) {
-        console.log(entity["command_nexus-Player"])
-        const size = 4
+  // const handleEntityUpdate = useCallback(async (hashed_keys: string, entity: any) => {
+  //   if (entity["command_nexus-Player"]) {
+  //       console.log(entity["command_nexus-Player"])
+  //       const size = 4
 
-        let hasMore = true
+  //       let hasMore = true
     
-        while (hasMore) {
-          const entities = await client.getEntities({
-            clause: {
-              Member: {
-                member: 'address',
-                model: "command_nexus-Player",
-                operator: 'Neq',
-                value: {
-                  Primitive: {
-                    ContractAddress: '0x0',
-                  },
-                },
-              },
-            },
-            limit: size,
-            dont_include_hashed_keys: true,
-            offset: 0
-          })
+  //       while (hasMore) {
+  //         const entities = await client.getEntities({
+  //           clause: {
+  //             Member: {
+  //               member: 'address',
+  //               model: "command_nexus-Player",
+  //               operator: 'Neq',
+  //               value: {
+  //                 Primitive: {
+  //                   ContractAddress: '0x0',
+  //                 },
+  //               },
+  //             },
+  //           },
+  //           limit: size,
+  //           dont_include_hashed_keys: true,
+  //           offset: 0
+  //         })
 
-          console.log(entities)
+  //         console.log(entities)
         
-        }
+  //       }
 
           
-    }
-  }, [])
+  //   }
+  // }, [])
 
-  useEffect(() => {
-    if (!client) return
+  // useEffect(() => {
+  //   if (!client) return
 
 
 
-    client
-      .onEntityUpdated(
-        [
+  //   client
+  //     .onEntityUpdated(
+  //       [
+  //         {
+  //           Keys: {
+  //             keys: [],
+  //             pattern_matching: 'VariableLen',
+  //             models: ["command_nexus-Player", 'command_nexus-Game'],
+  //           },
+  //         },
+  //       ],
+  //       handleEntityUpdate,
+  //     )
+  //     .then((sub) => {
+  //       subscription.current = sub
+  //     })
+
+  //   const intervalId = setInterval(100)
+
+  //   return () => {
+  //     subscription.current?.cancel()
+  //     clearInterval(intervalId)
+  //   }
+  // }, [client, handleEntityUpdate])
+
+// Separate function for fetching entities
+const fetchEntities = async () => {
+  try {
+      await sdk.getEntities(
           {
-            Keys: {
-              keys: [],
-              pattern_matching: 'VariableLen',
-              models: ["command_nexus-Player", 'command_nexus-Game'],
-            },
-          },
-        ],
-        handleEntityUpdate,
-      )
-      .then((sub) => {
-        subscription.current = sub
-      })
-
-    const intervalId = setInterval(100)
-
-    return () => {
-      subscription.current?.cancel()
-      clearInterval(intervalId)
-    }
-  }, [client, handleEntityUpdate])
-
-  useEffect(() => {
-    const fetchEntities = async () => {
-        try {
-            await sdk.getEntities(
-                {
-                    command_nexus: {
-                        Player: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game_id,
-                                    },
-                                },
-                            },
+              command_nexus: {
+                  Player: {
+                    $: {
+                      where: {
+                        game_id: {
+                            $is: game_id,
                         },
                     },
+                    },
                 },
-                (resp) => {
-                    if (resp.error) {
-                        console.error(
-                            "resp.error.message:",
-                            resp.error.message
-                        );
-                        return;
-                    }
-                    if (resp.data) {
-                        state.setEntities(resp.data);
-                    }
-                }
-            );
-        } catch (error) {
-            console.error("Error querying entities:", error);
-        }
-    };
-
-    fetchEntities();
-}, []);
-
-
-
-const players = Object.values(entities)
-.map(entity => entity.models.command_nexus.Player)
-.filter(player => player && player.game_id === game_id);  // Add gameId filter
+              },
+          },
+          (response) => {
+              if (response.error) {
+                  console.error(
+                      "Error setting up entity sync:",
+                      response.error
+                  );
+              } else if (
+                  response.data &&
+                  response.data[0].entityId !== "0x0"
+              ) {
+                  console.log("polled", response.data[0]);
+                  state.updateEntity(response.data[0]);
+              }
+          },
+ 
+      );
+  } catch (error) {
+      console.error("Polling error:", error);
+  }
+};
 
 
+
+// Use in useEffect
+useEffect(() => {
+  fetchEntities();
+}, []); // Empty dependency array means this only runs once on mount
+
+
+
+new Promise<void>((resolve) => {
+  sdk.getEntities(
+    {
+      command_nexus: {
+        Player: {
+        $: {
+          where: {
+            game_id: {
+              $is: game_id,
+            },
+          },
+        },
+        },
+      },
+    },
+    (response) => {
+      if (response.error) {
+        console.error(
+          "Error setting up entity sync:",
+          response.error
+        );
+      } else if (
+        response.data &&
+        response.data[0].entityId !== "0x0"
+      ) {
+        console.log("polled", response.data[0]);
+        state.updateEntity(response.data[0]);
+      }
+      resolve();
+    }
+  );
+});
+
+const players = Object.values(state.entities)
+  .map(entity => entity.models.command_nexus.Player)
+  .filter(player => player && player.game_id === game_id)
+  .map(player => player as unknown as Player);
+  
   const playerNames = useMemo(() => {
     return players.map((player) => player.name);
     // eslint-disable-next-line react-hooks/exhaustive-deps

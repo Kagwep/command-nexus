@@ -5,6 +5,8 @@ import useModel from './useModel';
 import { useSDK } from '../context/SDKContext';
 import { useNetworkAccount } from '../context/WalletContex';
 import { useDojoStore } from '../lib/utils';
+import { useGamePlayers } from './useGamePlayers';
+import useModels from './useModels';
 
 export const useGame = () => {
 
@@ -28,9 +30,19 @@ export const useGame = () => {
 
       // Following the same pattern as useGetPlayersForGame
     const entityId = useMemo(
-        () => getEntityIdFromKeys([BigInt(game_id)]),
+        () => getEntityIdFromKeys([BigInt(game_id),]),
         [game_id]
     );
+
+
+    const entityId1 = useMemo(
+      () => getEntityIdFromKeys([BigInt(game_id),BigInt(0)]),
+      [game_id]
+  );
+
+  const entityId2 = useMemo(
+    () => getEntityIdFromKeys([BigInt(game_id),BigInt(1)]),
+    [game_id])
 
 
 
@@ -155,135 +167,14 @@ export const useGame = () => {
       };
   }, [sdk, account.address]);
 
-//   useEffect(() => {
-//     let isSubscribed = true;
-//     const POLLING_INTERVAL = 1000; // 1 second - adjust as needed
-    
-//     const fetchEntities = async () => {
-//         try {
-//             await sdk.getEntities(
-//                 {
-//                     command_nexus: {
-//                         Game: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         Player: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         UnitState: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         AbilityState: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         AirUnit: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         UrbanBattlefield: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         Armored: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         Infantry: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         },
-//                         Ship: {
-//                             $: {
-//                                 where: {
-//                                     game_id: {
-//                                         $is: game_id,
-//                                     },
-//                                 },
-//                             },
-//                         }
-//                     },
-//                 },
-//                 (resp) => {
-//                     if (!isSubscribed) return;
-
-//                     if (resp.error) {
-//                         console.error(
-//                             "resp.error.message:",
-//                             resp.error.message
-//                         );
-//                         return;
-//                     }
-//                     if (resp.data) {
-//                         state.setEntities(resp.data);
-//                     }
-//                 }
-//             );
-//         } catch (error) {
-//             if (!isSubscribed) return;
-//             console.error("Error querying entities:", error);
-//         }
-//     };
-
-//     // Initial fetch
-//     fetchEntities();
-
-//     // Set up polling
-//     const intervalId = setInterval(fetchEntities, POLLING_INTERVAL);
-
-//     // Cleanup function
-//     return () => {
-//         isSubscribed = false;
-//         clearInterval(intervalId);
-//     };
-// }, [sdk, game_id]); // Added dependencies
 
   const game = useModel(entityId, "command_nexus-Game");
 
-  console.log(game)
+   const modelData = useModels();
+
+   console.log(modelData)
+
+
 
 
   return game;

@@ -46,8 +46,8 @@ const MainMenu: React.FC = () => {
 
   const { entities: gameEntities, isLoading: gameIsLoading } = useGameStore()
 
-  console.log(playerent)
-  console.log(gameEntities)
+  // console.log(playerent)
+  // console.log(gameEntities)
 
 
 
@@ -136,6 +136,55 @@ useEffect(() => {
         }
     };
   }, [sdk, account.address]);
+
+
+
+// Separate function for fetching entities
+const fetchEntities = async () => {
+  console.log("fetc ..............................")
+  try {
+      await sdk.getEntities(
+          {
+              command_nexus: {
+                  Game: {
+                      $: {
+
+                      },
+                  },
+                  Player: {
+                    $: {
+                    },
+                },
+              },
+          },
+          (response) => {
+              if (response.error) {
+                  console.error(
+                      "Error setting up entity sync:",
+                      response.error
+                  );
+              } else if (
+                  response.data &&
+                  response.data[0].entityId !== "0x0"
+              ) {
+                  console.log("polled", response.data[0]);
+                  state.updateEntity(response.data[0]);
+              }
+          },
+ 
+      );
+  } catch (error) {
+      console.error("Polling error:", error);
+  }
+};
+
+
+
+// Use in useEffect
+useEffect(() => {
+  fetchEntities();
+}, []); // Empty dependency array means this only runs once on mount
+
 
 useEffect(() => {
   let unsubscribe: (() => void) | undefined;
@@ -228,39 +277,48 @@ useEffect(() => {
   const [minutes, setMinutes] = useState(5);
 
   const setStates = () => {
-    {Object.entries(gameEntities).map(([gameId, game]) => {
+
+
+    Object.entries(state.entities).forEach(([entityId, entity]) => {
+      const currentGame = entity.models.command_nexus.Game;
       
   
-      // Ensure currentGame exists before comparing its arena_host property
-      if (game && removeLeadingZeros(game.arena_host) === account?.address) {
+      if (currentGame && removeLeadingZeros(currentGame.arena_host) === account?.address) {
+        setGame(currentGame as Game);
         setGame(game);
+        if (game){
+          if (game.game_id >= 0) {
+            set_game_id(game.game_id);
+  
+          }
+        }
       } else {
         setGame(null);
     
       }
      
+      const currentPlayer = entity.models.command_nexus.Player;
+      // Ensure currentPlayer exists before comparing its address property
+      if (currentPlayer && removeLeadingZeros(currentPlayer.address) === account?.address) {
+        setPlayer(currentPlayer);
+        if (currentPlayer?.game_id >= 0) {
+          set_game_id(currentPlayer.game_id);
+          console.log(".......................",currentPlayer.game_id)
+          set_game_state(GameState.Lobby);
+        }
+      } else {
+        setPlayer(null);
+      }
 
-    })};
+    });
 
 
-    {Object.entries(playerent).map(([player_address, player]) => {
-              // Ensure currentPlayer exists before comparing its address property
-          if (player && removeLeadingZeros(player.address) === account?.address) {
-            setPlayer(player);
-            if (player?.game_id >= 0) {
-              set_game_id(player.game_id);
-              console.log(".......................",player.game_id)
-              set_game_state(GameState.Lobby);
-            }
-          } else {
-            setPlayer(null);
-          }
-        })}
+
   }
 
   useEffect(() => {
     setStates();
-  }, [gameEntities,playerent, account?.address]);
+  }, [state.entities, account?.address]);
 
   useEffect(() => {
     if (game) {
@@ -391,16 +449,19 @@ useEffect(() => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {Object.entries(gameEntities).map(([gameId, game]) => {
-                      console.log(game)
-                        return (
-                          <GameRow 
-                          key={gameId} 
-                          game={game}
-                          setPlayerName={setPlayerName}
-                        />
-                        )
+                    {Object.entries(state.entities).map(([entityId, entity]) => {
+                        if (entity.models.command_nexus.Game) {
+                          const game = entity.models.command_nexus.Game;
+                          return (
+                            <GameRow 
+                              key={entityId} 
+                              game={game as Game} 
+                              setPlayerName={setPlayerName}
+                            />
+                          );
+                        }
                       })}
+
                     </TableBody>
                   </Table>
                 </div>

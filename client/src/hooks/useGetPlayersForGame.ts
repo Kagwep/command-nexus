@@ -20,43 +20,51 @@ export function useGetPlayersForGame(gameId: number | undefined): {players: Play
     if(!account) return {players: []} ;
 
 
-    useEffect(() => {
-      const fetchEntities = async () => {
-          try {
-              await sdk.getEntities(
-                  {
-                      command_nexus: {
-                          Player: {
-                              $: {
-                                  where: {
-                                      game_id: {
-                                          $is: game_id,
-                                      },
-                                  },
-                              },
+// Separate function for fetching entities
+const fetchEntities = async () => {
+    try {
+        await sdk.getEntities(
+            {
+                command_nexus: {
+                    Player: {
+                      $: {
+                        where: {
+                          game_id: {
+                              $is: game_id,
                           },
                       },
+                      },
                   },
-                  (resp) => {
-                      if (resp.error) {
-                          console.error(
-                              "resp.error.message:",
-                              resp.error.message
-                          );
-                          return;
-                      }
-                      if (resp.data) {
-                          state.setEntities(resp.data);
-                      }
-                  }
-              );
-          } catch (error) {
-              console.error("Error querying entities:", error);
-          }
-      };
-
-      fetchEntities();
-  }, [sdk, account.address]);
+                },
+            },
+            (response) => {
+                if (response.error) {
+                    console.error(
+                        "Error setting up entity sync:",
+                        response.error
+                    );
+                } else if (
+                    response.data &&
+                    response.data[0].entityId !== "0x0"
+                ) {
+                    console.log("polled", response.data[0]);
+                    state.updateEntity(response.data[0]);
+                }
+            },
+   
+        );
+    } catch (error) {
+        console.error("Polling error:", error);
+    }
+  };
+  
+  
+  
+  // Use in useEffect
+  useEffect(() => {
+    fetchEntities();
+  }, []); // Empty dependency array means this only runs once on mount
+  
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -114,13 +122,45 @@ export function useGetPlayersForGame(gameId: number | undefined): {players: Play
     };
   }, [sdk, account.address]);
 
-  console.log(entities);
+  new Promise<void>((resolve) => {
+    sdk.getEntities(
+      {
+        command_nexus: {
+          Player: {
+          $: {
+            where: {
+              game_id: {
+                $is: game_id,
+              },
+            },
+          },
+          },
+        },
+      },
+      (response) => {
+        if (response.error) {
+          console.error(
+            "Error setting up entity sync:",
+            response.error
+          );
+        } else if (
+          response.data &&
+          response.data[0].entityId !== "0x0"
+        ) {
+          console.log("polled", response.data[0]);
+          state.updateEntity(response.data[0]);
+        }
+        resolve();
+      }
+    );
+  });
 
-  const players = Object.values(entities)
+  const players = Object.values(state.entities)
   .map(entity => entity.models.command_nexus.Player)
-  .filter(player => player && player.game_id === game_id);  // Add gameId filter
+  .filter(player => player && player.game_id === game_id)
+  .map(player => player as Player);
 
   return {
-    players,
+    players
   };
 }

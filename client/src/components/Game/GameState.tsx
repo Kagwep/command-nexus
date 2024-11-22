@@ -4,9 +4,9 @@ import { useTurn } from '../../hooks/useTurn';
 import { useGame } from '../../hooks/useGame';
 import { useGetPlayersForGame } from '../../hooks/useGetPlayersForGame';
 import { useElementStore } from '../../utils/nexus';
-import useNetworkAccount from '../../hooks/useNetworkAccount';
 import { Game, Player } from '../../dojogen/models.gen';
 import { removeLeadingZeros } from '../../utils/sanitizer';
+import { useNetworkAccount } from '../../context/WalletContex';
 
 
 export interface GameState {

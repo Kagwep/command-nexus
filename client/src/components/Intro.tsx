@@ -33,6 +33,9 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
     } else {
       // For mainnet/sepolia, check wallet connection
       if (status === "connected") {
+        setScreen("start");
+        handleOnboarded();
+        onOnboardComplete();
         setLoginScreen(true);
         setNetwork(selectedNetwork);
       } else {

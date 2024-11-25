@@ -13,6 +13,7 @@ import { SDKProvider } from './context/SDKContext.tsx';
 import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
 import { OnboardingProvider } from "./context/OnboardingContext.tsx";
 import AppInitializer from "./components/AppInitializer.tsx";
+import { TORII_RPC_URL } from "./constants.ts";
 
 
 /**
@@ -27,7 +28,7 @@ async function main() {
     const sdk = await init<CommandNexusSchemaType>(
         {
             client: {
-                rpcUrl: dojoConfig.rpcUrl,
+                rpcUrl: TORII_RPC_URL,
                 toriiUrl: "http://localhost:8080",
                 relayUrl: dojoConfig.relayUrl,
                 worldAddress: dojoConfig.manifest.world.address,

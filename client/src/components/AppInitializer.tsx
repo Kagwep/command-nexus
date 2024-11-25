@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, Shield } from "lucide-react";
 import LoadingScreen from "./LoadingScreen";
 import { NetworkAccountProvider } from "../context/WalletContex";
+import { useElementStore } from "../utils/nexus";
 
 
 interface AppInitializerProps {
@@ -64,6 +65,11 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     const [error, setError] = useState<InitializationError | null>(null);
     const [initializationStep, setInitializationStep] = useState(0);
 
+    const { network } = useElementStore(
+        (state) => state
+      );
+    
+
     useEffect(() => {
         const initializeGame = async () => {
             try {
@@ -71,34 +77,37 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
                 
                 // Step 1: Setup burner wallet
                 setInitializationStep(1);
-                const manager = await setupBurnerManager(dojoConfig);
-                if (!manager) {
-                    throw {
-                        code: 'BURNER_SETUP_FAILED',
-                        message: 'Failed to initialize secure credentials'
-                    };
+                if (network === 'katana'){
+                    const manager = await setupBurnerManager(dojoConfig);
+                    if (!manager) {
+                        throw {
+                            code: 'BURNER_SETUP_FAILED',
+                            message: 'Failed to initialize secure credentials'
+                        };
+                    }
+                    setBurnerManager(manager);
+    
+                    // Step 2: Verify network connection
+                    setInitializationStep(2);
+                    const networkStatus = await checkNetworkConnection();
+                    if (!networkStatus.connected) {
+                        throw {
+                            code: 'NETWORK_ERROR',
+                            message: 'Network connection unstable',
+                            details: networkStatus.error
+                        };
+                    }
+    
+                    // Step 3: Authentication
+                    setInitializationStep(3);
+                    if (!manager.account) {
+                        throw {
+                            code: 'AUTHENTICATION_FAILED',
+                            message: 'Failed to authenticate command access'
+                        };
+                    }
                 }
-                setBurnerManager(manager);
 
-                // Step 2: Verify network connection
-                setInitializationStep(2);
-                const networkStatus = await checkNetworkConnection();
-                if (!networkStatus.connected) {
-                    throw {
-                        code: 'NETWORK_ERROR',
-                        message: 'Network connection unstable',
-                        details: networkStatus.error
-                    };
-                }
-
-                // Step 3: Authentication
-                setInitializationStep(3);
-                if (!manager.account) {
-                    throw {
-                        code: 'AUTHENTICATION_FAILED',
-                        message: 'Failed to authenticate command access'
-                    };
-                }
 
                 setIsLoading(false);
             } catch (err) {
@@ -141,7 +150,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     }
 
 
-    if (!burnerManager) {
+    if (!burnerManager && network === 'katana') {
         return <ErrorScreen 
             error={{
                 code: 'UNKNOWN',

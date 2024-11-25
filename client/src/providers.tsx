@@ -3,7 +3,7 @@ import { mainnet, sepolia } from '@starknet-react/chains'
 import { StarknetConfig, starkscan } from '@starknet-react/core'
 import { RpcProvider } from 'starknet'
 
-import { ACTIONS_ADDRESS, TORII_RPC_URL } from './constants'
+import {  ARENA_ADDRESS, NEXUS_ADDRESS, TORII_RPC_URL } from './constants'
 
 import type { Chain } from '@starknet-react/chains'
 import type { PropsWithChildren } from 'react'
@@ -23,21 +23,91 @@ export function StarknetProvider({ children }: PropsWithChildren) {
 }
 
 const cartridge = new ControllerConnector({
-  policies: [
+   policies: [
     {
-      target: ACTIONS_ADDRESS,
-      method: 'spawn',
-      description: 'start game',
+      target: ARENA_ADDRESS,
+      method: 'create',
+      description: 'Create new game',
     },
     {
-      target: ACTIONS_ADDRESS,
-      method: 'move',
-      description: 'move to new position',
+      target: ARENA_ADDRESS,
+      method: 'join', 
+      description: 'Join existing game',
+    },
+    {
+      target: ARENA_ADDRESS,
+      method: 'transfer',
+      description: 'Transfer game ownership',
+    },
+    {
+      target: ARENA_ADDRESS,
+      method: 'leave',
+      description: 'Leave current game',
+    },
+    {
+      target: ARENA_ADDRESS, 
+      method: 'start',
+      description: 'Start game',
+    },
+    {
+      target: ARENA_ADDRESS,
+      method: 'delete',
+      description: 'Delete game',
+    },
+    {
+      target: ARENA_ADDRESS,
+      method: 'kick',
+      description: 'Kick player from game',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'deploy_forces',
+      description: 'Deploy units to battlefield',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'patrol',
+      description: 'Set unit to patrol route',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'attack',
+      description: 'Attack enemy unit',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'defend',
+      description: 'Set unit to defend position',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'move_unit',
+      description: 'Move unit to new position',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'stealth',
+      description: 'Enter stealth mode',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'heal',
+      description: 'Heal units in area',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'recon',
+      description: 'Reconnaissance of area',
+    },
+    {
+      target: NEXUS_ADDRESS,
+      method: 'force_end_player_turn',
+      description: 'Force end player turn',
     }
   ],
   url: 'https://x.cartridge.gg',
   rpc: TORII_RPC_URL,
-  theme: 'flippyflop',
+  theme: '',
   // config: {
   //   presets: {
   //     flippyflop: {

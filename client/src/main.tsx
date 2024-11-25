@@ -13,7 +13,7 @@ import { SDKProvider } from './context/SDKContext.tsx';
 import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
 import { OnboardingProvider } from "./context/OnboardingContext.tsx";
 import AppInitializer from "./components/AppInitializer.tsx";
-import { TORII_RPC_URL } from "./constants.ts";
+import { TORII_RPC_URL, TORII_URL } from "./constants.ts";
 
 
 /**
@@ -29,7 +29,7 @@ async function main() {
         {
             client: {
                 rpcUrl: TORII_RPC_URL,
-                toriiUrl: "http://localhost:8080",
+                toriiUrl: TORII_URL,
                 relayUrl: dojoConfig.relayUrl,
                 worldAddress: dojoConfig.manifest.world.address,
             },

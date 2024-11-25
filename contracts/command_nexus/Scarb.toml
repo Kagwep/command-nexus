@@ -12,13 +12,13 @@ spawn = "sozo execute command_nexus-actions spawn --wait"    # scarb run spawn
 move = "sozo execute command_nexus-actions move -c 1 --wait" # scarb run move
 
 [dependencies]
-dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0" }
+dojo = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.1" }
 
 [[target.starknet-contract]]
 build-external-contracts = ["dojo::world::world_contract::world"]
 
 [dev-dependencies]
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo", tag = "v1.0.0" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.1" }
 
 
 [profile.sepolia]

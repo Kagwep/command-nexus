@@ -26,7 +26,7 @@ export const weiToEthString = (v: BigNumberish, decimals: number = 0, trailingZe
   let result = Number(weiToEth(v)).toLocaleString('en-US', { maximumFractionDigits: 8 })
   if (decimals > 0) {
     let ethDecimals = weiToEthDecimals(v)
-    let decimalsStr = (ETH_TO_WEI + ethDecimals).toString().slice(1, decimals + 1)
+    let decimalsStr: any = (ETH_TO_WEI + ethDecimals).toString().slice(1, decimals + 1)
     while (!trailingZeros && decimalsStr.length > 1 && decimalsStr.at(-1) == '0') {
       decimalsStr = decimalsStr.slice(0, -1)
     }

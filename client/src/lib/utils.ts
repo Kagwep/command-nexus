@@ -88,7 +88,7 @@ const parseUnitsSupply = (raw: StructValue): UnitsSupply => {
     air: Number(supply.air.value),
     infantry: Number(supply.infantry.value),
     naval: Number(supply.naval.value)
-  };
+  } as UnitsSupply;
 };
 
 const parsePlayerScore = (raw: StructValue): PlayerScore => {

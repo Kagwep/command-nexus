@@ -2062,6 +2062,8 @@ export const schema: CommandNexusSchemaType = {
 			air: 0,
 			naval: 0,
 			cyber: 0,
+			game_id: 0,
+			player_id: 0
 		},
 		PlayerScore: {
 			fieldOrder: ['score', 'kills', 'deaths', 'assists'],
@@ -2076,7 +2078,11 @@ export const schema: CommandNexusSchemaType = {
 			index: 0,
 			address: "",
 			name: "0",
-			supply: { fieldOrder: ['infantry', 'armored', 'air', 'naval', 'cyber'], infantry: 0, armored: 0, air: 0, naval: 0, cyber: 0, },
+			supply: {
+				fieldOrder: ['infantry', 'armored', 'air', 'naval', 'cyber'], infantry: 0, armored: 0, air: 0, naval: 0, cyber: 0,
+				game_id: 0,
+				player_id: 0
+			},
 			last_action: 0,
 			rank: 0,
 			player_score: { fieldOrder: ['score', 'kills', 'deaths', 'assists'], score: 0, kills: 0, deaths: 0, assists: 0, },
@@ -2088,7 +2094,11 @@ export const schema: CommandNexusSchemaType = {
 			fieldOrder: ['address', 'name', 'supply', 'last_action', 'rank', 'player_score', 'home_base', 'commands_remaining', 'turn_start_time'],
 			address: "",
 			name: 0,
-			supply: { fieldOrder: ['infantry', 'armored', 'air', 'naval', 'cyber'], infantry: 0, armored: 0, air: 0, naval: 0, cyber: 0, },
+			supply: {
+				fieldOrder: ['infantry', 'armored', 'air', 'naval', 'cyber'], infantry: 0, armored: 0, air: 0, naval: 0, cyber: 0,
+				game_id: 0,
+				player_id: 0
+			},
 			last_action: 0,
 			rank: 0,
 			player_score: { fieldOrder: ['score', 'kills', 'deaths', 'assists'], score: 0, kills: 0, deaths: 0, assists: 0, },
@@ -2105,16 +2115,6 @@ export const schema: CommandNexusSchemaType = {
 		PlayerStateValue: {
 			fieldOrder: ['supply'],
 			supply: { fieldOrder: ['game_id', 'player_id', 'infantry', 'armored', 'air', 'naval', 'cyber'], game_id: 0, player_id: 0, infantry: 0, armored: 0, air: 0, naval: 0, cyber: 0, },
-		},
-		UnitsSupply: {
-			fieldOrder: ['game_id', 'player_id', 'infantry', 'armored', 'air', 'naval', 'cyber'],
-			game_id: 0,
-			player_id: 0,
-			infantry: 0,
-			armored: 0,
-			air: 0,
-			naval: 0,
-			cyber: 0,
 		},
 		RailwayStation: {
 			fieldOrder: ['game_id', 'player_id', 'station_id', 'station_name'],
@@ -2332,7 +2332,7 @@ export const schema: CommandNexusSchemaType = {
 			y: 0,
 			z: 0,
 			mode: UnitMode.Idle,
-			environment: { fieldOrder: ['terrain', 'cover_level', 'elevation'], terrain: TerrainType, cover_level: 0, elevation: 0, },
+			environment: { fieldOrder: ['terrain', 'cover_level', 'elevation'], terrain: TerrainType.UrbanStreet, cover_level: 0, elevation: 0, },
 		},
 		UnitState: {
 			fieldOrder: ['game_id', 'player_id', 'unit_id', 'x', 'y', 'z', 'mode', 'environment'],
@@ -2343,7 +2343,7 @@ export const schema: CommandNexusSchemaType = {
 			y: 0,
 			z: 0,
 			mode: UnitMode.Idle,
-			environment: { fieldOrder: ['terrain', 'cover_level', 'elevation'], terrain: TerrainType, cover_level: 0, elevation: 0, },
+			environment: { fieldOrder: ['terrain', 'cover_level', 'elevation'], terrain: TerrainType.UrbanStreet, cover_level: 0, elevation: 0, },
 		},
 		EnvironmentInfo: {
 			fieldOrder: ['terrain', 'cover_level', 'elevation'],
@@ -2365,7 +2365,7 @@ export const schema: CommandNexusSchemaType = {
 			battlefield_id: 0,
 			player_id: 0,
 			size: 0,
-			weather: { fieldOrder: ['weather_condition', 'visibility', 'movement_penalty', 'comms_interference'], weather_condition: WeatherCondition, visibility: 0, movement_penalty: 0, comms_interference: 0, },
+			weather: { fieldOrder: ['weather_condition', 'visibility', 'movement_penalty', 'comms_interference'], weather_condition: WeatherCondition.None, visibility: 0, movement_penalty: 0, comms_interference: 0, },
 			control: 0,
 		},
 		WeatherEffect: {
@@ -2379,7 +2379,7 @@ export const schema: CommandNexusSchemaType = {
 			fieldOrder: ['player_id', 'size', 'weather', 'control'],
 			player_id: 0,
 			size: 0,
-			weather: { fieldOrder: ['weather_condition', 'visibility', 'movement_penalty', 'comms_interference'], weather_condition: WeatherCondition, visibility: 0, movement_penalty: 0, comms_interference: 0, },
+			weather: { fieldOrder: ['weather_condition', 'visibility', 'movement_penalty', 'comms_interference'], weather_condition: WeatherCondition.None, visibility: 0, movement_penalty: 0, comms_interference: 0, },
 			control: 0,
 		},
 		ERC__Balance: {

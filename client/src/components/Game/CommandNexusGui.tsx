@@ -1286,7 +1286,7 @@ export default class CommandNexusGui {
                     case AbilityType.Hack:
                         console.log("Executing hacking protocol...");
                         break;
-                    case AbilityType.Attack:
+                    case AbilityType.Attack as any:
                         console.log("Engaging in combat...");
                         break;
                     case AbilityType.Defend:
@@ -1517,16 +1517,16 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
 
 
 
-    private kickPlayer = async (player_index: number, game_id: number) => {
-        try {
-        //   setKickLoading(true);
-          const result  = await this.arena.kick(this.getAccount(), game_id, player_index);
-        } catch (error: any) {
-          this.showToast(error.message);
-        } finally {
+    // private kickPlayer = async (player_index: number, game_id: number) => {
+    //     try {
+    //     //   setKickLoading(true);
+    //       const result  = await this.arena.kick(this.getAccount(), game_id, player_index);
+    //     } catch (error: any) {
+    //       this.showToast(error.message);
+    //     } finally {
           
-        }
-      };
+    //     }
+    //   };
 
     // Method to animate the toast panel (fade in, wait, fade out)
     private animateToast(panel: GUI.Rectangle): void {

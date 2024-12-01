@@ -216,7 +216,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const recast =   await new Recast(); 
     const navigationPlugin = new RecastJSPlugin(recast);
-    navigationPlugin.setWorkerURL("/src/libs/navMeshWorker.js");
+    navigationPlugin.setWorkerURL("src/libs/navMeshWorker.js");
 
     const pointNav = new PointNavigation(scene, "/circles.png")
 
@@ -286,8 +286,10 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
               });
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
+                      console.log("...............................................")
           const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount);
           await multiAgentNav.initialize();
+          console.log("........................................5143555555555556")
 
           // Create your custom mesh
          // const customAgentMesh = MeshBuilder.CreateBox("agentTemplate", {size: 1}, scene);

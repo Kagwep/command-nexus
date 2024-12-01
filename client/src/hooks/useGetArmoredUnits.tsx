@@ -64,56 +64,6 @@ export const useArmoredUnits = () => {
 }, [sdk, account.address]);
 
 
-new Promise<void>((resolve) => {
-    sdk.getEntities(
-      {
-        command_nexus: {
-            Armored: {
-                $: {
-                    where: {
-                        game_id: {
-                            $is:game_id,
-                        },
-                    },
-                },
-            },
-            AbilityState: {
-                $: {
-                    where: {
-                        game_id: {
-                            $is:game_id,
-                        },
-                    },
-                },
-            },
-            UrbanBattlefield: {
-                $: {
-                    where: {
-                        game_id: {
-                            $is:game_id,
-                        },
-                    },
-                },
-            },
-        },
-      },
-      (response) => {
-        if (response.error) {
-          console.error(
-            "Error setting up entity sync:",
-            response.error
-          );
-        } else if (
-          response.data &&
-          response.data[0].entityId !== "0x0"
-        ) {
-          console.log("polled", response.data[0]);
-          state.updateEntity(response.data[0]);
-        }
-        resolve();
-      }
-    );
-  });
 
 
   const armoredUnits = Object.values(state.entities)

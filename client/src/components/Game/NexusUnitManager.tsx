@@ -147,6 +147,7 @@ class NexusUnitManager {
 
 
     private createDebugNavMesh(navmeshData: Uint8Array): void {
+        console.log("...............................................................")
         this.navmeshdebug = this.navigationPlugin.createDebugNavMesh(this.scene);
         this.navigationPlugin.buildFromNavmeshData(navmeshData);
         this.navmeshdebug = this.navigationPlugin.createDebugNavMesh(this.scene);

@@ -162,7 +162,7 @@ class NexusUnitManager {
         this.navMeshIndices =positions
         this.indices = this.navmeshdebug.getIndices();
 
-       // console.log(this.navMeshIndices)
+       console.log("created the mesh >>>>>>>>>>>>>>>> ",this.navmeshdebug)
 
 
         //new InteractiveGridObstructionSystem(this.scene, 300, 1);

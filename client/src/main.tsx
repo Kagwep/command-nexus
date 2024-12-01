@@ -28,8 +28,8 @@ async function main() {
     const sdk = await init<CommandNexusSchemaType>(
         {
             client: {
-                rpcUrl: TORII_RPC_URL,
-                toriiUrl: TORII_URL,
+                rpcUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_RPC_URL : dojoConfig.rpcUrl,
+                toriiUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_URL : 'http://localhost:8080',
                 relayUrl: dojoConfig.relayUrl,
                 worldAddress: dojoConfig.manifest.world.address,
             },

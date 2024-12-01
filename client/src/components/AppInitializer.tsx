@@ -13,7 +13,6 @@ import LoadingScreen from "./LoadingScreen";
 import { NetworkAccountProvider } from "../context/WalletContex";
 import { useElementStore } from "../utils/nexus";
 
-
 interface AppInitializerProps {
     sdk: SDK<CommandNexusSchemaType>
 }
@@ -61,23 +60,25 @@ const ErrorScreen: React.FC<{ error: InitializationError }> = ({ error }) => (
 const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     const { isOnboarded, completeOnboarding } = useOnboarding();
     const [burnerManager, setBurnerManager] = useState<BurnerManager | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false); // Start as false initially
     const [error, setError] = useState<InitializationError | null>(null);
     const [initializationStep, setInitializationStep] = useState(0);
 
-    const { network } = useElementStore(
-        (state) => state
-      );
-    
+    const { network } = useElementStore(state => state);
 
     useEffect(() => {
+        // Only start initialization after network is set and user is onboarded
+        if (!isOnboarded || !network) {
+            return;
+        }
+
         const initializeGame = async () => {
             try {
                 setIsLoading(true);
                 
-                // Step 1: Setup burner wallet
-                setInitializationStep(1);
-                if (network === 'katana'){
+                if (network === 'katana') {
+                    // Step 1: Setup burner wallet
+                    setInitializationStep(1);
                     const manager = await setupBurnerManager(dojoConfig);
                     if (!manager) {
                         throw {
@@ -86,7 +87,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
                         };
                     }
                     setBurnerManager(manager);
-    
+
                     // Step 2: Verify network connection
                     setInitializationStep(2);
                     const networkStatus = await checkNetworkConnection();
@@ -97,7 +98,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
                             details: networkStatus.error
                         };
                     }
-    
+
                     // Step 3: Authentication
                     setInitializationStep(3);
                     if (!manager.account) {
@@ -107,7 +108,6 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
                         };
                     }
                 }
-
 
                 setIsLoading(false);
             } catch (err) {
@@ -122,7 +122,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
         };
 
         initializeGame();
-    }, []);
+    }, [isOnboarded, network]); // Add dependencies
 
     const getLoadingMessage = () => {
         switch (initializationStep) {
@@ -137,10 +137,17 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
         }
     };
 
+    // First, show Intro if not onboarded
     if (!isOnboarded) {
         return <Intro onOnboardComplete={completeOnboarding} />;
     }
 
+    // Then, wait for network to be set
+    if (!network) {
+        return <LoadingScreen message="Waiting for network selection..." />;
+    }
+
+    // Then show other states
     if (isLoading) {
         return <LoadingScreen message={getLoadingMessage()} />;
     }
@@ -148,7 +155,6 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     if (error) {
         return <ErrorScreen error={error} />;
     }
-
 
     if (!burnerManager && network === 'katana') {
         return <ErrorScreen 
@@ -161,16 +167,13 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     }
 
     return (
-            <SDKProvider sdk={sdk}>
-                <DojoContextProvider 
-                    burnerManager={burnerManager}
-                >
-                    <NetworkAccountProvider>
+        <SDKProvider sdk={sdk}>
+            <DojoContextProvider burnerManager={burnerManager}>
+                <NetworkAccountProvider>
                     <App />
-                    </NetworkAccountProvider>
-                </DojoContextProvider>
-            </SDKProvider>
- 
+                </NetworkAccountProvider>
+            </DojoContextProvider>
+        </SDKProvider>
     );
 };
 

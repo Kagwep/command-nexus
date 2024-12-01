@@ -28,7 +28,7 @@ export function VStack(props: GridProps & {
     </Grid>
   )
 }
-
+  
 export function VStackRow(props: {
   className?: string
   children: ReactElement | ReactElement[]

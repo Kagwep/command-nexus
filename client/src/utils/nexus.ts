@@ -5,6 +5,8 @@ import { Vector3 } from '@babylonjs/core';
 import { removeLeadingZeros } from './sanitizer';
 import { bigintToU256 } from "../lib/lib_utils/starknet";
 import { Uint256ToBigint } from '../lib/lib_utils/starknet';
+import { ToriiClient } from '@dojoengine/torii-client';
+import { Game } from '@/dojogen/models.gen';
 
 export enum Phase {
   DEPLOY,
@@ -378,3 +380,59 @@ export const positionDecoder = (encodedPosition: EncodedVector3): Vector3 => {
   return new Vector3(parseFloat(x.toString()), parseFloat(y.toString()), parseFloat(z.toString()));
 };
 
+
+
+// export async function fetchAllEntities(
+//   client: ToriiClient,
+//   updateTiles?: (tiles: Record<string, Game>) => void,
+// ): Promise<Record<string, Game>> {
+//   let allGames: Record<string, Game> = {}
+//   let cursor = 0
+//   let hasMore = true
+//   const size = 100000
+
+//   while (hasMore) {
+//     const entities = await client.getEntities({
+//       clause: {
+//         Member: {
+//           member: 'game_id',
+//           model: 'command_nexus-Game',
+//           operator: 'Neq',
+//           value: {
+//             Primitive: {
+//               ContractAddress: '0x0',
+//             },
+//           },
+//         },
+//       },
+//       limit: size,
+//       offset: cursor,
+//       dont_include_hashed_keys: true,
+//     })
+
+//     const fetchedTiles = Object.values(entities).reduce(
+//       (acc, entity) => {
+//         if (!entity['command_nexus-Game']) {
+//           return acc
+//         }
+
+//         const tile = parseTileModel(entity['command_nexus-Game'])
+//         acc[`${tile.x},${tile.y}`] = tile
+//         return acc
+//       },
+//       {} as Record<string, Game>,
+//     )
+
+//     allGames = { ...allGames, ...fetchedTiles }
+
+//     if (updateTiles) {
+//       updateTiles(fetchedTiles)
+//     }
+
+//     const fetchedCount = Object.keys(entities).length
+//     cursor += fetchedCount
+//     hasMore = fetchedCount === size
+//   }
+
+//   return allGames
+// }

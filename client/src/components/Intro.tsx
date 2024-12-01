@@ -24,6 +24,7 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
 
   // Helper function to handle network selection with wallet check
   const handleNetworkSelect = (selectedNetwork: Network) => {
+   
     if (selectedNetwork === "katana") {
       // For testnet, proceed without wallet
       setScreen("start");

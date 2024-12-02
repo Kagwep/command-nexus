@@ -188,7 +188,8 @@ const Lobby: React.FC = () => {
 useEffect(() => {
   let unsubscribe: (() => void) | undefined;
 
-  const subscribe = async () => {
+  if(game_id >= 0){
+    const subscribe = async () => {
       const subscription = await sdk.subscribeEntityQuery(
           {
               command_nexus: {
@@ -276,10 +277,7 @@ useEffect(() => {
           },
           (response) => {
               if (response.error) {
-                  console.error(
-                      "Error setting up entity sync:",
-                      response.error
-                  );
+                  console.log(response.error)
               } else if (
                   response.data &&
                   response.data[0].entityId !== "0x0"
@@ -296,7 +294,10 @@ useEffect(() => {
       unsubscribe = () => subscription.cancel();
   };
 
-  subscribe();
+    subscribe();
+  }
+
+
 
   return () => {
       if (unsubscribe) {

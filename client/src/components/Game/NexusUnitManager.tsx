@@ -1076,6 +1076,8 @@ class NexusUnitManager {
     private deployUnit = async (deploy: Deploy) => {
         try {
 
+
+            console.log(deploy)
          console.log(deploy,this.getAccount(),await this.client)
     
           const result  = await (await this.client).nexus.deployForces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);

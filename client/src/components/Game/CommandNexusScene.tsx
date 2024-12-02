@@ -12,11 +12,12 @@ import TankSystem, { ArmoredAction } from './Armored';
 import Recast from "recast-detour";
 import PointNavigation from './PointNavigation';
 import { NexusUnitManager } from './NexusUnitManager';
-import InfantrySystem from './Infantry';
+import InfantrySystem from './Infantry'; 
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { GameState } from './GameState';
 import { AccountInterface, Account } from 'starknet';
 import { Game,Player } from '../../dojogen/models.gen';
+
 
 
 interface MeshN extends Mesh {
@@ -44,7 +45,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
   let targetAlpha = camera.alpha;
   let targetRadius = camera.radius;
 
-   let navmeshdebug;
+   let navmeshdebug;0                                                                                                                                                                                                                                                      
 
    let currentAnim ;
 
@@ -218,6 +219,8 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
     const recast =   await new Recast(); 
     const navigationPlugin = new RecastJSPlugin(recast);
     navigationPlugin.setWorkerURL("src/libs/navMeshWorker.js");
+
+    console.log("nav",navigationPlugin);
 
     const pointNav = new PointNavigation(scene, "/circles.png")
 

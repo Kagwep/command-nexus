@@ -139,10 +139,10 @@ export const useGame = () => {
               },
               (response) => {
                   if (response.error) {
-                      console.error(
-                          "Error setting up entity sync:",
-                          response.error
-                      );
+                    //   console.error(
+                    //       "Error setting up entity sync:",
+                    //       response.error
+                    //   );
                   } else if (
                       response.data &&
                       response.data[0].entityId !== "0x0"

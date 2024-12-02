@@ -44,10 +44,10 @@ export const useArmoredUnits = () => {
                 },
                 (resp) => {
                     if (resp.error) {
-                        console.error(
-                            "resp.error.message:",
-                            resp.error.message
-                        );
+                        // console.error(
+                        //     "resp.error.message:",
+                        //     resp.error.message
+                        // );
                         return;
                     }
                     if (resp.data) {

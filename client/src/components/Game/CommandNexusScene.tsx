@@ -17,7 +17,7 @@ import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { GameState } from './GameState';
 import { AccountInterface, Account } from 'starknet';
 import { Game,Player } from '../../dojogen/models.gen';
-importclau
+
 
 interface MeshN extends Mesh {
   idx?: number;

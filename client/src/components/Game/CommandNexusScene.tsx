@@ -218,7 +218,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const recast =   await new Recast(); 
     const navigationPlugin = new RecastJSPlugin(recast);
-    navigationPlugin.setWorkerURL("src/libs/navMeshWorker.js");
+    navigationPlugin.setWorkerURL("/navMeshWorker.js");
 
     console.log("nav",navigationPlugin);
 

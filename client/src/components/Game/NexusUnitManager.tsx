@@ -281,9 +281,10 @@ class NexusUnitManager {
 
     private async handlePointerTap(mesh: Mesh): Promise<void> {
         const startingPoint = this.getGroundPosition();
-        console.log(mesh.name, mesh.metadata)
-        console.log(this.selectedAgent)
-        console.log(mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode())
+        // console.log(mesh.name, mesh.metadata)
+        // console.log(this.selectedAgent)
+        // console.log(mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode())
+        console.log(mesh.name.includes("ground") && this.getGui()?.getDeploymentMode())
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             if (this.selectedAgent){
                 switch (mesh.metadata.UnitData.unitType) {

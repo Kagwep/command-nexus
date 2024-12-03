@@ -5,8 +5,9 @@ import { isHost, Phase } from '../../utils/nexus';
 import { Player } from '../../dojogen/models.gen';
 import { Account, AccountInterface } from 'starknet';
 import { useNetworkAccount } from '../../context/WalletContex';
+import { GameState } from './GameState';
 
-export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number,  game: any, players: Player[],client: any,getAccount: () => AccountInterface | Account) => {
+export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTurn: boolean, turn: number,  game: any, players: Player[],client: any,getAccount: () => AccountInterface | Account,getGameState: () => GameState) => {
   const guiRef = useRef<CommandNexusGui | null>(null);
   const [isGuiReady, setIsGuiReady] = useState(false);
 
@@ -33,7 +34,7 @@ export const useCommandNexusGui = (scene: Scene | null, player: Player, isItMyTu
 
       // Create new GUI
       try {
-        guiRef.current = new CommandNexusGui(scene,client,game,player,getAccount);
+        guiRef.current = new CommandNexusGui(scene,client,game,player,getAccount,getGameState);
         setIsGuiReady(true);
         scene.onPointerDown = (evt, pickResult) => {
             if (pickResult.hit) {

@@ -2,12 +2,14 @@ import * as GUI from "@babylonjs/gui";
 import { Scene, Vector3,Animation } from '@babylonjs/core';
 import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType, Armored } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
-import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, stringToUnitType } from "../../utils/nexus";
+import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, positionEncoder, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
 import { Infantry, Player } from "../../dojogen/models.gen";
 import { useRef } from "react";
-import { Account, AccountInterface } from "starknet";
+import { Account, AccountInterface, encode } from "starknet";
+import { GameState } from "./GameState";
+import { StarknetErrorParser } from "./ErrorParser";
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -27,6 +29,7 @@ export default class CommandNexusGui {
     private rankText: GUI.TextBlock = new TextBlock;
     //private kickButton: GUI.Button;
     private getAccount: () => AccountInterface | Account;
+    private getGameState: () => GameState;
 
 
     private deployButton: GUI.Ellipse = new GUI.Ellipse;
@@ -56,7 +59,7 @@ export default class CommandNexusGui {
     private unitRows: Map<string, GUI.TextBlock> = new Map();
     private scoreRows: Map<string, GUI.TextBlock> = new Map();
     private supplyRows: Map<string, GUI.TextBlock> = new Map();
-    constructor(scene: Scene,client: any,game: any,player: Player, getAccount:  () => AccountInterface | Account ) {
+    constructor(scene: Scene,client: any,game: any,player: Player, getAccount:  () => AccountInterface | Account ,getGameState: () => GameState) {
         this.gui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
         this.createTopBar();
         this.createMainMenuButton();
@@ -76,6 +79,7 @@ export default class CommandNexusGui {
         this.player = player
         this.getAccount = getAccount;
         this.initializeInfoPanel();
+        this.getGameState = getGameState;
        
     }
 
@@ -1197,86 +1201,89 @@ export default class CommandNexusGui {
 
     public showActionsMenu(unitType: UnitType) {
         this.clearButtons(); // Clear existing buttons
-        this.innerArc.thickness = 1;
-    
-        // Fetch abilities based on the unitType
-        const abilities = getUnitAbilities(unitType);
-        const availableAbilities = Object.entries(abilities)
-            .filter(([_, level]) => level > 0)
-            .map(([ability, _]) => ability as keyof typeof AbilityType);
-    
-        const numButtons = availableAbilities.length;
-        const buttonSize = "80px";
-        const outerWidth = 700; // Width of the outer arc
-        const innerWidth = 300; // Width of the inner arc
-        const outerHeight = 200; // Height of the outer arc
-        const innerHeight = 100; // Height of the inner arc
-        const buttonRadius = (outerWidth + innerWidth) / 4; // Average radius for horizontal positioning
-    
-        const paddingAngle = 0.2; // Padding in radians to reduce total range slightly
-        const availableAngle = Math.PI - paddingAngle; // Total angle range with padding
-        const angleStep = availableAngle / (numButtons - 1); // Even angle step between buttons
-    
-        availableAbilities.forEach((ability, index) => {
-            // Calculate angle for buttons, evenly spaced with padding
-            const angle = (index * angleStep) + (paddingAngle / 2); // Offset to center the arc
-    
-            // Horizontal position based on buttonRadius and angle
-            let x = Math.cos(angle) * buttonRadius;
-    
-            // Vertical position to ensure it's between the outer and inner arc heights
-            let y = -Math.sin(angle) * (outerHeight / 2 - innerHeight / 2) - (outerHeight - innerHeight) / 2;
-    
-            // Adjust the first and last buttons by pushing them slightly down
-            if (index === 0 || index === numButtons - 1) {
-                y += 40; // Push the button down by 20px (adjust this value as needed)
-                if (index === 0){
-                    x += 20;
-                }else{
-                    x -= 20;
-                }
-            }else{
-                y -=10
-            }
-            function capitalizeFirstLetter(ability: string) {
-                return ability.charAt(0).toUpperCase() + ability.slice(1);
-            }
 
-            const abilityEnum = abilityStringToEnum(capitalizeFirstLetter(ability));
+    // Fetch abilities based on the unitType
+    const abilities = getUnitAbilities(unitType);
+    const availableAbilities = Object.entries(abilities)
+        .filter(([_, level]) => level > 0)
+        .map(([ability, _]) => ability as keyof typeof AbilityType);
 
-            const abilityImagePath = abilityEnum ? this.getAbilityImage(abilityEnum): "";
+    // Emoji mappings
+    const abilityEmojis: { [key: string]: string } = {
+        attack: "⚔️",
+        defend: "🛡️",
+        patrol: "👁️",
+        stealth: "🌑",
+        recon: "🔭",
+        repair: "🔧",
+        airlift: "🚁",
+        bombard: "💥",
+        submerge: "🌊",
+        hack: "💻"
+    };
 
-           // console.log(abilityImagePath,abilityEnum, ability)
-    
-            // Create the button with image
-            const button = Button.CreateImageWithCenterTextButton(
-                ability,
-                ability,
-                abilityImagePath
-            );
-             
-            button.width = buttonSize;
-            button.height = "50px";
-            button.color = "white";
-            button.thickness = 0;
-            button.cornerRadius = 35;
-            button.background = "rgba(80, 80, 80, 0.6)";
-            button.hoverCursor = "pointer";
-            button.thickness = 0;
-            button.fontFamily = "Arial, Helvetica, sans-serif";
-            button.fontSize = 16;
+    // Layout properties
+    const numButtons = availableAbilities.length;
+    const buttonSize = "80px";
+    const padding = 15; // Padding between buttons
+    const containerHeight = "120px";
+    const containerWidth = `${numButtons * (parseInt(buttonSize) + padding + 5)}px`;
+
+    // Create container
+    const container = new Rectangle("menu-container");
+    container.width = containerWidth;
+    container.height = containerHeight;
+    container.color = "white";
+    container.thickness = 2;
+    container.color ="rgba(0, 120, 60, 0.9)";
+    container.background = "rgba(80, 80, 80, 0.9)";
+    container.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+    container.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+    container.top = "-50px";
+    container.cornerRadius = 15;
+
+    // Add the container first
+    this.gui.addControl(container);
+     // Add to unitButtons for cleanup
+
+    availableAbilities.forEach((ability, index) => {
+        const abilityEnum = abilityStringToEnum(ability.charAt(0).toUpperCase() + ability.slice(1));
         
-            // Adjust image size and position
-            if (button.image) {
-                button.image.width = "20px";
-                button.image.height = "20px";
-                button.image.left = "-30px"; // Move image to the left
-            }
+        // Create button with emoji and text
+        const buttonText = `${abilityEmojis[ability.toLowerCase()] || '❓'} ${ability}`;
+        const button = Button.CreateSimpleButton(ability, buttonText);
+
+        // Button style
+        button.width = buttonSize;
+        button.height = "60px";
+        button.color = "white";
+        button.thickness = 0;
+        button.background = "rgba(50, 50, 50, 0.9)";
+        button.hoverCursor = "pointer";
+        button.cornerRadius = 15;
+
+        if (button.textBlock) {
+            button.textBlock.fontSize = 16;
+            button.textBlock.fontFamily = "Arial";
+            button.textBlock.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        }
+
+        // Calculate position within container
+        const totalWidth = numButtons * (parseInt(buttonSize) + padding);
+        const startX = -totalWidth / 2 + parseInt(buttonSize) / 2;
+        const xPosition = startX + index * (parseInt(buttonSize) + padding);
         
-            // Adjust text position
-            if (button.textBlock) {
-                button.textBlock.left = "10px"; // Move text to the right
-            }
+        button.left = `${xPosition}px`;
+        button.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+
+        // Add hover effect
+        button.onPointerEnterObservable.add(() => {
+            button.background = "rgba(0, 120, 60, 0.9)";
+        });
+
+        button.onPointerOutObservable.add(() => {
+            button.background = "rgba(50, 50, 50, 0.9)";
+        });
     
             // Handle click event
             button.onPointerUpObservable.add(async () => {
@@ -1291,18 +1298,80 @@ export default class CommandNexusGui {
                         break;
                     case AbilityType.Defend:
                         console.log("Raising defenses...");
+
+                        console.log(this.getSelectedUnitInfo())
+
+                        const encodedPositionDefend= positionEncoder(this.getSelectedUnitInfo().visualMesh.position);
+                        const unitIdDefend = this.getSelectedUnitInfo().visualMesh.metadata.UnitData.unit_id
+                        const unitTypeDefend = 1
+
+                        console.log(encodedPositionDefend);
+
+                        //const nexus_defend = async (snAccount: Account, gameId: number, unitId: number, unitType: number, x: number, y: number, z: number) 
+
+                       const resultDefend  = await (await this.client).nexus.defend(this.getAccount(), this.getGameState().game.game_id, unitIdDefend, unitTypeDefend, encodedPositionDefend.x,encodedPositionDefend.y,encodedPositionDefend.z)
+                        
+                       console.log(resultDefend)
+
+                       if (resultDefend && resultDefend.transaction_hash){
+                        this.showToastSide(`Unit  Defending`, ToastType.Success);
+                       }else{
+                        const errorMessage = StarknetErrorParser.parseError(resultDefend);
+                        console.log(errorMessage)
+                        this.showToastSide(errorMessage,ToastType.Error)
+                       }
+
                         break;
                     case AbilityType.Patrol:
                         console.log("Initiating patrol...");
 
+                        console.log(this.getSelectedUnitInfo())
+
+                        const encodedPosition= positionEncoder(this.getSelectedUnitInfo().visualMesh.position);
+                        const unitId = this.getSelectedUnitInfo().visualMesh.metadata.UnitData.unit_id
+                        const unitType = 1
+
+                        console.log(encodedPosition);
+
+                        //const nexus_patrol = async (snAccount: Account, gameId: number, unitId: number, unitType: number, startX: number, startY: number, startZ: number) => {
+
+                       const result  = await (await this.client).nexus.patrol(this.getAccount(), this.getGameState().game.game_id, unitId, unitType, encodedPosition.x,encodedPosition.y,encodedPosition.z)
                         
-                       // const result  = await (await this.client).nexus.patrol(this.getAccount(), this.getGameState().game.game_id, unitId: number, unitType: number, startX: number, startY: number, startZ: number)
-                        //const result  = (await this.nexus).nexus.moveUnit(this.getAccount(), this.getGameState().game.game_id, unitId, unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z);
-                        // console.log(result)
+                       console.log(result)
+
+                       if (result && result.transaction_hash){
+                        this.showToastSide(`Unit ${unitId} Patrolling`, ToastType.Success);
+                       }else{
+                        const errorMessage = StarknetErrorParser.parseError(result);
+                        console.log(errorMessage)
+                        this.showToastSide(errorMessage,ToastType.Error)
+                       }
 
                         break;
                     case AbilityType.Stealth:
                         console.log("Entering stealth mode...");
+
+                        console.log(this.getSelectedUnitInfo())
+
+                        const encodedPositionStealth= positionEncoder(this.getSelectedUnitInfo().visualMesh.position);
+                        const unitIdStealth = this.getSelectedUnitInfo().visualMesh.metadata.UnitData.unit_id
+                        const unitTypeStealth = 1
+
+                        console.log(encodedPositionStealth);
+
+                        //const nexus_stealth = async (snAccount: Account, gameId: number, unitId: number, unitType: number, x: number, y: number, z: number) 
+
+                       const resultStealth  = await (await this.client).nexus.stealth(this.getAccount(), this.getGameState().game.game_id, unitIdStealth, unitTypeStealth, encodedPositionStealth.x,encodedPositionStealth.y,encodedPositionStealth.z)
+                        
+                       console.log(resultStealth)
+
+                       if (resultStealth && resultStealth.transaction_hash){
+                        this.showToastSide(`Unit ${unitIdStealth} In stealth`, ToastType.Success);
+                       }else{
+                        const errorMessage = StarknetErrorParser.parseError(resultStealth);
+                        console.log(errorMessage)
+                        this.showToastSide(errorMessage,ToastType.Error)
+                       }
                         break;
                     case AbilityType.Recon:
                         console.log("Performing reconnaissance...");
@@ -1324,27 +1393,10 @@ export default class CommandNexusGui {
                 }
             
             });
-    
-            // Add hover effect
-            button.onPointerEnterObservable.add(() => {
-                button.background = "rgba(0, 80, 40, 0.9)"; // Light blue with slight transparency on hover
-            });
 
-            button.onPointerOutObservable.add(() => {
-                button.background = "rgba(80, 80, 80, 0.6)"; // Dark gray with slight transparency in normal state
-            });
-
-
-            // Align buttons relative to the outer arc
-            button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
-            button.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+            this.unitButtons.push(button);
     
-            // Set the calculated position of the button relative to the center
-            button.left = x + "px";
-            button.top = y + "px";
-    
-            // Add the button to the GUI
-            this.gui.addControl(button);
+            container.addControl(button);
             this.unitButtons.push(button);
         });
     

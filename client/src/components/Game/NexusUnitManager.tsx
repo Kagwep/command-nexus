@@ -447,32 +447,33 @@ class NexusUnitManager {
 
             if (result && result.transaction_hash){
                 if (startingPoint) {
-                    this.pointNavPre.position = startingPoint;
-                    this.pointNavPre.visibility = 1;
-                    // Apply animation blending only to the selected agent
+                    // this.pointNavPre.position = startingPoint;
+                    // this.pointNavPre.visibility = 1;
+                    // // Apply animation blending only to the selected agent
     
     
-                        this.scene.onBeforeRenderObservable.runCoroutineAsync(
-                            this.animationBlending(
-                                this.selectedAgent.animations.idle,
-                                1.0,
-                                this.selectedAgent.animations.movement,
-                                1.3,
-                                true,
-                                0.05
-                            )
-                        );
+                    //     this.scene.onBeforeRenderObservable.runCoroutineAsync(
+                    //         this.animationBlending(
+                    //             this.selectedAgent.animations.idle,
+                    //             1.0,
+                    //             this.selectedAgent.animations.movement,
+                    //             1.3,
+                    //             true,
+                    //             0.05
+                    //         )
+                    //     );
     
-                    this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
+                    // this.crowd.agentGoto(this.selectedAgent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
     
-                    console.log(this.selectedAgent.cUnitType)
+                    // console.log(this.selectedAgent.cUnitType)
             
-                    if (this.selectedAgent.cUnitType === UnitType.Infantry){
-                        this.soundManager?.playSound("move");
-                    }
+                    // if (this.selectedAgent.cUnitType === UnitType.Infantry){
+                    //     this.soundManager?.playSound("move");
+                    // }
     
-                    this.activeUnitType = this.selectedAgent.cUnitType;
-                    this.getGui().showToastSide(`Moved`,ToastType.Success)
+                    // this.activeUnitType = this.selectedAgent.cUnitType;
+                    // this.getGui().showToastSide(`Moved`,ToastType.Success)
+                    console.log("moving")
                 }
             }else{
                 const errorMessage = StarknetErrorParser.parseError(result);
@@ -1086,30 +1087,13 @@ class NexusUnitManager {
           const result  = await (await this.client).nexus.deployForces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
           console.log(result)
 
-          if (result?.message) {
-            const match = result.message.match(/Failure reason: 0x[0-9a-f]+\s\(([^)]+)\)/i);
-            if (match && match[1]) {
-                // Remove single quotes from the extracted error message
-                const cleanedMessage = match[1].replace(/['"]+/g, '');
-                
-                // readable message like "Turn Timeout" without quotes
-                this.getGui().showToast(cleanedMessage, ToastType.Error);
-
-                this.getGui().handleDeployement();
-            }
-        }
-
-        if (result?.execution_status) {
-            
-            if (result?.execution_status === 'SUCCEEDED') {
-                // Remove single quotes from the extracted error message
-                const cleanedMessage = `Deployed ${numberToUnitType(deploy.unit)}`;
-                
-                // readable message like "Turn Timeout" without quotes
-                this.getGui().showToast(cleanedMessage, ToastType.Success);
-            }
-        }
-        
+          if (result && result.transaction_hash){
+            this.getGui().showToastSide(`Unit Deployed`, ToastType.Success);
+           }else{
+            const errorMessage = StarknetErrorParser.parseError(result);
+            console.log(errorMessage)
+            this.getGui().showToastSide(errorMessage,ToastType.Error)
+           }
 
         } catch (error: any) {
           this.getGui().showToast(error.message);
@@ -1131,8 +1115,8 @@ class NexusUnitManager {
                         this.infantryUnits.set(unitData.unit_id, unitData);
                         this.handleNewInfantryUnit(unitData);
                     } else {
-                        // Update existing unit data
-                        this.infantryUnits.set(unitData.unit_id, unitData);
+                        // Update existing unit
+                        this.updateInfantryUnit(unitData);
                     }
                 });
 
@@ -1245,7 +1229,78 @@ class NexusUnitManager {
     public getInfantryUnit(id: string): any | undefined {
         return this.infantryUnits.get(id);
     }
+
+        // Helper function to find agent by unit_id
+    private getAgentByUnitId(unitId: number): Agent | undefined {
+        return this.agents.find(agent => 
+            agent.visualMesh.metadata?.UnitData?.unit_id === unitId
+        );
+    }
+
+        // Helper to check if position has changed
+    private hasPositionChanged(oldData: any, newData: any): boolean {
+        return oldData.position.coord.x !== newData.position.coord.x ||
+            oldData.position.coord.y !== newData.position.coord.y ||
+            oldData.position.coord.z !== newData.position.coord.z;
+    }
  
+    // Update logic for infantry units
+private updateInfantryUnit(unitData: any) {
+    const existingUnit = this.infantryUnits.get(unitData.unit_id);
+    const agent = this.getAgentByUnitId(unitData.unit_id);
+
+    if (!agent) {
+        console.warn(`No agent found for unit ${unitData.unit_id}`);
+        return;
+    }
+
+    // Update metadata
+    agent.visualMesh.metadata.UnitData = unitData;
+
+    // Check if position has changed
+    if (existingUnit && this.hasPositionChanged(existingUnit, unitData)) {
+        // Convert position coordinates
+        const x = bigintToU256(unitData.position.coord.x);
+        const y = bigintToU256(unitData.position.coord.y);
+        const z = bigintToU256(unitData.position.coord.z);
+        
+        const pos: EncodedVector3 = { x, y, z };
+        const startingPoint = positionDecoder(pos);
+
+        if (startingPoint) {
+            // Update navigation point
+            this.pointNavPre.position = startingPoint;
+            this.pointNavPre.visibility = 1;
+
+            // Apply animation blending
+            this.scene.onBeforeRenderObservable.runCoroutineAsync(
+                this.animationBlending(
+                    agent.animations.idle,
+                    1.0,
+                    agent.animations.movement,
+                    1.3,
+                    true,
+                    0.05
+                )
+            );
+
+            // Update agent position
+            this.crowd.agentGoto(agent.idx, this.navigationPlugin.getClosestPoint(startingPoint));
+
+            // Play sound if it's an infantry unit
+            if (agent.cUnitType === UnitType.Infantry) {
+                this.soundManager?.playSound("move");
+            }
+
+            this.activeUnitType = agent.cUnitType;
+            this.getGui().showToastSide(`Unit ${unitData.unit_id} Moving`, ToastType.Success);
+        }
+    }
+
+    // Update the stored unit data
+    this.infantryUnits.set(unitData.unit_id, unitData);
+}
+
 }
 
 export { NexusUnitManager };

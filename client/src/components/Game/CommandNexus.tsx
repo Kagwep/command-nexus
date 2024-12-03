@@ -65,8 +65,10 @@ const CommandNexus = () => {
   const getAccount = () : AccountInterface | Account => {
     return account
   }
+
+  const getGameState = () => nexusGameState ? nexusGameState.getGameState() : null;
   
-  const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn,game, players,client,getAccount);
+  const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn,game, players,client,getAccount,getGameState);
 
 
 
@@ -97,7 +99,7 @@ const CommandNexus = () => {
 
               sceneRef.current = scene;
 
-              const getGameState = () => nexusGameState ? nexusGameState.getGameState() : null;
+              
               
               if (player){
                 await setupScene(sceneRef.current, camera, engineRef.current!,player, getGui,getGameState, nexusGameState?.gameState,client,getAccount);

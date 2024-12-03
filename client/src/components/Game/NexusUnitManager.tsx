@@ -283,8 +283,11 @@ class NexusUnitManager {
         const startingPoint = this.getGroundPosition();
         // console.log(mesh.name, mesh.metadata)
         // console.log(this.selectedAgent)
-        // console.log(mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode())
-        console.log(mesh.name.includes("ground") && this.getGui()?.getDeploymentMode())
+        console.log(this.getGui()?.getDeploymentMode());
+        console.log(mesh.name.includes("ground"),this.getGui()?.getDeploymentMode());
+        if(!this.getGui()?.getDeploymentMode()){
+            console.log("no mode found")
+        }
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             if (this.selectedAgent){
                 switch (mesh.metadata.UnitData.unitType) {

@@ -298,6 +298,10 @@ export const soldierAnimationMapping: AnimationMapping = {
 
 
   export function abilityStringToEnum(ability: string): AbilityType | undefined {
+    // If the ability is "Attack", explicitly return 0
+    console.log(ability)
+    if (ability === "Attack") return AbilityType.Attack;
+    
     return AbilityType[ability as keyof typeof AbilityType];
 }
 

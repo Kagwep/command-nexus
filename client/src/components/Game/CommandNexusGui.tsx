@@ -1247,7 +1247,10 @@ export default class CommandNexusGui {
      // Add to unitButtons for cleanup
 
     availableAbilities.forEach((ability, index) => {
+        console.log(ability)
         const abilityEnum = abilityStringToEnum(ability.charAt(0).toUpperCase() + ability.slice(1));
+
+        console.log(abilityEnum)
         
         // Create button with emoji and text
         const buttonText = `${abilityEmojis[ability.toLowerCase()] || '❓'} ${ability}`;
@@ -1288,7 +1291,8 @@ export default class CommandNexusGui {
             // Handle click event
             button.onPointerUpObservable.add(async () => {
                 console.log(`${ability} ability used`);
-                this.abilityMode = abilityEnum ? abilityEnum: null;
+                this.abilityMode = abilityStringToEnum(ability.charAt(0).toUpperCase() + ability.slice(1));
+                console.log(this.abilityMode)
                 switch (this.abilityMode) {
                     case AbilityType.Hack:
                         console.log("Executing hacking protocol...");

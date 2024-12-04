@@ -289,24 +289,28 @@ class NexusUnitManager {
             console.log("no mode found")
         }
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
-            if (this.selectedAgent){
-                switch (mesh.metadata.UnitData.unitType) {
-                    case UnitType.Infantry:
-                        console.log("..",mesh.metadata.UnitData)
-                        this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
-                        break;
-                    case UnitType.Armored:
-                        console.log("*-*")
-                        this.getGui()?.showArmoredInfo(mesh.metadata.UnitData);
-                        break;
-                    // case UnitType.Naval:
+            console.log(mesh.metadata)
+            if (mesh.metadata.UnitData.unit_id){
 
-                    // case UnitType.Air:
+                this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
+  
+                // switch (mesh.metadata.UnitData.unitType) {
+                //     case UnitType.Infantry:
+                //         console.log("..",mesh.metadata.UnitData)
+                        
+                //         break;
+                //     case UnitType.Armored:
+                //         console.log("*-*")
+                //         this.getGui()?.showArmoredInfo(mesh.metadata.UnitData);
+                //         break;
+                //     // case UnitType.Naval:
 
-                    // case UnitType.Cyber:
-                    default:
-                       console.log(mesh.metadata.UnitData.unitType);
-                }
+                //     // case UnitType.Air:
+
+                //     // case UnitType.Cyber:
+                //     default:
+                //        console.log(mesh.metadata.UnitData.unitType);
+                // }
             }
             if (this.selectedAgent && this.selectedAgent.idx !== mesh.metadata.agentIndex && this.getGui()?.getAbilityMode() == AbilityType.Attack) {
                 console.log("different", this.selectedAgent.visualMesh);
@@ -367,7 +371,32 @@ class NexusUnitManager {
                     if (this.selectedAgent.visualMesh) {
                         this.selectedAgent.visualMesh.rotationQuaternion = Quaternion.Identity();
                     }
+
+                    //const nexus_attack = async (snAccount: Account, gameId: number, playerTargetId: number, attackerId: number, targetId: number, unitId: number, attackerUnitType: number, targetUnitType: number, x: number, y: number, z: number)
             
+                    const encodedPosition= positionEncoder(startingPoint);
+                    const unitId = this.selectedAgent.visualMesh.metadata.UnitData.unit_id;
+                    const targetId  = targetAgent.visualMesh.metadata.UnitData.unit_id;
+                    const unitType = 1;
+                    const playerTargetId = targetAgent.visualMesh.metadata.UnitData.player_id;
+                    const attackerId = this.selectedAgent.visualMesh.metadata.UnitData.player_id;
+        
+                    //gameId: number, unitId: number, unitType: number, destX: number, destY: number, destZ: number
+
+                    console.log(this.getAccount(), this.getGameState().game.game_id,playerTargetId,unitId,targetId, unitId, unitType,unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z)
+        
+                    const result  = await (await this.client).nexus.attack(this.getAccount(), this.getGameState().game.game_id,playerTargetId,unitId,targetId, unitId, unitType,unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z);
+                   // console.log(result)
+
+                   if (result && result.transaction_hash){
+                    this.getGui().showToastSide(`Unit ${unitId}  attacking  Unit ${targetId}`, ToastType.Success);
+                   }else{
+                    const errorMessage = StarknetErrorParser.parseError(result);
+                    console.log(errorMessage)
+                    this.getGui().showToastSide(errorMessage,ToastType.Error)
+                   }
+
+
                     this.scene.onBeforeRenderObservable.runCoroutineAsync(
                         this.animationBlending(
                             this.selectedAgent.animations.idle,

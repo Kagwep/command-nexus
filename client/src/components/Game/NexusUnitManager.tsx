@@ -10,7 +10,7 @@ import { GameState } from './GameState';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { Account, AccountInterface } from 'starknet';
 import { bigintToU256 } from '../../lib/lib_utils/starknet';
-import { BattlefieldName } from '../../dojogen/models.gen';
+import { BattlefieldName, UnitState } from '../../dojogen/models.gen';
 import { StarknetErrorParser } from './ErrorParser';
 
 
@@ -50,7 +50,8 @@ class NexusUnitManager {
     private game: any;
     private infantryUnits: Map<string, Infantry> = new Map();
     private armoredUnits: Map<string, Infantry> = new Map();
-    
+    private infantryUnitsStates: Map<string, Infantry> = new Map();
+    private infantryUnitsModes: Map<string, Infantry> = new Map();
 
     constructor(
         scene: Scene, 
@@ -476,6 +477,15 @@ class NexusUnitManager {
 
             if (result && result.transaction_hash){
                 if (startingPoint) {
+
+                    if (result && result.transaction_hash){
+                        this.getGui().showToastSide(`Unit ${unitId}  Moving`, ToastType.Success);
+                       }else{
+                        const errorMessage = StarknetErrorParser.parseError(result);
+                        console.log(errorMessage)
+                        this.getGui().showToastSide(errorMessage,ToastType.Error)
+                       }
+
                     // this.pointNavPre.position = startingPoint;
                     // this.pointNavPre.visibility = 1;
                     // // Apply animation blending only to the selected agent
@@ -1176,6 +1186,38 @@ class NexusUnitManager {
                 // console.log('Updated infantryUnits Map:', this.infantryUnits);
              }
 
+             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryStates) && this.crowd) {
+
+                this.scene.metadata.infatryStates.forEach(unitData => {
+                    if (!this.infantryUnitsStates.has(unitData.unit_id) ) {
+                        // This is a new unit
+                       console.log('New UnitState unit detected:', unitData);
+                        this.infantryUnitsStates.set(unitData.unit_id, unitData);
+                        this.handleNewInfantryUnitData(unitData);
+                    } else {
+                        // Update existing unit
+                        this.updateInfantryUnitData(unitData);
+                    }
+                });
+
+             }
+
+             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryModes) && this.crowd) {
+                this.scene.metadata.infantryModes.forEach(unitData => {
+                    if (!this.infantryUnitsModes.has(unitData.unit_id) ) {
+                        // This is a new unit
+                       console.log('New UnitState unit detected:', unitData);
+                        this.infantryUnitsModes.set(unitData.unit_id, unitData);
+                        this.handleNewInfantryUnitMode(unitData);
+                    } else {
+                        // Update existing unit
+                        this.updateInfantryUnitMode(unitData);
+                    }
+                });
+             }
+
+
+
         });
     }
 
@@ -1202,6 +1244,57 @@ class NexusUnitManager {
      //   console.log('Performing operations for new unit:', unitData);
         // Add your custom logic here
     }
+
+    private handleNewInfantryUnitData(unitData: UnitState) {
+        const agent = this.getAgentByUnitId(unitData.unit_id);
+    
+        if (!agent) {
+            console.warn(`No data found for unit ${unitData.unit_id}`);
+            return;
+        }
+    
+        // Update metadata
+        agent.visualMesh.metadata.UnitState = unitData;
+
+    }
+
+    private updateInfantryUnitData(unitData: any) {
+        const agent = this.getAgentByUnitId(unitData.unit_id);
+    
+        if (!agent) {
+            console.warn(`No data found for unit ${unitData.unit_id}`);
+            return;
+        }
+    
+        // Update metadata
+        agent.visualMesh.metadata.UnitState = unitData;
+    }
+
+    private handleNewInfantryUnitMode(unitData: UnitState) {
+        const agent = this.getAgentByUnitId(unitData.unit_id);
+    
+        if (!agent) {
+            console.warn(`No data found for unit ${unitData.unit_id}`);
+            return;
+        }
+    
+        // Update metadata 
+        agent.visualMesh.metadata.UnitState = unitData;
+
+    }
+
+    private updateInfantryUnitMode(unitData: any) {
+        const agent = this.getAgentByUnitId(unitData.unit_id);
+    
+        if (!agent) {
+            console.warn(`No data found for unit ${unitData.unit_id}`);
+            return;
+        }
+    
+        // Update metadata
+        agent.visualMesh.metadata.UnitState = unitData;
+    }
+
 
     private handleNewArmoredUnit(unitData: Armored) {
 

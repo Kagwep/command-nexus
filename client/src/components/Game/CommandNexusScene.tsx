@@ -64,7 +64,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const nameList: string[] = ["Road_01", "Road_01.001", "Landscape_01", "EnergyRes_RenewablePlant_Wall_01", "EnergyRes_NaturalGasFacility_Wall_01","Water_01"];
 
-    const result = await SceneLoader.ImportMeshAsync('', '/models/', "nexusres1.glb");
+    const result = await SceneLoader.ImportMeshAsync('', '/models/', "unlikely.glb");
 
     function checkNameUsingIncludes(name: string): boolean {
    //

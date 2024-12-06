@@ -18,6 +18,8 @@ import GameState from '../../utils/gamestate';
 import { useDojoStore } from '../../lib/utils';
 import { useSDK } from '../../context/SDKContext';
 import { useNetworkAccount } from '../../context/WalletContex';
+import { useInfantryUnitState } from '../../hooks/useGetInfantryUnitStates';
+import { useInfantryAbilityModes } from '../../hooks/useGetUnitAbilityMode';
 
 
 const GRID_SIZE = 40;
@@ -49,6 +51,8 @@ const CommandNexus = () => {
   const { account, address, status, isConnected } = useNetworkAccount();
   const infantry = useInfantryUnits();
   const sdk = useSDK();
+  const infantryUnitsStates = useInfantryUnitState();
+  const infantryUnitModes = useInfantryAbilityModes();
  
   const armored = useArmoredUnits();
 
@@ -145,13 +149,33 @@ const CommandNexus = () => {
         ...sceneRef.current.metadata,
         infantryUnits: infantry?.infantryUnits,
         armoredUnits: armored?.armoredUnits,
+        infantryStates: infantryUnitsStates.infantryUnitStates,
+        infantryModes: infantryUnitModes.infantryAbilityModes
       };
     }
   }, [isSceneReady, infantry?.infantryUnits,game,armored?.armoredUnits]);
 
 
 
-  return <canvas ref={canvasRef} style={{ width: '100%', height: '100vh' }} />;
+  return (
+    <div style={{ 
+      width: '100%', 
+      height: '100vh', 
+      overflow: 'hidden',
+      position: 'fixed',  // This helps prevent scrolling
+      top: 0,
+      left: 0
+    }}>
+      <canvas 
+        ref={canvasRef} 
+        style={{ 
+          width: '100%', 
+          height: '100vh',
+          display: 'block'
+        }} 
+      />
+    </div>
+  );
 }
 
 export default CommandNexus

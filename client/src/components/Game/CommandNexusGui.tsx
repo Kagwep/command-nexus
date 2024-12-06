@@ -5,11 +5,19 @@ import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, positionEncoder, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
-import { Infantry, Player } from "../../dojogen/models.gen";
+import { AbilityState, Infantry, Player, TerrainType, UnitMode, UnitState } from "../../dojogen/models.gen";
 import { useRef } from "react";
 import { Account, AccountInterface, encode } from "starknet";
 import { GameState } from "./GameState";
 import { StarknetErrorParser } from "./ErrorParser";
+
+interface TopBarConfig {
+    TEXT_COLOR: string;
+    BACKGROUND_COLOR: string;
+    ACCENT_COLOR: string;
+    HOVER_COLOR: string;
+    HEIGHT: string;
+}
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -30,7 +38,19 @@ export default class CommandNexusGui {
     //private kickButton: GUI.Button;
     private getAccount: () => AccountInterface | Account;
     private getGameState: () => GameState;
+    private scoreText: GUI.TextBlock;
+    private commandsText: GUI.TextBlock;
+    private ACTIVE_COLOR = "#4CAF50";
+    private COOLDOWN_COLOR = "#f44336";
+    private INACTIVE_COLOR = "#808080";
 
+    private config: TopBarConfig = {
+        TEXT_COLOR: "#E5E7EB",
+        BACKGROUND_COLOR: "#065F46",
+        ACCENT_COLOR: "#059669",
+        HOVER_COLOR: "#047857",
+        HEIGHT: "60px"
+    };
 
     private deployButton: GUI.Ellipse = new GUI.Ellipse;
     private isDeploymentMode: boolean = false;
@@ -161,106 +181,255 @@ export default class CommandNexusGui {
         return panel;
     }
 
+    // private createTopBar(): void {
+    //     const topBar = this.createPanel("100%", "50px");
+    //     topBar.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+    //     topBar.isVisible = true;
+    //     this.gui.addControl(topBar);
+    
+    //     // Create a StackPanel for the left side (Turn Info and Base/Rank)
+    //     let leftPanel = new GUI.StackPanel();
+    //     leftPanel.isVertical = false;
+    //     leftPanel.height = "50px";
+    //     leftPanel.width = "700px";
+    //     leftPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+    
+    //     // Turn Info Panel
+    //     let turnInfoPanel = new GUI.StackPanel();
+    //     turnInfoPanel.isVertical = false;
+    //     turnInfoPanel.height = "50px";
+    //     turnInfoPanel.width = "200px";
+    
+    //     let playerImage = new GUI.Image("playerIcon", "/logo.png");
+    //     playerImage.width = "40px";
+    //     playerImage.height = "40px";
+    //     playerImage.paddingLeft = '4px';
+    
+    //     this.turnInfoText = new GUI.TextBlock();
+    //     this.turnInfoText.text = "Player";
+    //     this.turnInfoText.width = '80px';
+    //     this.turnInfoText.color = this.TEXT_COLOR;
+    //     this.turnInfoText.fontSize = 20;
+    //     this.turnInfoText.paddingLeft = '10px';
+    
+    //     turnInfoPanel.addControl(playerImage);
+    //     turnInfoPanel.addControl(this.turnInfoText);
+    
+    //     // Base and Rank Panel
+    //     let baseRankPanel = new GUI.StackPanel();
+    //     baseRankPanel.isVertical = false;
+    //     baseRankPanel.height = "50px";
+    //     baseRankPanel.width = "200px";
+    //     baseRankPanel.paddingLeft = '20px';
+    
+    //     let baseImage = new GUI.Image("baseIcon", "/images/base.png");
+    //     baseImage.width = "30px";
+    //     baseImage.height = "30px";
+    
+    //     this.baseText = new GUI.TextBlock();
+    //     this.baseText.text = 'Base Name';
+    //     this.baseText.color = 'blue';
+    //     this.baseText.fontSize = 15;
+    //     this.baseText.width = '100px';
+    //     this.baseText.paddingLeft = '10px';
+
+    //     baseRankPanel.addControl(baseImage);
+    //     baseRankPanel.addControl(this.baseText);
+
+    //     // Base and Rank Panel
+    //     let rankPanel = new GUI.StackPanel();
+    //     rankPanel.isVertical = false;
+    //     rankPanel.height = "50px";
+    //     rankPanel.width = "350px";
+    //     rankPanel.paddingLeft = '20px';
+
+    //     let rankImage = new GUI.Image("baseIcon", "/images/recruit.jpg");
+    //     rankImage.width = "30px";
+    //     rankImage.height = "30px";
+    
+    //     this.rankText = new GUI.TextBlock();
+    //     this.rankText.text = 'Rank';
+    //     this.rankText.color = 'orange';
+    //     this.rankText.fontSize = 15;
+    //     this.rankText.width = '100px';
+    //     this.rankText.paddingLeft = '10px';
+    
+
+    //     rankPanel.addControl(rankImage);
+    //     rankPanel.addControl(this.rankText);
+    
+    //     // Add Turn Info and Base/Rank panels to the left panel
+    //     leftPanel.addControl(turnInfoPanel);
+    //     leftPanel.addControl(baseRankPanel);
+    //     leftPanel.addControl(rankPanel);
+    
+    //     // Add the left panel to the top bar
+    //     topBar.addControl(leftPanel);
+    
+    //     // Create and add the End Turn button
+    //     const endTurnBtn = this.createButton("endTurn", "End Turn");
+    //     endTurnBtn.width = "120px";
+    //     endTurnBtn.height = "40px";
+    //     endTurnBtn.cornerRadius = 5;
+    //     endTurnBtn.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    //     endTurnBtn.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+    //     endTurnBtn.left = "-10px";
+    //     endTurnBtn.onPointerUpObservable.add(() => {
+    //         console.log("End Turn clicked");
+    //         // Add your end turn logic here
+    //     });
+    //     topBar.addControl(endTurnBtn);
+    // }
+    
     private createTopBar(): void {
-        const topBar = this.createPanel("100%", "50px");
+        // const topBar = this.createPanel("100%", this.config.HEIGHT);
+        // topBar.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        // topBar.zIndex = 100;
+        // this.gui.addControl(topBar);
+
+        const topBar = this.createPanel("100%", this.config.HEIGHT);
         topBar.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
         topBar.isVisible = true;
         this.gui.addControl(topBar);
-    
-        // Create a StackPanel for the left side (Turn Info and Base/Rank)
-        let leftPanel = new GUI.StackPanel();
-        leftPanel.isVertical = false;
-        leftPanel.height = "50px";
-        leftPanel.width = "700px";
-        leftPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-    
-        // Turn Info Panel
-        let turnInfoPanel = new GUI.StackPanel();
-        turnInfoPanel.isVertical = false;
-        turnInfoPanel.height = "50px";
-        turnInfoPanel.width = "200px";
-    
-        let playerImage = new GUI.Image("playerIcon", "/logo.png");
-        playerImage.width = "40px";
-        playerImage.height = "40px";
-        playerImage.paddingLeft = '4px';
-    
-        this.turnInfoText = new GUI.TextBlock();
-        this.turnInfoText.text = "Player";
-        this.turnInfoText.width = '80px';
-        this.turnInfoText.color = this.TEXT_COLOR;
-        this.turnInfoText.fontSize = 20;
-        this.turnInfoText.paddingLeft = '10px';
-    
-        turnInfoPanel.addControl(playerImage);
-        turnInfoPanel.addControl(this.turnInfoText);
-    
-        // Base and Rank Panel
-        let baseRankPanel = new GUI.StackPanel();
-        baseRankPanel.isVertical = false;
-        baseRankPanel.height = "50px";
-        baseRankPanel.width = "200px";
-        baseRankPanel.paddingLeft = '20px';
-    
-        let baseImage = new GUI.Image("baseIcon", "/images/base.png");
-        baseImage.width = "30px";
-        baseImage.height = "30px";
-    
-        this.baseText = new GUI.TextBlock();
-        this.baseText.text = 'Base Name';
-        this.baseText.color = 'blue';
-        this.baseText.fontSize = 15;
-        this.baseText.width = '100px';
-        this.baseText.paddingLeft = '10px';
 
-        baseRankPanel.addControl(baseImage);
-        baseRankPanel.addControl(this.baseText);
+        // Left container for player info, base, rank
+        const leftContainer = new GUI.StackPanel();
+        leftContainer.isVertical = false;
+        leftContainer.height = this.config.HEIGHT;
+        leftContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        leftContainer.paddingLeft = "10px";
 
-        // Base and Rank Panel
-        let rankPanel = new GUI.StackPanel();
-        rankPanel.isVertical = false;
-        rankPanel.height = "50px";
-        rankPanel.width = "350px";
-        rankPanel.paddingLeft = '20px';
+        // Player Info Section
+        const playerSection = this.createInfoSection(
+            "playerIcon",
+            "/logo.png",
+            "Player",
+            "#E5E7EB"
+        );
+        
+        // Base Section
+        const baseSection = this.createInfoSection(
+            "baseIcon",
+            "/images/base.png",
+            "Base Name",
+            "#93C5FD"
+        );
 
-        let rankImage = new GUI.Image("baseIcon", "/images/recruit.jpg");
-        rankImage.width = "30px";
-        rankImage.height = "30px";
-    
-        this.rankText = new GUI.TextBlock();
-        this.rankText.text = 'Rank';
-        this.rankText.color = 'orange';
-        this.rankText.fontSize = 15;
-        this.rankText.width = '100px';
-        this.rankText.paddingLeft = '10px';
-    
+        // Rank Section
+        const rankSection = this.createInfoSection(
+            "rankIcon",
+            "/images/rank.png",
+            "Recruit",
+            "#FCD34D"
+        );
 
-        rankPanel.addControl(rankImage);
-        rankPanel.addControl(this.rankText);
-    
-        // Add Turn Info and Base/Rank panels to the left panel
-        leftPanel.addControl(turnInfoPanel);
-        leftPanel.addControl(baseRankPanel);
-        leftPanel.addControl(rankPanel);
-    
-        // Add the left panel to the top bar
-        topBar.addControl(leftPanel);
-    
-        // Create and add the End Turn button
-        const endTurnBtn = this.createButton("endTurn", "End Turn");
-        endTurnBtn.width = "120px";
-        endTurnBtn.height = "40px";
-        endTurnBtn.cornerRadius = 5;
-        endTurnBtn.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-        endTurnBtn.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-        endTurnBtn.left = "-10px";
-        endTurnBtn.onPointerUpObservable.add(() => {
+        // Center container for score and commands
+        const centerContainer = new GUI.StackPanel();
+        centerContainer.isVertical = false;
+        centerContainer.height = this.config.HEIGHT;
+        centerContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        centerContainer.width = "400px";
+
+        // Create score and commands text blocks directly
+        this.scoreText = new GUI.TextBlock();
+        this.scoreText.text = "Score: 0";
+        this.scoreText.color = "#10B981";
+        this.scoreText.fontSize = 18;
+        this.scoreText.width = "180px";
+        this.scoreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+
+        this.commandsText = new GUI.TextBlock();
+        this.commandsText.text = "Commands: 3";
+        this.commandsText.color = "#10B981";
+        this.commandsText.fontSize = 18;
+        this.commandsText.width = "180px";
+        this.commandsText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+
+        // Add sections to containers
+        leftContainer.addControl(playerSection);
+        leftContainer.addControl(baseSection);
+        leftContainer.addControl(rankSection);
+
+        centerContainer.addControl(this.scoreText);
+        centerContainer.addControl(this.commandsText);
+
+        // End Turn Button
+        const endTurnBtn = this.createEndTurnButton();
+
+        // Add all containers to top bar
+        topBar.addControl(leftContainer);
+        topBar.addControl(centerContainer);
+        topBar.addControl(endTurnBtn);
+    }
+
+    private createInfoSection(iconName: string, iconUrl: string, defaultText: string, textColor: string): GUI.StackPanel {
+        const section = new GUI.StackPanel();
+        section.isVertical = false;
+        section.height = "100%";
+        section.width = "200px";
+        section.paddingRight = "20px";
+
+        const icon = new GUI.Image(iconName, iconUrl);
+        icon.width = "30px";
+        icon.height = "30px";
+        
+        const text = new GUI.TextBlock();
+        text.text = defaultText;
+        text.color = textColor;
+        text.fontSize = 16;
+        text.paddingLeft = "10px";
+        text.width = "150px";
+        text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+
+        section.addControl(icon);
+        section.addControl(text);
+
+        return section;
+    }
+
+    private createEndTurnButton(): GUI.Button {
+        const button = GUI.Button.CreateSimpleButton("endTurn", "End Turn");
+        button.width = "120px";
+        button.height = "40px";
+        button.color = this.config.TEXT_COLOR;
+        button.background = this.BUTTON_COLOR;
+        button.cornerRadius = 5;
+        button.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        button.left = "-20px";
+
+        // Hover effects
+        button.onPointerEnterObservable.add(() => {
+            button.background = this.config.HOVER_COLOR;
+        });
+        button.onPointerOutObservable.add(() => {
+            button.background = this.config.ACCENT_COLOR;
+        });
+
+        button.onPointerUpObservable.add(() => {
             console.log("End Turn clicked");
             // Add your end turn logic here
         });
-        topBar.addControl(endTurnBtn);
+
+        return button;
     }
-    
+
+    // Public methods to update the display
+    public updateScore(score: number): void {
+        this.scoreText.text = `Score: ${score}`;
+    }
+
+    public updateCommands(remaining: number): void {
+        this.commandsText.text = `Commands: ${remaining}`;
+    }
+
+
+    public updateBase(name: string): void {
+        this.baseText.text = name;
+    }
+
+    public updateRank(rank: string): void {
+        this.rankText.text = rank;
+    }
 
     private createMainMenuButton(): void {
         const mainMenuBtn = this.createButton("mainMenu", "Main Menu");
@@ -1713,6 +1882,252 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         row.addControl(valueText);
         
         parent.addControl(row);
+    }
+
+    public showUnitStateInfo(unitState: UnitState): void {
+        this.clearPanel();
+        const stack = this.createBasePanel("/images/unit_state.png", "");
+
+        // Position group
+        this.addStatRow(stack, "/images/location.png", 'Position', `${unitState.x.toFixed(1)}, ${unitState.y.toFixed(1)}, ${unitState.z.toFixed(1)}`);
+        
+        // Unit identifiers
+        this.addStatRow(stack, "/images/id.png", 'Unit ID', `#${unitState.unit_id}`);
+        this.addStatRow(stack, "/images/player.png", 'Player', `#${unitState.player_id}`);
+        
+        // Mode info with colored indicator
+        this.addStatRow(stack, this.getModeIcon(unitState.mode), 'Mode', this.formatMode(unitState.mode));
+
+        // Environment group
+        const envTitle = new GUI.TextBlock();
+        envTitle.text = "Environment";
+        envTitle.color = "#88ff88";
+        envTitle.fontSize = 16;
+        envTitle.height = "25px";
+        envTitle.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        envTitle.paddingLeft = "10px";
+        stack.addControl(envTitle);
+
+        this.addStatRow(stack, "/images/terrain.png", 'Terrain', this.formatTerrain(unitState.environment.terrain));
+        this.addStatRow(stack, "/images/cover.png", 'Cover', `Level ${unitState.environment.cover_level}`);
+        this.addStatRow(stack, "/images/elevation.png", 'Elevation', `${unitState.environment.elevation}m`);
+
+        this.infoPanel.isVisible = true;
+    }
+
+    private getModeIcon(mode: UnitMode): string {
+        const iconMap: { [key in UnitMode]: string } = {
+            [UnitMode.Idle]: "/images/idle.png",
+            [UnitMode.Moving]: "/images/moving.png",
+            [UnitMode.Attacking]: "/images/attacking.png",
+            [UnitMode.Defending]: "/images/defending.png",
+            [UnitMode.Patrolling]: "/images/patrolling.png",
+            [UnitMode.Stealthed]: "/images/stealth.png",
+            [UnitMode.Reconning]: "/images/recon.png",
+            [UnitMode.Healing]: "/images/healing.png",
+            [UnitMode.Retreating]: "/images/retreat.png",
+            [UnitMode.Repairing]: "/images/repair.png",
+        };
+        return iconMap[mode] || "/images/unknown.png";
+    }
+
+    private formatMode(mode: UnitMode): string {
+        // Convert enum value to readable string and add color coding
+        const modeStr = UnitMode[mode];
+        const modeColors: { [key in UnitMode]: string } = {
+            [UnitMode.Idle]: "#808080",      // Gray
+            [UnitMode.Moving]: "#4CAF50",    // Green
+            [UnitMode.Attacking]: "#f44336", // Red
+            [UnitMode.Defending]: "#2196F3", // Blue
+            [UnitMode.Patrolling]: "#FF9800", // Orange
+            [UnitMode.Stealthed]: "#9C27B0", // Purple
+            [UnitMode.Reconning]: "#FFEB3B", // Yellow
+            [UnitMode.Healing]: "#4CAF50",   // Green
+            [UnitMode.Retreating]: "#f44336", // Red
+            [UnitMode.Repairing]: "#2196F3", // Blue
+        };
+
+        const valueText = new GUI.TextBlock();
+        valueText.text = modeStr;
+        valueText.color = modeColors[mode] || "#ffffff";
+        return modeStr;
+    }
+
+    private formatTerrain(terrain: TerrainType): string {
+        // Convert terrain type to readable string
+        return terrain.toString().replace(/_/g, ' ').toLowerCase()
+            .replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    public showAbilityInfo(abilityState: AbilityState): void {
+        this.clearPanel();
+        const stack = this.createBasePanel(this.getUnitTypeIcon(abilityState.unit as unknown as UnitType), 
+                                         `${UnitType[abilityState.unit]} Unit`);
+
+        // Status header
+        this.addStatusRow(stack, abilityState.is_active, abilityState.cooldown);
+
+        // Only show abilities with level > 0
+        const abilities = abilityState.units_abilities_state;
+        const abilityRows = [
+            { name: 'Move', level: abilities.move_level, icon: '/images/move.png' },
+            { name: 'Attack', level: abilities.attack_level, icon: '/images/attack.png' },
+            { name: 'Defend', level: abilities.defend_level, icon: '/images/defend.png' },
+            { name: 'Patrol', level: abilities.patrol_level, icon: '/images/patrol.png' },
+            { name: 'Stealth', level: abilities.stealth_level, icon: '/images/stealth.png' },
+            { name: 'Recon', level: abilities.recon_level, icon: '/images/recon.png' },
+            { name: 'Hack', level: abilities.hack_level, icon: '/images/hack.png' },
+            { name: 'Repair', level: abilities.repair_level, icon: '/images/repair.png' },
+            { name: 'Airlift', level: abilities.airlift_level, icon: '/images/airlift.png' },
+            { name: 'Bombard', level: abilities.bombard_level, icon: '/images/bombard.png' },
+            { name: 'Submerge', level: abilities.submerge_level, icon: '/images/submerge.png' }
+        ].filter(ability => ability.level > 0);
+
+        // Add abilities with level bars
+        abilityRows.forEach(ability => {
+            this.addAbilityRow(stack, ability.icon, ability.name, ability.level);
+        });
+
+        // Add effectiveness indicator at the bottom
+        this.addEffectivenessBar(stack, abilityState.effectiveness);
+
+        this.infoPanel.isVisible = true;
+    }
+
+    private addStatusRow(parent: GUI.StackPanel, isActive: boolean, cooldown: number): void {
+        const row = new GUI.Rectangle();
+        row.height = "35px";
+        row.thickness = 0;
+        row.background = this.PANEL_COLOR;
+        row.paddingLeft = "10px";
+        row.paddingRight = "15px";
+
+        // Status indicator
+        const statusText = new GUI.TextBlock();
+        statusText.text = isActive ? "ACTIVE" : "INACTIVE";
+        statusText.color = isActive ? this.ACTIVE_COLOR : this.INACTIVE_COLOR;
+        statusText.fontSize = 16;
+        statusText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        row.addControl(statusText);
+
+        // Cooldown if applicable
+        if (cooldown > 0) {
+            const cooldownText = new GUI.TextBlock();
+            cooldownText.text = `Cooldown: ${cooldown}s`;
+            cooldownText.color = this.COOLDOWN_COLOR;
+            cooldownText.fontSize = 16;
+            cooldownText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+            row.addControl(cooldownText);
+        }
+
+        parent.addControl(row);
+    }
+
+    private addAbilityRow(parent: GUI.StackPanel, iconPath: string, abilityName: string, level: number): void {
+        const row = new GUI.Rectangle();
+        row.height = "45px";
+        row.thickness = 0;
+        row.background = this.PANEL_COLOR;
+        row.paddingLeft = "10px";
+        row.paddingRight = "15px";
+
+        // Ability icon
+        const icon = new GUI.Image("abilityIcon", iconPath);
+        icon.width = "25px";
+        icon.height = "25px";
+        icon.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        row.addControl(icon);
+
+        // Ability name
+        const nameText = new GUI.TextBlock();
+        nameText.text = abilityName;
+        nameText.color = "#88ff88";
+        nameText.fontSize = 14;
+        nameText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        nameText.left = "35px";
+        row.addControl(nameText);
+
+        // Level bar background
+        const levelBarBg = new GUI.Rectangle();
+        levelBarBg.width = "100px";
+        levelBarBg.height = "8px";
+        levelBarBg.background = "#333333";
+        levelBarBg.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        levelBarBg.cornerRadius = 4;
+        row.addControl(levelBarBg);
+
+        // Level bar fill
+        const levelBarFill = new GUI.Rectangle();
+        levelBarFill.width = `${level}px`;
+        levelBarFill.height = "8px";
+        levelBarFill.background = this.getLevelColor(level);
+        levelBarFill.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        levelBarFill.cornerRadius = 4;
+        levelBarBg.addControl(levelBarFill);
+
+        // Level number
+        const levelText = new GUI.TextBlock();
+        levelText.text = level.toString();
+        levelText.color = "#ffffff";
+        levelText.fontSize = 12;
+        levelText.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        levelText.top = "-15px";
+        levelBarBg.addControl(levelText);
+
+        parent.addControl(row);
+    }
+
+    private addEffectivenessBar(parent: GUI.StackPanel, effectiveness: number): void {
+        const row = new GUI.Rectangle();
+        row.height = "40px";
+        row.thickness = 0;
+        row.background = this.PANEL_COLOR;
+        row.paddingLeft = "10px";
+        row.paddingRight = "15px";
+
+        const label = new GUI.TextBlock();
+        label.text = "Effectiveness";
+        label.color = "#ffffff";
+        label.fontSize = 14;
+        label.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        row.addControl(label);
+
+        const effectBar = new GUI.Rectangle();
+        effectBar.width = `${effectiveness}%`;
+        effectBar.height = "6px";
+        effectBar.background = this.getEffectivenessColor(effectiveness);
+        effectBar.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        effectBar.top = "20px";
+        effectBar.cornerRadius = 3;
+        row.addControl(effectBar);
+
+        parent.addControl(row);
+    }
+
+    private getLevelColor(level: number): string {
+        if (level >= 75) return "#4CAF50";      // Green
+        if (level >= 50) return "#FFC107";      // Yellow
+        if (level >= 25) return "#FF9800";      // Orange
+        return "#f44336";                       // Red
+    }
+
+    private getEffectivenessColor(effectiveness: number): string {
+        if (effectiveness >= 80) return "#4CAF50";
+        if (effectiveness >= 60) return "#8BC34A";
+        if (effectiveness >= 40) return "#FFC107";
+        if (effectiveness >= 20) return "#FF9800";
+        return "#f44336";
+    }
+
+    private getUnitTypeIcon(type: UnitType): string {
+        const iconMap: { [key in UnitType]: string } = {
+            [UnitType.Infantry]: "/images/infantry.png",
+            [UnitType.Armored]: "/images/armored.png",
+            [UnitType.Air]: "/images/air.png",
+            [UnitType.Naval]: "/images/naval.png",
+            [UnitType.Cyber]: "/images/cyber.png"
+        };
+        return iconMap[type] || "/images/unknown.png";
     }
     
       private clearPanel(): void {

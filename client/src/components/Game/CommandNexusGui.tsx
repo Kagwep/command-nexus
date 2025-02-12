@@ -65,6 +65,7 @@ export default class CommandNexusGui {
     private client;
     private game;
     private infoPanel: Rectangle = new Rectangle;
+    private unitStatesPanel: Rectangle = new Rectangle;
    
 
 
@@ -99,6 +100,7 @@ export default class CommandNexusGui {
         this.player = player
         this.getAccount = getAccount;
         this.initializeInfoPanel();
+        this.initializeUnitStatePanel();
         this.getGameState = getGameState;
        
     }
@@ -139,6 +141,22 @@ export default class CommandNexusGui {
         this.infoPanel.isVisible = false;
         
         this.gui.addControl(this.infoPanel);
+    }
+
+    private initializeUnitStatePanel (){
+        this.unitStatesPanel = new Rectangle("unitStatePanel");
+        this.unitStatesPanel.width = "250px";
+        this.unitStatesPanel.height = "300px";
+        this.unitStatesPanel.cornerRadius = 10;
+        this.unitStatesPanel.thickness = 0;
+        this.unitStatesPanel.background = this.PANEL_COLOR;
+        this.unitStatesPanel.alpha = 0.9;
+        this.unitStatesPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.unitStatesPanel.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        this.unitStatesPanel.left = "20px";
+        this.unitStatesPanel.isVisible = false;
+        
+        this.gui.addControl(this.unitStatesPanel);
     }
 
 
@@ -275,7 +293,7 @@ export default class CommandNexusGui {
     //     endTurnBtn.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_CENTER;
     //     endTurnBtn.left = "-10px";
     //     endTurnBtn.onPointerUpObservable.add(() => {
-    //         console.log("End Turn clicked");
+    //         //console.log("End Turn clicked");
     //         // Add your end turn logic here
     //     });
     //     topBar.addControl(endTurnBtn);
@@ -328,7 +346,7 @@ export default class CommandNexusGui {
         centerContainer.isVertical = false;
         centerContainer.height = this.config.HEIGHT;
         centerContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        centerContainer.width = "400px";
+        centerContainer.width = "500px";
 
         // Create score and commands text blocks directly
         this.scoreText = new GUI.TextBlock();
@@ -353,6 +371,14 @@ export default class CommandNexusGui {
         centerContainer.addControl(this.scoreText);
         centerContainer.addControl(this.commandsText);
 
+        this.turnInfoText = new GUI.TextBlock();
+        this.turnInfoText.text = "Player";
+        this.turnInfoText.width = '100px';
+        this.turnInfoText.color = "#10B981";
+        this.turnInfoText.fontSize = 20;
+        this.turnInfoText.textHorizontalAlignment =GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+
+        centerContainer.addControl(this.turnInfoText);
         // End Turn Button
         const endTurnBtn = this.createEndTurnButton();
 
@@ -366,8 +392,8 @@ export default class CommandNexusGui {
         const section = new GUI.StackPanel();
         section.isVertical = false;
         section.height = "100%";
-        section.width = "200px";
-        section.paddingRight = "20px";
+        section.width = "150px";
+        section.paddingRight = "30px";
 
         const icon = new GUI.Image(iconName, iconUrl);
         icon.width = "30px";
@@ -406,7 +432,7 @@ export default class CommandNexusGui {
         });
 
         button.onPointerUpObservable.add(() => {
-            console.log("End Turn clicked");
+            //console.log("End Turn clicked");
             // Add your end turn logic here
         });
 
@@ -889,11 +915,13 @@ export default class CommandNexusGui {
 
     public updatePlayerInfo(playerData: Player): void {
 
+        
+
        this.baseText.text = playerData.home_base as unknown as string
        this.rankText.text = getBannerLevelString(playerData.rank)
         
         Object.entries(playerData).forEach(([key, value]) => {
-            console.log(this.infoRows.has(key))
+            //console.log(this.infoRows.has(key))
             if (this.infoRows.has(key)) {
                 this.infoRows.get(key)!.text = value.toString();
                 
@@ -902,7 +930,7 @@ export default class CommandNexusGui {
 
         if (playerData.player_score) {
             Object.entries(playerData.player_score).forEach(([key, value]) => {
-                console.log(key)
+                //console.log(key)
                 if (this.scoreRows.has(key)) {
                     this.scoreRows.get(key)!.text = value.toString();
                 }
@@ -930,6 +958,7 @@ export default class CommandNexusGui {
     
 
     public updateOpponentsInfo(opponents: any[]): void {
+
         // Clear existing opponent cards
         this.opponentsPanel.children.slice(1).forEach(child => {
             this.opponentsPanel.removeControl(child);
@@ -955,7 +984,7 @@ export default class CommandNexusGui {
     }
     
     private createOpponentCard(opponent: any): GUI.Rectangle {
-        console.log("Creating card for opponent:", opponent);
+        //console.log("Creating card for opponent:", opponent);
     
         const card = new GUI.Rectangle();
         card.width = 0.95;
@@ -1118,7 +1147,7 @@ export default class CommandNexusGui {
         // this.kickButton = kickButton;
         // contentStack.addControl(this.kickButton);
     
-        console.log(`Card created for ${opponent.name} with ${contentStack.children.length} content items`);
+        //console.log(`Card created for ${opponent.name} with ${contentStack.children.length} content items`);
         return card;
     }
     
@@ -1137,7 +1166,7 @@ export default class CommandNexusGui {
         valueText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
         row.addControl(valueText);
     
-        console.log(`Added info row: ${label} - ${value}`);
+        //console.log(`Added info row: ${label} - ${value}`);
     }
     
     private addScoreItem(grid: GUI.Grid, label: string, value: number | undefined, row: number, column: number): void {
@@ -1151,7 +1180,7 @@ export default class CommandNexusGui {
         const valueText = this.createTextBlock(value?.toString() || "N/A", 14);
         container.addControl(valueText);
     
-        console.log(`Added score item: ${label} - ${value}`);
+        //console.log(`Added score item: ${label} - ${value}`);
     }
     
     private addSupplyItem(grid: GUI.Grid, label: string, value: number | undefined, row: number, column: number): void {
@@ -1165,7 +1194,7 @@ export default class CommandNexusGui {
         const valueText = this.createTextBlock(value?.toString() || "N/A", 14);
         container.addControl(valueText);
     
-        console.log(`Added supply item: ${label} - ${value}`);
+        //console.log(`Added supply item: ${label} - ${value}`);
     }
 
     private createTextBlock(text: string, fontSize: number): GUI.TextBlock {
@@ -1341,13 +1370,13 @@ export default class CommandNexusGui {
         this.selectedUnit = unitType;
         this.isDeploymentMode = true;
         this.unitSelectionPanel.isVisible = false;
-        console.log(`Selected unit: ${unitType}. Click on the map to deploy.`);
+        //console.log(`Selected unit: ${unitType}. Click on the map to deploy.`);
         // Here you would change the cursor and highlight valid deployment areas
     }
 
     public handleMapClick(position: Vector3): void {
         if (this.isDeploymentMode && this.selectedUnit) {
-            console.log(`Deploying ${this.selectedUnit} at position: ${position}`);
+            //console.log(`Deploying ${this.selectedUnit} at position: ${position}`);
             // Here you would actually create and place the unit at the clicked position
             this.deployPosition = position;
         }
@@ -1416,10 +1445,10 @@ export default class CommandNexusGui {
      // Add to unitButtons for cleanup
 
     availableAbilities.forEach((ability, index) => {
-        console.log(ability)
+        //console.log(ability)
         const abilityEnum = abilityStringToEnum(ability.charAt(0).toUpperCase() + ability.slice(1));
 
-        console.log(abilityEnum)
+        //console.log(abilityEnum)
         
         // Create button with emoji and text
         const buttonText = `${abilityEmojis[ability.toLowerCase()] || '❓'} ${ability}`;
@@ -1459,110 +1488,110 @@ export default class CommandNexusGui {
     
             // Handle click event
             button.onPointerUpObservable.add(async () => {
-                console.log(`${ability} ability used`);
+                //console.log(`${ability} ability used`);
                 this.abilityMode = abilityStringToEnum(ability.charAt(0).toUpperCase() + ability.slice(1));
-                console.log(this.abilityMode)
+                //console.log(this.abilityMode)
                 switch (this.abilityMode) {
                     case AbilityType.Hack:
-                        console.log("Executing hacking protocol...");
+                        //console.log("Executing hacking protocol...");
                         break;
                     case AbilityType.Attack as any:
-                        console.log("Engaging in combat...");
+                        //console.log("Engaging in combat...");
                         break;
                     case AbilityType.Defend:
-                        console.log("Raising defenses...");
+                        //console.log("Raising defenses...");
 
-                        console.log(this.getSelectedUnitInfo())
+                        //console.log(this.getSelectedUnitInfo())
 
                         const encodedPositionDefend= positionEncoder(this.getSelectedUnitInfo().visualMesh.position);
                         const unitIdDefend = this.getSelectedUnitInfo().visualMesh.metadata.UnitData.unit_id
                         const unitTypeDefend = 1
 
-                        console.log(encodedPositionDefend);
+                        //console.log(encodedPositionDefend);
 
                         //const nexus_defend = async (snAccount: Account, gameId: number, unitId: number, unitType: number, x: number, y: number, z: number) 
 
                        const resultDefend  = await (await this.client).nexus.defend(this.getAccount(), this.getGameState().game.game_id, unitIdDefend, unitTypeDefend, encodedPositionDefend.x,encodedPositionDefend.y,encodedPositionDefend.z)
                         
-                       console.log(resultDefend)
+                       //console.log(resultDefend)
 
                        if (resultDefend && resultDefend.transaction_hash){
                         this.showToastSide(`Unit  Defending`, ToastType.Success);
                        }else{
                         const errorMessage = StarknetErrorParser.parseError(resultDefend);
-                        console.log(errorMessage)
+                        //console.log(errorMessage)
                         this.showToastSide(errorMessage,ToastType.Error)
                        }
 
                         break;
                     case AbilityType.Patrol:
-                        console.log("Initiating patrol...");
+                        //console.log("Initiating patrol...");
 
-                        console.log(this.getSelectedUnitInfo())
+                        //console.log(this.getSelectedUnitInfo())
 
                         const encodedPosition= positionEncoder(this.getSelectedUnitInfo().visualMesh.position);
                         const unitId = this.getSelectedUnitInfo().visualMesh.metadata.UnitData.unit_id
                         const unitType = 1
 
-                        console.log(encodedPosition);
+                        //console.log(encodedPosition);
 
                         //const nexus_patrol = async (snAccount: Account, gameId: number, unitId: number, unitType: number, startX: number, startY: number, startZ: number) => {
 
                        const result  = await (await this.client).nexus.patrol(this.getAccount(), this.getGameState().game.game_id, unitId, unitType, encodedPosition.x,encodedPosition.y,encodedPosition.z)
                         
-                       console.log(result)
+                       //console.log(result)
 
                        if (result && result.transaction_hash){
                         this.showToastSide(`Unit ${unitId} Patrolling`, ToastType.Success);
                        }else{
                         const errorMessage = StarknetErrorParser.parseError(result);
-                        console.log(errorMessage)
+                        //console.log(errorMessage)
                         this.showToastSide(errorMessage,ToastType.Error)
                        }
 
                         break;
                     case AbilityType.Stealth:
-                        console.log("Entering stealth mode...");
+                        //console.log("Entering stealth mode...");
 
-                        console.log(this.getSelectedUnitInfo())
+                        //console.log(this.getSelectedUnitInfo())
 
                         const encodedPositionStealth= positionEncoder(this.getSelectedUnitInfo().visualMesh.position);
                         const unitIdStealth = this.getSelectedUnitInfo().visualMesh.metadata.UnitData.unit_id
                         const unitTypeStealth = 1
 
-                        console.log(encodedPositionStealth);
+                        //console.log(encodedPositionStealth);
 
                         //const nexus_stealth = async (snAccount: Account, gameId: number, unitId: number, unitType: number, x: number, y: number, z: number) 
 
                        const resultStealth  = await (await this.client).nexus.stealth(this.getAccount(), this.getGameState().game.game_id, unitIdStealth, unitTypeStealth, encodedPositionStealth.x,encodedPositionStealth.y,encodedPositionStealth.z)
                         
-                       console.log(resultStealth)
+                       //console.log(resultStealth)
 
                        if (resultStealth && resultStealth.transaction_hash){
                         this.showToastSide(`Unit ${unitIdStealth} In stealth`, ToastType.Success);
                        }else{
                         const errorMessage = StarknetErrorParser.parseError(resultStealth);
-                        console.log(errorMessage)
+                        //console.log(errorMessage)
                         this.showToastSide(errorMessage,ToastType.Error)
                        }
                         break;
                     case AbilityType.Recon:
-                        console.log("Performing reconnaissance...");
+                        //console.log("Performing reconnaissance...");
                         break;
                     case AbilityType.Repair:
-                        console.log("Starting repairs...");
+                        //console.log("Starting repairs...");
                         break;
                     case AbilityType.Airlift:
-                        console.log("Preparing for airlift...");
+                        //console.log("Preparing for airlift...");
                         break;
                     case AbilityType.Bombard:
-                        console.log("Launching bombardment...");
+                        //console.log("Launching bombardment...");
                         break;
                     case AbilityType.Submerge:
-                        console.log("Submerging...");
+                        //console.log("Submerging...");
                         break;
                     default:
-                        console.error("Unknown ability!");
+                        //console.error("Unknown ability!");
                 }
             
             });
@@ -1573,7 +1602,7 @@ export default class CommandNexusGui {
             this.unitButtons.push(button);
         });
     
-        console.log("Actions menu displayed");
+        //console.log("Actions menu displayed");
     }
     
     
@@ -1611,7 +1640,7 @@ export default class CommandNexusGui {
     }
 
     public getAbilityMode(): AbilityType | null {
-        console.log(this.abilityMode)
+        //console.log(this.abilityMode)
         return this.abilityMode
     }
 
@@ -1848,6 +1877,34 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         this.infoPanel.addControl(stack);
         return stack;
       }
+
+      private createBasePanelSate(iconPath: string, unitType: string): StackPanel {
+        const stack = new StackPanel();
+        stack.width = "100%";
+        stack.background = this.PANEL_COLOR;
+        
+
+        
+        
+        // Unit type icon
+        const icon = new Image("unitIcon", iconPath);
+        icon.width = "60px";
+        icon.height = "60px";
+        icon.paddingTop = "10px";
+        stack.addControl(icon);
+        
+        // Unit type label
+        const typeText = new TextBlock();
+        typeText.text = unitType;
+        typeText.color = "#ffffff";
+        typeText.height = "30px";
+        typeText.fontSize = 18;
+        typeText.paddingBottom = "10px";
+        stack.addControl(typeText);
+    
+        this.unitStatesPanel.addControl(stack);
+        return stack;
+      }
     
       private addStatRow(parent: GUI.StackPanel, iconPath: string, label: string, value: string): void {
         const row = new Rectangle();
@@ -1884,36 +1941,78 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         parent.addControl(row);
     }
 
+    private addStatRowStates(parent: GUI.StackPanel, iconPath: string, label: string, value: string): void {
+        const row = new Rectangle();
+        row.height = "35px";
+        row.thickness = 0;
+        row.background = this.PANEL_COLOR;
+        row.paddingLeft = "10px";
+        row.paddingRight = "15px";
+        
+        // Stat icon
+        const icon = new Image("statIcon", iconPath);
+        icon.width = "20px";
+        icon.height = "20px";
+        icon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        icon.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        row.addControl(icon);
+        
+        // Label text
+        const labelText = new TextBlock();
+        labelText.text = label;
+        labelText.color = "#88ff88"; // or whatever color you prefer
+        labelText.fontSize = 14;
+        labelText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        labelText.verticalAlignment =   Control.VERTICAL_ALIGNMENT_BOTTOM;
+        labelText.left = "30px"; // Space after icon
+        row.addControl(labelText);
+        
+        // Value text
+        const valueText = new TextBlock();
+        valueText.text = value;
+        valueText.color = "#ffffff";
+        valueText.fontSize = 14;
+        valueText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        valueText.verticalAlignment  = Control.VERTICAL_ALIGNMENT_BOTTOM;
+        row.addControl(valueText);
+        
+        parent.addControl(row);
+    }
+
     public showUnitStateInfo(unitState: UnitState): void {
-        this.clearPanel();
-        const stack = this.createBasePanel("/images/unit_state.png", "");
+        this.clearUnitStatePanel();
+        const stack = this.createBasePanelSate("/images/unit_state.png", "");
 
         // Position group
-        this.addStatRow(stack, "/images/location.png", 'Position', `${unitState.x.toFixed(1)}, ${unitState.y.toFixed(1)}, ${unitState.z.toFixed(1)}`);
+       // this.addStatRow(stack, "/images/location.png", 'Position', `${unitState.x.toFixed(1)}, ${unitState.y.toFixed(1)}, ${unitState.z.toFixed(1)}`);
         
         // Unit identifiers
-        this.addStatRow(stack, "/images/id.png", 'Unit ID', `#${unitState.unit_id}`);
-        this.addStatRow(stack, "/images/player.png", 'Player', `#${unitState.player_id}`);
+        this.addStatRowStates(stack, "/images/id.png", 'Unit ID', `#${unitState.unit_id}`);
+        this.addStatRowStates(stack, "/images/player.png", 'Player', `#${unitState.player_id}`);
         
         // Mode info with colored indicator
-        this.addStatRow(stack, this.getModeIcon(unitState.mode), 'Mode', this.formatMode(unitState.mode));
+        this.addStatRowStates(stack, this.getModeIcon(unitState.mode), 'Mode', this.formatMode(unitState.mode));
 
-        // Environment group
-        const envTitle = new GUI.TextBlock();
-        envTitle.text = "Environment";
-        envTitle.color = "#88ff88";
-        envTitle.fontSize = 16;
-        envTitle.height = "25px";
-        envTitle.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-        envTitle.paddingLeft = "10px";
-        stack.addControl(envTitle);
+        // // Environment group
+        // const envTitle = new GUI.TextBlock();
+        // envTitle.text = "Environment";
+        // envTitle.color = "#88ff88";
+        // envTitle.fontSize = 16;
+        // envTitle.height = "25px";
+        // envTitle.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        // envTitle.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+        // envTitle.paddingLeft = "10px";
+        // stack.addControl(envTitle);
 
-        this.addStatRow(stack, "/images/terrain.png", 'Terrain', this.formatTerrain(unitState.environment.terrain));
-        this.addStatRow(stack, "/images/cover.png", 'Cover', `Level ${unitState.environment.cover_level}`);
-        this.addStatRow(stack, "/images/elevation.png", 'Elevation', `${unitState.environment.elevation}m`);
+        // this.addStatRowStates(stack, "/images/terrain.png", 'Terrain', this.formatTerrain(unitState.environment.terrain));
+        // this.addStatRowStates(stack, "/images/cover.png", 'Cover', `Level ${unitState.environment.cover_level}`);
+        // this.addStatRowStates(stack, "/images/elevation.png", 'Elevation', `${unitState.environment.elevation}m`);
 
-        this.infoPanel.isVisible = true;
+        this.unitStatesPanel.isVisible = true;
     }
+
+
+    
 
     private getModeIcon(mode: UnitMode): string {
         const iconMap: { [key in UnitMode]: string } = {
@@ -1932,9 +2031,11 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
     }
 
     private formatMode(mode: UnitMode): string {
-        // Convert enum value to readable string and add color coding
+        // Get enum name using reverse mapping
+       
         const modeStr = UnitMode[mode];
-        const modeColors: { [key in UnitMode]: string } = {
+        
+        const modeColors: Record<UnitMode, string> = {
             [UnitMode.Idle]: "#808080",      // Gray
             [UnitMode.Moving]: "#4CAF50",    // Green
             [UnitMode.Attacking]: "#f44336", // Red
@@ -1946,11 +2047,11 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
             [UnitMode.Retreating]: "#f44336", // Red
             [UnitMode.Repairing]: "#2196F3", // Blue
         };
-
+    
         const valueText = new GUI.TextBlock();
         valueText.text = modeStr;
         valueText.color = modeColors[mode] || "#ffffff";
-        return modeStr;
+        return mode as unknown as string;
     }
 
     private formatTerrain(terrain: TerrainType): string {
@@ -2137,6 +2238,15 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
     
       public hide(): void {
         this.infoPanel.isVisible = false;
+      }
+
+      private clearUnitStatePanel(): void {
+        const controls = this.unitStatesPanel.getDescendants();
+        controls.forEach(control => control.dispose());
+      }
+    
+      public hideUnitStatePanel(): void {
+        this.unitStatesPanel.isVisible = false;
       }
 
       public setSelectedUnitInfo(unit: any){

@@ -14,7 +14,7 @@ import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
 import { OnboardingProvider } from "./context/OnboardingContext.tsx";
 import AppInitializer from "./components/AppInitializer.tsx";
 import { TORII_RPC_URL, TORII_URL } from "./constants.ts";
-
+import { client } from "./dojogen/contracts.gen.ts";
 
 /**
  * Initializes and bootstraps the Dojo application.
@@ -47,7 +47,11 @@ async function main() {
         <StrictMode>
             <StarknetProvider>
                 <OnboardingProvider>
-                    <AppInitializer sdk={sdk} />
+                <AppInitializer
+                     sdk={sdk} 
+                     dojoConfig={dojoConfig}
+                     clientFn={client}
+                     />
                 </OnboardingProvider>
             </StarknetProvider>
         </StrictMode>

@@ -132,6 +132,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -148,6 +149,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -164,6 +166,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -180,6 +183,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -213,6 +217,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -229,6 +234,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -245,6 +251,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 
@@ -261,6 +268,7 @@ export async function client(provider: DojoProvider) {
 			);
 		} catch (error) {
 			console.error(error);
+			return error
 		}
 	};
 

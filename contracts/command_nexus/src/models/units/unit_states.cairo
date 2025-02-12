@@ -242,7 +242,7 @@ impl UnitImpl of UnitTrait {
         match unit_type {
             UnitType::Infantry => UnitAbilities {
                 move_level: 100, attack_level: 50, defend_level: 50,
-                patrol_level: 100, stealth_level: 20, recon_level: 0,
+                patrol_level: 100, stealth_level: 20, recon_level: 40,
                 hack_level: 0, repair_level: 0, airlift_level: 0,
                 bombard_level: 0, submerge_level: 0
             },

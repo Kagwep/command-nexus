@@ -31,12 +31,24 @@ impl NexusUnitImpl of NexusUnitTrait {
         }
     }
 
-    fn consume_energy(ref self: NexusUnit, amount: u32) {
+    fn consume_energy(ref self: NexusUnit, amount: u32) -> NexusUnit {
         match self {
-            NexusUnit::Infantry(mut infantry) => infantry.consume_energy(amount),
-            NexusUnit::Armored( mut armored) => armored.consume_energy(amount),
-            NexusUnit::Air(mut air) => air.consume_energy(amount),
-            NexusUnit::Naval(mut naval) => naval.consume_energy(amount),
+            NexusUnit::Infantry(mut infantry) => {
+                infantry.consume_energy(amount);
+                NexusUnit::Infantry(infantry)
+            },
+            NexusUnit::Armored(mut armored) => {
+                armored.consume_energy(amount);
+                NexusUnit::Armored(armored)
+            },
+            NexusUnit::Air(mut air) => {
+                air.consume_energy(amount);
+                NexusUnit::Air(air)
+            },
+            NexusUnit::Naval(mut naval) => {
+                naval.consume_energy(amount);
+                NexusUnit::Naval(naval)
+            },
         }
     }
 
@@ -88,21 +100,47 @@ impl NexusUnitImpl of NexusUnitTrait {
         }
     }
 
-    fn heal(ref self: NexusUnit, amount: u32) {
+    fn heal(ref self: NexusUnit, amount: u32) -> NexusUnit {
         match self {
-            NexusUnit::Infantry(mut infantry) => infantry.heal(amount),
-            NexusUnit::Armored(mut armored) => armored.use_repair_kit(),
-            NexusUnit::Air(mut air) => air.use_repair_kit(),
-            NexusUnit::Naval(mut naval) => naval.use_repair_kit(),
+            NexusUnit::Infantry(mut infantry) => {
+                infantry.heal(amount);
+                NexusUnit::Infantry(infantry)
+            },
+            NexusUnit::Armored(mut armored) => {
+                armored.use_repair_kit();
+                NexusUnit::Armored(armored)
+            },
+            NexusUnit::Air(mut air) => {
+                air.use_repair_kit();
+                NexusUnit::Air(air)
+            },
+            NexusUnit::Naval(mut naval) => {
+                naval.use_repair_kit();
+                NexusUnit::Naval(naval)
+            },
         }
     }
 
-    fn take_damage(ref self: NexusUnit, amount: u32) {
+    fn take_damage(ref self: NexusUnit, amount: u32) -> NexusUnit {
         match self {
-            NexusUnit::Infantry(mut infantry) => infantry.take_damage(amount),
-            NexusUnit::Armored(mut armored) => armored.take_damage(amount),
-            NexusUnit::Air(mut air) => air.take_damage(amount),
-            NexusUnit::Naval(mut naval) => naval.take_damage(amount),
+            NexusUnit::Infantry(mut infantry) => {
+                infantry.take_damage(amount);
+                NexusUnit::Infantry(infantry)
+            },
+            
+            NexusUnit::Armored(mut armored) => {
+                armored.take_damage(amount);
+                NexusUnit::Armored(armored)
+            },
+            
+            NexusUnit::Air(mut air) => {
+                air.take_damage(amount);
+                NexusUnit::Air(air)
+            },
+            NexusUnit::Naval(mut naval) => {
+                naval.take_damage(amount);
+                NexusUnit::Naval(naval)
+            },
         }
     }
 }

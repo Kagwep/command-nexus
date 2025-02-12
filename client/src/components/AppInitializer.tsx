@@ -1,6 +1,5 @@
 import { SDK } from "@dojoengine/sdk";
 import { DojoContextProvider } from "../dojo/DojoContext";
-import { SDKProvider } from "../context/SDKContext";
 import { BurnerManager, setupBurnerManager } from "@dojoengine/create-burner";
 import { dojoConfig } from "../../dojoConfig";
 import App from "../App";
@@ -12,10 +11,15 @@ import { AlertTriangle, Shield } from "lucide-react";
 import LoadingScreen from "./LoadingScreen";
 import { NetworkAccountProvider } from "../context/WalletContex";
 import { useElementStore } from "../utils/nexus";
+import { DojoSdkProvider } from "@dojoengine/sdk/react";
+
 
 interface AppInitializerProps {
     sdk: SDK<CommandNexusSchemaType>
+    dojoConfig:any,
+    clientFn:any,
 }
+
 
 interface InitializationError {
     code: 'BURNER_SETUP_FAILED' | 'NETWORK_ERROR' | 'AUTHENTICATION_FAILED' | 'UNKNOWN';
@@ -57,7 +61,7 @@ const ErrorScreen: React.FC<{ error: InitializationError }> = ({ error }) => (
     </div>
 );
 
-const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
+const AppInitializer: React.FC<AppInitializerProps> = ({ sdk, dojoConfig, clientFn }) => {
     const { isOnboarded, completeOnboarding } = useOnboarding();
     const [burnerManager, setBurnerManager] = useState<BurnerManager | null>(null);
     const [isLoading, setIsLoading] = useState(false); // Start as false initially
@@ -167,13 +171,17 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk }) => {
     }
 
     return (
-        <SDKProvider sdk={sdk}>
+        <DojoSdkProvider
+        sdk={sdk}
+        dojoConfig={dojoConfig}
+        clientFn={clientFn}
+    >
             <DojoContextProvider burnerManager={burnerManager}>
                 <NetworkAccountProvider>
                     <App />
                 </NetworkAccountProvider>
             </DojoContextProvider>
-        </SDKProvider>
+        </DojoSdkProvider>
     );
 };
 

@@ -5,8 +5,7 @@ import { useEffect } from 'react';
 import { removeLeadingZeros, shortAddress } from '../utils/sanitizer';
 import { useDojo } from '../dojo/useDojo';
 import { toast, useToast } from './UI/use-toast';
-import { useGetPlayersForGame } from '../hooks/useGetPlayersForGame';
-import { useGame } from '../hooks/useGame';
+
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from './UI/table';
 import { useMe } from '../hooks/useMe';
 import { FaClock, FaCoins, FaFire, FaTrophy, FaUsers  } from 'react-icons/fa';
@@ -15,14 +14,14 @@ import { useState } from 'react';
 import WalletButton from './WalletButton';
 import Loading from './Loading';
 import { useNetworkAccount } from '../context/WalletContex';
-import { Account } from 'starknet';
+import { Account, AccountInterface, addAddressPadding } from 'starknet';
 import { hexToUtf8 } from '../utils/unpack';
-import { useDojoStore } from '../lib/utils';
-import { useSDK } from '../context/SDKContext';
 import Navbar from './Navbar';
-import { useGetPlayers } from '../hooks/useGetPlayers';
-import { useEntityStore } from '../hooks/useEntityStore';
-
+import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useAllEntities } from '../utils/command';
+import { getGame } from '../lib/utils';
+import { CommandNexusSchemaType } from '@/dojogen/models.gen';
+import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
 
 
 const Lobby: React.FC = () => {
@@ -32,25 +31,19 @@ const Lobby: React.FC = () => {
     },
   } = useDojo();
 
-  const sdk = useSDK();
-
   const { account, address, status, isConnected } = useNetworkAccount();
+  const { useDojoStore, client: dojoClient, sdk } = useDojoSDK();
 
   const state = useDojoStore((state) => state);
   const entities = useDojoStore((state) => state.entities);
 
   const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
+  const { state: nstate, refetch } = useAllEntities()
 
 
-  const game = useGame();
 
-  //console.log(game_id,game )
+ const game = getGame(game_id,nstate.games);
 
-  const { players } = useGetPlayersForGame(game_id);
-
-  const {players: playerstest, playerNames} = useGetPlayers();
-
-  console.log(playerstest)
 
   const { me } = useMe();
   
@@ -65,251 +58,108 @@ const Lobby: React.FC = () => {
   const [kickLoading, setKickLoading] = useState(false);
   const [transferLoading, setTransferLoading] = useState(false);
 
-
   useEffect(() => {
-    let isSubscribed = true;
-    const POLLING_INTERVAL = 10000; // 1 second - adjust as needed
-    
-    const fetchEntities = async () => {
-        try {
-            await sdk.getEntities(
-                {
-                    command_nexus: {
-                        Game: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        Player: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        UnitState: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        AbilityState: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        AirUnit: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        UrbanBattlefield: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        Armored: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        Infantry: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        },
-                        Ship: {
-                            $: {
-                                where: {
-                                    game_id: {
-                                        $is: game.game_id,
-                                    },
-                                },
-                            },
-                        }
-                    },
-                },
-                (resp) => {
-                    if (!isSubscribed) return;
+    let unsubscribe: (() => void) | undefined;
 
-                    if (resp.error) {
-                        console.error(
-                            "resp.error.message:",
-                            resp.error.message
-                        );
-                        return;
-                    }
-                    if (resp.data) {
-                        state.setEntities(resp.data);
-                       
-                    }
+    console.log(addAddressPadding(account.address))
+
+    const subscribe = async (account: AccountInterface) => {
+        const subscription = await sdk.subscribeEntityQuery({
+            query: new QueryBuilder<CommandNexusSchemaType>()
+                .namespace("command_nexus", (n) =>
+                    n
+                        .entity("Infantry", (e) =>
+                            e.eq(
+                                "game_id",
+                                game_id
+                            )
+                        )
+                        .entity("AbilityState", (e) =>
+                            e.is(
+                              "game_id",
+                              game_id
+                            )
+                        )
+                )
+                .build(),
+            callback: ({ error, data }) => {
+                if (error) {
+                    console.error("Error setting up entity sync:", error);
+                } else if (
+                    data &&
+                    (data[0] as ParsedEntity<CommandNexusSchemaType>).entityId !== "0x0"
+                ) {
+                    state.updateEntity(data[0] as ParsedEntity<CommandNexusSchemaType>);
                 }
-            );
-        } catch (error) {
-            if (!isSubscribed) return;
-            console.error("Error querying entities:", error);
-        }
+            },
+        });
+
+        unsubscribe = () => subscription.cancel();
     };
 
-    // Initial fetch
-    fetchEntities();
+    if (account) {
+        subscribe(account);
+    }
 
-}, []); // Added dependencies
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+}, [sdk, account]);
 
-useEffect(() => {
-  let unsubscribe: (() => void) | undefined;
 
-  if(game_id >= 0){
-    const subscribe = async () => {
-      const subscription = await sdk.subscribeEntityQuery(
-          {
-              command_nexus: {
-                  Game: {
-                      $: {
-                          where: {
-                              game_id: {
-                                  $is: game_id,
-                              },
-                          },
-                      },
-                  },
-                  Player: {
-                      $: {
-                          where: {
-                              game_id: {
-                                  $is: game_id,
-                              },
-                          },
-                      },
-                  },
-                  UnitState: {
-                      $: {
-                        where: {
-                          game_id: {
-                              $is: game_id,
-                          },
-                      },
-                      },
-                  },
-                  AbilityState: {
-                      $: {
-                        where: {
-                          game_id: {
-                              $is: game_id,
-                          },
-                      },
-                      },
-                  },
-                  AirUnit: {
-                      $: {
-                        where: {
-                          game_id: {
-                              $is: game_id,
-                          },
-                      },
-                      },
-                  },
-                  UrbanBattlefield: {
-                    $: {
-                      where: {
-                        game_id: {
-                            $is: game_id,
-                        },
-                    },
-                    },
-                },
-                Armored: {
-                  $: {
-                    where: {
-                      game_id: {
-                          $is: game_id,
-                      },
-                  },
-                  },
-              },
-                Infantry: {
-                  $: {
-                    where: {
-                      game_id: {
-                          $is: game_id,
-                      },
-                  },
-                  },
-              },Ship: {
-                $: {
-                  where: {
-                    game_id: {
-                        $is: game_id,
-                    },
-                },
-                },
-            },
-              },
-          },
-          (response) => {
-              if (response.error) {
-                  //console.log(response.error)
-              } else if (
-                  response.data &&
-                  response.data[0].entityId !== "0x0"
-              ) {
-                console.log(response)
-                  console.log("subscribed", response.data[0]);
-                  state.updateEntity(response.data[0]);
-                  useEntityStore.getState().addEntity(response.data[0]);
-              }
-          },
-          { logging: true }
-      );
-
-      unsubscribe = () => subscription.cancel();
-  };
-
-    subscribe();
+const fetchEntities = async () => {
+  console.log("fetc ..............................",account)
+  try {
+    await sdk.getEntities({
+        query: new QueryBuilder<CommandNexusSchemaType>()
+            .namespace("command_nexus", (n) =>
+                n.entity("Infantry", (e) =>
+                    e.eq(
+                      "game_id",
+                        game_id
+                    )
+                ).entity("AbilityState", (e) =>
+                  e.eq(
+                    "game_id",
+                      game_id
+                  )
+              )
+            )
+            .build(),
+        callback: (resp) => {
+            if (resp.error) {
+                console.error(
+                    "resp.error.message:",
+                    resp.error.message
+                );
+                return;
+            }
+            if (resp.data) {
+                state.setEntities(
+                    resp.data as ParsedEntity<CommandNexusSchemaType>[]
+                );
+            }
+        },
+    });
+} catch (error) {
+      console.error("Polling error:", error);
   }
+};
 
 
 
-  return () => {
-      if (unsubscribe) {
-          unsubscribe();
-      }
-  };
-}, [sdk, account.address]);
+// Use in useEffect
+useEffect(() => {
+  fetchEntities();
+}, [sdk,dojoClient]); // Empty dependency array means this only runs once on mount
+
 
 
   console.log("51456454464",game)
   console.log("51456454464",game_id)
-  console.log("51456454464",players)
+  console.log("51456454464",nstate.players)
   console.log("51456454464",me)
 
   useEffect(() => {
@@ -398,9 +248,50 @@ useEffect(() => {
     }
   };
 
-  if (!game || !me || !players) {
-    return;
-  }
+  if (!game || !me || !nstate.players) {
+    return (
+        <div className="font-mono min-h-screen bg-gray-900 text-green-800 relative">
+            {/* Grid overlay effect - maintaining consistency */}
+            <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(0,255,0,0.03)1px,transparent_1px),linear-gradient(90deg,rgba(0,255,0,0.03)1px,transparent_1px)] bg-[size:20px_20px]" />
+            
+            <div className="fixed inset-0 flex items-center justify-center z-10">
+                <div className="bg-black/60 border border-green-500/30 p-8 rounded-lg backdrop-blur-sm">
+                    <div className="flex flex-col items-center gap-6">
+                        {/* Logo/Title maintaining game style */}
+                        <h1 className="text-4xl font-mono text-green-800 flex items-center space-x-3">
+                            <span>⌘</span>
+                            <span>Command Nexus</span>
+                            <span>⌘</span>
+                        </h1>
+                        
+                        {/* Loading spinner */}
+                        <div className="w-16 h-16 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin" />
+                        
+                        {/* Status indicators */}
+                        <div className="flex flex-col items-center gap-4">
+                            <div className="text-lg">INITIALIZING COMMAND CENTER</div>
+                            <div className="grid grid-cols-3 gap-6 text-sm text-green-800/70">
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${game ? 'bg-green-500' : 'bg-green-500/30'}`} />
+                                    <span>OPERATION</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${me ? 'bg-green-500' : 'bg-green-500/30'}`} />
+                                    <span>COMMANDER</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${nstate.players ? 'bg-green-500' : 'bg-green-500/30'}`} />
+                                    <span>SQUAD</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 
     // Map base keys to battlefield names
   const baseNameMapping = {
@@ -449,7 +340,7 @@ useEffect(() => {
           <div className="flex justify-between items-center mb-6 border-b border-green-500/30 pb-4">
             <h2 className="text-3xl font-mono">OPERATION #{game.game_id}</h2>
             <div className="flex items-center space-x-6">
-              <StatusIndicator icon={<FaUsers />} label="SQUAD STRENGTH" value={`${players.length}/4`} />
+              <StatusIndicator icon={<FaUsers />} label="SQUAD STRENGTH" value={`${Object.keys(nstate.players).length}/4`} />
               <StatusIndicator icon={<FaClock />} label="OPERATION TIME" value={parseInt(game.clock.toString())} />
               <StatusIndicator icon={<FaTrophy />} label="MISSION LIMIT" value={parseInt(game.limit.toString())} />
               <StatusIndicator icon={<FaCoins />} label="RESOURCES" value={parseInt(game.price.toString())} />
@@ -480,6 +371,8 @@ useEffect(() => {
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 {Object.entries(game.available_home_bases).map(([base, status]) => {
+
+                  
                   const baseName = baseNameMapping[base] || base;
                   
                   return (
@@ -512,7 +405,7 @@ useEffect(() => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {players.map((player) => (
+              {Object.values(nstate.players).map((player) => (
                   <TableRow 
                     key={player.address} 
                     className="border-b border-green-500/10 hover:bg-green-900/10"
@@ -525,7 +418,7 @@ useEffect(() => {
                             <div className="absolute inset-0 animate-ping bg-red-500 rounded-full opacity-20" />
                           </div>
                         )}
-                        <span className="font-mono">{hexToUtf8(player.name)}</span>
+                        <span className="font-mono">{player.name}</span>
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-green-400/70">
@@ -556,7 +449,7 @@ useEffect(() => {
           <div className="mt-6 flex justify-end">
             {isHost(game.arena_host, account.address) ? (
               <button
-                disabled={startLoading || players.length < 2}
+              disabled={startLoading || (Object.keys(nstate.players).length < 2)}
                 onClick={startGame}
                 className="relative group px-6 py-2 font-mono"
               >

@@ -6,7 +6,7 @@ interface StarknetErrorDetail {
 export class StarknetErrorParser {
     static parseError(error: any): string {
 
-        
+        console.log(error)
         // Check if it's a LibraryError containing a Starknet error
         if (error?.message?.includes('RPC')) {
             try {

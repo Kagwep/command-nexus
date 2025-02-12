@@ -158,7 +158,7 @@ export class WeatherSystem {
 
     // Set up dense fog
     this.scene.fogMode = Scene.FOGMODE_EXP2;
-    this.scene.fogDensity = 0.008; // Much denser fog
+    this.scene.fogDensity = 0.08; // Much denser fog
     this.scene.fogColor = new Color3(0.1, 0.1, 0.1); // Dark gray fog
 
     // Set dark sky color

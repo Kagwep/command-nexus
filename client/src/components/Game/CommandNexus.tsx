@@ -9,17 +9,20 @@ import { useMe } from '../../hooks/useMe';
 import { useTurn } from '../../hooks/useTurn';
 import { useCommandNexusGui } from './useCommandNexusGui';
 import HavokPhysics from '@babylonjs/havok';
-import { useGameState } from './GameState';
+
 import { Account, AccountInterface } from 'starknet';
 import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
 import { useArmoredUnits } from '../../hooks/useGetArmoredUnits';
 import { Player } from '../../dojogen/models.gen';
 import GameState from '../../utils/gamestate';
-import { useDojoStore } from '../../lib/utils';
-import { useSDK } from '../../context/SDKContext';
+
+
 import { useNetworkAccount } from '../../context/WalletContex';
 import { useInfantryUnitState } from '../../hooks/useGetInfantryUnitStates';
 import { useInfantryAbilityModes } from '../../hooks/useGetUnitAbilityMode';
+import { useAllEntities } from '../../utils/command';
+import { useGameState } from './GameState';
+import { removeLeadingZeros } from '../../utils/sanitizer';
 
 
 const GRID_SIZE = 40;
@@ -45,15 +48,12 @@ const CommandNexus = () => {
   const { me: player, isItMyTurn } = useMe();
   const { turn } = useTurn();
 
-  const state = useDojoStore((state) => state);
-  const entities = useDojoStore((state) => state.entities);
+const { state: nstate, refetch } = useAllEntities();
+
   const {  game_id} = useElementStore((state) => state);
   const { account, address, status, isConnected } = useNetworkAccount();
   const infantry = useInfantryUnits();
-  const sdk = useSDK();
-  const infantryUnitsStates = useInfantryUnitState();
-  const infantryUnitModes = useInfantryAbilityModes();
- 
+
   const armored = useArmoredUnits();
 
   const game = useGame();
@@ -64,7 +64,7 @@ const CommandNexus = () => {
       setGuiState(prevState => ({...prevState, ...newState}));
   }, []);
 
-  const nexusGameState = useGameState();
+  const nexusGameState = useGameState(nstate);
 
   const getAccount = () : AccountInterface | Account => {
     return account
@@ -145,12 +145,24 @@ const CommandNexus = () => {
     console.log(isSceneReady)
     if (isSceneReady && sceneRef.current) {
       console.log("Updating scene metadata with infantry units");
+      const found = Object.values(nstate.players).find((p) => {
+        const cleanAddress = removeLeadingZeros(p.address);
+        console.log("Comparing:", {
+          playerAddress: p.address,
+          cleanAddress: cleanAddress,
+          accountAddress: account.address,
+          isMatch: cleanAddress === account.address
+        });
+        return cleanAddress === account.address;
+      });
       sceneRef.current.metadata = {
         ...sceneRef.current.metadata,
-        infantryUnits: infantry?.infantryUnits,
-        armoredUnits: armored?.armoredUnits,
-        infantryStates: infantryUnitsStates.infantryUnitStates,
-        infantryModes: infantryUnitModes.infantryAbilityModes
+        infantryUnits:nstate.infantry,
+        //armoredUnits: nstate.armored,
+        infantryStates: nstate.unitState,
+        infantryModes: nstate.abilityState,
+        playerInfo: found,
+        playersInfo: nstate.players
       };
     }
   }, [isSceneReady, infantry?.infantryUnits,game,armored?.armoredUnits]);

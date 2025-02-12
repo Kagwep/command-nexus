@@ -8,15 +8,17 @@ import GameRow from './GameRow';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import WalletButton from './WalletButton';
 import { useNetworkAccount } from '../context/WalletContex';
-import { useSDK } from '../context/SDKContext';
-import { useDojoStore } from '../lib/utils';
-import { Account, addAddressPadding } from 'starknet';
+import { Account, AccountInterface, addAddressPadding } from 'starknet';
 import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
-import { Game } from '../dojogen/models.gen';
+import { CommandNexusSchemaType, Game } from '../dojogen/models.gen';
 import Navbar from './Navbar';
 import { useGameStore, usePlayerStore } from '../utils/entitityStore';
 import { useGamePolling, usePlayerPolling } from '../hooks/useEntityPolling ';
 import { useEntityStore } from '../hooks/useEntityStore';
+import { useDojoSDK } from '@dojoengine/sdk/react';
+import { useAllEntities } from '../utils/command';
+import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
+
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -33,7 +35,7 @@ const MainMenu: React.FC = () => {
     },
   } = useDojo();
 
-  const sdk = useSDK();
+  const { useDojoStore, client: dojoClient, sdk } = useDojoSDK();
 
   const { account, address, status, isConnected } = useNetworkAccount();
 
@@ -43,6 +45,10 @@ const MainMenu: React.FC = () => {
   const playerpol = usePlayerPolling(sdk.client)
   const gamepol = useGamePolling(sdk.client)
 
+  const { state: nstate, refetch } = useAllEntities();
+
+  console.log(nstate.games,nstate.players,nstate.abilityState,nstate.infantry);
+
   const { entities: playerent, isLoading } = usePlayerStore()
 
   const { entities: gameEntities, isLoading: gameIsLoading } = useGameStore()
@@ -51,129 +57,93 @@ const MainMenu: React.FC = () => {
   // console.log(gameEntities)
 
 
-  Object.values(state.entities).forEach(entity => {
-      useEntityStore.getState().addEntity(entity);
-  });
 
   useEffect(() => {
-    const fetchEntities = async () => {
-
-      if(!account) return;
-        try {
-            await sdk.getEntities(
-                {
-                    command_nexus: {
-                        Game: {
-                            $: { },
-                        },
-                        Player: {
-                            $: { },
-                        },
-                    },
-                },
-                (resp) => {
-                    if (resp.error) {
-                        console.error(
-                            "resp.error.message:",
-                            resp.error.message
-                        );
-                        return;
-                    }
-                    if (resp.data) {
-                        state.setEntities(resp.data);
-                    }
-                }
-            );
-        } catch (error) {
-            console.error("Error querying entities:", error);
-        }
-    };
-
-    fetchEntities();
-    console.log("value changed")
-}, [sdk, account?.address]);
-
-useEffect(() => {
     let unsubscribe: (() => void) | undefined;
-  
-    const subscribe = async () => {
-        const subscription = await sdk.subscribeEntityQuery(
-            {
-                command_nexus: {
-                    Game: {
-                        $: {
-                        },
-                    },
-                    Player: {
-                      $: {
-                      },
-                  },
-                },
-            },
-            (response) => {
-                if (response.error) {
-                    console.log(
-                        "Error setting up entity sync:",
-                        response.error
-                    );
-                } else if (
-                    response.data &&
-                    response.data[0].entityId !== "0x0"
-                ) {
-                    console.log("subscribed", response.data[0]);
-                    state.updateEntity(response.data[0]);
 
+    console.log(addAddressPadding(account.address))
+
+    const subscribe = async (account: AccountInterface) => {
+        const subscription = await sdk.subscribeEntityQuery({
+            query: new QueryBuilder<CommandNexusSchemaType>()
+                .namespace("command_nexus", (n) =>
+                    n
+                        .entity("Game", (e) =>
+                            e.eq(
+                                "arena_host",
+                                addAddressPadding(account.address)
+                            )
+                        )
+                        .entity("Player", (e) =>
+                            e.is(
+                                "address",
+                                addAddressPadding(account.address)
+                            )
+                        )
+                )
+                .build(),
+            callback: ({ error, data }) => {
+                if (error) {
+                    console.error("Error setting up entity sync:", error);
+                } else if (
+                    data &&
+                    (data[0] as ParsedEntity<CommandNexusSchemaType>).entityId !== "0x0"
+                ) {
+                    state.updateEntity(data[0] as ParsedEntity<CommandNexusSchemaType>);
                 }
             },
-            { logging: true }
-        );
-  
+        });
+
         unsubscribe = () => subscription.cancel();
     };
-  
-    subscribe();
-  
+
+    if (account) {
+        subscribe(account);
+    }
+
     return () => {
         if (unsubscribe) {
             unsubscribe();
         }
     };
-  }, [sdk, account.address]);
+}, [sdk, account]);
 
 
-
-// Separate function for fetching entities
 const fetchEntities = async () => {
-  console.log("fetc ..............................")
+  console.log("fetc ..............................",account)
   try {
-      await sdk.getEntities(
-          {
-              command_nexus: {
-                  Game: {
-                      $: {
-
-                      },
-                  },
-                  Player: {
-                    $: {
-                    },
-                },
-              },
-          },
-          (response) => {
-              if (response.error) {
- //console.log(response.error)
-              } else if (
-                  response.data &&
-                  response.data[0].entityId !== "0x0"
-              ) {
-                  console.log("polled", response.data[0]);
-                  state.updateEntity(response.data[0]);
-              }
-          },
- 
-      );
-  } catch (error) {
+    await sdk.getEntities({
+        query: new QueryBuilder<CommandNexusSchemaType>()
+            .namespace("command_nexus", (n) =>
+                n.entity("Game", (e) =>
+                    e.eq(
+                        "arena_host",
+                        addAddressPadding(account.address)
+                    )
+                ).entity("Player", (e) =>
+                  e.eq(
+                      "address",
+                      addAddressPadding(account.address)
+                  )
+              )
+            )
+            .build(),
+        callback: (resp) => {
+            if (resp.error) {
+                console.error(
+                    "resp.error.message:",
+                    resp.error.message
+                );
+                return;
+            }
+            if (resp.data) {
+                state.setEntities(
+                    resp.data as ParsedEntity<CommandNexusSchemaType>[]
+                );
+            }
+        },
+    });
+} catch (error) {
       console.error("Polling error:", error);
   }
 };
@@ -183,150 +153,97 @@ const fetchEntities = async () => {
 // Use in useEffect
 useEffect(() => {
   fetchEntities();
-}, []); // Empty dependency array means this only runs once on mount
+}, [sdk,dojoClient]); // Empty dependency array means this only runs once on mount
+
+
+const [messageIndex, setMessageIndex] = useState(0);
+const messages = [
+  'NO ACTIVE OPERATIONS DETECTED',
+  'AWAITING MISSION INITIALIZATION',
+  'COMMAND CENTER READY',
+  'TACTICAL SYSTEMS ONLINE'
+];
+
 
 
 useEffect(() => {
-  let unsubscribe: (() => void) | undefined;
+  const interval = setInterval(() => {
+    setMessageIndex((prev) => (prev + 1) % messages.length);
+  }, 2000);
 
-  const subscribe = async () => {
-      const subscription = await sdk.subscribeEntityQuery(
-          {
-              command_nexus: {
-                  Infantry: {
-                      $: {
-                          where: {
-                              game_id: {
-                                  $is:game?.game_id,
-                              },
-                          },
-                      },
-                  },
-              },
-          },
-          (response) => {
-              if (response.error) {
-              //console.log(response.error)
-              } else if (
-                  response.data &&
-                  response.data[0].entityId !== "0x0"
-              ) {
-                  console.log("subscribed", response.data[0]);
-                  state.updateEntity(response.data[0]);
-                  console.log(state.entities)
-              }
-          },
-          { logging: true }
-      );
-
-      unsubscribe = () => subscription.cancel();
-  };
-
-  subscribe();
-
-  return () => {
-      if (unsubscribe) {
-          unsubscribe();
-      }
-  };
-}, [sdk, game?.game_id]);
-
-  const [messageIndex, setMessageIndex] = useState(0);
-  const messages = [
-    'NO ACTIVE OPERATIONS DETECTED',
-    'AWAITING MISSION INITIALIZATION',
-    'COMMAND CENTER READY',
-    'TACTICAL SYSTEMS ONLINE'
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const prevGameRef = useRef(game);
-  const prevPlayerRef = useRef(player);
-
-  const updateGameState = useCallback((currentPlayer: any, currentGame: any) => {
-    console.log("Inside updateGameState callback with params:", currentPlayer);
-  
-    // If either player or game exists, set the game state to Lobby
-    const newGameState = (currentPlayer || currentGame) ? GameState.Lobby : null;
-
-    console.log(currentPlayer?.game_id)
-  
-    if (currentPlayer?.game_id >= 0) {
-      console.log("setting game state");
-      set_game_id(currentPlayer.game_id);
-    }
-  
-    if (newGameState !== null) {
-      set_game_state(newGameState);
-    }
-    console.log("executed")
-  }, [set_game_id, set_game_state]);
-  
+  return () => clearInterval(interval);
+}, []);
 
 
-  const [hours, setHours] = useState<number | null>(null);
-  const [minutes, setMinutes] = useState(5);
+const prevGameRef = useRef(game);
+const prevPlayerRef = useRef(player);
 
-  const setStates = () => {
+const updateGameState = useCallback((currentPlayer: any, currentGame: any) => {
+  console.log("Inside updateGameState callback with params:", currentPlayer);
 
+  // If either player or game exists, set the game state to Lobby
+  const newGameState = (currentPlayer || currentGame) ? GameState.Lobby : null;
 
-    Object.entries(state.entities).forEach(([entityId, entity]) => {
-      const currentGame = entity.models.command_nexus.Game;
-      
-  
-      if (currentGame && removeLeadingZeros(currentGame.arena_host) === account?.address) {
-        setGame(currentGame as Game);
-        setGame(game);
-        if (game){
-          if (game.game_id >= 0) {
-            set_game_id(game.game_id);
-  
-          }
-        }
-      } else {
-        setGame(null);
-    
-      }
-     
-      const currentPlayer = entity.models.command_nexus.Player;
-      // Ensure currentPlayer exists before comparing its address property
-      if (currentPlayer && removeLeadingZeros(currentPlayer.address) === account?.address) {
-        setPlayer(currentPlayer);
-        if (currentPlayer?.game_id >= 0) {
-          set_game_id(currentPlayer.game_id);
-          console.log(".......................",currentPlayer.game_id)
-          set_game_state(GameState.Lobby);
-        }
-      } else {
-        setPlayer(null);
-      }
+  console.log(currentPlayer?.game_id)
 
-    });
-
-
-
+  if (currentPlayer?.game_id >= 0) {
+    console.log("setting game state");
+    set_game_id(currentPlayer.game_id);
   }
 
-  useEffect(() => {
-    setStates();
-  }, [state.entities, account?.address]);
+  if (newGameState !== null) {
+    set_game_state(newGameState);
+  }
+  console.log("executed")
+}, [set_game_id, set_game_state]);
 
-  useEffect(() => {
-    if (game) {
-     // setIsLoading(false);
-      console.log('Game updated:', game);
 
-      set_game_id(game.game_id);
 
+const [hours, setHours] = useState<number | null>(null);
+const [minutes, setMinutes] = useState(5);
+
+const setStates = () => {
+
+
+  // Assuming games and players are Records
+Object.entries(nstate.games).forEach(([gameId, currentGame]) => {
+  console.log(removeLeadingZeros(currentGame.arena_host) === account?.address)
+  if (removeLeadingZeros(currentGame.arena_host) === account?.address) {
+    setGame(currentGame);
+    if (currentGame.game_id >= 0) {
+      set_game_id(currentGame.game_id);
     }
-  }, [game]);
+  }
+});
+
+Object.entries(nstate.players).forEach(([playerId, currentPlayer]) => {
+  if (removeLeadingZeros(currentPlayer.address) === account?.address) {
+    setPlayer(currentPlayer);
+    if (currentPlayer.game_id >= 0) {
+      set_game_id(currentPlayer.game_id);
+      console.log(".......................", currentPlayer.game_id);
+      set_game_state(GameState.Lobby);
+    }
+  }
+});
+
+
+
+}
+
+useEffect(() => {
+setStates();
+}, [nstate, account?.address]);
+
+useEffect(() => {
+if (game) {
+// setIsLoading(false);
+console.log('Game updated:', game);
+
+set_game_id(game.game_id);
+
+}
+}, [game]);
 // In useEffect, pass the current player and game explicitly
 useEffect(() => {
   const gameChanged = game !== prevGameRef.current;
@@ -380,7 +297,7 @@ useEffect(() => {
             </div>
           </header>
 
-          { Object.keys(entities).length === 0 ? (
+          { Object.keys(nstate.games).length === 0 ? (
             <div className="text-center py-12 bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-2xl">
                   <div className="relative border border-green-500/30 bg-black/40 p-8 rounded-lg mb-2">
                       <div className="flex flex-col items-center space-y-4">
@@ -447,19 +364,16 @@ useEffect(() => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                    {Object.entries(state.entities).map(([entityId, entity]) => {
-                        if (entity.models.command_nexus.Game) {
-                          const game = entity.models.command_nexus.Game;
+                    {Object.entries(nstate.games).map(([gameId, currentGame]) => {
                           return (
                             <GameRow 
-                              key={entityId} 
-                              game={game as Game} 
+                              key={gameId}
+                              game={currentGame as Game}
                               setPlayerName={setPlayerName}
-                            />
+                              nstates={nstate}                            />
                           );
-                        }
-                      })}
 
+                      })}
                     </TableBody>
                   </Table>
                 </div>

@@ -1,6 +1,6 @@
 import { CommandNexusSchemaType, Game, HomeBasesTuple, Player, PlayerScore, UnitsSupply } from "@/dojogen/models.gen";
 import { sanitizePlayer } from "../utils/sanitizer";
-import { createDojoStore } from "@dojoengine/sdk";
+//import { createDojoStore } from "@dojoengine/sdk";
 import { ToriiClient } from "@dojoengine/torii-client";
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -16,7 +16,7 @@ export function formatCurrency(value: number): string {
 }
 
 
-export const useDojoStore = createDojoStore<CommandNexusSchemaType>();
+//export const useDojoStore = createDojoStore<CommandNexusSchemaType>();
 
 
 export async function fetchAllEntitiesPlayer(
@@ -170,4 +170,10 @@ export const parseEntity = <T>(modelName: string, rawEntity: RawEntity): T => {
       console.error(`Unknown model type: ${modelName}`);
       return rawEntity as T;
   }
+};
+
+
+export   const getGame = (gameId: number, nstate: Record<string, Game>): Game | undefined => {
+  if (gameId === undefined || gameId === null) return undefined;
+  return Object.values(nstate).find(game => game.game_id === gameId);
 };

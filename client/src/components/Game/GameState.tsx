@@ -7,6 +7,7 @@ import { useElementStore } from '../../utils/nexus';
 import { Game, Player } from '../../dojogen/models.gen';
 import { removeLeadingZeros } from '../../utils/sanitizer';
 import { useNetworkAccount } from '../../context/WalletContex';
+import { getGame } from '../../lib/utils';
 
 
 export interface GameState {
@@ -17,7 +18,7 @@ export interface GameState {
   players: ReturnType<typeof useGetPlayersForGame>['players'];
 }
 
-export const useGameState = ():{
+export const useGameState = (nstate: any):{
   getGameState: () => GameState;
   gameState: {
       player: Player | null;
@@ -26,20 +27,20 @@ export const useGameState = ():{
       players: Player[];
   };
 } => {
+  const { game_id } = useElementStore((state) => state);
   const { me: player, isItMyTurn } = useMe();
   const { turn } = useTurn();
-  const game = useGame();
-  const { game_id } = useElementStore((state) => state);
-  const { players } = useGetPlayersForGame(game_id);
+  const game = getGame(game_id,nstate.games);
+  const  players = nstate.players;
   const { account, address, status, isConnected } = useNetworkAccount();
 
 
 
   const getGameState = useCallback((): GameState  => {
-      const me = players.find((p) => removeLeadingZeros(p.address) === account?.address);
+      
 
       return {
-        player: me ? me : null,
+        player: player,
         isItMyTurn,
         turn,
         game,

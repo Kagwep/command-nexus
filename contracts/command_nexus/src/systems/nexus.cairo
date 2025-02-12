@@ -204,14 +204,14 @@ mod nexus {
         ArmoredTrait,
     };
     
-    use command_nexus::models::units::infantry::{Infantry,InfantryTrait};
+    use command_nexus::models::units::infantry::{Infantry,InfantryTrait,InfantryAccessories};
     use command_nexus::models::units::naval::{Ship,ShipTrait};
     
     use command_nexus::models::units::cyber::{CyberUnitTrait,CyberUnit};
 
     use command_nexus::models::position::{Position,Vec3};
 
-    use command_nexus::constants::{MAX_POINT_BONUS,BASE_DAMAGE};
+    use command_nexus::constants::{MAX_POINT_BONUS,BASE_DAMAGE,HEAL};
 
     
 
@@ -226,7 +226,6 @@ mod nexus {
         const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
         const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
         const INVALID_PLAYER:felt252 = 'Not player';
-       
     }
 
 
@@ -328,7 +327,7 @@ mod nexus {
 
             let remaining_commands = player.send_command();
 
-            if remaining_commands == 0{
+            if remaining_commands == 0 {
                 game.advance_turn();
                 player.reset_moves();
 
@@ -337,8 +336,6 @@ mod nexus {
                // set!(world,(new_player));
 
                 world.write_model(@new_player);
-
-
             }
 
             //set!(world, (player));
@@ -375,6 +372,8 @@ mod nexus {
                 Option::None => panic(array!['Invalid unit Type'])
             };
 
+            let time = get_block_timestamp();
+
             let operation = AbilityType::Patrol;
 
             // Handle unit type-specific operations
@@ -400,6 +399,27 @@ mod nexus {
                 start_y,
                 start_z
             );
+
+            let remaining_commands = attacker.send_command();
+
+            if remaining_commands == 0 {
+                game.advance_turn();
+                attacker.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+            }
+
+            //set!(world, (player));
+
+            world.write_model(@attacker);
+
+           // set!(world, (game));
+
+            world.write_model(@game);
         }
         
         fn attack(ref self: ContractState, game_id: u32,player_target_id: u32, attacker_id: u32, target_id: u32,unit_id: u32,attacker_unit_type: u8,target_unit_type: u8,x:u256,y:u256,z:u256) {
@@ -413,6 +433,8 @@ mod nexus {
            let mut attacker = HelperTrait::current_player(world, game);
 
            assert(player_address  == attacker.address, errors::INVALID_PLAYER);
+
+           let time = get_block_timestamp();
 
            let attacker_unit = match  UnitTypeTrait::from_int(attacker_unit_type) {
             Option::Some(unit) => unit,
@@ -450,6 +472,27 @@ mod nexus {
                 z
             );
 
+            let remaining_commands = attacker.send_command();
+
+            if remaining_commands == 0 {
+                game.advance_turn();
+                attacker.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+            }
+
+            //set!(world, (player));
+
+            world.write_model(@attacker);
+
+           // set!(world, (game));
+
+            world.write_model(@game);
+
         }
         
         fn defend(ref self: ContractState, game_id: u32, unit_id: u32,unit_type: u8, x: u256, y: u256, z: u256) {
@@ -463,6 +506,8 @@ mod nexus {
             let mut game: Game  =  world.read_model(game_id);
  
             let mut player = HelperTrait::current_player(world, game);
+
+            let time = get_block_timestamp();
  
             assert(player_address == player.address, errors::INVALID_PLAYER);
  
@@ -495,6 +540,26 @@ mod nexus {
                 z
             );
  
+            let remaining_commands = player.send_command();
+
+            if remaining_commands == 0 {
+                game.advance_turn();
+                player.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+            }
+
+            //set!(world, (player));
+
+            world.write_model(@player);
+
+           // set!(world, (game));
+
+            world.write_model(@game);
         }
         
         fn move_unit(ref self: ContractState, game_id: u32, unit_id: u32,unit_type: u8, dest_x: u256, dest_y: u256, dest_z: u256) {
@@ -503,6 +568,7 @@ mod nexus {
 
             let player_address = get_caller_address();
            // let mut game = get!(world, game_id, (Game));
+           let time = get_block_timestamp();
 
            let mut game: Game  =  world.read_model(game_id);
  
@@ -542,6 +608,27 @@ mod nexus {
              dest_z
          );
 
+         let remaining_commands = player.send_command();
+
+         if remaining_commands == 0 {
+             game.advance_turn();
+             player.reset_moves();
+
+             let mut new_player = HelperTrait::current_player(world,game);
+             new_player.set_turn_start_time(time);
+            // set!(world,(new_player));
+
+             world.write_model(@new_player);
+         }
+
+         //set!(world, (player));
+
+         world.write_model(@player);
+
+        // set!(world, (game));
+
+         world.write_model(@game);
+
         }
         
         fn stealth(ref self: ContractState, game_id: u32, unit_id: u32,unit_type:u8,x:u256,y:u256,z:u256) {
@@ -552,6 +639,8 @@ mod nexus {
            // let mut game = get!(world, game_id, (Game));
 
            let mut game: Game  =  world.read_model(game_id);
+
+           let time = get_block_timestamp();
  
             let mut player = HelperTrait::current_player(world, game);
  
@@ -586,6 +675,27 @@ mod nexus {
                 y,
                 z
             );
+
+            let remaining_commands = player.send_command();
+
+            if remaining_commands == 0 {
+                game.advance_turn();
+                player.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+            }
+
+            //set!(world, (player));
+
+            world.write_model(@player);
+
+           // set!(world, (game));
+
+            world.write_model(@game);
         }
         
         fn recon(ref self: ContractState, game_id: u32, unit_id: u32,unit_type:u8, area_x: u256, area_y: u256, area_z: u256) {
@@ -596,6 +706,8 @@ mod nexus {
            // let mut game = get!(world, game_id, (Game));
 
            let mut game: Game  =  world.read_model(game_id);
+
+           let time = get_block_timestamp();
  
             let mut player = HelperTrait::current_player(world, game);
  
@@ -631,6 +743,27 @@ mod nexus {
              area_y,
              area_z
          );
+
+         let remaining_commands = player.send_command();
+
+         if remaining_commands == 0 {
+             game.advance_turn();
+             player.reset_moves();
+
+             let mut new_player = HelperTrait::current_player(world,game);
+             new_player.set_turn_start_time(time);
+            // set!(world,(new_player));
+
+             world.write_model(@new_player);
+         }
+
+         //set!(world, (player));
+
+         world.write_model(@player);
+
+        // set!(world, (game));
+
+         world.write_model(@game);
         }
         
         fn heal(ref self: ContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256) {
@@ -642,6 +775,8 @@ mod nexus {
            // let mut game = get!(world, game_id, (Game));
 
            let mut game: Game  =  world.read_model(game_id);
+
+           let time = get_block_timestamp();
  
             let mut player = HelperTrait::current_player(world, game);
  
@@ -677,6 +812,27 @@ mod nexus {
                 area_y,
                 area_z
             );
+
+            let remaining_commands = player.send_command();
+
+            if remaining_commands == 0 {
+                game.advance_turn();
+                player.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+            }
+
+            //set!(world, (player));
+
+            world.write_model(@player);
+
+           // set!(world, (game));
+
+            world.write_model(@game);
         } 
 
         fn force_end_player_turn (ref self: ContractState, game_id: u32, target_player_index: u32){
@@ -907,7 +1063,7 @@ mod nexus {
     
             // Update ability level and energy
             unit_abilities.decrease_ability_level(AbilityType::Move, movement_cost_u8);
-            unit.consume_energy(energy_cost);
+            let mut unit = unit.consume_energy(energy_cost);
     
             // Update unit position
             let new_unit = unit.set_position(Position {coord: new_position});
@@ -921,7 +1077,8 @@ mod nexus {
             // }
 
             match new_unit {
-                NexusUnit::Infantry(infantry) => {
+                NexusUnit::Infantry(mut infantry) => {
+                    infantry.consume_energy(energy_cost);
                     world.write_model(@infantry);
                     world.write_model(@unit_abilities);
                     world.write_model(@unit_state);
@@ -1091,7 +1248,7 @@ mod nexus {
             // Calculate initial damage
             let mut final_damage = ((BASE_DAMAGE * point_bonus_multiplier)+attack_damage) / 100;
 
-            unit_target.take_damage(final_damage);
+            let mut unit_target = unit_target.take_damage(final_damage);
     
             // // Set updated components
             // set!(world, (unit_abilities_attacker, unit_state_attacker, unit_state_target));
@@ -1117,7 +1274,15 @@ mod nexus {
 
             // Handle target unit updates
             match unit_target {
-                NexusUnit::Infantry(infantry) => world.write_model(@infantry),
+                NexusUnit::Infantry(mut infantry) => {
+                    let new_ammunation = infantry.accessories.ammunition - 4;
+                    let new_accessories = InfantryAccessories {
+                        ammunition: new_ammunation,
+                        first_aid_kit: infantry.accessories.first_aid_kit
+                    };
+                    infantry.update_accessories(new_accessories);
+                    world.write_model(@infantry)
+                },
                 NexusUnit::Armored(armored) => world.write_model(@armored),
                 NexusUnit::Air(air) => world.write_model(@air),
                 NexusUnit::Naval(naval) => world.write_model(@naval),
@@ -1172,7 +1337,7 @@ mod nexus {
     
             // Update ability level and energy
             unit_abilities.decrease_ability_level(AbilityType::Defend, 3);
-            unit.consume_energy(energy_cost);
+            let mut unit = unit.consume_energy(energy_cost);
     
             // Set updated components
             // match unit {
@@ -1240,7 +1405,7 @@ mod nexus {
 
         // Update ability level and energy
         unit_abilities.decrease_ability_level(AbilityType::Patrol, 2);
-        unit.consume_energy(energy_cost);
+        let mut unit = unit.consume_energy(energy_cost);
 
         // Set updated components
         // match unit {
@@ -1308,7 +1473,7 @@ mod nexus {
 
         // Update ability level and energy
         unit_abilities.decrease_ability_level(AbilityType::Stealth, 2);
-        unit.consume_energy(energy_cost);
+        let mut unit = unit.consume_energy(energy_cost);
 
         // Set updated components
         // match unit {
@@ -1376,7 +1541,7 @@ mod nexus {
 
         // Update ability level and energy
         unit_abilities.decrease_ability_level(AbilityType::Recon, 2);
-        unit.consume_energy(energy_cost);
+        let mut unit = unit.consume_energy(energy_cost);
 
         let _heal_value = HelperTrait::calculate_heal_value(unit);
 
@@ -1447,7 +1612,7 @@ mod nexus {
 
         // Update ability level and energy
         unit_abilities.decrease_ability_level(AbilityType::Repair, 2);
-        unit.consume_energy(energy_cost);
+        let mut unit = unit.consume_energy(energy_cost);
 
         // Set updated components
         // match unit {
@@ -1456,6 +1621,8 @@ mod nexus {
         //     NexusUnit::Air(air) => set!(world, (air, unit_abilities, unit_state)),
         //     NexusUnit::Naval(naval) => set!(world, (naval, unit_abilities, unit_state)),
         // }
+
+        let mut unit = unit.heal(HEAL);
 
         match unit {
             NexusUnit::Infantry(infantry) => {

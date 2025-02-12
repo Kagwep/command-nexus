@@ -11,31 +11,31 @@ import { useNetworkAccount } from '../context/WalletContex';
 import { useDojoStore } from '../lib/utils';
 import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
 import { Account } from 'starknet';
-import { Game } from '@/dojogen/models.gen';
+import { Game,Player } from '@/dojogen/models.gen';
 
 interface GameRowProps {
   game: Game;
   setPlayerName: (name: string) => void;
+  nstates:any;
 }
 
-const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
+const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName,nstates }) => {
   const {
     setup: {
       client
     },
   } = useDojo();
 
-  const state = useDojoStore((state) => state);
-  const entities = useDojoStore((state) => state.entities);
+
   const [player, setPlayer] = useState(null);
   const { account, address, status, isConnected } = useNetworkAccount();
   const textRef = useRef<HTMLTableCellElement>(null);
   const { set_game_state, set_game_id, player_name } = useElementStore((state) => state);
 
   useEffect(() => {
-    Object.entries(entities).forEach(([entityId, entity]) => {
+    Object.entries(nstates.players).forEach(([index, player]) => {
 
-      const currentPlayer = entity.models.command_nexus.Player;
+      const currentPlayer = player as Player;
 
       // if(currentPlayer){
       //   console.log(bigIntAddressToString(currentPlayer.address),account?.address)
@@ -51,7 +51,7 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName }) => {
         setPlayer(null);
       }
     });
-  }, [entities, account?.address]);
+  }, [nstates, account?.address]);
 
   //console.log(game,player)
 

@@ -10,7 +10,7 @@ import { GameState } from './GameState';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { Account, AccountInterface } from 'starknet';
 import { bigintToU256 } from '../../lib/lib_utils/starknet';
-import { BattlefieldName, UnitState } from '../../dojogen/models.gen';
+import { AbilityState, BattlefieldName, EnvironmentInfo, Player, UnitAbilities, UnitMode, UnitState } from '../../dojogen/models.gen';
 import { StarknetErrorParser } from './ErrorParser';
 
 
@@ -22,6 +22,7 @@ class NexusUnitManager {
     private crowd: any; // Type this properly if you have type definitions for the crowd
     private agents: Agent[] = [];
     private selectedAgent: Agent;
+    private selectedAgentUpdated: Agent;
     public navmeshdebug: any;
    // private guiRef: CommandNexusGui | null;
     private getGui: () => CommandNexusGui;
@@ -50,8 +51,8 @@ class NexusUnitManager {
     private game: any;
     private infantryUnits: Map<string, Infantry> = new Map();
     private armoredUnits: Map<string, Infantry> = new Map();
-    private infantryUnitsStates: Map<string, Infantry> = new Map();
-    private infantryUnitsModes: Map<string, Infantry> = new Map();
+    private infantryUnitsStates: Map<string, UnitState> = new Map();
+    private infantryUnitsModes: Map<string, AbilityState> = new Map();
 
     constructor(
         scene: Scene, 
@@ -90,6 +91,7 @@ class NexusUnitManager {
           this.client = client,
           this.getAccount = getAccount;
           this.addUnits();
+          this.updateGUIInfo();
    
          // this.initializeCameraPosition();
         
@@ -190,9 +192,14 @@ class NexusUnitManager {
            // console.log(elevation,coverPosition);
             // Implement stop walk animation here if needed
             //this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent.animations.movement, 1.3, this.selectedAgent.animations.idle, 1.0, true, 0.05));
-        
+            //console.log(this.selectedAgent)
             this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgent?.animations.movement, 1.3, this.selectedAgent?.animations.idle, 1.0, true, 0.05));
+           // this.selectedAgent.animations.idle.start(true);
+           
 
+           if (this.selectedAgentUpdated){
+            this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgentUpdated?.animations.movement, 1.3, this.selectedAgentUpdated?.animations.idle, 1.0, true, 0.05));
+           }
 
         });
         console.log("called..............")
@@ -283,7 +290,7 @@ class NexusUnitManager {
     private async handlePointerTap(mesh: Mesh): Promise<void> {
         const startingPoint = this.getGroundPosition();
         // console.log(mesh.name, mesh.metadata)
-        // console.log(this.selectedAgent)
+         console.log("******************************",this.selectedAgent)
         console.log(this.getGui()?.getDeploymentMode());
         console.log(mesh.name.includes("ground"),this.getGui()?.getDeploymentMode());
         if(!this.getGui()?.getDeploymentMode()){
@@ -458,6 +465,7 @@ class NexusUnitManager {
                  this.selectedAgent = this.agents[mesh.metadata.agentIndex];
                  this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
                  this.getGui().setSelectedUnitInfo(this.selectedAgent);
+                 this.getGui().showUnitStateInfo(this.selectedAgent.visualMesh.metadata.UnitState);
             }
            
         } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode()) {
@@ -1120,8 +1128,8 @@ class NexusUnitManager {
         try {
 
 
-            console.log(deploy)
-         console.log(deploy,this.getAccount(),await this.client)
+           // console.log(deploy)
+         //console.log(deploy,this.getAccount(),await this.client)
     
           const result  = await (await this.client).nexus.deployForces(this.getAccount(), deploy.game_id, deploy.battlefield_id,deploy.unit, 1,deploy.x,deploy.y,deploy.z,deploy.terrain_num,deploy.cover_level,deploy.elevation);
           console.log(result)
@@ -1141,18 +1149,40 @@ class NexusUnitManager {
         }
       };
 
+
+      private updateGUIInfo(): void {
+        this.scene.onBeforeRenderObservable.add(() => {
+          // console.log("vvvvvvbv",this.scene.metadata.playerInfo )
+            // Add your GUI update logic here
+            if (this.scene.metadata && this.scene.metadata.playerInfo ){
+                this.getGui().updatePlayerInfo(this.scene.metadata.playerInfo);
+                this.getGui().updateScore(this.scene.metadata.playerInfo.player_score.score);
+                this.getGui().updateCommands(this.scene.metadata.playerInfo.commands_remaining)
+
+                if (this.scene.metadata.playersInfo){
+                    const remainingPlayers = Object.values(this.scene.metadata.playersInfo)
+                    .filter(player => (player as Player).address !== this.scene.metadata.playerInfo.address);
+                    
+                    this.getGui().updateOpponentsInfo(remainingPlayers);
+                }
+            }
+            
+            
+        });
+    }
+
       private addUnits() {
         this.scene.onBeforeRenderObservable.add(() => {
            // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
-            if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryUnits) && this.crowd) {
-               // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
+            if (this.scene.metadata && this.scene.metadata.infantryUnits && this.crowd) {
+                //console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
                 
-                this.scene.metadata.infantryUnits.forEach(unitData => {
-                    if (!this.infantryUnits.has(unitData.unit_id) ) {
+                Object.entries(this.scene.metadata.infantryUnits).forEach(([unitId, unitData]) => {
+                    if (!this.infantryUnits.has((unitData as any).unit_id) ) {
                         // This is a new unit
                        console.log('New infantry unit detected:', unitData);
-                        this.infantryUnits.set(unitData.unit_id, unitData);
-                        this.handleNewInfantryUnit(unitData);
+                        this.infantryUnits.set((unitData as any).unit_id, (unitData as any));
+                        this.handleNewInfantryUnit((unitData as any));
                     } else {
                         // Update existing unit
                         this.updateInfantryUnit(unitData);
@@ -1166,7 +1196,7 @@ class NexusUnitManager {
             }
 
             if (this.scene.metadata && Array.isArray(this.scene.metadata.armoredUnits) && this.crowd) {
-                // console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
+                 //console.log('Current Infantry Units:', this.scene.metadata.infantryUnits);
                  
                  this.scene.metadata.armoredUnits.forEach(unitData => {
                      if (!this.armoredUnits.has(unitData.unit_id) ) {
@@ -1186,35 +1216,42 @@ class NexusUnitManager {
                 // console.log('Updated infantryUnits Map:', this.infantryUnits);
              }
 
-             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryStates) && this.crowd) {
 
-                this.scene.metadata.infatryStates.forEach(unitData => {
-                    if (!this.infantryUnitsStates.has(unitData.unit_id) ) {
+             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryStates) && this.crowd) {
+                this.scene.metadata.infantryStates.forEach((unitData: UnitState) => {
+                    if (!this.infantryUnitsStates.has(unitData.unit_id as unknown as string)) {
                         // This is a new unit
-                       console.log('New UnitState unit detected:', unitData);
-                        this.infantryUnitsStates.set(unitData.unit_id, unitData);
+                        console.log('New UnitState unit detected:', unitData);
+                        this.infantryUnitsStates.set(unitData.unit_id as unknown as string,unitData);
                         this.handleNewInfantryUnitData(unitData);
                     } else {
-                        // Update existing unit
-                        this.updateInfantryUnitData(unitData);
+                        // Check if the unit data has actually changed
+                        const existingState = this.infantryUnitsStates.get(unitData.unit_id as unknown as string);
+                        if (!this.areUnitStatesEqual(existingState, unitData)) {
+                            this.infantryUnitsStates.set(unitData.unit_id as unknown as string, unitData);
+                            this.updateInfantryUnitData(unitData);
+                        }
                     }
                 });
-
-             }
-
-             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryModes) && this.crowd) {
-                this.scene.metadata.infantryModes.forEach(unitData => {
-                    if (!this.infantryUnitsModes.has(unitData.unit_id) ) {
+            }
+            
+            if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryModes) && this.crowd) {
+                this.scene.metadata.infantryModes.forEach((unitData: AbilityState) => {
+                    if (!this.infantryUnitsModes.has(unitData.unit_id as unknown as string)) {
                         // This is a new unit
-                       console.log('New UnitState unit detected:', unitData);
-                        this.infantryUnitsModes.set(unitData.unit_id, unitData);
+                        console.log('New UnitMode unit detected:', unitData);
+                        this.infantryUnitsModes.set(unitData.unit_id as unknown as string, unitData);
                         this.handleNewInfantryUnitMode(unitData);
                     } else {
-                        // Update existing unit
-                        this.updateInfantryUnitMode(unitData);
+                        // Check if the unit mode has actually changed
+                        const existingMode = this.infantryUnitsModes.get(unitData.unit_id as unknown as string);
+                        if (!this.areAbilityStatesEqual(existingMode, unitData)) {
+                            this.infantryUnitsModes.set(unitData.unit_id as unknown as string, unitData);
+                            this.updateInfantryUnitMode(unitData);
+                        }
                     }
                 });
-             }
+            }
 
 
 
@@ -1252,6 +1289,8 @@ class NexusUnitManager {
             console.warn(`No data found for unit ${unitData.unit_id}`);
             return;
         }
+
+        console.log("unit state ...",unitData)
     
         // Update metadata
         agent.visualMesh.metadata.UnitState = unitData;
@@ -1265,12 +1304,14 @@ class NexusUnitManager {
             console.warn(`No data found for unit ${unitData.unit_id}`);
             return;
         }
+
+        console.log("unit state ...",unitData)
     
         // Update metadata
         agent.visualMesh.metadata.UnitState = unitData;
     }
 
-    private handleNewInfantryUnitMode(unitData: UnitState) {
+    private handleNewInfantryUnitMode(unitData: AbilityState) {
         const agent = this.getAgentByUnitId(unitData.unit_id);
     
         if (!agent) {
@@ -1278,8 +1319,10 @@ class NexusUnitManager {
             return;
         }
     
+        console.log("unit mode ...",unitData)
+
         // Update metadata 
-        agent.visualMesh.metadata.UnitState = unitData;
+        agent.visualMesh.metadata.UnitMode = unitData;
 
     }
 
@@ -1290,9 +1333,11 @@ class NexusUnitManager {
             console.warn(`No data found for unit ${unitData.unit_id}`);
             return;
         }
+
+        console.log("unit mode ...",unitData)
     
         // Update metadata
-        agent.visualMesh.metadata.UnitState = unitData;
+        agent.visualMesh.metadata.UnitMode = unitData;
     }
 
 
@@ -1320,10 +1365,12 @@ class NexusUnitManager {
         // Add your custom logic here
     }
 
-    private removeNonExistentUnits() {
-        const currentUnitIds = new Set(this.scene.metadata.infantryUnits.map(u => u.unit_id));
+    private removeNonExistentUnits(): void {
+        if (!this.scene.metadata?.infantryUnits) return;
+        
+        const currentUnitIds = Object.keys(this.scene.metadata.infantryUnits);
         for (const [id, unit] of this.infantryUnits) {
-            if (!currentUnitIds.has(id)) {
+            if (!currentUnitIds.includes(id.toString())) {
                 this.infantryUnits.delete(id);
                 console.log('Removed non-existent unit:', unit);
                 // Perform any cleanup operations for removed units here
@@ -1340,6 +1387,59 @@ class NexusUnitManager {
                 // Perform any cleanup operations for removed units here
             }
         }
+    }
+
+    private areUnitStatesEqual(state1: UnitState, state2: UnitState): boolean {
+        return (
+            state1.game_id === state2.game_id &&
+            state1.player_id === state2.player_id &&
+            state1.unit_id === state2.unit_id &&
+            state1.x === state2.x &&
+            state1.y === state2.y &&
+            state1.z === state2.z &&
+            this.areEnvironmentInfoEqual(state1.environment, state2.environment) &&
+            this.areUnitModesEqual(state1.mode, state2.mode)
+        );
+    }
+    
+    private areAbilityStatesEqual(state1: AbilityState, state2: AbilityState): boolean {
+        return (
+            state1.game_id === state2.game_id &&
+            state1.unit_id === state2.unit_id &&
+            state1.player_id === state2.player_id &&
+            state1.is_active === state2.is_active &&
+            state1.cooldown === state2.cooldown &&
+            state1.effectiveness === state2.effectiveness &&
+            state1.unit === state2.unit &&
+            this.areUnitAbilitiesEqual(state1.units_abilities_state, state2.units_abilities_state)
+        );
+    }
+    
+    private areUnitAbilitiesEqual(abilities1: UnitAbilities, abilities2: UnitAbilities): boolean {
+        return (
+            abilities1.move_level === abilities2.move_level &&
+            abilities1.attack_level === abilities2.attack_level &&
+            abilities1.defend_level === abilities2.defend_level &&
+            abilities1.patrol_level === abilities2.patrol_level &&
+            abilities1.stealth_level === abilities2.stealth_level &&
+            abilities1.recon_level === abilities2.recon_level &&
+            abilities1.hack_level === abilities2.hack_level &&
+            abilities1.repair_level === abilities2.repair_level &&
+            abilities1.airlift_level === abilities2.airlift_level &&
+            abilities1.bombard_level === abilities2.bombard_level &&
+            abilities1.submerge_level === abilities2.submerge_level
+        );
+    }
+    
+    // You'll need to implement these additional comparison functions
+    private areEnvironmentInfoEqual(env1: EnvironmentInfo, env2: EnvironmentInfo): boolean {
+        // Implement based on your EnvironmentInfo interface
+        return JSON.stringify(env1) === JSON.stringify(env2);
+    }
+    
+    private areUnitModesEqual(mode1: UnitMode, mode2: UnitMode): boolean {
+        // Implement based on your UnitMode interface
+        return JSON.stringify(mode1) === JSON.stringify(mode2);
     }
 
     // Method to get all current infantry units
@@ -1370,6 +1470,7 @@ class NexusUnitManager {
 private updateInfantryUnit(unitData: any) {
     const existingUnit = this.infantryUnits.get(unitData.unit_id);
     const agent = this.getAgentByUnitId(unitData.unit_id);
+    this.selectedAgentUpdated = agent;
 
     if (!agent) {
         console.warn(`No agent found for unit ${unitData.unit_id}`);

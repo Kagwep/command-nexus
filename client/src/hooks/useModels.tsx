@@ -1,4 +1,5 @@
-import { useDojoStore } from "../lib/utils";
+
+import { useDojoSDK } from "@dojoengine/sdk/react";
 import { CommandNexusSchemaType } from "../dojogen/models.gen";
 import { ParsedEntity } from "@dojoengine/sdk";
 /**
@@ -11,12 +12,13 @@ import { ParsedEntity } from "@dojoengine/sdk";
 function useModels<N extends keyof CommandNexusSchemaType, M extends keyof CommandNexusSchemaType[N] & string>(
 ): Record<string, ParsedEntity<CommandNexusSchemaType>> {
 
+    const { useDojoStore} = useDojoSDK();
     // Select only the specific model data for the given entityId
     const modelsData = useDojoStore(
         (state) =>  state.entities
     );
 
-    return modelsData;
+    return modelsData as Record<string, ParsedEntity<CommandNexusSchemaType>>;
 }
 
 export default useModels;

@@ -211,7 +211,7 @@ mod nexus {
 
     use command_nexus::models::position::{Position,Vec3};
 
-    use command_nexus::constants::{MAX_POINT_BONUS,BASE_DAMAGE,HEAL};
+    use command_nexus::constants::{MAX_POINT_BONUS,BASE_DAMAGE,HEAL,DAMAGE_SCAlE_FACTOR};
 
     
 
@@ -1222,6 +1222,10 @@ mod nexus {
             let mut unit_attacker = HelperTrait::get_unit(world, game_id, player_id, attacker_id, attacker);
 
             let mut unit_target = HelperTrait::get_unit(world, game_id,player_target_id, target_id, target);
+
+            let is_in_range =  HelperTrait::is_in_range(unit_attacker.get_position(),unit_attacker.get_range(), x,y,z);
+
+            assert(is_in_range,'Out of Range');
     
             // Validate unit has energy
             unit_attacker.has_energy();
@@ -1246,9 +1250,9 @@ mod nexus {
             };
 
             // Calculate initial damage
-            let mut final_damage = ((BASE_DAMAGE * point_bonus_multiplier)+attack_damage) / 100;
+            let mut final_damage = (((BASE_DAMAGE * point_bonus_multiplier )+attack_damage) / 100) * DAMAGE_SCAlE_FACTOR;
 
-            let mut unit_target = unit_target.take_damage(final_damage);
+            //let mut unit_target = unit_target.take_damage(final_damage);
     
             // // Set updated components
             // set!(world, (unit_abilities_attacker, unit_state_attacker, unit_state_target));
@@ -1275,13 +1279,8 @@ mod nexus {
             // Handle target unit updates
             match unit_target {
                 NexusUnit::Infantry(mut infantry) => {
-                    let new_ammunation = infantry.accessories.ammunition - 4;
-                    let new_accessories = InfantryAccessories {
-                        ammunition: new_ammunation,
-                        first_aid_kit: infantry.accessories.first_aid_kit
-                    };
-                    infantry.update_accessories(new_accessories);
-                    world.write_model(@infantry)
+                    infantry.take_damage(final_damage);
+                    world.write_model(@infantry);
                 },
                 NexusUnit::Armored(armored) => world.write_model(@armored),
                 NexusUnit::Air(air) => world.write_model(@air),
@@ -1290,7 +1289,16 @@ mod nexus {
 
             // Handle attacker unit updates
             match unit_attacker {
-                NexusUnit::Infantry(infantry) => world.write_model(@infantry),
+                NexusUnit::Infantry(infantry) => {
+                    let new_ammunation = infantry.accessories.ammunition - 4;
+                    let new_accessories = InfantryAccessories {
+                        ammunition: new_ammunation,
+                        first_aid_kit: infantry.accessories.first_aid_kit
+                    };
+                    infantry.update_accessories(new_accessories);
+                    world.write_model(@infantry);
+                
+                },
                 NexusUnit::Armored(armored) => world.write_model(@armored),
                 NexusUnit::Air(air) => world.write_model(@air),
                 NexusUnit::Naval(naval) => world.write_model(@naval),

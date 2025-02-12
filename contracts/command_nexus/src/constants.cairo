@@ -8,5 +8,5 @@ const DISTANCE_ENERGY_MULTIPLIER: u32 = 2; // Energy cost increases with distanc
 const MAX_ACCURACY_PENALTY: u32 = 70; // Maximum accuracy penalty from distance
 const MAX_POINT_BONUS: u32 = 40;
 const BASE_DAMAGE: u32 = 20;
-
+const DAMAGE_SCAlE_FACTOR: u32 = 2;
 const HEAL: u32 = 20;

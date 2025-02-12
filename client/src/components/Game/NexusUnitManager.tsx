@@ -299,7 +299,7 @@ class NexusUnitManager {
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             console.log(mesh.metadata)
             if (mesh.metadata.UnitData.unit_id){
-
+                
                 this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
   
                 // switch (mesh.metadata.UnitData.unitType) {
@@ -1155,10 +1155,12 @@ class NexusUnitManager {
           // console.log("vvvvvvbv",this.scene.metadata.playerInfo )
             // Add your GUI update logic here
             if (this.scene.metadata && this.scene.metadata.playerInfo ){
+                
                 this.getGui().updatePlayerInfo(this.scene.metadata.playerInfo);
                 this.getGui().updateScore(this.scene.metadata.playerInfo.player_score.score);
                 this.getGui().updateCommands(this.scene.metadata.playerInfo.commands_remaining)
-
+                this.getGui().updateText("player-text", this.scene.metadata.playerInfo.name);
+                this.getGui().updateText("base-text", this.scene.metadata.playerInfo.home_base);
                 if (this.scene.metadata.playersInfo){
                     const remainingPlayers = Object.values(this.scene.metadata.playersInfo)
                     .filter(player => (player as Player).address !== this.scene.metadata.playerInfo.address);
@@ -1305,7 +1307,7 @@ class NexusUnitManager {
             return;
         }
 
-        console.log("unit state ...",unitData)
+        //console.log("unit state ...",unitData)
     
         // Update metadata
         agent.visualMesh.metadata.UnitState = unitData;
@@ -1522,6 +1524,7 @@ private updateInfantryUnit(unitData: any) {
 
     // Update the stored unit data
     this.infantryUnits.set(unitData.unit_id, unitData);
+    this.updateInfantryUnitData(unitData)
 }
 
 }

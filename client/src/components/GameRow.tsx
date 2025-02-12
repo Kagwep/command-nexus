@@ -8,7 +8,6 @@ import { useDojo } from '../dojo/useDojo';
 import { toast } from './UI/use-toast';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import { useNetworkAccount } from '../context/WalletContex';
-import { useDojoStore } from '../lib/utils';
 import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
 import { Account } from 'starknet';
 import { Game,Player } from '@/dojogen/models.gen';

@@ -56,7 +56,7 @@ export const DojoContextProvider = ({
     const masterAccount = useMemo(
         () =>
             new Account(
-                dojoProvider.provider,
+                dojoProvider.provider as any,
                 dojoConfig.masterAddress,
                 dojoConfig.masterPrivateKey,
                 "1"

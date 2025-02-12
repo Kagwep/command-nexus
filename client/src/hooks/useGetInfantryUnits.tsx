@@ -1,7 +1,6 @@
 
 import { useElementStore } from '../utils/nexus';
 import { useMemo, useEffect, useState } from 'react';
-import { useDojoStore } from '../lib/utils';
 import { useSDK } from '../context/SDKContext';
 import { Infantry } from '@/dojogen/models.gen';
 import { useGetPlayersForGame } from './useGetPlayersForGame';

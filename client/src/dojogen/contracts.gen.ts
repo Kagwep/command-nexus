@@ -1,5 +1,5 @@
 import { DojoProvider } from "@dojoengine/core";
-import { Account, cairo } from "starknet";
+import { Account, AccountInterface, cairo } from "starknet";
 import * as models from "./models.gen";
 
 export type IClient = Awaited<ReturnType<typeof client>>;
@@ -10,7 +10,7 @@ export async function client(provider: DojoProvider) {
 	
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "create",
@@ -26,7 +26,7 @@ export async function client(provider: DojoProvider) {
 	const arena_join = async (snAccount: Account, gameId: number, playerName: string) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "join",
@@ -42,7 +42,7 @@ export async function client(provider: DojoProvider) {
 	const arena_transfer = async (snAccount: Account, gameId: number, index: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "transfer",
@@ -58,7 +58,7 @@ export async function client(provider: DojoProvider) {
 	const arena_leave = async (snAccount: Account, gameId: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "leave",
@@ -74,7 +74,7 @@ export async function client(provider: DojoProvider) {
 	const arena_start = async (snAccount: Account, gameId: number, roundCount: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "start",
@@ -90,7 +90,7 @@ export async function client(provider: DojoProvider) {
 	const arena_delete = async (snAccount: Account, gameId: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "delete",
@@ -106,7 +106,7 @@ export async function client(provider: DojoProvider) {
 	const arena_kick = async (snAccount: Account, gameId: number, index: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "arena",
 					entrypoint: "kick",
@@ -122,7 +122,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_deployForces = async (snAccount: Account, gameId: number, battlefieldId: number, unit: number, supply: number, x: number, y: number, z: number, terrainNum: number, coverLevel: number, elevation: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "deploy_forces",
@@ -139,7 +139,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_patrol = async (snAccount: Account, gameId: number, unitId: number, unitType: number, startX: number, startY: number, startZ: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "patrol",
@@ -156,7 +156,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_attack = async (snAccount: Account, gameId: number, playerTargetId: number, attackerId: number, targetId: number, unitId: number, attackerUnitType: number, targetUnitType: number, x: number, y: number, z: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "attack",
@@ -173,7 +173,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_defend = async (snAccount: Account, gameId: number, unitId: number, unitType: number, x: number, y: number, z: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "defend",
@@ -190,7 +190,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_moveUnit = async (snAccount: Account, gameId: number, unitId: number, unitType: number, destX: number, destY: number, destZ: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "move_unit",
@@ -207,7 +207,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_stealth = async (snAccount: Account, gameId: number, unitId: number, unitType: number, x: number, y: number, z: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "stealth",
@@ -224,7 +224,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_heal = async (snAccount: Account, gameId: number, unitId: number, unitType: number, areaX: number, areaY: number, areaZ: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "heal",
@@ -241,7 +241,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_recon = async (snAccount: Account, gameId: number, unitId: number, unitType: number, areaX: number, areaY: number, areaZ: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "recon",
@@ -258,7 +258,7 @@ export async function client(provider: DojoProvider) {
 	const nexus_forceEndPlayerTurn = async (snAccount: Account, gameId: number, targetPlayerIndex: number) => {
 		try {
 			return await provider.execute(
-				snAccount,
+				snAccount as any,
 				{
 					contractName: "nexus",
 					entrypoint: "force_end_player_turn",

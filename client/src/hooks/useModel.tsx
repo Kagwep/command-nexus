@@ -1,5 +1,6 @@
-import { useDojoStore } from "../lib/utils";
+
 import { CommandNexusSchemaType } from "../dojogen/models.gen";
+import { useDojoSDK } from "@dojoengine/sdk/react";
 /**
  * Custom hook to retrieve a specific model for a given entityId within a specified namespace.
  *
@@ -13,7 +14,7 @@ function useModel<N extends keyof CommandNexusSchemaType, M extends keyof Comman
 ): CommandNexusSchemaType[N][M] | undefined {
     const [namespace, modelName] = model.split("-") as [N, M];
 
-    
+    const { useDojoStore, } = useDojoSDK();
 
     // Select only the specific model data for the given entityId
     const modelData = useDojoStore(

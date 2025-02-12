@@ -66,7 +66,7 @@ export default class CommandNexusGui {
     private game;
     private infoPanel: Rectangle = new Rectangle;
     private unitStatesPanel: Rectangle = new Rectangle;
-   
+    private textElements: Map<string, GUI.TextBlock> = new Map();
 
 
     // Color scheme
@@ -102,6 +102,8 @@ export default class CommandNexusGui {
         this.initializeInfoPanel();
         this.initializeUnitStatePanel();
         this.getGameState = getGameState;
+      
+
        
     }
 
@@ -322,7 +324,8 @@ export default class CommandNexusGui {
             "playerIcon",
             "/logo.png",
             "Player",
-            "#E5E7EB"
+            "#E5E7EB",
+            "player-text"
         );
         
         // Base Section
@@ -330,7 +333,8 @@ export default class CommandNexusGui {
             "baseIcon",
             "/images/base.png",
             "Base Name",
-            "#93C5FD"
+            "#93C5FD",
+            "base-text"
         );
 
         // Rank Section
@@ -338,7 +342,8 @@ export default class CommandNexusGui {
             "rankIcon",
             "/images/rank.png",
             "Recruit",
-            "#FCD34D"
+            "#FCD34D",
+             "rank-text"
         );
 
         // Center container for score and commands
@@ -388,7 +393,7 @@ export default class CommandNexusGui {
         topBar.addControl(endTurnBtn);
     }
 
-    private createInfoSection(iconName: string, iconUrl: string, defaultText: string, textColor: string): GUI.StackPanel {
+    private createInfoSection(iconName: string, iconUrl: string, defaultText: string, textColor: string,textId: string): GUI.StackPanel {
         const section = new GUI.StackPanel();
         section.isVertical = false;
         section.height = "100%";
@@ -407,11 +412,26 @@ export default class CommandNexusGui {
         text.width = "150px";
         text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
 
+        // Store the text element reference
+
+        console.log(this.textElements,textId, text);
+        this.textElements.set(textId, text);
+
         section.addControl(icon);
         section.addControl(text);
 
         return section;
     }
+
+        // Method to update text
+        public updateText(textId: string, newText: string): void {
+            const textElement = this.textElements.get(textId);
+            if (textElement) {
+                textElement.text = newText;
+            } else {
+                console.warn(`Text element with ID ${textId} not found`);
+            }
+        }
 
     private createEndTurnButton(): GUI.Button {
         const button = GUI.Button.CreateSimpleButton("endTurn", "End Turn");
@@ -1829,7 +1849,7 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         const stack = this.createBasePanel("/images/unit2.png", "");
     
         // Critical infantry stats with icons
-        this.addStatRow(stack, "/images/health.png",'HP',`${infantry.health.current}/${infantry.health.max}`);
+        this.addStatRow(stack, "/images/health.png",'HP',`${infantry.health.current}/${infantry.health.current}`);
         this.addStatRow(stack, "/images/energy.png",'EN' ,infantry.energy.toString());
         this.addStatRow(stack, "/images/accuracy.png", 'ACC',`${infantry.accuracy}%`);
         this.addStatRow(stack, "/images/range.png",'Range' ,`${parseInt(infantry.range.toString())}m`);

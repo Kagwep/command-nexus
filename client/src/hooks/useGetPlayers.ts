@@ -4,18 +4,19 @@ import { useElementStore } from '../utils/nexus';
 import { Player } from '../utils/types';
 import { Has, HasValue, getComponentValue } from '@dojoengine/recs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { fetchAllEntitiesPlayer, useDojoStore } from '../lib/utils';
+
 import { useNetworkAccount } from '../context/WalletContex';
 import { useSDK } from '../context/SDKContext';
 import useModels from './useModels';
 import { getSyncEntities } from '@dojoengine/state';
+import { useDojoSDK } from '@dojoengine/sdk/react';
 
 
 export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
   
   const { game_id } = useElementStore((state) => state);
   const { account } = useNetworkAccount();
-
+  const { useDojoStore, } = useDojoSDK();
   const state = useDojoStore((state) => state);
   const entities = useDojoStore((state) => state.entities);
   const subscription = useRef<any>()
@@ -179,82 +180,9 @@ export function useGetPlayers(): { players: Player[]; playerNames: string[] } {
   //   }
   // }, [client, handleEntityUpdate])
 
-// Separate function for fetching entities
-const fetchEntities = async () => {
-  try {
-      await sdk.getEntities(
-          {
-              command_nexus: {
-                  Player: {
-                    $: {
-                      where: {
-                        game_id: {
-                            $is: game_id,
-                        },
-                    },
-                    },
-                },
-              },
-          },
-          (response) => {
-              if (response.error) {
- //console.log(response.error)
-              } else if (
-                  response.data &&
-                  response.data[0].entityId !== "0x0"
-              ) {
-                  console.log("polled", response.data[0]);
-                  state.updateEntity(response.data[0]);
-              }
-          },
- 
-      );
-  } catch (error) {
-      console.error("Polling error:", error);
-  }
-};
 
 
 
-// Use in useEffect
-useEffect(() => {
-  fetchEntities();
-}, []); // Empty dependency array means this only runs once on mount
-
-
-
-new Promise<void>((resolve) => {
-  sdk.getEntities(
-    {
-      command_nexus: {
-        Player: {
-        $: {
-          where: {
-            game_id: {
-              $is: game_id,
-            },
-          },
-        },
-        },
-      },
-    },
-    (response) => {
-      if (response.error) {
-        // console.log(
-        //   "Error setting up entity sync:",
-        //   response.error
-        // );
-      } else if (
-        response.data &&
-        response.data[0].entityId !== "0x0"
-      ) {
-        console.log("polled", response.data[0]);
-        state.updateEntity(response.data[0]);
-      }
-      resolve();
-    }
-  );
-});
 
 const players = Object.values(state.entities)
   .map(entity => entity.models.command_nexus.Player)

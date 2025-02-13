@@ -1289,7 +1289,7 @@ mod nexus {
 
             // Handle attacker unit updates
             match unit_attacker {
-                NexusUnit::Infantry(infantry) => {
+                NexusUnit::Infantry(mut infantry) => {
                     let new_ammunation = infantry.accessories.ammunition - 4;
                     let new_accessories = InfantryAccessories {
                         ammunition: new_ammunation,

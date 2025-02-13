@@ -1243,8 +1243,8 @@
   },
   "contracts": [
     {
-      "address": "0x675eb1421d6b0065865c34da85cc1f2bfed1006fd757d77f7229ce0672b8d93",
-      "class_hash": "0x22c3f86be05db1d907708eb0454b9b3964194c6e2e74307dc1ce19f8aacbb84",
+      "address": "0x3baa2cf0cc83ddb9ebf4911e0b7fb48872e2a891e648a6d32ce57349146ec9d",
+      "class_hash": "0x3696bd044c66459f3e49807708c680047503ff9455ddc3a45fb427d8777689e",
       "abi": [
         {
           "type": "impl",
@@ -1563,8 +1563,8 @@
       ]
     },
     {
-      "address": "0x454ffbad9e2a4de5b47c0888b8477e5812a9afc2b444533be6ff86c6a2b08d3",
-      "class_hash": "0x67300447010f1023e4069ad606416a964c8dd42aca1a54cf06af487adff2de2",
+      "address": "0x721c66df5cfce63265bf6d320e0f6bf69c5a529a21657c9b52ed8eb4766583c",
+      "class_hash": "0x7edbb76c10d8eb77615d13f765269b5e33e6513a6dedf14e064761f7f7be9a1",
       "abi": [
         {
           "type": "impl",
@@ -2230,7 +2230,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x1dac172f07d69d4f0cd15401dffae5597d59d8fa1bbcf3726c6bcb41e96eea6",
+      "class_hash": "0x157270238e0aa766b0900bac89d512dbabf65062e27561cae55f1124c0026f6",
       "tag": "command_nexus-Player",
       "selector": "0x3e08ab99f3e0e9f083466d3e3a82f9f2c63eb755ab9c506dcc0ab2af9421756"
     },

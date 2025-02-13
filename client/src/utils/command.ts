@@ -119,7 +119,7 @@ const transformPlayer = (rawData: any) => {
         rank: getPrimitiveValue(playerData.rank),
         player_score: {
             fieldOrder: [],
-            score: getPrimitiveValue(playerData.player_score.value.assists),
+            score: getPrimitiveValue(playerData.player_score.value.score),
 			kills: getPrimitiveValue(playerData.player_score.value.deaths),
 			deaths: getPrimitiveValue(playerData.player_score.value.kills),
 			assists: getPrimitiveValue(playerData.player_score.value.score),
@@ -202,7 +202,7 @@ const transformAbilityState = (rawData: any) => {
 
 
 const transformUnitState = (rawData: any) => {
-    const unitStateData = rawData['command_nexus-AbilityState'];
+    const unitStateData = rawData['command_nexus-UnitState'];
     if (!unitStateData) return null;
   
     return {

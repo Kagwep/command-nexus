@@ -160,7 +160,7 @@ class NexusUnitManager {
         matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
         matdebug.alpha = 1;
         this.navmeshdebug.material = matdebug;
-        this.navmeshdebug.visibility = 0.15;
+        this.navmeshdebug.visibility = 0;
 
         const positions = this.navmeshdebug.getVerticesData(VertexBuffer.PositionKind);
         this.navMeshIndices =positions
@@ -398,12 +398,6 @@ class NexusUnitManager {
 
                    if (result && result.transaction_hash){
                     this.getGui().showToastSide(`Unit ${unitId}  attacking  Unit ${targetId}`, ToastType.Success);
-                   }else{
-                    const errorMessage = StarknetErrorParser.parseError(result);
-                    console.log(errorMessage)
-                    this.getGui().showToastSide(errorMessage,ToastType.Error)
-                   }
-
 
                     this.scene.onBeforeRenderObservable.runCoroutineAsync(
                         this.animationBlending(
@@ -456,6 +450,14 @@ class NexusUnitManager {
                         }
 
                     }, 3000); // 3000 milliseconds = 3 seconds
+                   }else{
+                    const errorMessage = StarknetErrorParser.parseError(result);
+                    console.log(errorMessage)
+                    this.getGui().showToastSide(errorMessage,ToastType.Error)
+                   }
+
+
+
                 } else {
                     console.log("Target agent or its navAgent not found");
                 }
@@ -531,26 +533,28 @@ class NexusUnitManager {
 
         }else if (mesh.name.includes("ground") && this.getGui()?.getDeploymentMode()) {
 
-            console.log("0.0.0.0...0.0..")
+            //console.log("0.0.0.0...0.0..")
 
             const {unit: unitType, position} = this.getGui()?.getSelectedUnitAndDeployPosition();
             this.activePosition = startingPoint;
 
             const clickedRegion = this.getClickedRegion(startingPoint);
-            console.log(`Clicked region: ${BattlefieldName[clickedRegion]}`);
+            //console.log(`Clicked region: ${BattlefieldName[clickedRegion]}`);
 
-            console.log(this.getGameState().player)
+            //console.log(this.getGameState().player)
 
             const player_base = this.getGameState().player.home_base;
 
-            console.log(player_base === clickedRegion);
-            console.log(player_base, clickedRegion)
+            //console.log(player_base === clickedRegion);
+            //console.log(player_base, clickedRegion)
 
             if (player_base === BattlefieldName[clickedRegion] as unknown as BattlefieldName){
 
                 const encodedPosition= positionEncoder(startingPoint);
                 const unit = unitTypeToInt(unitType);
                 const  battlefieldId = battlefieldTypeToInt(clickedRegion);
+
+                console.log(encodedPosition)
                 
 
                 const deployInfo: Deploy = {
@@ -1161,6 +1165,21 @@ class NexusUnitManager {
                 this.getGui().updateCommands(this.scene.metadata.playerInfo.commands_remaining)
                 this.getGui().updateText("player-text", this.scene.metadata.playerInfo.name);
                 this.getGui().updateText("base-text", this.scene.metadata.playerInfo.home_base);
+
+                if (this.scene.metadata && this.scene.metadata.gameInfo){
+                    const turn  = this.scene.metadata.gameInfo.nonce  % this.scene.metadata.gameInfo.player_count;
+
+                    const isItMyTurn  = turn === this.scene.metadata.playerInfo.index ? true : false
+
+                    if (isItMyTurn){
+                        this.getGui().updateTurnInfo('🟢');
+                    }else{
+                        this.getGui().updateTurnInfo('🔴');
+                    }
+                }
+
+
+
                 if (this.scene.metadata.playersInfo){
                     const remainingPlayers = Object.values(this.scene.metadata.playersInfo)
                     .filter(player => (player as Player).address !== this.scene.metadata.playerInfo.address);
@@ -1218,19 +1237,20 @@ class NexusUnitManager {
                 // console.log('Updated infantryUnits Map:', this.infantryUnits);
              }
 
-
-             if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryStates) && this.crowd) {
-                this.scene.metadata.infantryStates.forEach((unitData: UnitState) => {
-                    if (!this.infantryUnitsStates.has(unitData.unit_id as unknown as string)) {
+             //console.log(this.scene.metadata.infantryStates)
+             if (this.scene.metadata && this.scene.metadata.infantryStates && this.crowd) {
+                Object.entries(this.scene.metadata.infantryStates).forEach(([unitId, unitData]) => {
+                    
+                    if (!this.infantryUnitsStates.has((unitData as any).unit_id as unknown as string)) {
                         // This is a new unit
                         console.log('New UnitState unit detected:', unitData);
-                        this.infantryUnitsStates.set(unitData.unit_id as unknown as string,unitData);
-                        this.handleNewInfantryUnitData(unitData);
+                        this.infantryUnitsStates.set((unitData as any).unit_id as unknown as string,unitData as any);
+                        this.handleNewInfantryUnitData((unitData as any));
                     } else {
                         // Check if the unit data has actually changed
-                        const existingState = this.infantryUnitsStates.get(unitData.unit_id as unknown as string);
-                        if (!this.areUnitStatesEqual(existingState, unitData)) {
-                            this.infantryUnitsStates.set(unitData.unit_id as unknown as string, unitData);
+                        const existingState = this.infantryUnitsStates.get((unitData as any).unit_id as unknown as string);
+                        if (!this.areUnitStatesEqual(existingState, (unitData as any))) {
+                            this.infantryUnitsStates.set((unitData as any).unit_id as unknown as string, unitData as any);
                             this.updateInfantryUnitData(unitData);
                         }
                     }
@@ -1311,6 +1331,7 @@ class NexusUnitManager {
     
         // Update metadata
         agent.visualMesh.metadata.UnitState = unitData;
+        
     }
 
     private handleNewInfantryUnitMode(unitData: AbilityState) {
@@ -1482,6 +1503,11 @@ private updateInfantryUnit(unitData: any) {
     // Update metadata
     agent.visualMesh.metadata.UnitData = unitData;
 
+    agent.visualMesh.getChildMeshes().forEach(childMesh => {
+        childMesh.metadata.UnitData = unitData;
+    });
+
+
     // Check if position has changed
     if (existingUnit && this.hasPositionChanged(existingUnit, unitData)) {
         // Convert position coordinates
@@ -1524,7 +1550,7 @@ private updateInfantryUnit(unitData: any) {
 
     // Update the stored unit data
     this.infantryUnits.set(unitData.unit_id, unitData);
-    this.updateInfantryUnitData(unitData)
+   // this.updateInfantryUnitData(unitData)
 }
 
 }

@@ -472,6 +472,12 @@ mod nexus {
                 z
             );
 
+            let mut world = self.world_default();
+
+            let mut game: Game  =  world.read_model(game_id);
+
+            let mut attacker = HelperTrait::current_player(world, game);
+
             let remaining_commands = attacker.send_command();
 
             if remaining_commands == 0 {
@@ -1204,6 +1210,8 @@ mod nexus {
 
             let current_time = get_block_timestamp();
             unit_abilities_attacker.validate_for_use(AbilityType::Attack, current_time);
+
+            
     
             // Old version
             // let mut unit_state_attacker = get!(world, (game_id, player_id, attacker_id), UnitState);
@@ -1270,16 +1278,33 @@ mod nexus {
             //     NexusUnit::Air(air) => set!(world, (air)),
             //     NexusUnit::Naval(naval) => set!(world, (naval)),
             // }
+            unit_abilities_attacker.decrease_ability_level(AbilityType::Attack, 1);
 
                         // Update the components
             world.write_model(@unit_abilities_attacker);
             world.write_model(@unit_state_attacker);
             world.write_model(@unit_state_target);
 
+            let target_health_remainder: u32 = if final_damage >= unit_target.get_health() {
+                0_u32
+            }else{
+                unit_target.get_health() - final_damage
+            };
+
             // Handle target unit updates
             match unit_target {
                 NexusUnit::Infantry(mut infantry) => {
                     infantry.take_damage(final_damage);
+
+                    let target_health = infantry.health.current;
+
+                    let mut player: Player = world.read_model((game_id,player_target_id));
+
+                    if target_health == 0 {
+                        player.player_score.deaths += 1;
+                    }
+
+                    world.write_model(@player);
                     world.write_model(@infantry);
                 },
                 NexusUnit::Armored(armored) => world.write_model(@armored),
@@ -1295,7 +1320,31 @@ mod nexus {
                         ammunition: new_ammunation,
                         first_aid_kit: infantry.accessories.first_aid_kit
                     };
+
+                    let mut player: Player = world.read_model((game_id,player_id));
+
+                     let score = HelperTrait::get_kill_score(attacker, target); // Returns 250_u32
+
+                    if target_health_remainder == 0 {
+                        player.player_score.score += score;
+                        player.player_score.kills += 1;
+
+                        if (player.player_score.kills >= 5 ){
+                            let mut game: Game  =  world.read_model(game_id);
+
+                            game.winner = player.address;
+                            game.over = true;
+
+                            world.write_model(@game);
+
+                        }
+
+
+                    }
+
                     infantry.update_accessories(new_accessories);
+
+                    world.write_model(@player);
                     world.write_model(@infantry);
                 
                 },

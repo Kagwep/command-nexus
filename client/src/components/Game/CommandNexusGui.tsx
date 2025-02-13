@@ -723,7 +723,7 @@ export default class CommandNexusGui {
     }
 
     public updateTurnInfo(text: string): void {
-        this.turnInfoText.text = text;
+        this.turnInfoText.text = `${text}`;
     }
 
     private addPlayerInfoSection(): void {
@@ -774,7 +774,7 @@ export default class CommandNexusGui {
         scorePanel.isVertical = false;
         scoreSection.addControl(scorePanel);
 
-        const fields = ["Assists", "Deaths", "Kills", "Score"];
+        const fields = ["Deaths", "Kills", "Score"];
         fields.forEach(field => this.addScoreField(field, scorePanel));
 
         
@@ -950,7 +950,7 @@ export default class CommandNexusGui {
 
         if (playerData.player_score) {
             Object.entries(playerData.player_score).forEach(([key, value]) => {
-                //console.log(key)
+                //console.log(playerData.player_score)
                 if (this.scoreRows.has(key)) {
                     this.scoreRows.get(key)!.text = value.toString();
                 }
@@ -1071,7 +1071,6 @@ export default class CommandNexusGui {
     
             this.addScoreItem(scoreGrid, "Kills", opponent.player_score.kills, 0, 0);
             this.addScoreItem(scoreGrid, "Deaths", opponent.player_score.deaths, 0, 1);
-            this.addScoreItem(scoreGrid, "Assists", opponent.player_score.assists, 1, 0);
             this.addScoreItem(scoreGrid, "Score", opponent.player_score.score, 1, 1);
         } 
         else {
@@ -2007,11 +2006,15 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
        // this.addStatRow(stack, "/images/location.png", 'Position', `${unitState.x.toFixed(1)}, ${unitState.y.toFixed(1)}, ${unitState.z.toFixed(1)}`);
         
         // Unit identifiers
+        console.log("csdsdsdsdsdsdsd",unitState)
         this.addStatRowStates(stack, "/images/id.png", 'Unit ID', `#${unitState.unit_id}`);
         this.addStatRowStates(stack, "/images/player.png", 'Player', `#${unitState.player_id}`);
         
+
+        
+        
         // Mode info with colored indicator
-        this.addStatRowStates(stack, this.getModeIcon(unitState.mode), 'Mode', this.formatMode(unitState.mode));
+        this.addStatRowStates(stack, this.getModeIcon(unitState.mode), 'Mode', unitState.mode as unknown as string);
 
         // // Environment group
         // const envTitle = new GUI.TextBlock();

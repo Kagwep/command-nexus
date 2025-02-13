@@ -19,6 +19,7 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { account, status } = useAccount();
+
   const cartridgeConnector = connectors[0];
   const { play: clickPlay } = useUiSounds(soundSelector.click);
 

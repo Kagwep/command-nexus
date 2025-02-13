@@ -207,26 +207,26 @@
   resolved "https://registry.yarnpkg.com/@babylonjs/loaders/-/loaders-7.33.0.tgz#55f14578e5b89e3f808c1f9f2884fcd8c22d11d9"
   integrity sha512-vPmLhLEziVlGRVSRl+tO/5lpYFUeEEYRMYZIfBqPsRlxvVJS+afGwHko5rcX/rUvfOt6mTwpuwx/XC1WqRu/6Q==
 
-"@cartridge/account-wasm@^0.5.0-alpha.8":
-  version "0.5.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@cartridge/account-wasm/-/account-wasm-0.5.0-alpha.8.tgz#d95ff5f78b7f5d269e4fff50dfe1e32aa6714e88"
-  integrity sha512-/9qcD3zuq9UXV4nb/SAD4nTZPnZlumczGYxDVaGgQHQjCWSAdIKuCnpaHx9njoSbcsD/0mpqxRF+N1cHajQddA==
+"@cartridge/account-wasm@0.5.9":
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/@cartridge/account-wasm/-/account-wasm-0.5.9.tgz#957d29e7fd5430ca1c7aea097ee2e33ec2c711e1"
+  integrity sha512-mXHCBm981rj+LIDKb4qMnVBPqJLF6ZaEr9KttH99XH3MmuFyPPgNGupJBPUlxW0xocfxr4zoTnsSS0k7jK4bnA==
 
-"@cartridge/connector@^0.5.0-alpha.3":
-  version "0.5.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@cartridge/connector/-/connector-0.5.0-alpha.8.tgz#03a7e2c07d91ad4458315ee99e9a6c103528ac87"
-  integrity sha512-PtH9vi587iP7Fw/JuNLbd+6epwpPcsPYJgBTquiC7uxRzMxUmpJw8X+1q7zDL4VaOGU3+Si/+RiGoEIBedbj2g==
+"@cartridge/connector@^0.5.9":
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/@cartridge/connector/-/connector-0.5.9.tgz#77ed4b157f5396205e36835a48966c1ff61bcf68"
+  integrity sha512-gBXMcPObxAJCWYBAczz0iJ6zM3jD1ZcUxhhH3qYPPZvR7Yqi7Yl7JqZaCp5S6+QeHvL61XiPumVGwUixWg3oBg==
   dependencies:
-    "@cartridge/controller" "^0.5.0-alpha.8"
+    "@cartridge/controller" "0.5.9"
     "@starknet-react/core" "^3.0.2"
     starknet "^6.11.0"
 
-"@cartridge/controller@^0.5.0-alpha.3", "@cartridge/controller@^0.5.0-alpha.8":
-  version "0.5.0-alpha.8"
-  resolved "https://registry.yarnpkg.com/@cartridge/controller/-/controller-0.5.0-alpha.8.tgz#e6a9de27d813a29f66e6da14ff7a598810cdb55d"
-  integrity sha512-PV6I6dRf4Ny+jokURCSx/D00vbAw/Sn9R/UeR0jVJ4xp+H+xZSiV7L5l4wW3FgECnU6lpt3O8YG0p6oof9tl5w==
+"@cartridge/controller@0.5.9", "@cartridge/controller@^0.5.9":
+  version "0.5.9"
+  resolved "https://registry.yarnpkg.com/@cartridge/controller/-/controller-0.5.9.tgz#02822d9373600c8a57162263a00adfbc84ce3210"
+  integrity sha512-vaXV8Waep+XwMWXBJo+ajwb0RjBH9/oM//nHa+j66K1y12yelJBLLZOreYAdizuTb4OlfIp0rJx+pWVA8GfCKA==
   dependencies:
-    "@cartridge/account-wasm" "^0.5.0-alpha.8"
+    "@cartridge/account-wasm" "0.5.9"
     "@cartridge/penpal" "^6.2.3"
     "@starknet-io/types-js" "^0.7.7"
     "@telegram-apps/sdk" "^2.4.0"

@@ -38,7 +38,6 @@ struct PlayerScore {
     score: u32,
     kills: u16,
     deaths: u16,
-    assists: u16,
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
@@ -79,7 +78,6 @@ impl PlayerImpl of PlayerTrait {
             score: 0,
             kills: 0,
             deaths: 0,
-            assists: 0,
         },
         home_base,
         commands_remaining: INITIAL_MOVES,
@@ -135,7 +133,6 @@ impl PlayerImpl of PlayerTrait {
             score: 0,
             kills: 0,
             deaths: 0,
-            assists: 0,
         };
         self.home_base = BattlefieldName::None;
         self.commands_remaining = 0;
@@ -221,7 +218,6 @@ impl ZeroablePlayer of Zeroable<Player> {
                 score: 0,
                 kills: 0,
                 deaths: 0,
-                assists: 0,
             },
             home_base: BattlefieldName::None,
             commands_remaining: 0,

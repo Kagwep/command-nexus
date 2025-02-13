@@ -121,6 +121,23 @@ impl NexusUnitImpl of NexusUnitTrait {
         }
     }
 
+    fn get_health(self: NexusUnit) -> u32 {
+        match self {
+            NexusUnit::Infantry(infantry) => {
+                infantry.health.current
+            },
+            NexusUnit::Armored(armored) => {
+                armored.armored_health.current
+            },
+            NexusUnit::Air(air) => {
+                air.health.current
+            },
+            NexusUnit::Naval(naval) => {
+                naval.ship_health.current
+            },
+        }
+    }
+
     fn take_damage(ref self: NexusUnit, amount: u32) -> NexusUnit {
         match self {
             NexusUnit::Infantry(mut infantry) => {
@@ -157,7 +174,20 @@ mod helper {
     use command_nexus::models::units::naval::{Ship,ShipTrait};
     use command_nexus::models::units::armored::{Armored,ArmoredTrait};
     use command_nexus::models::position::{Vec3,Position};
-    use command_nexus::constants::{SCALE,OFFSET};
+    use command_nexus::constants::{
+        SCALE, OFFSET, RANGE_SCALE_FACTOR, OFFSET_DISTANCE,
+        // Air unit kill scores
+        AIR_KILLS_AIR, AIR_KILLS_INFANTRY, AIR_KILLS_ARMORED, AIR_KILLS_CYBER, AIR_KILLS_NAVAL,
+        // Infantry unit kill scores
+        INFANTRY_KILLS_AIR, INFANTRY_KILLS_INFANTRY, INFANTRY_KILLS_ARMORED, INFANTRY_KILLS_CYBER, INFANTRY_KILLS_NAVAL,
+        // Armored unit kill scores
+        ARMORED_KILLS_AIR, ARMORED_KILLS_INFANTRY, ARMORED_KILLS_ARMORED, ARMORED_KILLS_CYBER, ARMORED_KILLS_NAVAL,
+        // Cyber unit kill scores
+        CYBER_KILLS_AIR, CYBER_KILLS_INFANTRY, CYBER_KILLS_ARMORED, CYBER_KILLS_CYBER, CYBER_KILLS_NAVAL,
+        // Naval unit kill scores
+        NAVAL_KILLS_AIR, NAVAL_KILLS_INFANTRY, NAVAL_KILLS_ARMORED, NAVAL_KILLS_CYBER, NAVAL_KILLS_NAVAL
+    };
+    
     use command_nexus::models::battlefield::{WeatherCondition,UrbanBattlefield,UrbanBattlefieldTrait,BattlefieldName,BattlefieldNameTrait};
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::event::EventStorage;
@@ -294,26 +324,17 @@ mod helper {
             player
         }
 
-        fn is_in_range(position: Position, range:u256,x: u256, y: u256, z: u256) -> bool {
+        fn is_in_range(position: Position, range: u256, x: u256, y: u256, z: u256) -> bool {
             let position = position.coord;
             let new_position = Vec3 { x, y, z };
-            //  SCALE but not offset
-
-            let (distance_squared,range_squared) = Self::get_distance(range,new_position,position);
-
-            (distance_squared <= range_squared)
-        }
-
-
-        fn get_distance(range: u256, new_position: Vec3, position: Vec3) -> (u256, u256){
-
-            let range = range * SCALE;
-
-            let range = range * SCALE;
-
-            let range_squared = range * range;
             
-
+            let (distance_squared, range_squared) = Self::get_distance(range, new_position, position);
+            
+            distance_squared <= range_squared
+        }
+        
+        fn get_distance(range: u256, new_position: Vec3, position: Vec3) -> (u256, u256) {
+            // We'll work with the offset values directly
             let dx = if new_position.x >= position.x { 
                 new_position.x - position.x 
             } else { 
@@ -330,14 +351,21 @@ mod helper {
                 position.z - new_position.z 
             };
         
-            // Since dx already contains one SCALE factor
-            let dx_squared = (dx * dx);
-            let dy_squared = (dy * dy);
-            let dz_squared = (dz * dz);
+            // Since both positions were offset by the same OFFSET,
+            // their difference cancels out the OFFSET
+            // Example: (x1 + OFFSET) - (x2 + OFFSET) = x1 - x2
         
-            let distance_squared = (dx_squared + dy_squared + dz_squared) * OFFSET;
-
-            (distance_squared,range_squared)
+            let dx_squared = dx * dx;
+            let dy_squared = dy * dy;
+            let dz_squared = dz * dz;
+        
+            let distance_squared = (dx_squared + dy_squared + dz_squared) * RANGE_SCALE_FACTOR;
+            
+            // Handle range (only scale once)
+            let range = range * SCALE;
+            let range_squared = range * range;
+        
+            (distance_squared, range_squared)
         }
 
         fn get_distance_difference(distance_squared:u256, range_squared:u256) -> u256{
@@ -355,7 +383,7 @@ mod helper {
             
             // Calculate cost, rounding up
             // e.g., 250 units = 3 movement cost
-            (distance_squared + movement_unit_squared - 1) / movement_unit_squared
+            ((distance_squared + movement_unit_squared - 1) / movement_unit_squared) / 10
         }
 
 
@@ -595,6 +623,62 @@ mod helper {
                 // Handle None cases
                 (UnitType::None, _) => 0,
                 (_, UnitType::None) => 0,
+            }
+        }
+
+        fn get_kill_score(attacker: UnitType, target: UnitType) -> u32 {
+            match attacker {
+                UnitType::Air => {
+                    match target {
+                        UnitType::Air => AIR_KILLS_AIR,
+                        UnitType::Infantry => AIR_KILLS_INFANTRY,
+                        UnitType::Armored => AIR_KILLS_ARMORED,
+                        UnitType::Naval => AIR_KILLS_NAVAL,
+                        UnitType::Cyber => AIR_KILLS_CYBER,
+                        UnitType::None => 0_u32,
+                    }
+                },
+                UnitType::Infantry => {
+                    match target {
+                        UnitType::Air => INFANTRY_KILLS_AIR,
+                        UnitType::Infantry => INFANTRY_KILLS_INFANTRY,
+                        UnitType::Armored => INFANTRY_KILLS_ARMORED,
+                        UnitType::Naval => INFANTRY_KILLS_NAVAL,
+                        UnitType::Cyber => INFANTRY_KILLS_CYBER,
+                        UnitType::None => 0_u32,
+                    }
+                },
+                UnitType::Armored => {
+                    match target {
+                        UnitType::Air => ARMORED_KILLS_AIR,
+                        UnitType::Infantry => ARMORED_KILLS_INFANTRY,
+                        UnitType::Armored => ARMORED_KILLS_ARMORED,
+                        UnitType::Naval => ARMORED_KILLS_NAVAL,
+                        UnitType::Cyber => ARMORED_KILLS_CYBER,
+                        UnitType::None => 0_u32,
+                    }
+                },
+                UnitType::Naval => {
+                    match target {
+                        UnitType::Air => NAVAL_KILLS_AIR,
+                        UnitType::Infantry => NAVAL_KILLS_INFANTRY,
+                        UnitType::Armored => NAVAL_KILLS_ARMORED,
+                        UnitType::Naval => NAVAL_KILLS_NAVAL,
+                        UnitType::Cyber => NAVAL_KILLS_CYBER,
+                        UnitType::None => 0_u32,
+                    }
+                },
+                UnitType::Cyber => {
+                    match target {
+                        UnitType::Air => CYBER_KILLS_AIR,
+                        UnitType::Infantry => CYBER_KILLS_INFANTRY,
+                        UnitType::Armored => CYBER_KILLS_ARMORED,
+                        UnitType::Naval => CYBER_KILLS_NAVAL,
+                        UnitType::Cyber => CYBER_KILLS_CYBER,
+                        UnitType::None => 0_u32,
+                    }
+                },
+                UnitType::None => 0_u32,
             }
         }
 

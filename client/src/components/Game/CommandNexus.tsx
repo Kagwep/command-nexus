@@ -23,6 +23,7 @@ import { useInfantryAbilityModes } from '../../hooks/useGetUnitAbilityMode';
 import { useAllEntities } from '../../utils/command';
 import { useGameState } from './GameState';
 import { removeLeadingZeros } from '../../utils/sanitizer';
+import { getGame } from '../../lib/utils';
 
 
 const GRID_SIZE = 40;
@@ -142,7 +143,7 @@ const { state: nstate, refetch } = useAllEntities();
 
 
   useEffect(() => {
-    console.log(isSceneReady)
+    console.log(isSceneReady,nstate)
     if (isSceneReady && sceneRef.current) {
       console.log("Updating scene metadata with infantry units");
       const found = Object.values(nstate.players).find((p) => {
@@ -155,6 +156,7 @@ const { state: nstate, refetch } = useAllEntities();
         });
         return cleanAddress === account.address;
       });
+      const n_game = getGame(game_id,nstate.games);
       sceneRef.current.metadata = {
         ...sceneRef.current.metadata,
         infantryUnits:nstate.infantry,
@@ -162,7 +164,8 @@ const { state: nstate, refetch } = useAllEntities();
         infantryStates: nstate.unitState,
         infantryModes: nstate.abilityState,
         playerInfo: found,
-        playersInfo: nstate.players
+        playersInfo: nstate.players,
+        gameInfo: n_game,
       };
     }
   }, [isSceneReady, infantry?.infantryUnits,game,armored?.armoredUnits]);

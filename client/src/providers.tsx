@@ -1,12 +1,14 @@
 import ControllerConnector from '@cartridge/connector/controller'
 import { mainnet, sepolia } from '@starknet-react/chains'
-import { StarknetConfig, starkscan } from '@starknet-react/core'
-import { RpcProvider } from 'starknet'
+import { Connector, StarknetConfig, starkscan } from '@starknet-react/core'
+import { RpcProvider,constants } from 'starknet'
+
 
 import {  ARENA_ADDRESS, NEXUS_ADDRESS, TORII_RPC_URL } from './constants'
 
 import type { Chain } from '@starknet-react/chains'
 import type { PropsWithChildren } from 'react'
+import { ColorMode, ControllerOptions, SessionPolicies } from '@cartridge/controller'
 
 export function StarknetProvider({ children }: PropsWithChildren) {
   return (
@@ -22,107 +24,92 @@ export function StarknetProvider({ children }: PropsWithChildren) {
   )
 }
 
-const cartridge = new ControllerConnector({
-   policies: [
+const policies: SessionPolicies = {
+  contracts: {
+    [ARENA_ADDRESS]: {
+      methods: [
+        {
+          entrypoint: "create",
+        },
+        {
+          entrypoint: "join",
+        },
+        {
+          entrypoint: "transfer",
+        },
+        {
+          entrypoint: "leave",
+        },
+        {
+          entrypoint: "start",
+        },
+        {
+          entrypoint: "delete",
+        },
+        {
+          entrypoint: "kick",
+        },
+      ],
+    },
+    [NEXUS_ADDRESS]: {
+      methods: [
+        {
+          entrypoint: "deploy_forces",
+        },
+        {
+          entrypoint: "patrol",
+        },
+        {
+          entrypoint: "attack",
+        },
+        {
+          entrypoint: "defend",
+        },
+        {
+          entrypoint: "move_unit",
+        },
+        {
+          entrypoint: "stealth",
+        },
+        {
+          entrypoint: "heal",
+        },
+        {
+          entrypoint: "recon",
+        },
+        {
+          entrypoint: "force_end_player_turn",
+        },
+      ],
+    },
+  },
+};
+
+const colorMode: ColorMode = "dark";
+const theme = "";
+const namespace = "command_nexus";
+
+
+const options: ControllerOptions = {
+  chains: [
     {
-      target: ARENA_ADDRESS,
-      method: 'create',
-      description: 'Create new game',
+      rpcUrl: "https://api.cartridge.gg/x/starknet/sepolia",
     },
     {
-      target: ARENA_ADDRESS,
-      method: 'join', 
-      description: 'Join existing game',
+      rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
     },
-    {
-      target: ARENA_ADDRESS,
-      method: 'transfer',
-      description: 'Transfer game ownership',
-    },
-    {
-      target: ARENA_ADDRESS,
-      method: 'leave',
-      description: 'Leave current game',
-    },
-    {
-      target: ARENA_ADDRESS, 
-      method: 'start',
-      description: 'Start game',
-    },
-    {
-      target: ARENA_ADDRESS,
-      method: 'delete',
-      description: 'Delete game',
-    },
-    {
-      target: ARENA_ADDRESS,
-      method: 'kick',
-      description: 'Kick player from game',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'deploy_forces',
-      description: 'Deploy units to battlefield',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'patrol',
-      description: 'Set unit to patrol route',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'attack',
-      description: 'Attack enemy unit',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'defend',
-      description: 'Set unit to defend position',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'move_unit',
-      description: 'Move unit to new position',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'stealth',
-      description: 'Enter stealth mode',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'heal',
-      description: 'Heal units in area',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'recon',
-      description: 'Reconnaissance of area',
-    },
-    {
-      target: NEXUS_ADDRESS,
-      method: 'force_end_player_turn',
-      description: 'Force end player turn',
-    }
   ],
-  url: 'https://x.cartridge.gg',
-  rpc: TORII_RPC_URL,
-  theme: '',
-  // config: {
-  //   presets: {
-  //     flippyflop: {
-  //       id: 'flippyflop',
-  //       name: 'FlippyFlop',
-  //       icon: '/whitelabel/flippyflop/icon.png',
-  //       cover: '/whitelabel/flippyflop/cover.png',
-  //       colors: {
-  //         primary: '#F38332',
-  //       },
-  //     },
-  //   },
-  // },
-  propagateSessionErrors: true,
-})
+  defaultChainId: constants.StarknetChainId.SN_SEPOLIA,
+  namespace,
+  policies,
+  theme,
+  colorMode,
+};
+
+
+const cartridge = new ControllerConnector(
+  options,
+) as never as Connector
 
 function provider(chain: Chain) {
   switch (chain) {

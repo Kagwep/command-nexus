@@ -29,7 +29,7 @@ async function main() {
         {
             client: {
                 rpcUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_RPC_URL : dojoConfig.rpcUrl,
-                toriiUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_URL : 'http://localhost:8080',
+                toriiUrl: import.meta.env.VITE_SEPOLIA === 'true' ? 'http://localhost:8080' : 'http://localhost:8080',
                 relayUrl: dojoConfig.relayUrl,
                 worldAddress: dojoConfig.manifest.world.address,
             },

@@ -339,7 +339,7 @@ useEffect(() => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <h2 className="text-green-400 font-mono text-xl">ACTIVE OPERATIONS</h2>
+                  <h2 className="text-green-400 font-mono text-xl">OPERATIONS</h2>
                 </div>
                 <div className="text-green-500/60 font-mono text-sm">
                   [SECURE CHANNEL]

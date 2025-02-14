@@ -249,6 +249,7 @@ useEffect(() => {
   };
 
   if (!game || !me || !nstate.players) {
+    console.log(".........", nstate);
     return (
         <div className="font-mono min-h-screen bg-gray-900 text-green-800 relative">
             {/* Grid overlay effect - maintaining consistency */}

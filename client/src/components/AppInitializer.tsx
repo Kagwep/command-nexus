@@ -12,7 +12,7 @@ import LoadingScreen from "./LoadingScreen";
 import { NetworkAccountProvider } from "../context/WalletContex";
 import { useElementStore } from "../utils/nexus";
 import { DojoSdkProvider } from "@dojoengine/sdk/react";
-
+import LandingPage from './LandingPage';
 
 interface AppInitializerProps {
     sdk: SDK<CommandNexusSchemaType>
@@ -67,7 +67,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk, dojoConfig, client
     const [isLoading, setIsLoading] = useState(false); // Start as false initially
     const [error, setError] = useState<InitializationError | null>(null);
     const [initializationStep, setInitializationStep] = useState(0);
-
+    const [showLanding, setShowLanding] = useState(true);  // New state for landing page
     const { network } = useElementStore(state => state);
 
     useEffect(() => {
@@ -141,6 +141,11 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk, dojoConfig, client
         }
     };
 
+    // If showing landing page
+    if (showLanding) {
+        return <LandingPage onStartGame={() => setShowLanding(false)} />;
+    }
+    
     // First, show Intro if not onboarded
     if (!isOnboarded) {
         return <Intro onOnboardComplete={completeOnboarding} />;

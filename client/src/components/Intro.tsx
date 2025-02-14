@@ -86,7 +86,11 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
           COMMAND NEXUS
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mt-8">
+        <div className={`grid grid-cols-1 ${
+            import.meta.env.VITE_SEPOLIA === 'false' 
+              ? 'md:grid-cols-3' 
+              : 'md:grid-cols-2'
+          } gap-6 w-full mt-8`}>
           {/* Mainnet Card */}
           <div className="flex flex-col rounded-lg overflow-hidden bg-gray-800/50 border border-green-900/30 backdrop-blur-sm
             transition-all duration-300 hover:border-green-500/50 hover:shadow-lg hover:shadow-green-900/20">
@@ -132,25 +136,28 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
           </div>
 
           {/* Testnet Card */}
+          {import.meta.env.VITE_SEPOLIA === 'false' && (
           <div className="flex flex-col rounded-lg overflow-hidden bg-gray-800/50 border border-green-900/30 backdrop-blur-sm
-            transition-all duration-300 hover:border-green-500/50 hover:shadow-lg hover:shadow-green-900/20">
-            {/* ... Card image remains the same ... */}
-            <div className="p-6 flex flex-col gap-6 h-full">
-              <NetworkBadge type="testnet" />
-              <p className="text-green-100/90 text-lg">
-                Perfect for training and strategy development.
-              </p>
-              <button
-                onClick={() => handleNetworkSelect("katana" as Network)}
-                className="mt-auto w-full py-4 bg-green-800 text-green-100 font-mono tracking-wider 
-                  border border-green-700/50 rounded-lg shadow-lg shadow-green-900/20
-                  transition-all duration-300 hover:bg-green-700 hover:border-green-600/50
-                  active:scale-95"
-              >
-                INITIATE
-              </button>
-            </div>
+          transition-all duration-300 hover:border-green-500/50 hover:shadow-lg hover:shadow-green-900/20">
+          {/* ... Card image remains the same ... */}
+          <div className="p-6 flex flex-col gap-6 h-full">
+            <NetworkBadge type="testnet" />
+            <p className="text-green-100/90 text-lg">
+              Perfect for training and strategy development.
+            </p>
+            <button
+              onClick={() => handleNetworkSelect("katana" as Network)}
+              className="mt-auto w-full py-4 bg-green-800 text-green-100 font-mono tracking-wider 
+                border border-green-700/50 rounded-lg shadow-lg shadow-green-900/20
+                transition-all duration-300 hover:bg-green-700 hover:border-green-600/50
+                active:scale-95"
+            >
+              INITIATE
+            </button>
           </div>
+        </div>
+          )}
+
         </div>
       </div>
     </div>

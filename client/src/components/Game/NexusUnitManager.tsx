@@ -160,7 +160,7 @@ class NexusUnitManager {
         matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
         matdebug.alpha = 1;
         this.navmeshdebug.material = matdebug;
-        this.navmeshdebug.visibility = 0;
+        this.navmeshdebug.visibility = 0.15;
 
         const positions = this.navmeshdebug.getVerticesData(VertexBuffer.PositionKind);
         this.navMeshIndices =positions

@@ -26,7 +26,7 @@ interface MeshN extends Mesh {
 
 const GRID_SIZE = 40;
 const CELL_SIZE = 40;
-const CAMERA_SPEED = 1;
+const CAMERA_SPEED = 0.5;
 const ROTATION_SPEED = 0.05;
 const ZOOM_SPEED = 5;
 
@@ -592,15 +592,24 @@ scene.onKeyboardObservable.add((kbInfo) => {
 
 scene.onBeforeRenderObservable.add(() => {
   let cameraSpeed = Vector3.Zero();
+  
+  // Get camera's actual viewing direction in world space
+  const forward = camera.getTarget().subtract(camera.position).normalize();
+  forward.y = 0; // Project onto XZ plane
+  forward.normalize();
+  
+  // Get right vector from forward
+  const right = Vector3.Cross(forward, Vector3.Up()).normalize();
 
-  if (keys['w']) cameraSpeed.addInPlace(camera.getDirection(Vector3.Forward()));
-  if (keys['s']) cameraSpeed.addInPlace(camera.getDirection(Vector3.Backward()));
-  if (keys['a']) cameraSpeed.addInPlace(camera.getDirection(Vector3.Left()));
-  if (keys['d']) cameraSpeed.addInPlace(camera.getDirection(Vector3.Right()));
+  // Movement
+  if (keys['w']) cameraSpeed.addInPlace(forward.scale(CAMERA_SPEED));
+  if (keys['s']) cameraSpeed.addInPlace(forward.scale(-CAMERA_SPEED));
+  if (keys['d']) cameraSpeed.addInPlace(right.scale(-CAMERA_SPEED));
+  if (keys['a']) cameraSpeed.addInPlace(right.scale(CAMERA_SPEED));
 
-  cameraSpeed.scaleInPlace(CAMERA_SPEED);
   camera.target.addInPlace(cameraSpeed);
 
+  // Rotation and zoom
   if (keys['q']) camera.alpha += ROTATION_SPEED;
   if (keys['e']) camera.alpha -= ROTATION_SPEED;
   if (keys['r']) camera.radius -= ZOOM_SPEED;
@@ -608,8 +617,6 @@ scene.onBeforeRenderObservable.add(() => {
 
   camera.radius = Math.max(camera.lowerRadiusLimit!, Math.min(camera.radius, camera.upperRadiusLimit!));
 });
-
-
 
 //camera.setTarget(activeUnit, true, false, false);
 };

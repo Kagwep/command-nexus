@@ -198,7 +198,10 @@ class NexusUnitManager {
            
 
            if (this.selectedAgentUpdated){
-            this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.selectedAgentUpdated?.animations.movement, 1.3, this.selectedAgentUpdated?.animations.idle, 1.0, true, 0.05));
+            console.log(this.selectedAgentUpdated)
+            //this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.agents[this.selectedAgentUpdated.idx]?.animations.movement, 1.3, this.agents[this.selectedAgentUpdated.idx]?.animations.idle, 1.0, true, 0.05));
+            this.agents[this.selectedAgentUpdated.idx].animations.movement.stop()
+            this.agents[this.selectedAgentUpdated.idx].animations.idle.start(true)
            }
 
         });
@@ -670,10 +673,11 @@ class NexusUnitManager {
 
     private* animationBlending(fromAnim: any, fromAnimSpeedRatio: any, toAnim: any, toAnimSpeedRatio: any, repeat: any, animationBlendingSpeed: any)
     {
+
         let currentWeight = 1;
         let newWeight = 0;
-        //fromAnim.stop();
-        toAnim.play(repeat);
+        fromAnim.stop();
+        toAnim.start(repeat);
         fromAnim.speedRatio = fromAnimSpeedRatio;
         toAnim.speedRatio = toAnimSpeedRatio;
         while(newWeight < 1)

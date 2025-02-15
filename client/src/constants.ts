@@ -3,7 +3,7 @@ import manifest from '../manifest_sepolia.json'
 
 export const TORII_RPC_URL = "https://api.cartridge.gg/x/starknet/sepolia"
 export const WORLD_ADDRESS = manifest.world.address
-export const TORII_URL ="http://167.99.15.44:8080"
+export const TORII_URL = "https://command-nexus.xyz"
 
 
 

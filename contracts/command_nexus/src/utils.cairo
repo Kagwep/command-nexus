@@ -383,7 +383,7 @@ mod helper {
             
             // Calculate cost, rounding up
             // e.g., 250 units = 3 movement cost
-            ((distance_squared + movement_unit_squared - 1) / movement_unit_squared) / 10
+            ((distance_squared + movement_unit_squared - 1) / movement_unit_squared) / 50
         }
 
 

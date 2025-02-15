@@ -8,5 +8,5 @@ export const TORII_URL = "https://command-nexus.xyz"
 
 
 
-export const NEXUS_ADDRESS = "0x61d789732ff6298630a11b0f9e9a8b8c93bb4c14e3c456940886636ceb5b809"
-export const ARENA_ADDRESS = "0x675eb1421d6b0065865c34da85cc1f2bfed1006fd757d77f7229ce0672b8d93"
+export const NEXUS_ADDRESS = "0x6dfc0ff2cb0e5c8cb210e992f2ae75983b00c0ec4bf3398cf8188164e3b1346"
+export const ARENA_ADDRESS = "0x33432826d34d86f17f382eaeeef3005b1970d47afdfef21f6a438123627017c"

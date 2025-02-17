@@ -64,7 +64,11 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const nameList: string[] = ["Road_01", "Road_01.001", "Landscape_01", "EnergyRes_RenewablePlant_Wall_01", "EnergyRes_NaturalGasFacility_Wall_01","Water_01"];
 
-    const result = await SceneLoader.ImportMeshAsync('', '/models/', "unlikely.glb");
+    const result = await SceneLoader.ImportMeshAsync(
+      '',  // mesh name (empty for all)
+      'https://cnexus.s3.eu-north-1.amazonaws.com/', // root URL
+      'unlikely.glb' // filename
+    );
 
     function checkNameUsingIncludes(name: string): boolean {
    //

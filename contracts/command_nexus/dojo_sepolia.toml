@@ -3,12 +3,12 @@
 default = "command_nexus"
 
 [env]
-account_address = ""
-private_key = ""
+account_address = "0x0215AF1A59d8ba6D49e4cc965bE8BfCd6Cbd86E0AbE758B32a82BDB353B749dE"
+private_key = "0x038bfbdcc9e31a5fceadba808398316e543ded6ea2ffc044edeed04429f128b6"
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
 
 [world]
-seed = "command_nexus_2"
+seed = "command_nexus_3"
 name = "Command Nexus"
 description = "Become a commander"
 cover_uri = "file://assets/bg.webp"

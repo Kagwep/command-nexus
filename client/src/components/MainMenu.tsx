@@ -106,7 +106,7 @@ const MainMenu: React.FC = () => {
             unsubscribe();
         }
     };
-}, [sdk, account]);
+}, []);
 
 
 const fetchEntities = async () => {
@@ -153,7 +153,7 @@ const fetchEntities = async () => {
 // Use in useEffect
 useEffect(() => {
   fetchEntities();
-}, [sdk,dojoClient]); // Empty dependency array means this only runs once on mount
+}); // Empty dependency array means this only runs once on mount
 
 
 const [messageIndex, setMessageIndex] = useState(0);

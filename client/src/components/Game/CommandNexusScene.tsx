@@ -66,7 +66,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const result = await SceneLoader.ImportMeshAsync(
       '',  // mesh name (empty for all)
-      'https://cnexus.s3.eu-north-1.amazonaws.com/', // root URL
+      '/models/', // root URL
       'unlikely.glb' // filename
     );
 

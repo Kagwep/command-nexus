@@ -330,7 +330,7 @@ export const useAllEntities = (pollInterval = 5000) => {
               clearInterval(intervalId);
           }
       };
-  }, [sdk?.client, pollInterval]); // Only depend on sdk.client and pollInterval
+  }, [pollInterval]); // Only depend on sdk.client and pollInterval
 
     return {
       state: useGameStore(),

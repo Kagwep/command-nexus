@@ -7,8 +7,8 @@ export const useTurn = () => {
 
   useEffect(() => {
     if (game && game.nonce != null && game.nonce !== undefined) {
-      if (Math.floor(game.nonce / 3) % game.player_count !== turn) {
-        setTurn(Math.floor(game.nonce / 3) % game.player_count);
+      if (Math.floor(Number(game.nonce) / 3) % Number(game.player_count) !== turn) {
+        setTurn(Math.floor(Number(game.nonce) / 3) % Number(game.player_count));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

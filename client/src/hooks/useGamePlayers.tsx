@@ -16,11 +16,11 @@ export const useGamePlayers = (game: Game) => {
   });
 
   const playerEntityIds = slots
-    .slice(0, game.player_count)
+    .slice(0, Number(game.player_count))
     .map(index => getEntityIdFromKeys([BigInt(game.game_id), BigInt(index)]));
 
   return {
-    players: players.slice(0, game.player_count),
+    players: players.slice(0, Number(game.player_count)),
     playerEntityIds
   };
 };

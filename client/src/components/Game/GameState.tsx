@@ -34,7 +34,7 @@ export const useGameState = (nstate: any):{
   const  players = nstate.players;
   const { account, address, status, isConnected } = useNetworkAccount();
 
-  const turn  = game ? game.nonce  % game.player_count : -1;
+  const turn  = game ? Number(game.nonce)  % Number(game.player_count) : -1;
 
   const isItMyTurn  = true ? player &&  turn === player.index : false
 

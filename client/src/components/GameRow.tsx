@@ -83,7 +83,7 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName,nstates }) => {
       </TableCell>
       <TableCell className="text-center font-mono text-green-400">
         <div className="inline-block px-3 py-1 bg-green-900/30 rounded border border-green-500/30">
-          {game.game_id}
+          {Number(game.game_id)}
         </div>
       </TableCell>
       <TableCell>
@@ -96,10 +96,10 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName,nstates }) => {
       <TableCell>
         <div className="flex justify-end">
           <DialogCreateJoin
-            onClick={() => joinGame(game.game_id)}
+            onClick={() => joinGame(Number(game.game_id))}
             playerName={player_name}
             setPlayerName={setPlayerName}
-            dialogTitle={`JOIN OPERATION ${game.game_id}`}
+            dialogTitle={`JOIN OPERATION ${Number(game.game_id)}`}
             buttonText="ENGAGE"
             buttonTextDisplayed={
               <div className="flex items-center space-x-2 text-green-400 hover:text-green-300">

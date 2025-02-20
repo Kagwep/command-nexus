@@ -6,7 +6,7 @@ use command_nexus::models::battlefield::BattlefieldName;
 use dojo::world::IWorldDispatcher;
 
 #[starknet::interface]
-trait INexus<TContractState>  {
+pub trait INexus<TContractState>  {
     fn deploy_forces(
         ref self: TContractState,
         game_id: u32,
@@ -43,8 +43,11 @@ trait INexus<TContractState>  {
 
     fn recon(ref self: TContractState, game_id: u32, unit_id: u32,unit_type:u8, area_x: u256, area_y: u256, area_z: u256);
 
-    fn force_end_player_turn (ref self: TContractState, game_id: u32,target_player_index: u32);
+    fn force_end_player_turn (ref self: TContractState, game_id: u32);
 
+    fn capture_flag(ref self: TContractState, game_id: u32,unit_id: u32,unit_type: u8, flag_id: u8,x: u256,y: u256,z: u256);
+
+    fn boost(ref self: TContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256);
 
 }
 
@@ -73,6 +76,16 @@ trait INexusInternal<TContractState> {
         operation: AbilityType,
         x:u256,y:u256,z:u256
     );
+
+    fn _handle_unit_boost(
+        ref self: TContractState,
+        game_id: u32,
+        unit_id: u32,
+        unit_type: UnitType,
+        player: Player,
+        x:u256,y:u256,z:u256
+    );
+
 
     fn _update_unit_state(
         ref self: TContractState,
@@ -178,7 +191,7 @@ mod nexus {
     use super::{INexus};
     use starknet::{ContractAddress, get_caller_address,get_block_timestamp};
     use command_nexus::models::{
-        battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait},
+        battlefield::{BattlefieldName,UrbanBattlefield,BattlefieldNameTrait,BattlefieldFlag,BattlefieldFlagTrait},
         units::unit_states::{UnitMode,UnitState,TerrainTypeTrait,EnvironmentInfo,UnitStateTrait,UnitTrait,AbilityType,AbilityState,AbilityStateTrait},
         
     };
@@ -211,21 +224,21 @@ mod nexus {
 
     use command_nexus::models::position::{Position,Vec3};
 
-    use command_nexus::constants::{MAX_POINT_BONUS,BASE_DAMAGE,HEAL,DAMAGE_SCAlE_FACTOR};
+    use command_nexus::constants::{MAX_POINT_BONUS,BASE_DAMAGE,HEAL,DAMAGE_SCAlE_FACTOR,BOOSTER};
 
     
 
 
     mod errors {
-        const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
-        const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
-        const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
-        const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
-        const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
-        const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
-        const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
-        const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
-        const INVALID_PLAYER:felt252 = 'Not player';
+        pub const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
+        pub const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
+        pub const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
+        pub const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
+        pub const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
+        pub const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
+        pub const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
+        pub const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
+        pub const INVALID_PLAYER:felt252 = 'Not player';
     }
 
 
@@ -233,7 +246,7 @@ mod nexus {
 
     // player deploy force to battle field assigned
     #[abi(embed_v0)]
-    impl NexusImpl of INexus<ContractState> {
+    pub impl NexusImpl of INexus<ContractState> {
 
 
 
@@ -271,10 +284,21 @@ mod nexus {
 
             let time = get_block_timestamp();
 
-            assert(!player.is_turn_timed_out(time), 'Turn Timeout');
-            
+            if player.is_turn_timed_out(time){
+                game.advance_turn();
+                player.reset_moves();
 
-            // let battle_field: UrbanBattlefield = get!(world,(game_id, battlefield_id),(UrbanBattlefield));
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+
+                world.write_model(@game);
+
+                
+            }else{
+                            // let battle_field: UrbanBattlefield = get!(world,(game_id, battlefield_id),(UrbanBattlefield));
 
             let battle_field: UrbanBattlefield  =  world.read_model((game_id, battlefield_id));
 
@@ -345,6 +369,10 @@ mod nexus {
            // set!(world, (game));
 
             world.write_model(@game);
+            }
+            
+
+
 
         }
 
@@ -832,6 +860,8 @@ mod nexus {
                 world.write_model(@new_player);
             }
 
+            player.booster -= BOOSTER;
+
             //set!(world, (player));
 
             world.write_model(@player);
@@ -841,7 +871,7 @@ mod nexus {
             world.write_model(@game);
         } 
 
-        fn force_end_player_turn (ref self: ContractState, game_id: u32, target_player_index: u32){
+        fn force_end_player_turn (ref self: ContractState, game_id: u32){
 
             let mut world = self.world_default();
 
@@ -888,6 +918,140 @@ mod nexus {
         
         }
 
+
+        fn capture_flag(ref self: ContractState, game_id: u32,unit_id: u32,unit_type:u8, flag_id: u8,x: u256,y: u256,z: u256){
+
+            let mut world = self.world_default();
+
+            let caller = get_caller_address();
+
+           // let mut game = get!(world,game_id,(Game));
+
+           let mut game: Game  =  world.read_model(game_id);
+
+            // get the player
+            let mut player = match HelperTrait::find_player(world,game, caller) {
+                Option::Some(player) => player,
+                Option::None => panic(array![errors::HOST_PLAYER_NOT_IN_LOBBY]),
+            };
+
+            player.assert_exists();
+
+            let battlefield_name = match BattlefieldNameTrait::from_battlefield_id(flag_id){
+                Option::Some(name) => name,
+                Option::None => panic(array!['Invalid battle field'])
+            };
+
+            let battle_field_flag_position = HelperTrait::get_battlefield_flag_position(battlefield_name);
+
+            let position = Vec3 {
+                x:x,
+                y:y,
+                z:z
+            };
+
+            let unit_type = match  UnitTypeTrait::from_int(unit_type) {
+                Option::Some(unit) => unit,
+                Option::None => panic(array!['Invalid unit Type'])
+            };
+
+            let mut unit = HelperTrait::get_unit(world, game_id, player.index, unit_id, unit_type);
+
+            let is_in_range =  HelperTrait::is_in_range(unit.get_position(),100, x,y,z);
+
+            assert(is_in_range,'Out of Range');
+
+
+            let is_actual_flag = HelperTrait::is_same_position(battle_field_flag_position,position);
+
+            assert(is_actual_flag,'Flag Not Recognized');
+
+            let flag_exist: BattlefieldFlag = world.read_model((game_id,flag_id));
+
+            assert(flag_exist.player != caller, 'Flag Already Captured');
+
+            let flag: BattlefieldFlag = BattlefieldFlagTrait::capture(game_id,player.address,position,flag_id);
+
+            player.flags_captured += 1;
+
+            player.booster += BOOSTER;
+
+            if (player.flags_captured >= 5 ){
+                let mut game: Game  =  world.read_model(game_id);
+
+                game.winner = player.address;
+                game.over = true;
+
+                world.write_model(@game);
+
+            }
+
+            
+
+            world.write_model(@flag);
+
+            world.write_model(@player);
+
+        }
+
+        fn boost(ref self: ContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256){
+           
+            let mut world = self.world_default();
+
+
+            let player_address = get_caller_address();
+           // let mut game = get!(world, game_id, (Game));
+
+           let mut game: Game  =  world.read_model(game_id);
+
+           let time = get_block_timestamp();
+ 
+            let mut player = HelperTrait::current_player(world, game);
+ 
+            assert(player_address== player.address, errors::INVALID_PLAYER);
+ 
+            let unit_type = match  UnitTypeTrait::from_int(unit_type) {
+                Option::Some(unit) => unit,
+                Option::None => panic(array!['Invalid unit Type'])
+            };
+
+
+             // Handle unit type-specific operations
+            self._handle_unit_boost(
+                game.game_id,
+                unit_id,
+                unit_type,
+                player,
+                area_x,
+                area_y,
+                area_z
+            );
+    
+
+            let remaining_commands = player.send_command();
+
+            if remaining_commands == 0 {
+                game.advance_turn();
+                player.reset_moves();
+
+                let mut new_player = HelperTrait::current_player(world,game);
+                new_player.set_turn_start_time(time);
+               // set!(world,(new_player));
+
+                world.write_model(@new_player);
+            }
+
+            player.booster -= BOOSTER;
+
+            //set!(world, (player));
+
+            world.write_model(@player);
+
+           // set!(world, (game));
+
+            world.write_model(@game);
+        }
+
     }
 
 
@@ -925,6 +1089,62 @@ mod nexus {
                 y,
                 z
             )
+        }
+
+
+        fn _handle_unit_boost(
+            ref self: ContractState,
+            game_id: u32,
+            unit_id: u32,
+            unit_type: UnitType,
+            player: Player,
+            x: u256,
+            y: u256,
+            z: u256
+        )  {
+            assert(
+                unit_type == UnitType::Infantry || 
+                unit_type == UnitType::Armored || 
+                unit_type == UnitType::Air || 
+                unit_type == UnitType::Naval,
+                'Invalid Unit Type'
+            );
+
+
+            let mut world = self.world_default();
+        
+            let mut unit = HelperTrait::get_unit(world, game_id, player.index, unit_id, unit_type);
+
+            assert(player.booster >= 20, 'Boost Not Enough');
+
+
+
+            match unit {
+                NexusUnit::Infantry(mut infantry) => {
+
+                    infantry.energy += BOOSTER;
+                    world.write_model(@infantry);
+
+                },
+                NexusUnit::Armored(mut armored) => {
+
+                    armored.energy += BOOSTER;
+                    world.write_model(@armored);
+
+                },
+                NexusUnit::Air(mut air) => {
+
+                    air.energy += BOOSTER;
+                    world.write_model(@air);
+
+                },
+                NexusUnit::Naval(mut naval) => {
+
+                    naval.energy += BOOSTER;
+                    world.write_model(@naval);
+                },
+            }
+
         }
 
 
@@ -1328,6 +1548,7 @@ mod nexus {
                     if target_health_remainder == 0 {
                         player.player_score.score += score;
                         player.player_score.kills += 1;
+                        player.booster += BOOSTER;
 
                         if (player.player_score.kills >= 5 ){
                             let mut game: Game  =  world.read_model(game_id);
@@ -1679,10 +1900,11 @@ mod nexus {
         //     NexusUnit::Naval(naval) => set!(world, (naval, unit_abilities, unit_state)),
         // }
 
-        let mut unit = unit.heal(HEAL);
+       // let mut unit = unit.heal(HEAL);
 
         match unit {
-            NexusUnit::Infantry(infantry) => {
+            NexusUnit::Infantry(mut infantry) => {
+                infantry.heal(HEAL);
                 world.write_model(@infantry);
                 world.write_model(@unit_abilities);
                 world.write_model(@unit_state);

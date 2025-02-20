@@ -6,6 +6,7 @@ import { useNetworkAccount } from '../context/WalletContex';
 
 import { useEntityStore } from './useEntityStore';
 import { useDojoSDK, useModel } from '@dojoengine/sdk/react';
+import { Game } from '../dojogen/models.gen';
 
 export const useGame = () => {
 
@@ -47,5 +48,5 @@ export const useGame = () => {
 
 
 
-  return game;
+  return game as unknown as Game;
 };

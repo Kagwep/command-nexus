@@ -97,65 +97,64 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
       console
 
 
-     if (gameState.player){
-      switch (mesh.name) {
-        case "IntelAgency_Buildings_14":
-            const novaWarhoundLandmark = mesh as Mesh;
-            battlefieldCameraManager.registerLandmark(BattlefieldName.NovaWarhound, novaWarhoundLandmark);
-
-            if(gameState.player.home_base === "NovaWarhound" as unknown as BattlefieldName){
-              const selectedBattlefield = BattlefieldName.NovaWarhound; // This would come from user input
-              battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-            }
-            break;
-        
-        case "TransportHub_Seaport_Port_Crane_03":
-            const skullcragLandmark = mesh as Mesh;
-            battlefieldCameraManager.registerLandmark(BattlefieldName.Skullcrag, skullcragLandmark);
-
-            if(gameState.player.home_base === "Skullcrag" as unknown as BattlefieldName){
-              const selectedBattlefield = BattlefieldName.Skullcrag; // This would come from user input
-              battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-            }
-            break;
+      if (gameState.player) {
+        switch (mesh.name) {
+            case "IntelAgency_Buildings_14":
+                const novaWarhoundLandmark = mesh as Mesh;
+                battlefieldCameraManager.registerLandmark(gameState.player.home_base, novaWarhoundLandmark);
     
-        case "EnergyRes_NaturalGasFacility_Tank_10":
-            const ironForgeLandmark = mesh as Mesh;
-            battlefieldCameraManager.registerLandmark(BattlefieldName.Ironforge, ironForgeLandmark);
-
-            if(gameState.player.home_base === "Ironforge" as unknown as BattlefieldName){
-              const selectedBattlefield = BattlefieldName.Ironforge; // This would come from user input
-              battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-            }
-            break;
-
-        case "MilitaryBase_Сontainer_02_primitive1":
-              const radiantShoresLandmark = mesh as Mesh;
-              battlefieldCameraManager.registerLandmark(BattlefieldName.RadiantShores, radiantShoresLandmark);
-
-              console.log("found ............................................")
-  
-              if(gameState.player.home_base === "RadiantShores" as unknown as BattlefieldName){
-                const selectedBattlefield = BattlefieldName.RadiantShores; // This would come from user input
-                battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
-              }
-              break;
-    //TransportHub_Seaport_Port_Crane_03
-        default:
-            // Handle unknown or other meshes
-            console.log("Unknown mesh.");
-            break;
-       }
-      
-     }
+                if (gameState.player.home_base as unknown as string === 'NovaWarhound') {
+                    battlefieldCameraManager.setCameraForBattlefield(gameState.player.home_base);
+                }
+                break;
+            
+            case "TransportHub_Seaport_Port_Crane_03":
+                const skullcragLandmark = mesh as Mesh;
+                battlefieldCameraManager.registerLandmark(gameState.player.home_base, skullcragLandmark);
+    
+                if (gameState.player.home_base as unknown as string === 'Skullcrag') {
+                    battlefieldCameraManager.setCameraForBattlefield(gameState.player.home_base);
+                }
+                break;
+    
+            case "EnergyRes_NaturalGasFacility_Tank_10":
+                const ironForgeLandmark = mesh as Mesh;
+                battlefieldCameraManager.registerLandmark(gameState.player.home_base, ironForgeLandmark);
+    
+                if (gameState.player.home_base as unknown as string === 'Ironforge') {
+                    battlefieldCameraManager.setCameraForBattlefield(gameState.player.home_base);
+                }
+                break;
+    
+            case "MilitaryBase_Сontainer_02_primitive1":
+                const radiantShoresLandmark = mesh as Mesh;
+                battlefieldCameraManager.registerLandmark(gameState.player.home_base, radiantShoresLandmark);
+    
+                console.log("found ............................................");
+    
+                if (gameState.player.home_base as unknown as string === 'RadiantShores') {
+                    battlefieldCameraManager.setCameraForBattlefield(gameState.player.home_base);
+                }
+                break;
+    
+            default:
+                console.log("Unknown mesh.");
+                break;
+        }
+    }
    
       addPhysicsAggregate(mesh);
     })
 
     //const armored =  await SceneLoader.ImportMeshAsync('', '/models/', "Tank.glb");
 
+    
+
     const tankContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Tank.glb", scene);
     const soldierContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Soldier.glb", scene);
+
+
+    const flagContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/flag.glb", scene);
 
     tankContainer.meshes[0].scaling = new Vector3(0.5, 0.5, 0.5);
     tankContainer.meshes[0].rotation = new Vector3(0, -Math.PI, 0);
@@ -164,7 +163,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     tankContainer.meshes[0].rotate(Axis.Y, Math.PI, Space.LOCAL);
 
-
+    flagContainer.meshes[0].scaling = new Vector3(2, 2, 2);
 
     // armored.meshes.forEach((mesh) => {
     //   mesh.checkCollisions = true;
@@ -295,7 +294,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
                       console.log("...............................................")
-          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount,flagContainer);
           await multiAgentNav.initialize();
           console.log("........................................5143555555555556")
 

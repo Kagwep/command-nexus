@@ -2,12 +2,12 @@ use starknet::ContractAddress;
 
 #[derive(Copy, Drop, Serde, Introspect, Debug)]
 pub struct Position {
-    coord: Vec3,
+    pub coord: Vec3,
 }
 
 #[derive(Copy, Drop, Serde, Introspect,PartialEq, Debug)]
-struct Vec3 {
-    x: u256,
-    y: u256,
-    z: u256
+pub struct Vec3 {
+    pub x: u256,
+    pub y: u256,
+    pub z: u256
 }

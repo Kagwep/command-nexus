@@ -18,7 +18,7 @@ import { useEntityStore } from '../hooks/useEntityStore';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useAllEntities } from '../utils/command';
 import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
-
+ 
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -210,8 +210,8 @@ Object.entries(nstate.games).forEach(([gameId, currentGame]) => {
   console.log(removeLeadingZeros(currentGame.arena_host) === account?.address)
   if (removeLeadingZeros(currentGame.arena_host) === account?.address) {
     setGame(currentGame);
-    if (currentGame.game_id >= 0) {
-      set_game_id(currentGame.game_id);
+    if (currentGame.game_id as number >= 0) {
+      set_game_id(Number(currentGame.game_id));
     }
   }
 });
@@ -219,8 +219,8 @@ Object.entries(nstate.games).forEach(([gameId, currentGame]) => {
 Object.entries(nstate.players).forEach(([playerId, currentPlayer]) => {
   if (removeLeadingZeros(currentPlayer.address) === account?.address) {
     setPlayer(currentPlayer);
-    if (currentPlayer.game_id >= 0) {
-      set_game_id(currentPlayer.game_id);
+    if (currentPlayer.game_id as number >= 0) {
+      set_game_id(Number(currentPlayer.game_id));
       console.log(".......................", currentPlayer.game_id);
       set_game_state(GameState.Lobby);
     }
@@ -240,7 +240,7 @@ if (game) {
 // setIsLoading(false);
 console.log('Game updated:', game);
 
-set_game_id(game.game_id);
+set_game_id(Number(game.game_id));
 
 }
 }, [game]);

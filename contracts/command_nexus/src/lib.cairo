@@ -1,28 +1,28 @@
-mod systems {
-    mod arena;
-    mod nexus;
+pub mod systems {
+    pub mod arena;
+    pub mod nexus;
 }
 
-mod constants;
+pub mod constants;
 
-mod utils;
+pub mod utils;
 
-mod models {
-    mod units;
-    mod assets;
-    mod game;
-    mod player;
-    mod position;
-    mod battlefield;
+pub mod models {
+    pub mod units;
+    pub mod assets;
+    pub mod game;
+    pub mod player;
+    pub mod position;
+    pub mod battlefield;
 
 }
 
 
 
 #[cfg(test)]
-mod tests {
-    mod setup;
-    mod arena;
-    mod nexus;
+pub mod tests {
+    pub mod setup;
+    pub mod arena;
+    pub mod nexus;
 
 }

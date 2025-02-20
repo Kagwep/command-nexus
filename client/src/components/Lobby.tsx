@@ -203,7 +203,7 @@ useEffect(() => {
     try {
       setLeaveLoading(true);
       if (isHost(game.arena_host, account.address)) {
-        await (await client).arena.delete(account as Account, game.game_id);
+        await (await client).arena.delete(account as Account, Number(game.game_id));
       } else {
         await (await client).arena.leave(account as Account, game_id);
       }
@@ -316,7 +316,7 @@ useEffect(() => {
         <header className="w-full flex justify-between items-center bg-black/60 border border-green-500/30 p-4 rounded-lg backdrop-blur-sm">
           <button
             disabled={leaveLoading}
-            onClick={() => leaveGame(game.game_id)}
+            onClick={() => leaveGame(Number(Number(game.game_id)))}
             className="relative group px-4 py-2"
           >
             <div className="absolute inset-0 bg-red-900/20 border border-red-500/30 
@@ -339,7 +339,7 @@ useEffect(() => {
         <main className="w-full max-w-6xl bg-black/60 border border-green-500/30 p-8 rounded-lg backdrop-blur-sm">
           {/* Operation Status Bar */}
           <div className="flex justify-between items-center mb-6 border-b border-green-500/30 pb-4">
-            <h2 className="text-3xl font-mono">OPERATION #{game.game_id}</h2>
+            <h2 className="text-3xl font-mono">OPERATION #{Number(game.game_id)}</h2>
             <div className="flex items-center space-x-6">
               <StatusIndicator icon={<FaUsers />} label="SQUAD STRENGTH" value={`${Object.keys(nstate.players).length}/4`} />
               <StatusIndicator icon={<FaClock />} label="OPERATION TIME" value={parseInt(game.clock.toString())} />
@@ -357,7 +357,7 @@ useEffect(() => {
                 TACTICAL DATA
               </h3>
               <div className="space-y-2 font-mono text-sm">
-                <DataRow label="MINIMUM OPERATIONS" value={game.minimum_moves} />
+                <DataRow label="MINIMUM OPERATIONS" value={Number(game.minimum_moves)} />
                 <DataRow label="NEXT COMMANDER" value={`COMMANDER ${parseInt(game.next_to_move.toString())}`} />
                 <DataRow label="OPERATION PENALTY" value={parseInt(game.penalty.toString())} />
                 <DataRow label="TACTICAL SEED" value={parseInt(game.seed.toString())} />
@@ -419,7 +419,7 @@ useEffect(() => {
                             <div className="absolute inset-0 animate-ping bg-red-500 rounded-full opacity-20" />
                           </div>
                         )}
-                        <span className="font-mono">{player.name}</span>
+                        <span className="font-mono">{player.name.toString()}</span>
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-green-400/70">
@@ -429,7 +429,7 @@ useEffect(() => {
                       {isHost(game.arena_host, me.address) && player.address !== me.address && (
                         <button
                           disabled={kickLoading}
-                          onClick={() => kickPlayer(player.index, game.game_id)}
+                          onClick={() => kickPlayer(Number(player.index), Number(game.game_id))}
                           className="relative group px-4 py-1"
                         >
                           <div className="absolute inset-0 bg-red-900/20 border border-red-500/30 

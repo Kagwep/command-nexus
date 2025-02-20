@@ -2,7 +2,7 @@ import { DojoProvider, DojoCall } from "@dojoengine/core";
 import { Account, AccountInterface, BigNumberish, CairoOption, CairoCustomEnum, ByteArray } from "starknet";
 import * as models from "./models.gen";
 
-export function client(provider: DojoProvider) {
+export function setupWorld(provider: DojoProvider) {
 
 	const build_nexus_attack_calldata = (gameId: BigNumberish, playerTargetId: BigNumberish, attackerId: BigNumberish, targetId: BigNumberish, unitId: BigNumberish, attackerUnitType: BigNumberish, targetUnitType: BigNumberish, x: BigNumberish, y: BigNumberish, z: BigNumberish): DojoCall => {
 		return {
@@ -15,13 +15,13 @@ export function client(provider: DojoProvider) {
 	const nexus_attack = async (snAccount: Account | AccountInterface, gameId: BigNumberish, playerTargetId: BigNumberish, attackerId: BigNumberish, targetId: BigNumberish, unitId: BigNumberish, attackerUnitType: BigNumberish, targetUnitType: BigNumberish, x: BigNumberish, y: BigNumberish, z: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_attack_calldata(gameId, playerTargetId, attackerId, targetId, unitId, attackerUnitType, targetUnitType, x, y, z),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -36,13 +36,13 @@ export function client(provider: DojoProvider) {
 	const nexus_boost = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, areaX: BigNumberish, areaY: BigNumberish, areaZ: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_boost_calldata(gameId, unitId, unitType, areaX, areaY, areaZ),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -57,13 +57,13 @@ export function client(provider: DojoProvider) {
 	const nexus_captureFlag = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, flagId: BigNumberish, x: BigNumberish, y: BigNumberish, z: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_captureFlag_calldata(gameId, unitId, unitType, flagId, x, y, z),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -78,13 +78,13 @@ export function client(provider: DojoProvider) {
 	const arena_create = async (snAccount: Account | AccountInterface, playerName: BigNumberish, price: BigNumberish, penalty: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_create_calldata(playerName, price, penalty),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -99,13 +99,13 @@ export function client(provider: DojoProvider) {
 	const nexus_defend = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, x: BigNumberish, y: BigNumberish, z: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_defend_calldata(gameId, unitId, unitType, x, y, z),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -120,13 +120,13 @@ export function client(provider: DojoProvider) {
 	const arena_delete = async (snAccount: Account | AccountInterface, gameId: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_delete_calldata(gameId),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -141,34 +141,34 @@ export function client(provider: DojoProvider) {
 	const nexus_deployForces = async (snAccount: Account | AccountInterface, gameId: BigNumberish, battlefieldId: BigNumberish, unit: BigNumberish, supply: BigNumberish, x: BigNumberish, y: BigNumberish, z: BigNumberish, terrainNum: BigNumberish, coverLevel: BigNumberish, elevation: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_deployForces_calldata(gameId, battlefieldId, unit, supply, x, y, z, terrainNum, coverLevel, elevation),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
-	const build_nexus_forceEndPlayerTurn_calldata = (gameId: BigNumberish, targetPlayerIndex: BigNumberish): DojoCall => {
+	const build_nexus_forceEndPlayerTurn_calldata = (gameId: BigNumberish): DojoCall => {
 		return {
 			contractName: "nexus",
 			entrypoint: "force_end_player_turn",
-			calldata: [gameId, targetPlayerIndex],
+			calldata: [gameId],
 		};
 	};
 
-	const nexus_forceEndPlayerTurn = async (snAccount: Account | AccountInterface, gameId: BigNumberish, targetPlayerIndex: BigNumberish) => {
+	const nexus_forceEndPlayerTurn = async (snAccount: Account | AccountInterface, gameId: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
-				build_nexus_forceEndPlayerTurn_calldata(gameId, targetPlayerIndex),
+				snAccount,
+				build_nexus_forceEndPlayerTurn_calldata(gameId),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -183,13 +183,13 @@ export function client(provider: DojoProvider) {
 	const nexus_heal = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, areaX: BigNumberish, areaY: BigNumberish, areaZ: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_heal_calldata(gameId, unitId, unitType, areaX, areaY, areaZ),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -204,13 +204,13 @@ export function client(provider: DojoProvider) {
 	const arena_join = async (snAccount: Account | AccountInterface, gameId: BigNumberish, playerName: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_join_calldata(gameId, playerName),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -225,13 +225,13 @@ export function client(provider: DojoProvider) {
 	const arena_kick = async (snAccount: Account | AccountInterface, gameId: BigNumberish, index: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_kick_calldata(gameId, index),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -246,13 +246,13 @@ export function client(provider: DojoProvider) {
 	const arena_leave = async (snAccount: Account | AccountInterface, gameId: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_leave_calldata(gameId),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -267,13 +267,13 @@ export function client(provider: DojoProvider) {
 	const nexus_moveUnit = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, destX: BigNumberish, destY: BigNumberish, destZ: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_moveUnit_calldata(gameId, unitId, unitType, destX, destY, destZ),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -288,13 +288,13 @@ export function client(provider: DojoProvider) {
 	const nexus_patrol = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, startX: BigNumberish, startY: BigNumberish, startZ: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_patrol_calldata(gameId, unitId, unitType, startX, startY, startZ),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -309,13 +309,13 @@ export function client(provider: DojoProvider) {
 	const nexus_recon = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, areaX: BigNumberish, areaY: BigNumberish, areaZ: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_recon_calldata(gameId, unitId, unitType, areaX, areaY, areaZ),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -330,13 +330,13 @@ export function client(provider: DojoProvider) {
 	const arena_start = async (snAccount: Account | AccountInterface, gameId: BigNumberish, roundCount: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_start_calldata(gameId, roundCount),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -351,13 +351,13 @@ export function client(provider: DojoProvider) {
 	const nexus_stealth = async (snAccount: Account | AccountInterface, gameId: BigNumberish, unitId: BigNumberish, unitType: BigNumberish, x: BigNumberish, y: BigNumberish, z: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_nexus_stealth_calldata(gameId, unitId, unitType, x, y, z),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 
@@ -372,13 +372,13 @@ export function client(provider: DojoProvider) {
 	const arena_transfer = async (snAccount: Account | AccountInterface, gameId: BigNumberish, index: BigNumberish) => {
 		try {
 			return await provider.execute(
-				snAccount as any,
+				snAccount,
 				build_arena_transfer_calldata(gameId, index),
 				"command_nexus",
 			);
 		} catch (error) {
 			console.error(error);
-			return error;
+			throw error;
 		}
 	};
 

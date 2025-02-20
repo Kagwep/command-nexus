@@ -1,47 +1,49 @@
-use core::zeroable::Zeroable;
+use core::num::traits::Zero;
 use starknet::ContractAddress;
 use command_nexus::models::battlefield::{BattlefieldName};
 
-const INITIAL_MOVES: u8 = 8;
-const ACTION_MOVES: u8 = 3;
-const TURN_TIME_LIMIT_SECONDS: u64 = 2000;
+pub const INITIAL_MOVES: u8 = 8;
+pub const ACTION_MOVES: u8 = 3;
+pub const TURN_TIME_LIMIT_SECONDS: u64 = 2000;
 
-mod errors {
-    const PLAYER_INVALID_RANK: felt252 = 'Player: invalid rank';
-    const PLAYER_NOT_EXISTS: felt252 = 'Player: does not exist';
-    const PLAYER_DOES_EXIST: felt252 = 'Player: does exist';
-    const PLAYER_IS_DEAD: felt252 = 'Player: is dead';
-    const NO_COMMANDS: felt252 = 'Player:  No Commands';
+pub mod errors {
+    pub const PLAYER_INVALID_RANK: felt252 = 'Player: invalid rank';
+    pub const PLAYER_NOT_EXISTS: felt252 = 'Player: does not exist';
+    pub const PLAYER_DOES_EXIST: felt252 = 'Player: does exist';
+    pub const PLAYER_IS_DEAD: felt252 = 'Player: is dead';
+    pub const NO_COMMANDS: felt252 = 'Player:  No Commands';
 }
 
 #[derive(Copy,Drop,Serde)]
 #[dojo::model]
-struct Player {
+pub struct Player {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    index: u32,
-    address: starknet::ContractAddress,
-    name: felt252,
-    supply: UnitsSupply,
-    last_action:u64,
-    rank: u8,
-    player_score: PlayerScore,
-    home_base:BattlefieldName,
-    commands_remaining: u8,
-    turn_start_time: u64,
+    pub index: u32,
+    pub address: starknet::ContractAddress,
+    pub name: felt252,
+    pub supply: UnitsSupply,
+    pub last_action:u64,
+    pub rank: u8,
+    pub player_score: PlayerScore,
+    pub home_base:BattlefieldName,
+    pub commands_remaining: u8,
+    pub turn_start_time: u64,
+    pub flags_captured: u8,
+    pub booster: u32,
 }
 
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct PlayerScore {
-    score: u32,
-    kills: u16,
-    deaths: u16,
+pub struct PlayerScore {
+    pub score: u32,
+    pub kills: u16,
+    pub deaths: u16,
 }
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
-enum UnitType {
+pub enum UnitType {
     None,
     Infantry,
     Armored,
@@ -52,16 +54,16 @@ enum UnitType {
 
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct UnitsSupply { 
-    infantry: u32,
-    armored: u32,
-    air: u32,
-    naval: u32,
-    cyber: u32,
+pub struct UnitsSupply { 
+    pub infantry: u32,
+    pub armored: u32,
+    pub air: u32,
+    pub naval: u32,
+    pub cyber: u32,
 }
 
 #[generate_trait]
-impl PlayerImpl of PlayerTrait {
+pub impl PlayerImpl of PlayerTrait {
     #[inline(always)]
     fn new(game_id: u32, index: u32, address: ContractAddress, name: felt252, home_base: BattlefieldName) -> Player {
         Player { 
@@ -82,6 +84,8 @@ impl PlayerImpl of PlayerTrait {
         home_base,
         commands_remaining: INITIAL_MOVES,
         turn_start_time: 0,
+        flags_captured: 0,
+        booster: 0,
     }
     }
 
@@ -119,7 +123,7 @@ impl PlayerImpl of PlayerTrait {
 
     #[inline(always)]
     fn nullify(ref self: Player) {
-        self.address = Zeroable::zero();
+        self.address = Zero::zero();
         self.name = 0;
         self.supply = UnitsSupply { 
             infantry: 0,
@@ -137,6 +141,8 @@ impl PlayerImpl of PlayerTrait {
         self.home_base = BattlefieldName::None;
         self.commands_remaining = 0;
         self.turn_start_time = 0;
+        self.flags_captured = 0;
+        self.booster = 0;
     }
 
     #[inline(always)]
@@ -180,7 +186,7 @@ impl PlayerImpl of PlayerTrait {
 }
 
 #[generate_trait]
-impl PlayerAssert of AssertTrait {
+pub impl PlayerAssert of AssertTrait {
     #[inline(always)]
     fn assert_exists(self: Player) {
         assert(self.is_non_zero(), errors::PLAYER_NOT_EXISTS);
@@ -197,13 +203,13 @@ impl PlayerAssert of AssertTrait {
     }
 }
 
-impl ZeroablePlayer of Zeroable<Player> {
+impl ZeroablePlayer of Zero<Player> {
     #[inline(always)]
     fn zero() -> Player {
         Player {
             game_id: 0,
             index: 0,
-            address: Zeroable::zero(),
+            address: Zero::zero(),
             name: 0,
             supply: UnitsSupply { 
                 infantry: 0,
@@ -222,24 +228,26 @@ impl ZeroablePlayer of Zeroable<Player> {
             home_base: BattlefieldName::None,
             commands_remaining: 0,
             turn_start_time: 0,
+            flags_captured: 0,
+            booster: 0
         }
     }
 
     #[inline(always)]
-    fn is_zero(self: Player) -> bool {
-        self.address == Zeroable::zero()
+    fn is_zero(self: @Player) -> bool {
+        *self.address == Zero::zero()
     }
 
 
     #[inline(always)]
-    fn is_non_zero(self: Player) -> bool {
+    fn is_non_zero(self: @Player) -> bool {
         !self.is_zero()
     }
 }
 
 
 #[generate_trait]
-impl UnitTypeImpl of UnitTypeTrait {
+pub impl UnitTypeImpl of UnitTypeTrait {
     fn to_int(self: UnitType) -> u8 {
         match self {
             UnitType::None => 0_u8,

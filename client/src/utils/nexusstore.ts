@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Game, Infantry, Player, AbilityState, UnitState } from '@/dojogen/models.gen';
+import { Game, Infantry, Player, AbilityState, UnitState } from '../dojogen/models.gen';
 
 // Store types
 type GameState = {
@@ -25,38 +25,38 @@ export const useGameStore = create<GameState>((set) => ({
     abilityState: {},
     unitState: {},
     
-    setGame: (game) => set((state) => ({
+    setGame: (game: Game) => set((state) => ({
         games: {
             ...state.games,
-            [game.game_id]: game
+            [`${game.game_id}`]: game 
         }
     })),
     
-    setPlayer: (player) => set((state) => ({
+    setPlayer: (player: Player) => set((state) => ({
         players: {
             ...state.players,
-            [player.address]: player
+            [player.address]: player  
         }
     })),
     
-    setAbilityState: (abilityState) => set((state) => ({
+    setAbilityState: (abilityState: AbilityState) => set((state) => ({
         abilityState: {
             ...state.abilityState,
-            [abilityState.unit_id]: abilityState
+            [`${abilityState.unit_id}`]: abilityState  
         }
     })),
     
-    setInfantry: (infantry) => set((state) => ({
+    setInfantry: (infantry: Infantry) => set((state) => ({
         infantry: {
             ...state.infantry,
-            [infantry.unit_id]: infantry
+            [`${infantry.unit_id}`]: infantry  
         }
     })),
-
-    setUnitState: (unitSate) => set((state) => ({
+    
+    setUnitState: (unitState: UnitState) => set((state) => ({
         unitState: {
             ...state.unitState,
-            [unitSate.unit_id]: unitSate
+            [`${unitState.unit_id}`]: unitState
         }
     })),
     

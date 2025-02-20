@@ -1,3 +1,5 @@
+import { CairoCustomEnum } from 'starknet';
+import { BattlefieldNameEnum } from '../../dojogen/models.gen';
 import { Scene, Vector3, FreeCamera, Mesh, ArcRotateCamera } from '@babylonjs/core';
 
 enum BattlefieldName {
@@ -17,10 +19,10 @@ interface CameraOffset {
 export class BattlefieldCameraManager {
   private scene: Scene;
   private camera: ArcRotateCamera;
-  private landmarks: Map<BattlefieldName, Mesh>;
-  private cameraOffsets: Map<BattlefieldName, CameraOffset>;
+  private landmarks: Map<string, Mesh>;  // Using string from activeVariant()
+  private cameraOffsets: Map<string, CameraOffset>;
 
-  constructor(scene: Scene,camera: ArcRotateCamera) {
+  constructor(scene: Scene, camera: ArcRotateCamera) {
     this.scene = scene;
     this.camera = camera;
     this.landmarks = new Map();
@@ -30,35 +32,36 @@ export class BattlefieldCameraManager {
   }
 
   private initializeCameraOffsets() {
-    this.cameraOffsets.set(BattlefieldName.RadiantShores, {
+    this.cameraOffsets.set('RadiantShores', {
       position: new Vector3(0, 10, -20),
       lookAtOffset: new Vector3(0, 0, 0)
     });
-    this.cameraOffsets.set(BattlefieldName.Ironforge, {
+    this.cameraOffsets.set('Ironforge', {
       position: new Vector3(15, 8, -15),
       lookAtOffset: new Vector3(0, 2, 0)
     });
-    this.cameraOffsets.set(BattlefieldName.SavageCoast, {
+    this.cameraOffsets.set('SavageCoast', {
       position: new Vector3(-10, 12, -10),
       lookAtOffset: new Vector3(0, 5, 0)
     });
-    this.cameraOffsets.set(BattlefieldName.NovaWarhound, {
+    this.cameraOffsets.set('NovaWarhound', {
       position: new Vector3(5, 15, -25),
       lookAtOffset: new Vector3(0, 3, 0)
     });
-    this.cameraOffsets.set(BattlefieldName.Skullcrag, {
+    this.cameraOffsets.set('Skullcrag', {
       position: new Vector3(-5, 7, -18),
       lookAtOffset: new Vector3(0, 1, 0)
     });
   }
 
-  public registerLandmark(battlefield: BattlefieldName, landmark: Mesh) {
-    this.landmarks.set(battlefield, landmark);
+  public registerLandmark(battlefield: CairoCustomEnum, landmark: Mesh) {
+    this.landmarks.set(battlefield as unknown as string, landmark);
   }
 
-  public setCameraForBattlefield(battlefield: BattlefieldName) {
-    const landmark = this.landmarks.get(battlefield);
-    const offset = this.cameraOffsets.get(battlefield);
+  public setCameraForBattlefield(battlefield: BattlefieldNameEnum) {
+    const battlefieldName = battlefield as unknown as string;
+    const landmark = this.landmarks.get(battlefieldName);
+    const offset = this.cameraOffsets.get(battlefieldName);
 
     if (landmark && offset) {
       const landmarkPosition = landmark.getAbsolutePosition();
@@ -66,7 +69,7 @@ export class BattlefieldCameraManager {
       const targetPosition = landmarkPosition.add(offset.lookAtOffset);
       this.camera.setTarget(targetPosition);
     } else {
-      console.warn(`Landmark or camera offset not defined for battlefield: ${battlefield}`);
+      console.warn(`Landmark or camera offset not defined for battlefield: ${battlefieldName}`);
     }
   }
 }

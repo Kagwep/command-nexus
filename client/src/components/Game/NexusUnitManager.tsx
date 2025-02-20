@@ -10,8 +10,9 @@ import { GameState } from './GameState';
 import { BattlefieldCameraManager } from './BattlefieldCameraManager';
 import { Account, AccountInterface } from 'starknet';
 import { bigintToU256 } from '../../lib/lib_utils/starknet';
-import { AbilityState, BattlefieldName, EnvironmentInfo, Player, UnitAbilities, UnitMode, UnitState } from '../../dojogen/models.gen';
+import { AbilityState, BattlefieldName, EnvironmentInfo, Player, UnitAbilities, UnitMode, UnitModeEnum, UnitState } from '../../dojogen/models.gen';
 import { StarknetErrorParser } from './ErrorParser';
+import { NexusFlagManager } from './NexusFlagManager';
 
 
 class NexusUnitManager {
@@ -53,6 +54,8 @@ class NexusUnitManager {
     private armoredUnits: Map<string, Infantry> = new Map();
     private infantryUnitsStates: Map<string, UnitState> = new Map();
     private infantryUnitsModes: Map<string, AbilityState> = new Map();
+    private flagManager: NexusFlagManager;
+    private updatePlayerInfo: Player | undefined = undefined;
 
     constructor(
         scene: Scene, 
@@ -65,7 +68,8 @@ class NexusUnitManager {
         ArmoredAssetContainer: AssetContainer,
         battlefieldCameraManager: BattlefieldCameraManager,
         client: any,
-        getAccount: () => AccountInterface | Account
+        getAccount: () => AccountInterface | Account,
+        flagContainer: AssetContainer
    
     ) {
         this.scene = scene;
@@ -92,8 +96,10 @@ class NexusUnitManager {
           this.getAccount = getAccount;
           this.addUnits();
           this.updateGUIInfo();
-   
+          
          // this.initializeCameraPosition();
+         this.flagManager = new NexusFlagManager(scene,flagContainer,client,getAccount,getGui,getGameState);
+         
         
     }
 
@@ -292,8 +298,9 @@ class NexusUnitManager {
 
     private async handlePointerTap(mesh: Mesh): Promise<void> {
         const startingPoint = this.getGroundPosition();
+        const clickedRegion = this.getClickedRegion(startingPoint);
         // console.log(mesh.name, mesh.metadata)
-         console.log("******************************",this.selectedAgent)
+         console.log("******************************",this.selectedAgent,startingPoint,clickedRegion)
         console.log(this.getGui()?.getDeploymentMode());
         console.log(mesh.name.includes("ground"),this.getGui()?.getDeploymentMode());
         if(!this.getGui()?.getDeploymentMode()){
@@ -304,7 +311,13 @@ class NexusUnitManager {
             if (mesh.metadata.UnitData.unit_id){
                 
                 this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
-  
+
+                const agent = this.agents[mesh.metadata.agentIndex];
+
+                if (this.updatePlayerInfo){
+                    this.getGui()?.showBooststOptions(agent,this.updatePlayerInfo, mesh.metadata.UnitMode);
+                }
+
                 // switch (mesh.metadata.UnitData.unitType) {
                 //     case UnitType.Infantry:
                 //         console.log("..",mesh.metadata.UnitData)
@@ -471,6 +484,7 @@ class NexusUnitManager {
                  this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
                  this.getGui().setSelectedUnitInfo(this.selectedAgent);
                  this.getGui().showUnitStateInfo(this.selectedAgent.visualMesh.metadata.UnitState);
+                 this.flagManager.setFlagData(this.agents[mesh.metadata.agentIndex])
             }
            
         } else if (mesh.name.includes("ground") && this.selectedAgent && !this.getGui()?.getDeploymentMode()) {
@@ -551,7 +565,7 @@ class NexusUnitManager {
             //console.log(player_base === clickedRegion);
             //console.log(player_base, clickedRegion)
 
-            if (player_base === BattlefieldName[clickedRegion] as unknown as BattlefieldName){
+            if (player_base as unknown as string === clickedRegion){
 
                 const encodedPosition= positionEncoder(startingPoint);
                 const unit = unitTypeToInt(unitType);
@@ -561,7 +575,7 @@ class NexusUnitManager {
                 
 
                 const deployInfo: Deploy = {
-                    game_id: this.getGameState().game.game_id,
+                    game_id: Number(this.getGameState().game.game_id),
                     battlefield_id: battlefieldId,
                     unit: unit,
                     supply: 1,
@@ -964,13 +978,13 @@ class NexusUnitManager {
         return inside;
     }
 
-    public getClickedRegion(clickPosition: Vector3): BattlefieldName {
+    public getClickedRegion(clickPosition: Vector3): string {
         for (const region of regions) {
             if (this.isPointInPolygon(clickPosition, region.points)) {
                 return region.name;
             }
         }
-        return BattlefieldName.None;
+        return "None";
     }
     
 
@@ -1163,12 +1177,20 @@ class NexusUnitManager {
           // console.log("vvvvvvbv",this.scene.metadata.playerInfo )
             // Add your GUI update logic here
             if (this.scene.metadata && this.scene.metadata.playerInfo ){
+
+                this.updatePlayerInfo = this.scene.metadata.playerInfo;
                 
                 this.getGui().updatePlayerInfo(this.scene.metadata.playerInfo);
-                this.getGui().updateScore(this.scene.metadata.playerInfo.player_score.score);
-                this.getGui().updateCommands(this.scene.metadata.playerInfo.commands_remaining)
+                ///this.getGui().updateScore(this.scene.metadata.playerInfo.player_score.score);
+                //this.getGui().updateCommands(this.scene.metadata.playerInfo.commands_remaining)
                 this.getGui().updateText("player-text", this.scene.metadata.playerInfo.name);
                 this.getGui().updateText("base-text", this.scene.metadata.playerInfo.home_base);
+                this.getGui().updateText("boost-text", this.scene.metadata.playerInfo.booster);
+                this.getGui().updateText("rank-text", this.scene.metadata.playerInfo.rank);
+                this.getGui().updateText("commands-text", this.scene.metadata.playerInfo.commands_remaining);
+                this.getGui().updateText("flag-text", this.scene.metadata.playerInfo.flags_captured);
+                this.getGui().updateText("score-text", this.scene.metadata.playerInfo.player_score.score);
+
 
                 if (this.scene.metadata && this.scene.metadata.gameInfo){
                     const turn  = this.scene.metadata.gameInfo.nonce  % this.scene.metadata.gameInfo.player_count;
@@ -1176,9 +1198,11 @@ class NexusUnitManager {
                     const isItMyTurn  = turn === this.scene.metadata.playerInfo.index ? true : false
 
                     if (isItMyTurn){
-                        this.getGui().updateTurnInfo('🟢');
+                        //this.getGui().updateTurnInfo('🟢');
+                        this.getGui().updateText("turn-text", '🟢');
                     }else{
-                        this.getGui().updateTurnInfo('🔴');
+                        //this.getGui().updateTurnInfo('🔴');
+                        this.getGui().updateText("turn-text", '🔴');
                     }
                 }
 
@@ -1261,18 +1285,18 @@ class NexusUnitManager {
                 });
             }
             
-            if (this.scene.metadata && Array.isArray(this.scene.metadata.infantryModes) && this.crowd) {
-                this.scene.metadata.infantryModes.forEach((unitData: AbilityState) => {
-                    if (!this.infantryUnitsModes.has(unitData.unit_id as unknown as string)) {
+            if (this.scene.metadata && this.scene.metadata.infantryModes && this.crowd) {
+                Object.entries(this.scene.metadata.infantryModes).forEach(([unitId, unitData]) => {
+                    if (!this.infantryUnitsModes.has((unitData as any).unit_id as unknown as string)) {
                         // This is a new unit
                         console.log('New UnitMode unit detected:', unitData);
-                        this.infantryUnitsModes.set(unitData.unit_id as unknown as string, unitData);
-                        this.handleNewInfantryUnitMode(unitData);
+                        this.infantryUnitsModes.set((unitData as any).unit_id as unknown as string, (unitData as any));
+                        this.handleNewInfantryUnitMode((unitData as any));
                     } else {
                         // Check if the unit mode has actually changed
-                        const existingMode = this.infantryUnitsModes.get(unitData.unit_id as unknown as string);
-                        if (!this.areAbilityStatesEqual(existingMode, unitData)) {
-                            this.infantryUnitsModes.set(unitData.unit_id as unknown as string, unitData);
+                        const existingMode = this.infantryUnitsModes.get((unitData as any).unit_id as unknown as string);
+                        if (!this.areAbilityStatesEqual(existingMode, (unitData as any))) {
+                            this.infantryUnitsModes.set((unitData as any).unit_id as unknown as string, (unitData as any));
                             this.updateInfantryUnitMode(unitData);
                         }
                     }
@@ -1309,7 +1333,7 @@ class NexusUnitManager {
     }
 
     private handleNewInfantryUnitData(unitData: UnitState) {
-        const agent = this.getAgentByUnitId(unitData.unit_id);
+        const agent = this.getAgentByUnitId(Number(unitData.unit_id));
     
         if (!agent) {
             console.warn(`No data found for unit ${unitData.unit_id}`);
@@ -1333,13 +1357,18 @@ class NexusUnitManager {
 
         //console.log("unit state ...",unitData)
     
-        // Update metadata
         agent.visualMesh.metadata.UnitState = unitData;
+
+        agent.visualMesh.getChildMeshes().forEach(childMesh => {
+            childMesh.metadata.UnitState = unitData;
+        });
+        // Update metadata
+        
         
     }
 
     private handleNewInfantryUnitMode(unitData: AbilityState) {
-        const agent = this.getAgentByUnitId(unitData.unit_id);
+        const agent = this.getAgentByUnitId(Number(unitData.unit_id));
     
         if (!agent) {
             console.warn(`No data found for unit ${unitData.unit_id}`);
@@ -1348,8 +1377,11 @@ class NexusUnitManager {
     
         console.log("unit mode ...",unitData)
 
-        // Update metadata 
         agent.visualMesh.metadata.UnitMode = unitData;
+
+        agent.visualMesh.getChildMeshes().forEach(childMesh => {
+            childMesh.metadata.UnitMode = unitData;
+        });
 
     }
 
@@ -1361,7 +1393,7 @@ class NexusUnitManager {
             return;
         }
 
-        console.log("unit mode ...",unitData)
+        //console.log("unit mode ...",unitData)
     
         // Update metadata
         agent.visualMesh.metadata.UnitMode = unitData;
@@ -1464,7 +1496,7 @@ class NexusUnitManager {
         return JSON.stringify(env1) === JSON.stringify(env2);
     }
     
-    private areUnitModesEqual(mode1: UnitMode, mode2: UnitMode): boolean {
+    private areUnitModesEqual(mode1: UnitModeEnum, mode2: UnitModeEnum): boolean {
         // Implement based on your UnitMode interface
         return JSON.stringify(mode1) === JSON.stringify(mode2);
     }

@@ -1,4 +1,4 @@
-import { CommandNexusSchemaType } from '@/dojogen/models.gen';
+import { CommandNexusSchemaType } from '../dojogen/models.gen';
 import { ClauseBuilder, ParsedEntity, ToriiQueryBuilder } from '@dojoengine/sdk';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useEffect } from 'react';
@@ -127,6 +127,8 @@ const transformPlayer = (rawData: any) => {
         home_base:getPrimitiveValue(playerData.home_base),
         commands_remaining: getPrimitiveValue(playerData.commands_remaining),
         turn_start_time: getPrimitiveValue(playerData.turn_start_time),
+        flags_captured: getPrimitiveValue(playerData.flags_captured),
+        booster:getPrimitiveValue(playerData.booster),
     };
 };
 

@@ -11,7 +11,7 @@ use dojo::model::{ModelStorage, ModelValueStorage};
 use dojo::event::EventStorage;
 
 #[derive(Copy, Drop)]
-enum NexusUnit {
+pub enum NexusUnit {
     Infantry: Infantry,
     Armored: Armored,
     Air: AirUnit,
@@ -21,7 +21,7 @@ enum NexusUnit {
 
 
 #[generate_trait]
-impl NexusUnitImpl of NexusUnitTrait {
+pub impl NexusUnitImpl of NexusUnitTrait {
     fn has_energy(self: NexusUnit) {
         match self {
             NexusUnit::Infantry(infantry) => infantry.has_energy(),
@@ -162,7 +162,7 @@ impl NexusUnitImpl of NexusUnitTrait {
     }
 }
 
-mod helper {
+pub mod helper {
     use super::ContractAddress;
     use super::NexusUnit;
     use command_nexus::models::game::{Game, GameTrait, GameAssert};
@@ -185,7 +185,24 @@ mod helper {
         // Cyber unit kill scores
         CYBER_KILLS_AIR, CYBER_KILLS_INFANTRY, CYBER_KILLS_ARMORED, CYBER_KILLS_CYBER, CYBER_KILLS_NAVAL,
         // Naval unit kill scores
-        NAVAL_KILLS_AIR, NAVAL_KILLS_INFANTRY, NAVAL_KILLS_ARMORED, NAVAL_KILLS_CYBER, NAVAL_KILLS_NAVAL
+        NAVAL_KILLS_AIR, NAVAL_KILLS_INFANTRY, NAVAL_KILLS_ARMORED, NAVAL_KILLS_CYBER, NAVAL_KILLS_NAVAL,
+        RADIANT_SHORES_FLAG_X,
+        RADIANT_SHORES_FLAG_Y,
+        RADIANT_SHORES_FLAG_Z,
+        IRONFORGE_FLAG_X,
+        IRONFORGE_FLAG_Y,
+        IRONFORGE_FLAG_Z,
+        SKULLCRAG_FLAG_X,
+        SKULLCRAG_FLAG_Y,
+        SKULLCRAG_FLAG_Z,
+        NOVA_WARHOUND_FLAG_X,
+        NOVA_WARHOUND_FLAG_Y,
+        NOVA_WARHOUND_FLAG_Z,
+        SAVAGE_COAST_FLAG_X,
+        SAVAGE_COAST_FLAG_Y,
+        SAVAGE_COAST_FLAG_Z,
+        TOLERANCE
+
     };
     
     use command_nexus::models::battlefield::{WeatherCondition,UrbanBattlefield,UrbanBattlefieldTrait,BattlefieldName,BattlefieldNameTrait};
@@ -197,7 +214,7 @@ mod helper {
     use dojo::world::storage::WorldStorage;
 
     #[generate_trait]
-    impl HelperImpl of HelperTrait {
+    pub impl HelperImpl of HelperTrait {
         fn game(world: WorldStorage, id: u32) -> Game {
            // get!(world, id, (Game))
            let mut game: Game  =  world.read_model(id);
@@ -680,6 +697,64 @@ mod helper {
                 },
                 UnitType::None => 0_u32,
             }
+        }
+
+
+
+        fn get_battlefield_flag_position(battlefield: BattlefieldName) -> Vec3 {
+            match battlefield {
+                BattlefieldName::RadiantShores => Vec3 {
+                    x: RADIANT_SHORES_FLAG_X,
+                    y: RADIANT_SHORES_FLAG_Y,
+                    z: RADIANT_SHORES_FLAG_Z
+                },
+                BattlefieldName::Ironforge => Vec3 {
+                    x: IRONFORGE_FLAG_X,
+                    y: IRONFORGE_FLAG_Y,
+                    z: IRONFORGE_FLAG_Z
+                },
+                BattlefieldName::Skullcrag => Vec3 {
+                    x: SKULLCRAG_FLAG_X,
+                    y: SKULLCRAG_FLAG_Y,
+                    z: SKULLCRAG_FLAG_Z
+                },
+                BattlefieldName::NovaWarhound => Vec3 {
+                    x: NOVA_WARHOUND_FLAG_X,
+                    y: NOVA_WARHOUND_FLAG_Y,
+                    z: NOVA_WARHOUND_FLAG_Z
+                },
+                BattlefieldName::SavageCoast => Vec3 {
+                    x: SAVAGE_COAST_FLAG_X,
+                    y: SAVAGE_COAST_FLAG_Y,
+                    z: SAVAGE_COAST_FLAG_Z
+                },
+                BattlefieldName::None => Vec3 { x: 0, y: 0, z: 0 }
+            }
+        }
+
+        fn is_same_position(position1: Vec3, position2: Vec3) -> bool {
+            // For each coordinate, check if the absolute difference is within tolerance
+            let x_diff = if position1.x >= position2.x {
+                position1.x - position2.x
+            } else {
+                position2.x - position1.x
+            };
+            
+            let y_diff = if position1.y >= position2.y {
+                position1.y - position2.y
+            } else {
+                position2.y - position1.y
+            };
+            
+            let z_diff = if position1.z >= position2.z {
+                position1.z - position2.z
+            } else {
+                position2.z - position1.z
+            };
+            
+            x_diff <= TOLERANCE && 
+            y_diff <= TOLERANCE && 
+            z_diff <= TOLERANCE
         }
 
     }

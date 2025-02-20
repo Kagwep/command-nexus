@@ -1105,10 +1105,9 @@ export type UnitMode = {
 	Retreating: string;
 	Repairing: string;
 }
-
 export type UnitModeEnum = CairoCustomEnum;
 
-export interface CommandNexusSchemaType extends ISchemaType {
+export interface SchemaType extends ISchemaType {
 	command_nexus: {
 		Cable: WithFieldOrder<Cable>,
 		CableValue: WithFieldOrder<CableValue>,
@@ -1214,7 +1213,7 @@ export interface CommandNexusSchemaType extends ISchemaType {
 		UnitStateValue: WithFieldOrder<UnitStateValue>,
 	},
 }
-export const schema: CommandNexusSchemaType = {
+export const schema: SchemaType = {
 	command_nexus: {
 		Cable: {
 			fieldOrder: ['game_id', 'player_id', 'cable_id', 'cable_name', 'length', 'status'],

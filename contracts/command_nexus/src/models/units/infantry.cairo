@@ -4,36 +4,36 @@ use command_nexus::constants::{SCALE,OFFSET,BASE_ENERGY_COST,DISTANCE_ENERGY_MUL
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct Infantry {
+pub struct Infantry {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    unit_id: u32,
+    pub unit_id: u32,
     #[key]
-    player_id: u32,
-    range: u256,
-    energy: u32,
-    accuracy: u8,
-    accessories: InfantryAccessories,
-    health: InfantryHealth,
-    position: Position,
-    battlefield_name:BattlefieldName,
+    pub player_id: u32,
+    pub range: u256,
+    pub energy: u32,
+    pub accuracy: u8,
+    pub accessories: InfantryAccessories,
+    pub health: InfantryHealth,
+    pub position: Position,
+    pub battlefield_name:BattlefieldName,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct InfantryAccessories {
-    ammunition: u32,
-    first_aid_kit: u32,
+pub struct InfantryAccessories {
+    pub ammunition: u32,
+    pub first_aid_kit: u32,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct InfantryHealth {
-    current: u32,
-    max: u32,
+pub struct InfantryHealth {
+    pub current: u32,
+    pub max: u32,
 }
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
-enum InfantryAction {
+pub enum InfantryAction {
     UseFirstAidKit,
     Patrol,
 }
@@ -41,7 +41,7 @@ enum InfantryAction {
 
 
 #[generate_trait]
-impl InfantryImpl of InfantryTrait{
+pub impl InfantryImpl of InfantryTrait{
 
     #[inline(always)]
     fn new(game_id: u32,unit_id: u32, player_id:u32,x: u256,y: u256, z: u256,battlefield_name: BattlefieldName) -> Infantry {

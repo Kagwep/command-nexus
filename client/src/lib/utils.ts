@@ -1,4 +1,4 @@
-import { CommandNexusSchemaType, Game, HomeBasesTuple, Player, PlayerScore, UnitsSupply } from "@/dojogen/models.gen";
+import { CommandNexusSchemaType, Game, HomeBasesTuple, Player, PlayerScore, UnitsSupply } from "../dojogen/models.gen";
 import { sanitizePlayer } from "../utils/sanitizer";
 //import { createDojoStore } from "@dojoengine/sdk";
 import { ToriiClient } from "@dojoengine/torii-client";
@@ -53,9 +53,7 @@ const parseUnitsSupply = (raw: StructValue): UnitsSupply => {
 const parsePlayerScore = (raw: StructValue): PlayerScore => {
   const score = raw.value;
   return {
-    fieldOrder:[],
     deaths: Number(score.deaths.value),
-    assists: Number(score.assists.value),
     score: Number(score.score.value),
     kills: Number(score.kills.value)
   };
@@ -70,7 +68,6 @@ const parseHexValue = (hex: string) => {
 const parseHomeBasesTuple = (raw: StructValue): HomeBasesTuple => {
   const bases = raw.value;
   return {
-    fieldOrder: [],
     base1: parseHexValue(bases.base1.value as string) as unknown as number,
     base2: parseHexValue(bases.base2.value as string) as unknown as number,
     base3: parseHexValue(bases.base3.value as string) as unknown as number,
@@ -99,7 +96,7 @@ export const parseEntity = <T>(modelName: string, rawEntity: RawEntity): T => {
         seed: Number(parseHexValue(rawEntity.seed.value as string)),
         available_home_bases: parseHomeBasesTuple(rawEntity.available_home_bases as StructValue),
         player_name: Number(parseHexValue(rawEntity.player_name.value as string)),
-        fieldOrder: Object.keys(rawEntity),
+    
       };
       return parsedGame as T;
     }
@@ -117,7 +114,8 @@ export const parseEntity = <T>(modelName: string, rawEntity: RawEntity): T => {
         name: rawEntity.name.value as string,
         rank: Number(rawEntity.rank.value),
         player_score: parsePlayerScore(rawEntity.player_score as StructValue),
-        fieldOrder:Object.keys(rawEntity),
+        flags_captured: "",
+        booster: ""
       };
       return parsedPlayer as T;
     }
@@ -136,3 +134,15 @@ export   const getGame = (gameId: number, nstate: Record<string, Game>): Game | 
   if (gameId === undefined || gameId === null) return undefined;
   return Object.values(nstate).find(game => game.game_id === gameId);
 };
+
+
+
+type NumericEnumType = { [key: string]: number };
+
+// Convert type to numeric enum type
+export function convertTypeToNumericEnum(type: Record<string, any>): NumericEnumType {
+    return Object.keys(type).reduce((acc: NumericEnumType, key: string, index: number) => {
+        acc[key] = index;
+        return acc;
+    }, {});
+}

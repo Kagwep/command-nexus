@@ -5,38 +5,38 @@ use command_nexus::constants::{SCALE,OFFSET};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct CyberUnit {
+pub struct CyberUnit {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    unit_id: u32,
+    pub unit_id: u32,
     #[key]
-    player_id: u32,
-    hacking_range: u64,
-    encryption_strength: u32,
-    stealth: u8,
-    range: u256,
-    accessories: CyberUnitAccessories,
-    health: CyberUnitHealth,
-    position: Position,
-    battlefield_name: BattlefieldName,
-    energy: u32,
+    pub player_id: u32,
+    pub hacking_range: u64,
+    pub encryption_strength: u32,
+    pub stealth: u8,
+    pub range: u256,
+    pub accessories: CyberUnitAccessories,
+    pub health: CyberUnitHealth,
+    pub position: Position,
+    pub battlefield_name: BattlefieldName,
+    pub energy: u32,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct CyberUnitAccessories {
-    malware: u32,
-    repair_kits: u8,
+pub struct CyberUnitAccessories {
+    pub malware: u32,
+    pub repair_kits: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct CyberUnitHealth {
-    current: u32,
-    max: u32,
+pub struct CyberUnitHealth {
+    pub current: u32,
+    pub max: u32,
 }
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
-enum CyberUnitAction {
+pub enum CyberUnitAction {
     Attack,
     DeployMalware,
 }
@@ -44,7 +44,7 @@ enum CyberUnitAction {
 
 
 #[generate_trait]
-impl CyberUnitImpl of CyberUnitTrait {
+pub impl CyberUnitImpl of CyberUnitTrait {
 
     #[inline(always)]
     fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> CyberUnit {

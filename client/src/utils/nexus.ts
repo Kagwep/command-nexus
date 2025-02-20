@@ -6,7 +6,7 @@ import { removeLeadingZeros } from './sanitizer';
 import { bigintToU256 } from "../lib/lib_utils/starknet";
 import { Uint256ToBigint } from '../lib/lib_utils/starknet';
 import { ToriiClient } from '@dojoengine/torii-client';
-import { Game } from '@/dojogen/models.gen';
+import { Game } from '../dojogen/models.gen';
 
 export enum Phase {
   DEPLOY,
@@ -218,17 +218,17 @@ export function battlefieldTypeToString(battlefield: BattlefieldName): string {
 
 
 
-export function battlefieldTypeToInt(battlefield: BattlefieldName): number {
+export function battlefieldTypeToInt(battlefield: string): number {
   switch (battlefield) {
-      case BattlefieldName.RadiantShores:
+      case "RadiantShores":
           return 1;
-      case BattlefieldName.Ironforge:
+      case "Ironforge":
           return 2;
-      case BattlefieldName.Skullcrag:
+      case "Skullcrag":
           return 3;
-      case BattlefieldName.NovaWarhound:
+      case "NovaWarhound":
           return 4;
-      case BattlefieldName.SavageCoast:
+      case "SavageCoast":
           return 5;
       default:
           throw new Error(`Invalid region: ${battlefield}`);
@@ -345,10 +345,10 @@ export const SkullcragPoints: Vector3[] = [
 ];
 
 export const regions: Region[] = [
-  { name: BattlefieldName.RadiantShores, points: RadiantShoresPoints },
-  { name: BattlefieldName.Ironforge, points: IronforgePoints },
-  { name: BattlefieldName.NovaWarhound, points: NovaWarhoundPoints },
-  { name: BattlefieldName.Skullcrag, points: SkullcragPoints },
+  { name: "RadiantShores", points: RadiantShoresPoints },
+  { name: "Ironforge", points: IronforgePoints },
+  { name: "NovaWarhound", points: NovaWarhoundPoints },
+  { name: "Skullcrag", points: SkullcragPoints },
   // Add Skullcrag when you have its points
 ];
 

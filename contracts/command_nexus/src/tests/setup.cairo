@@ -1,7 +1,7 @@
-mod setup {
+pub mod setup {
 
 
-    use core::debug::PrintTrait;
+   
     use starknet::ContractAddress;
     use starknet::testing::set_contract_address;
     use dojo_cairo_test::WorldStorageTestTrait;
@@ -23,20 +23,20 @@ mod setup {
 
     use dojo::world::storage::WorldStorage;
 
-    fn ARENA_HOST() -> ContractAddress {
+    pub fn ARENA_HOST() -> ContractAddress {
         starknet::contract_address_const::<'ARENA_HOST'>()
     }
 
-    fn PLAYER() -> ContractAddress {
+    pub fn PLAYER() -> ContractAddress {
         starknet::contract_address_const::<'PLAYER'>()
     }
 
-    fn PLAYER_TWO() -> ContractAddress {
+    pub fn PLAYER_TWO() -> ContractAddress {
         starknet::contract_address_const::<'PLAYER_TWO'>()
     }
 
 
-    fn PLAYER_THREE() -> ContractAddress {
+    pub fn PLAYER_THREE() -> ContractAddress {
         starknet::contract_address_const::<'PLAYER_THREE'>()
     }
 
@@ -46,12 +46,12 @@ mod setup {
     // }
 
     #[derive(Copy, Drop)]
-    struct Systems {
-        arena: IArenaDispatcher,
-        nexus: INexusDispatcher,
+    pub struct Systems {
+        pub arena: IArenaDispatcher,
+        pub nexus: INexusDispatcher,
     }
 
-    fn namespace_def() -> NamespaceDef {
+    pub fn namespace_def() -> NamespaceDef {
         let ndef = NamespaceDef {
             namespace: "command_nexus", resources: [
                 TestResource::Model(m_Game::TEST_CLASS_HASH),
@@ -69,7 +69,7 @@ mod setup {
         ndef
     }
 
-    fn contract_defs() -> Span<ContractDef> {
+    pub fn contract_defs() -> Span<ContractDef> {
         [
             ContractDefTrait::new(@"command_nexus", @"arena")
                 .with_writer_of([dojo::utils::bytearray_hash(@"command_nexus")].span()),
@@ -80,7 +80,7 @@ mod setup {
     }
 
 
-    fn spawn_game() -> (WorldStorage, Systems) {
+    pub fn spawn_game() -> (WorldStorage, Systems) {
 
         // Initialize test environment
         let ndef = namespace_def();

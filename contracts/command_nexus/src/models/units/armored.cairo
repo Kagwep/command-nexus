@@ -6,44 +6,44 @@ use command_nexus::constants::{SCALE,OFFSET,DISTANCE_ENERGY_MULTIPLIER,BASE_ENER
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct Armored {
+pub struct Armored {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    unit_id: u32,
+    pub unit_id: u32,
     #[key]
-    player_id: u32,
-    accuracy: u8,
-    firepower: u32,
-    range: u256,
-    energy: u32,
-    accessories: ArmoredAccessories,
-    armored_health: ArmoredHealth,
-    position: Position,
-    battlefield_name: BattlefieldName,
+    pub player_id: u32,
+    pub accuracy: u8,
+    pub firepower: u32,
+    pub range: u256,
+    pub energy: u32,
+    pub accessories: ArmoredAccessories,
+    pub armored_health: ArmoredHealth,
+    pub position: Position,
+    pub battlefield_name: BattlefieldName,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct ArmoredAccessories {
-    ammunition: u32,
-    repair_kits: u8,
+pub struct ArmoredAccessories {
+    pub ammunition: u32,
+    pub repair_kits: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct ArmoredHealth {
-    current: u32,
-    max: u32,
+pub struct ArmoredHealth {
+    pub current: u32,
+    pub max: u32,
 }
 
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
-enum ArmoredAction {
+pub enum ArmoredAction {
     FireMainGun,
     UseRepairKit,
 }
 
 #[generate_trait]
-impl ArmoredImpl of ArmoredTrait {
+pub impl ArmoredImpl of ArmoredTrait {
 
     #[inline(always)]
     fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> Armored {

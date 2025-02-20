@@ -1,9 +1,9 @@
 use starknet::ContractAddress;
 use starknet::get_block_timestamp;
-
+use command_nexus::models::position::{Position, Vec3};
 
 #[derive(Serde, Drop, Copy, PartialEq, Introspect,Destruct)]
-enum BattlefieldName {
+pub enum BattlefieldName {
     None,
     RadiantShores,
     Ironforge,
@@ -14,39 +14,46 @@ enum BattlefieldName {
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
-struct UrbanBattlefield {
+pub struct UrbanBattlefield {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    battlefield_id: u8,
-    player_id: u32,
-    size: u32,
-    weather: WeatherEffect,
-    control:u16,
+    pub battlefield_id: u8,
+    pub player_id: u32,
+    pub size: u32,
+    pub weather: WeatherEffect,
+    pub control:u16,
+}
+
+
+
+#[derive(Copy, Drop, Serde)]
+#[dojo::model]
+pub struct BattlefieldFlag {
+    #[key]
+    pub game_id: u32,
+    #[key]
+    pub flag_id:u8,
+    pub player: ContractAddress,
+    pub position: Vec3,
+    pub captured: bool,
 }
 
 #[derive(Copy, Drop, Serde)]
 #[dojo::model]
 struct Scoreboard {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    player_id: u32,
-    player_count: u8,
-    top_score: u32,
-    last_updated: u64,  
+    pub player_id: u32,
+    pub player_count: u8,
+    pub top_score: u32,
+    pub last_updated: u64,  
 }
 
-
-#[derive(Copy, Drop, Serde, Introspect)]
-struct Vec3 {
-    x: u32,
-    y: u32,
-    z: u32,
-}
 
 #[derive(Serde, Drop, Copy, PartialEq, Introspect)]
-enum WeatherCondition {
+pub enum WeatherCondition {
     None,
     Clear,
     Rainy,
@@ -55,31 +62,31 @@ enum WeatherCondition {
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct WeatherEffect {
-    weather_condition: WeatherCondition,
-    visibility: u8,
-    movement_penalty: u8,
-    comms_interference: u8,
+pub struct WeatherEffect {
+    pub weather_condition: WeatherCondition,
+    pub visibility: u8,
+    pub movement_penalty: u8,
+    pub comms_interference: u8,
 
 }
 
-mod battle_field_sizes {
+pub mod battle_field_sizes {
 
-    const NONE_SIZE: u32 = 0;
-    const RADIANT_SHORES_SIZE: u32 = 100;
-    const IRONFORGE_SIZE: u32 = 80;
-    const SKULLCRAG_SIZE: u32 = 120;
-    const NOVA_WARHOUND_SIZE: u32 = 90;
-    const SAVAGE_COAST_SIZE: u32 = 110;
+    pub const NONE_SIZE: u32 = 0;
+    pub const RADIANT_SHORES_SIZE: u32 = 100;
+    pub const IRONFORGE_SIZE: u32 = 80;
+    pub const SKULLCRAG_SIZE: u32 = 120;
+    pub const NOVA_WARHOUND_SIZE: u32 = 90;
+    pub const SAVAGE_COAST_SIZE: u32 = 110;
 }
 
-trait BattlefieldNameTrait {
+pub trait BattlefieldNameTrait {
     fn from_battlefield_id(value: u8) -> Option<BattlefieldName>;
     fn to_battlefield_id(self: BattlefieldName) -> u8;
     fn get_size(self: BattlefieldName) -> u32;
 }
 
-impl BattlefieldNameImpl of BattlefieldNameTrait {
+pub impl BattlefieldNameImpl of BattlefieldNameTrait {
 
 
 
@@ -121,7 +128,7 @@ impl BattlefieldNameImpl of BattlefieldNameTrait {
 
 
 #[generate_trait]
-impl WeatherConditionImpl of WeatherConditionTrait {
+pub impl WeatherConditionImpl of WeatherConditionTrait {
     fn calculate_weather_impact(self: WeatherCondition) -> u32 {
         match self {
             WeatherCondition::None => 100, // No impact
@@ -134,7 +141,7 @@ impl WeatherConditionImpl of WeatherConditionTrait {
 }
 
 #[generate_trait]
-impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
+pub impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
 
     #[inline(always)]
     fn new(game_id: u32,  battlefield_id: u8,player_id: u32, weather: WeatherEffect, size: u32) -> UrbanBattlefield {
@@ -157,7 +164,7 @@ impl UrbanBattlefieldImpl of UrbanBattlefieldTrait {
 }
 
 #[generate_trait]
-impl WeatherEffectImpl of WeatherEffectTrait {
+pub impl WeatherEffectImpl of WeatherEffectTrait {
 
 
 
@@ -209,4 +216,20 @@ impl WeatherEffectImpl of WeatherEffectTrait {
     }
     
 
+}
+
+#[generate_trait]
+pub impl BattlefieldFlagImpl of BattlefieldFlagTrait {
+    
+
+    #[inline(always)]
+    fn capture(game_id: u32,player: ContractAddress,position: Vec3,flag_id:u8) -> BattlefieldFlag{
+        BattlefieldFlag {
+            game_id: game_id,
+            flag_id: flag_id,
+            player: player,
+            position: position,
+            captured: true,
+        }
+    }
 }

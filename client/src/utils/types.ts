@@ -126,7 +126,7 @@ export interface GameState {
 
 
 export interface Region {
-  name: BattlefieldName;
+  name: string;
   points: Vector3[];
 }
 
@@ -305,3 +305,14 @@ export interface StructValue {
 
 export type RawEntityValue = PrimitiveValue | StructValue;
 export type RawEntity = Record<string, RawEntityValue>;
+
+
+export interface FlagData {
+  game_id: number;
+  unit_id: number;
+  unit_type: number;
+  flag_id: number;
+  x:Uint256;  // Using string for u256
+  y: Uint256;  // Using string for u256
+  z: Uint256;  // Using string for u256
+}

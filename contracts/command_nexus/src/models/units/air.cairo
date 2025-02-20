@@ -5,44 +5,44 @@ use command_nexus::constants::{SCALE,OFFSET};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct AirUnit {
+pub struct AirUnit {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    unit_id: u32,
+    pub unit_id: u32,
     #[key]
-    player_id: u32,
-    range: u256,
-    firepower: u32,
-    accuracy: u8,
-    energy: u32,
-    accessories: AirUnitAccessories,
-    health: AirUnitHealth,
-    position: Position,
-    battlefield_name: BattlefieldName,
-    altitude: u32,  
-    max_speed: u32, 
+    pub player_id: u32,
+    pub range: u256,
+    pub firepower: u32,
+    pub accuracy: u8,
+    pub energy: u32,
+    pub accessories: AirUnitAccessories,
+    pub health: AirUnitHealth,
+    pub position: Position,
+    pub battlefield_name: BattlefieldName,
+    pub altitude: u32,  
+    pub max_speed: u32, 
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct AirUnitAccessories {
-    missiles: u32,
-    repair_kits: u8,
+pub struct AirUnitAccessories {
+    pub missiles: u32,
+    pub repair_kits: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct AirUnitHealth {
-    current: u32,
-    max: u32,
+pub struct AirUnitHealth {
+    pub current: u32,
+    pub  max: u32,
 }
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
-enum AirUnitAction {
+pub enum AirUnitAction {
     LaunchMissile,
 }
 
 #[generate_trait]
-impl AirUnitIMpl of AirUnitTrait{
+pub impl AirUnitIMpl of AirUnitTrait{
   
   #[inline(always)]
   fn new(game_id: u32,unit_id: u32, player_id:u32,x: u256,y: u256, z: u256,battlefield_name: BattlefieldName) -> AirUnit{

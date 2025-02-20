@@ -5,7 +5,7 @@ import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, positionEncoder, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
-import { AbilityState, Infantry, Player, TerrainType, UnitMode, UnitState } from "../../dojogen/models.gen";
+import { AbilityState, Infantry, Player, TerrainType,UnitModeEnum, UnitState, UnitTypeEnum } from "../../dojogen/models.gen";
 import { useRef } from "react";
 import { Account, AccountInterface, encode } from "starknet";
 import { GameState } from "./GameState";
@@ -18,6 +18,8 @@ interface TopBarConfig {
     HOVER_COLOR: string;
     HEIGHT: string;
 }
+
+
 
 export default class CommandNexusGui {
     private gui: GUI.AdvancedDynamicTexture;
@@ -65,6 +67,7 @@ export default class CommandNexusGui {
     private client;
     private game;
     private infoPanel: Rectangle = new Rectangle;
+    private boostPanel: Rectangle = new Rectangle;
     private unitStatesPanel: Rectangle = new Rectangle;
     private textElements: Map<string, GUI.TextBlock> = new Map();
 
@@ -102,7 +105,7 @@ export default class CommandNexusGui {
         this.initializeInfoPanel();
         this.initializeUnitStatePanel();
         this.getGameState = getGameState;
-      
+        this.initializeBoostPanel();
 
        
     }
@@ -144,6 +147,22 @@ export default class CommandNexusGui {
         
         this.gui.addControl(this.infoPanel);
     }
+
+    private initializeBoostPanel() {
+        this.boostPanel = new Rectangle("boostPanel");
+        this.boostPanel.width = "150px";
+        this.boostPanel.height = "150px";
+        this.boostPanel.cornerRadius = 10;
+        this.boostPanel.thickness = 0;
+        this.boostPanel.background = this.PANEL_COLOR;
+        this.boostPanel.alpha = 0.9;
+        this.boostPanel.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        this.boostPanel.left = "20px";
+        this.boostPanel.isVisible = false;
+    
+        this.gui.addControl(this.boostPanel);
+    }
+    
 
     private initializeUnitStatePanel (){
         this.unitStatesPanel = new Rectangle("unitStatePanel");
@@ -322,7 +341,7 @@ export default class CommandNexusGui {
         // Player Info Section
         const playerSection = this.createInfoSection(
             "playerIcon",
-            "/logo.png",
+            "👨‍✈️",
             "Player",
             "#E5E7EB",
             "player-text"
@@ -330,8 +349,8 @@ export default class CommandNexusGui {
         
         // Base Section
         const baseSection = this.createInfoSection(
-            "baseIcon",
-            "/images/base.png",
+            "base",
+            "⛺",
             "Base Name",
             "#93C5FD",
             "base-text"
@@ -339,42 +358,94 @@ export default class CommandNexusGui {
 
         // Rank Section
         const rankSection = this.createInfoSection(
-            "rankIcon",
-            "/images/rank.png",
-            "Recruit",
+            "rank",
+            "🎖️",
+            "0",
             "#FCD34D",
              "rank-text"
         );
 
-        // Center container for score and commands
-        const centerContainer = new GUI.StackPanel();
-        centerContainer.isVertical = false;
-        centerContainer.height = this.config.HEIGHT;
-        centerContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
-        centerContainer.width = "500px";
+        // Rank Section
+        const boostSection = this.createInfoSection(
+            "boost",
+            "⚡",
+            "0",
+            "#FCD34D",
+            "boost-text"
+        );
+
+        // Rank Section
+        const commandsSection = this.createInfoSection(
+            "commands",
+            "⌨️",
+            "0",
+            "#FCD34D",
+            "commands-text"
+        );
+
+        // Rank Section
+        const turnSection = this.createInfoSection(
+            "turns",
+            "",
+            "🔴",
+            "#FCD34D",
+            "turn-text"
+        );
+
+
+                        // Rank Section
+        const flagSection = this.createInfoSection(
+            "flag",
+            "🏁",
+            "Captured",
+            "#FCD34D",
+            "flag-text"
+        );
+
+
+        // Rank Section
+        const scoreSection = this.createInfoSection(
+            "score",
+            "🔢",
+            "Score",
+            "#FCD34D",
+            "score-text"
+        );
+
+        // // Center container for score and commands
+        // const centerContainer = new GUI.StackPanel();
+        // centerContainer.isVertical = false;
+        // centerContainer.height = this.config.HEIGHT;
+        // centerContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        // centerContainer.width = "500px";
 
         // Create score and commands text blocks directly
-        this.scoreText = new GUI.TextBlock();
-        this.scoreText.text = "Score: 0";
-        this.scoreText.color = "#10B981";
-        this.scoreText.fontSize = 18;
-        this.scoreText.width = "180px";
-        this.scoreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        // this.scoreText = new GUI.TextBlock();
+        // this.scoreText.text = "Score: 0";
+        // this.scoreText.color = "#10B981";
+        // this.scoreText.fontSize = 18;
+        // this.scoreText.width = "180px";
+        // this.scoreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 
-        this.commandsText = new GUI.TextBlock();
-        this.commandsText.text = "Commands: 3";
-        this.commandsText.color = "#10B981";
-        this.commandsText.fontSize = 18;
-        this.commandsText.width = "180px";
-        this.commandsText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        // this.commandsText = new GUI.TextBlock();
+        // this.commandsText.text = "Commands: 3";
+        // this.commandsText.color = "#10B981";
+        // this.commandsText.fontSize = 18;
+        // this.commandsText.width = "180px";
+        // this.commandsText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 
         // Add sections to containers
         leftContainer.addControl(playerSection);
         leftContainer.addControl(baseSection);
         leftContainer.addControl(rankSection);
+        leftContainer.addControl(flagSection);
+        leftContainer.addControl(boostSection);
+        leftContainer.addControl(scoreSection);
+        leftContainer.addControl(commandsSection);
+        leftContainer.addControl(turnSection);
 
-        centerContainer.addControl(this.scoreText);
-        centerContainer.addControl(this.commandsText);
+        // centerContainer.addControl(this.scoreText);
+        // centerContainer.addControl(this.commandsText);
 
         this.turnInfoText = new GUI.TextBlock();
         this.turnInfoText.text = "Player";
@@ -383,26 +454,30 @@ export default class CommandNexusGui {
         this.turnInfoText.fontSize = 20;
         this.turnInfoText.textHorizontalAlignment =GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
 
-        centerContainer.addControl(this.turnInfoText);
+       // centerContainer.addControl(this.turnInfoText);
         // End Turn Button
         const endTurnBtn = this.createEndTurnButton();
 
         // Add all containers to top bar
         topBar.addControl(leftContainer);
-        topBar.addControl(centerContainer);
+        //topBar.addControl(centerContainer);
         topBar.addControl(endTurnBtn);
     }
 
-    private createInfoSection(iconName: string, iconUrl: string, defaultText: string, textColor: string,textId: string): GUI.StackPanel {
+    private createInfoSection(emojiName: string, emoji: string, defaultText: string, textColor: string, textId: string): GUI.StackPanel {
         const section = new GUI.StackPanel();
         section.isVertical = false;
         section.height = "100%";
         section.width = "150px";
         section.paddingRight = "30px";
-
-        const icon = new GUI.Image(iconName, iconUrl);
-        icon.width = "30px";
-        icon.height = "30px";
+    
+        // Create emoji text block instead of image
+        const emojiText = new GUI.TextBlock(emojiName);
+        emojiText.text = emoji;  // e.g. "🚩", "⚡", "🎯"
+        emojiText.fontSize = 24; // Might need to adjust size
+        emojiText.width = "30px";
+        emojiText.height = "30px";
+        emojiText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
         
         const text = new GUI.TextBlock();
         text.text = defaultText;
@@ -411,15 +486,13 @@ export default class CommandNexusGui {
         text.paddingLeft = "10px";
         text.width = "150px";
         text.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
-
-        // Store the text element reference
-
-        console.log(this.textElements,textId, text);
+    
+        console.log(this.textElements, textId, text);
         this.textElements.set(textId, text);
-
-        section.addControl(icon);
+    
+        section.addControl(emojiText);
         section.addControl(text);
-
+    
         return section;
     }
 
@@ -451,9 +524,24 @@ export default class CommandNexusGui {
             button.background = this.config.ACCENT_COLOR;
         });
 
-        button.onPointerUpObservable.add(() => {
+        button.onPointerUpObservable.add(async () => {
             //console.log("End Turn clicked");
             // Add your end turn logic here
+            //fn force_end_player_turn (ref self: TContractState, game_id: u32,target_player_index: u32);
+            //forceEndPlayerTurn
+
+            const result  = await (await this.client).nexus.forceEndPlayerTurn(this.getAccount(), this.getGameState().game.game_id)
+                        
+            //console.log(result)
+
+            if (result && result.transaction_hash){
+             this.showToastSide(`Turn Switched`, ToastType.Success);
+            }else{
+             const errorMessage = StarknetErrorParser.parseError(result);
+             //console.log(errorMessage)
+             this.showToastSide(errorMessage,ToastType.Error)
+            }
+            
         });
 
         return button;
@@ -938,7 +1026,7 @@ export default class CommandNexusGui {
         
 
        this.baseText.text = playerData.home_base as unknown as string
-       this.rankText.text = getBannerLevelString(playerData.rank)
+       this.rankText.text = getBannerLevelString(Number(playerData.rank))
         
         Object.entries(playerData).forEach(([key, value]) => {
             //console.log(this.infoRows.has(key))
@@ -1842,6 +1930,83 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
     public updateGame(game:any){
         this.game = game
     }
+
+    public showBooststOptions(agent: Agent, player: Player, ability_state: AbilityState): void {
+        this.clearBoostPanel();
+        const stack = this.createBoostBasePanel();
+
+        // Create button container
+        const buttonContainer = new StackPanel();
+        buttonContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        buttonContainer.height = "100px";
+        buttonContainer.spacing = 10;
+        stack.addControl(buttonContainer);
+
+
+        const encodedPosition= positionEncoder(agent.visualMesh.position);
+        const unitId = agent.visualMesh.metadata.UnitData.unit_id
+        const unitType = 1
+
+        // Heal Button
+        const healButton = Button.CreateSimpleButton("healBtn", "💚Heal");
+        healButton.width = "120px";
+        healButton.height = "40px";
+        healButton.color = "white";
+        healButton.background = "green";
+        healButton.thickness = 0;
+        healButton.onPointerClickObservable.add(async () => {
+            if (Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) > 0) {
+                //fn heal(ref self: TContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256);
+            
+ 
+                const resultHeal  = await (await this.client).nexus.heal(this.getAccount(), this.getGameState().game.game_id, unitId, unitType, encodedPosition.x,encodedPosition.y,encodedPosition.z);
+                        
+                //console.log(resultStealth)
+
+                if (resultHeal && resultHeal.transaction_hash){
+                 this.showToastSide(`Unit ${unitId} Healing`, ToastType.Success);
+                }else{
+                 const errorMessage = StarknetErrorParser.parseError(resultHeal);
+                 //console.log(errorMessage)
+                 this.showToastSide(errorMessage,ToastType.Error)
+                }
+            
+            }
+        });
+        healButton.isEnabled = Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) ? true : false;
+        buttonContainer.addControl(healButton);
+
+        // Boost Button
+        const boostButton = Button.CreateSimpleButton("boostBtn", "⚡Boost");
+        boostButton.width = "120px";
+        boostButton.height = "40px";
+        boostButton.color = "white";
+        boostButton.background = "blue";
+        boostButton.thickness = 0;
+        boostButton.onPointerClickObservable.add(async () => {
+            if (Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) > 0) {
+                //fn boost(ref self: TContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256);
+                const resultBoost  = await (await this.client).nexus.boost(this.getAccount(), this.getGameState().game.game_id, unitId, unitType, encodedPosition.x,encodedPosition.y,encodedPosition.z);
+                        
+                //console.log(resultStealth)
+
+                if (resultBoost && resultBoost.transaction_hash){
+                 this.showToastSide(`Unit ${unitId} Boost`, ToastType.Success);
+                }else{
+                 const errorMessage = StarknetErrorParser.parseError(resultBoost);
+                 //console.log(errorMessage)
+                 this.showToastSide(errorMessage,ToastType.Error)
+                }
+
+            
+            }
+        });
+        boostButton.isEnabled = Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) ? true : false;
+        buttonContainer.addControl(boostButton);
+           
+    
+        this.boostPanel.isVisible = true;
+      }
     
     public showInfantryInfo(infantry: Infantry): void {
         this.clearPanel();
@@ -1894,6 +2059,15 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         stack.addControl(typeText);
     
         this.infoPanel.addControl(stack);
+        return stack;
+      }
+
+      private createBoostBasePanel(): StackPanel {
+        const stack = new StackPanel();
+        stack.width = "100%";
+        stack.background = this.PANEL_COLOR;
+        
+        this.boostPanel.addControl(stack);
         return stack;
       }
 
@@ -2037,59 +2211,34 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
 
     
 
-    private getModeIcon(mode: UnitMode): string {
-        const iconMap: { [key in UnitMode]: string } = {
-            [UnitMode.Idle]: "/images/idle.png",
-            [UnitMode.Moving]: "/images/moving.png",
-            [UnitMode.Attacking]: "/images/attacking.png",
-            [UnitMode.Defending]: "/images/defending.png",
-            [UnitMode.Patrolling]: "/images/patrolling.png",
-            [UnitMode.Stealthed]: "/images/stealth.png",
-            [UnitMode.Reconning]: "/images/recon.png",
-            [UnitMode.Healing]: "/images/healing.png",
-            [UnitMode.Retreating]: "/images/retreat.png",
-            [UnitMode.Repairing]: "/images/repair.png",
-        };
-        return iconMap[mode] || "/images/unknown.png";
-    }
-
-    private formatMode(mode: UnitMode): string {
-        // Get enum name using reverse mapping
-       
-        const modeStr = UnitMode[mode];
-        
-        const modeColors: Record<UnitMode, string> = {
-            [UnitMode.Idle]: "#808080",      // Gray
-            [UnitMode.Moving]: "#4CAF50",    // Green
-            [UnitMode.Attacking]: "#f44336", // Red
-            [UnitMode.Defending]: "#2196F3", // Blue
-            [UnitMode.Patrolling]: "#FF9800", // Orange
-            [UnitMode.Stealthed]: "#9C27B0", // Purple
-            [UnitMode.Reconning]: "#FFEB3B", // Yellow
-            [UnitMode.Healing]: "#4CAF50",   // Green
-            [UnitMode.Retreating]: "#f44336", // Red
-            [UnitMode.Repairing]: "#2196F3", // Blue
+    private getModeIcon(mode: UnitModeEnum): string {
+        const modeValue = mode as unknown as string;
+    
+        const iconMap: { [key: string]: string } = {
+            'Idle': "/images/idle.png",
+            'Moving': "/images/moving.png",
+            'Attacking': "/images/attacking.png",
+            'Defending': "/images/defending.png",
+            'Patrolling': "/images/patrolling.png",
+            'Stealthed': "/images/stealth.png",
+            'Reconning': "/images/recon.png",
+            'Healing': "/images/healing.png",
+            'Retreating': "/images/retreat.png",
+            'Repairing': "/images/repair.png",
         };
     
-        const valueText = new GUI.TextBlock();
-        valueText.text = modeStr;
-        valueText.color = modeColors[mode] || "#ffffff";
-        return mode as unknown as string;
-    }
-
-    private formatTerrain(terrain: TerrainType): string {
-        // Convert terrain type to readable string
-        return terrain.toString().replace(/_/g, ' ').toLowerCase()
-            .replace(/\b\w/g, l => l.toUpperCase());
+        return iconMap[modeValue] || "/images/unknown.png"
     }
 
     public showAbilityInfo(abilityState: AbilityState): void {
         this.clearPanel();
-        const stack = this.createBasePanel(this.getUnitTypeIcon(abilityState.unit as unknown as UnitType), 
-                                         `${UnitType[abilityState.unit]} Unit`);
+        const stack = this.createBasePanel(
+            this.getUnitTypeIcon(abilityState.unit as UnitTypeEnum),
+            `${(abilityState.unit as UnitTypeEnum).activeVariant()} Unit`
+        );
 
         // Status header
-        this.addStatusRow(stack, abilityState.is_active, abilityState.cooldown);
+        this.addStatusRow(stack, abilityState.is_active, Number(abilityState.cooldown));
 
         // Only show abilities with level > 0
         const abilities = abilityState.units_abilities_state;
@@ -2105,15 +2254,15 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
             { name: 'Airlift', level: abilities.airlift_level, icon: '/images/airlift.png' },
             { name: 'Bombard', level: abilities.bombard_level, icon: '/images/bombard.png' },
             { name: 'Submerge', level: abilities.submerge_level, icon: '/images/submerge.png' }
-        ].filter(ability => ability.level > 0);
+        ].filter(ability => Number(ability.level) > 0);
 
         // Add abilities with level bars
         abilityRows.forEach(ability => {
-            this.addAbilityRow(stack, ability.icon, ability.name, ability.level);
+            this.addAbilityRow(stack, ability.icon, ability.name, Number(ability.level));
         });
 
         // Add effectiveness indicator at the bottom
-        this.addEffectivenessBar(stack, abilityState.effectiveness);
+        this.addEffectivenessBar(stack, Number(abilityState.effectiveness));
 
         this.infoPanel.isVisible = true;
     }
@@ -2243,15 +2392,19 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         return "#f44336";
     }
 
-    private getUnitTypeIcon(type: UnitType): string {
-        const iconMap: { [key in UnitType]: string } = {
-            [UnitType.Infantry]: "/images/infantry.png",
-            [UnitType.Armored]: "/images/armored.png",
-            [UnitType.Air]: "/images/air.png",
-            [UnitType.Naval]: "/images/naval.png",
-            [UnitType.Cyber]: "/images/cyber.png"
+    private getUnitTypeIcon(unitType: UnitTypeEnum): string {
+        const typeValue = unitType.activeVariant();
+        
+        const iconMap: { [key: string]: string } = {
+            'Infantry': "/images/infantry.png",
+            'Armored': "/images/armored.png",
+            'Air': "/images/air.png",
+            'Naval': "/images/naval.png",
+            'Cyber': "/images/cyber.png",
+            'None': "/images/none.png"
         };
-        return iconMap[type] || "/images/unknown.png";
+    
+        return iconMap[typeValue] || "/images/unknown.png";
     }
     
       private clearPanel(): void {
@@ -2262,6 +2415,16 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
       public hide(): void {
         this.infoPanel.isVisible = false;
       }
+
+      private clearBoostPanel(): void {
+        const controls = this.boostPanel.getDescendants();
+        controls.forEach(control => control.dispose());
+      }
+    
+      public hideBoostPanel(): void {
+        this.boostPanel.isVisible = false;
+      }
+
 
       private clearUnitStatePanel(): void {
         const controls = this.unitStatesPanel.getDescendants();

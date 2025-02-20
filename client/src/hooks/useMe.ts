@@ -26,7 +26,7 @@ export function useMe(): { me: Player | null; isItMyTurn: boolean } {
 
 
   const [me, setMe] = useState<Player | null>(null);
-  const game = useModel(entityId, "silent_strike-Game");
+ 
 
   const { state: nstate, refetch } = useAllEntities();
 

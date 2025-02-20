@@ -7,47 +7,47 @@ use command_nexus::constants::{SCALE,OFFSET};
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct Ship {
+pub struct Ship {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    unit_id: u32,
+    pub unit_id: u32,
     #[key]
-    player_id: u32,
-    range: u256,
-    firepower: u32,
-    accuracy: u8,
-    ship_accessories: ShipAccessories,
-    ship_health: ShipHealth,
-    position: Position,
-    battlefield_name:BattlefieldName,
-    energy: u32
+    pub player_id: u32,
+    pub range: u256,
+    pub firepower: u32,
+    pub accuracy: u8,
+    pub ship_accessories: ShipAccessories,
+    pub ship_health: ShipHealth,
+    pub position: Position,
+    pub battlefield_name:BattlefieldName,
+    pub energy: u32
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct ShipAccessories {
+pub struct ShipAccessories {
 
-    gun_ammunition: u32,
-    missile_ammunition: u32,
-    repair_kits: u8,
+    pub gun_ammunition: u32,
+    pub missile_ammunition: u32,
+    pub repair_kits: u8,
 
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct ShipHealth {
-    current: u32,
-    max:u32
+pub struct ShipHealth {
+    pub current: u32,
+    pub max:u32
 }
 
 #[derive(Drop, Copy, Serde, PartialEq, Introspect)]
-enum NavalAction {
+pub enum NavalAction {
     FireCannon,
     LaunchTorpedo,
 
 }
 
 #[generate_trait]
-impl ShipImpl of ShipTrait {
+pub impl ShipImpl of ShipTrait {
     #[inline(always)]
     fn new(game_id: u32, unit_id: u32, player_id: u32, x: u256, y: u256, z: u256, battlefield_name: BattlefieldName) -> Ship {
         Ship {

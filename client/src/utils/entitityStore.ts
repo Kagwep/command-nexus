@@ -1,6 +1,6 @@
 import { create, StoreApi, UseBoundStore } from 'zustand'
 import { useCallback, useEffect, useRef } from 'react'
-import { Game, Player } from '@/dojogen/models.gen'
+import { Game, Player } from '../dojogen/models.gen'
 
 
 export type EntityStore<T> = UseBoundStore<StoreApi<EntityStoreState<T>>>

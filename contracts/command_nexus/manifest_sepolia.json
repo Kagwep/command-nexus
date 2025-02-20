@@ -1,7 +1,7 @@
 {
   "world": {
-    "class_hash": "0x79d9ce84b97bcc2a631996c3100d57966fc2f5b061fb1ec4dfd0040976bcac6",
-    "address": "0x6c9c69650124e023876442f9e01f1167367e6e5f049199614d7ae7b4ca520fa",
+    "class_hash": "0x2361c106e790c1d1bff8c9f73c9d84e9e3ac94b2d8df6db4ddd55e82c33a9b4",
+    "address": "0x49e84f48c814b6b9305a664e00b6e70048e7dabe11c58660b46f92da7e2a47b",
     "seed": "command_nexus_3",
     "name": "Command Nexus",
     "entrypoints": [
@@ -92,6 +92,10 @@
           {
             "name": "metadata_uri",
             "type": "core::byte_array::ByteArray"
+          },
+          {
+            "name": "metadata_hash",
+            "type": "core::felt252"
           }
         ]
       },
@@ -1002,6 +1006,11 @@
             "name": "uri",
             "type": "core::byte_array::ByteArray",
             "kind": "data"
+          },
+          {
+            "name": "hash",
+            "type": "core::felt252",
+            "kind": "data"
           }
         ]
       },
@@ -1243,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x6965f4463311163ecb9908df6cc7592f87166fba982f221da83172ecc05778d",
-      "class_hash": "0x3696bd044c66459f3e49807708c680047503ff9455ddc3a45fb427d8777689e",
+      "address": "0x1e6b8c57f7df233de5c7bbe6d1951e7c41a233840b1eaa73bc581b5de945268",
+      "class_hash": "0x4f432e9dc5bd3bfea49990e7dbe9d8b973ef75579bc2cc8a1e85ec7225cd6c9",
       "abi": [
         {
           "type": "impl",
@@ -1563,8 +1572,8 @@
       ]
     },
     {
-      "address": "0x3e53962a57327c91b5ef7579d937ebdea359e7ba6bec0a5ee5d6206bf099a59",
-      "class_hash": "0x4366b767c9ba5f998c47ba0bfa2fbf4d306115c3faecf74c6b7bff4858db8a5",
+      "address": "0x195a792a25b5d96f553fae502aad6b8e399b6af8a38d5fa10d164bdb089d582",
+      "class_hash": "0x57df753b663163384e005616f7ff8f52da379bdc6e77abb31accb89d19e21e5",
       "abi": [
         {
           "type": "impl",
@@ -1934,10 +1943,74 @@
                 {
                   "name": "game_id",
                   "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "capture_flag",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
                 },
                 {
-                  "name": "target_player_index",
+                  "name": "unit_id",
                   "type": "core::integer::u32"
+                },
+                {
+                  "name": "unit_type",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "flag_id",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "x",
+                  "type": "core::integer::u256"
+                },
+                {
+                  "name": "y",
+                  "type": "core::integer::u256"
+                },
+                {
+                  "name": "z",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "boost",
+              "inputs": [
+                {
+                  "name": "game_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "unit_id",
+                  "type": "core::integer::u32"
+                },
+                {
+                  "name": "unit_type",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "area_x",
+                  "type": "core::integer::u256"
+                },
+                {
+                  "name": "area_y",
+                  "type": "core::integer::u256"
+                },
+                {
+                  "name": "area_z",
+                  "type": "core::integer::u256"
                 }
               ],
               "outputs": [],
@@ -2073,6 +2146,8 @@
         "heal",
         "recon",
         "force_end_player_turn",
+        "capture_flag",
+        "boost",
         "upgrade"
       ]
     }
@@ -2080,259 +2155,253 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x19a98a1a0f1bbb4156aba552e5e60b91cc49ec493c59582cd06129b27f41c1c",
+      "class_hash": "0x56ba07d362298583a0fabf8d31142ecad1597e014ac82610ba416906349c0f3",
       "tag": "command_nexus-AbilityState",
       "selector": "0x3dc272bd5feb3ebd22c86fcb5c4ac1b38cbe0899b00ee1d6d67e93e7a4d32a6"
     },
     {
       "members": [],
-      "class_hash": "0x789247600da8faa94af643fb87baee18498b1fef64f45bc75a0cac8f457e188",
+      "class_hash": "0x61621000bf4e517bc5f6a92b3b42ab289ab70a110e54a70d3834ffd4d66ba0e",
       "tag": "command_nexus-AirUnit",
       "selector": "0x34a44129bb85752fe08aa6062f94b6f6c9e8d79f1d7833cee404bf5c664d296"
     },
     {
       "members": [],
-      "class_hash": "0x6e89b6d739d324a22fa0d64a94c771c15606fde172dc0d4d181dc185c0dbf63",
+      "class_hash": "0x342448f092b9017c37c6a8e66701cca994ebc6f46889fd7f0d87a66082e9e1d",
       "tag": "command_nexus-Airport",
       "selector": "0xe2cd74248b8c8fcfc9e67d180991a9608ed3d31efc09e95445a4893c0c0d73"
     },
     {
       "members": [],
-      "class_hash": "0x1f467de5ae10b9e40931b49e3d2f89e13542ae16fcf6b4487430d41b43f90c4",
+      "class_hash": "0x38097c92294db1380371555fb9dc3fb2fe1e7364a46483a23d4074f4b06740d",
       "tag": "command_nexus-Armored",
       "selector": "0x4af857b1830fbf1f91ace352c113cd0aee703b55b556b62404f1f54ecc3ee93"
     },
     {
       "members": [],
-      "class_hash": "0x2efc5d01b822ca717c73dea681c485cc6daf5dd9ab5012123e088fed25ed3d9",
+      "class_hash": "0x5aee4522927d22f7eb41325b61cf17f50d3db00df3e6c2d9d62a792c36e3834",
       "tag": "command_nexus-Armory",
       "selector": "0xb9391d34acdf4619dcb87cacfc1aaca9a118c6463e7e052dea632d40d04dcf"
     },
     {
       "members": [],
-      "class_hash": "0x3ce8ccc0bea075ecc62daa1a3a9e44e27c0e08389ca31f3214c323790b71a84",
+      "class_hash": "0x5c2e916fd26d2f2a60a7a4ba310da2c09c0722d35ad413da3d6f80bb2d5a87a",
       "tag": "command_nexus-Bank",
       "selector": "0x32adc519b3e20b1c5737c4899db26072b38bc668b497284872de6b331af2f1a"
     },
     {
       "members": [],
-      "class_hash": "0x5c169db0c6fea4341dc2689b2dc00d583c7b9425509d3c6b0b26433b857a032",
+      "class_hash": "0x2e465b1da53795745cdf84087a3fc27bc21bd18029336755c8d993cca2be10b",
       "tag": "command_nexus-Barracks",
       "selector": "0x566bf8a76f7c66f0044b0ff0a54b920302ed08a889bc2fbba94d01f9d0f498f"
     },
     {
       "members": [],
-      "class_hash": "0x72f3890e0c42ce1c370d2e5047934a4b199783d9d8c6a5421114871eb2e9bdc",
+      "class_hash": "0x2130e34e24ac9ab8d33fcfa185e8aefbd40df60bf89271915a14ae3ff31fe7",
+      "tag": "command_nexus-BattlefieldFlag",
+      "selector": "0x7a70b37d76e6fe3d33357538c40875c0a74da1772b8e20bbd44969342402144"
+    },
+    {
+      "members": [],
+      "class_hash": "0x511f8f093dd06e952a059e2853e0d19f3f5b80b1491fd834192a769e1eacbfd",
       "tag": "command_nexus-Cable",
       "selector": "0x75de58748e081f17d0b6aabc1bddfa91250434d413830428258b2517074cad4"
     },
     {
       "members": [],
-      "class_hash": "0x1ef25a4ec49cdbb4c4b1ae7b82642638e0f928acabbdbbfee60f31a42a62044",
+      "class_hash": "0x188f1763ce613f3741c6ca550c02dbfa2ada355b3ba0ce26e9584e85e61f70a",
       "tag": "command_nexus-CommandCenter",
       "selector": "0x1ea568c2d3d120845770d5aa8d5c0530ba2f0472fc8d3cd8edf495424cee42c"
     },
     {
       "members": [],
-      "class_hash": "0x9bc060274dc8d81e03c732044939f2de6724fc90263651a965dc61f574b282",
+      "class_hash": "0x3b44aa54aef33f01902b40170dfddd4d51f8f49d96ae919dc26fd9a3f08f676",
       "tag": "command_nexus-Communication",
       "selector": "0x2446d59f652981049aadfe3a2eee3d005500975a45e48601b970aa6312d486d"
     },
     {
       "members": [],
-      "class_hash": "0x6185f8d7b67421e94e71f26f508363a058e4dd90fd0c70361b651fec4af5c02",
+      "class_hash": "0x3a10eea46fd0bbd18c2f0c886adcf9cd2882563e34bd42e5c84cdbb0bd2b966",
       "tag": "command_nexus-CommunicationTower",
       "selector": "0x3e37c92f6a836d8d92dc421f114dc42b4a9342347d1e4c4af2ae734c4449cd2"
     },
     {
       "members": [],
-      "class_hash": "0x78f4b6ac0b55c30edf9eb2da2b39b0717f7b9a0ba6159a07debd6fbb0367d08",
+      "class_hash": "0x3d9d341b23bbcfc2991cc7e0583914a2e8f350472022ee3991090117b5d867e",
       "tag": "command_nexus-ControlCenter",
       "selector": "0x75cd6ce6fdd78c853547c32e10289a9abcbcce6f5ce85fc698a029d74fb0518"
     },
     {
       "members": [],
-      "class_hash": "0x1d51b353b8f383716f4839cd53c310ece75fad2ae6e98d728099829cbc4b71b",
+      "class_hash": "0x7ea011b25fde39af9d650a4917ef4b2c8f3df888b37d88491db3032b0521f5a",
       "tag": "command_nexus-CyberUnit",
       "selector": "0x335377c4149e9b4c91a69f793b11c552eee8176f79318c43e8a82a0434941e2"
     },
     {
       "members": [],
-      "class_hash": "0x79be64ae4b3bdbb797c3036e1a318f91862a5e7b86a8e334102ab88b1e4cc76",
+      "class_hash": "0x5ded1c7086e9ecba7903a7d864a2a211509d44266e3a42d8c05ee9e1de5eb2d",
       "tag": "command_nexus-Depot",
       "selector": "0x35ea32146221e116803f8112fbbc73f7bc6fcdce4ce419444aefab9d00dc8fa"
     },
     {
       "members": [],
-      "class_hash": "0x70463face4be3360a68406e01ea912a584ffd481d98f5b85302d9d38eea029c",
+      "class_hash": "0x7e58b2edfac99360ba82afd2540a6c0acbd573b2086ce35b68d4fc026a49f08",
       "tag": "command_nexus-Game",
       "selector": "0x2331754b6f442d86620871c31486336970c9c7128417be4a6332263148bdd57"
     },
     {
       "members": [],
-      "class_hash": "0x786703ccb873e16c1e6724f972ae70eb036cbb222f8d359914f3656d30a147",
+      "class_hash": "0x184fb26c0f9b79c6e340d3a201bcbfc152b2ba9ac722a65cc4e6f740471b085",
       "tag": "command_nexus-GasStation",
       "selector": "0x51fdbc10454b97112c8c3c03bfb38fd2fb042c8209bf857118e9fbd1c380242"
     },
     {
       "members": [],
-      "class_hash": "0x555a2003108bb0eca733155985f94214b83d9466701b110637ea53fedb8de28",
+      "class_hash": "0x221a5c42d5d540593859d91f9c6ba3385f8b17fb5427e901b20b1d0d1da2e05",
       "tag": "command_nexus-GasStorage",
       "selector": "0x4f038b743ad5ebbec67b888c561a1aefb4516ae5ede848cfca03e73426cd8c0"
     },
     {
       "members": [],
-      "class_hash": "0x43a415bbf46c9ec8a9ded0b11d4c336b4137cc65ebc42efed66463e2527dcf1",
+      "class_hash": "0x567855af615926f7a388f5181f4713e8d790ca1c9f35a47b97618a5d7783003",
       "tag": "command_nexus-Infantry",
       "selector": "0x751cc2125d220631c191c86ec05c4e87627bd6a1a6251139f38ff2d1599d823"
     },
     {
       "members": [],
-      "class_hash": "0x678b2e97691e1f9825fbe9ef6fc4be2dddf9bb936c00d1413beedc1776033d9",
+      "class_hash": "0x65be86ac836c4606fb5f1d5c2f40722d45783da5692f7bc4871d6a7d04dd17b",
       "tag": "command_nexus-InnovationCenter",
       "selector": "0x176ce4df4e672e2bc770b35ad1851d95d468fd53eada3fff112e57606745557"
     },
     {
       "members": [],
-      "class_hash": "0x5c4a0e1668313928654e49e15825dd6ae929ead2f8dee78065ab4e5b2c370fd",
+      "class_hash": "0x55f5699c3131f5d70e7326f9ffc4d127841657af5abb0004f52ff15e5a54aad",
       "tag": "command_nexus-IntelligenceAgency",
       "selector": "0x25a9a1244909804c92bd55d1876a6b964b6ddeb17e6413da7522f23e5b25e07"
     },
     {
       "members": [],
-      "class_hash": "0x1f82f26a89012683f86ad3761e6056e44210ab42cb08d9ad08f49549ef644c9",
+      "class_hash": "0x6b1fc23c16abd07b8ea1b82a3af76c57cfd3cd6ba66c3806c2ec8b9a31f6ea8",
       "tag": "command_nexus-IntelligenceReport",
       "selector": "0x690bd6d46577bdee7d7aed46bfb82ca1a95855e1a2163ef7cd672509197c997"
     },
     {
       "members": [],
-      "class_hash": "0x1763325a151abaeb17f9933c78cf344e91e460dd284344029070ea2d60dc0df",
+      "class_hash": "0x18d82217f99dea739e764c87072ed4ada9a8e92fb8d16393837e79d8ef5b91c",
       "tag": "command_nexus-InvestmentFirm",
       "selector": "0xc70d88f14e0c9007900250d1cd5c32f7aae8615d817916b0645b22f52dbc55"
     },
     {
       "members": [],
-      "class_hash": "0x7c9e73e16e41136269ec3a396eff7ff8f94417f8e3c0b6fb3a86e0f0510d18a",
+      "class_hash": "0x439dd299ac7511b1f9291d714ac9fdb9e83cc06aa8eaca21143dbeab3c856ae",
       "tag": "command_nexus-Laboratory",
       "selector": "0x795d0bcc25752cfb92f229861a42d8eb39ec7052882562731be62503e34708b"
     },
     {
       "members": [],
-      "class_hash": "0x1cc7d69400b2ebde53effbe9547811852787c460c4d72c33573eca132b2d28",
+      "class_hash": "0x4e97979143573597981a1e9705aa0da2b16c8146cd96d2d632c1f57769d2d3b",
       "tag": "command_nexus-NuclearPowerStation",
       "selector": "0x398e5391ad415968b65902f752c50a685a0bf59774128a738e219e249a67674"
     },
     {
       "members": [],
-      "class_hash": "0x41fc5208530cd3b1057a94254e3bd2a9868e47453bb4d71e221b92bee94b173",
+      "class_hash": "0x458f592c89a57ba81da8b9a3982b7f2f4e6c0c96f27080bbdd9ecf0d84de94f",
       "tag": "command_nexus-OilDepot",
       "selector": "0x7d8826c2973d7d10321974a67a25692951e8eff54cc3cce6f4a53e99e60aff9"
     },
     {
       "members": [],
-      "class_hash": "0x157270238e0aa766b0900bac89d512dbabf65062e27561cae55f1124c0026f6",
+      "class_hash": "0x3cae14aecc72f64696a40b838357af904276b1e5a6f997820ef5c272a2881",
       "tag": "command_nexus-Player",
       "selector": "0x3e08ab99f3e0e9f083466d3e3a82f9f2c63eb755ab9c506dcc0ab2af9421756"
     },
     {
       "members": [],
-      "class_hash": "0x204e3a6847a4872ebd3b81e51c33aee39bc1997ba80769f70185fbe05a25e82",
-      "tag": "command_nexus-PlayerState",
-      "selector": "0x5555c7a16909b70f7c4d3b5f18547baa1ad0f4fdff6118bc32c67f027225a84"
-    },
-    {
-      "members": [],
-      "class_hash": "0x2a376b96a013e06d1fa6a725e8b3cf4e753e34ccad0e16276a55f8757868eed",
+      "class_hash": "0x14ae8a4e9ec0ac83e6774712bb56b5e4e820901c4efe3f05c5dc42f5635a0a2",
       "tag": "command_nexus-RailwayStation",
       "selector": "0x14ac371b56280c398da4a6e8a6f4330a2250f58dad1ce41e20ffa57cdcfc830"
     },
     {
       "members": [],
-      "class_hash": "0x58baae06917f7f8240192dd275fcc2e41ccf17fdb4a6a83cbd30066ef8d0ff8",
+      "class_hash": "0x1201384f83fde24c26c484d53d1866e11bf2e3047973b2bcfcaf70db36b287d",
       "tag": "command_nexus-RelayStation",
       "selector": "0x4b0e6b71dec405686e232b8f345a56a021cebbc338d192a3d17e29c988b4cfe"
     },
     {
       "members": [],
-      "class_hash": "0x774daf1a8785aaac8b7d2002b01e5eb032a0b9c52d6304445072613868dc819",
+      "class_hash": "0x7e553957648328fae98243e10804465d661af415f5cf0d35f61c46d7e03ce1e",
       "tag": "command_nexus-SatelliteDish",
       "selector": "0x2b45dedd34b89d129eebd62b796b2613cdd1c43725c02409f6b66077a9eb7e"
     },
     {
       "members": [],
-      "class_hash": "0x1d3ad1076bc9a258554f5eb59a23933a7c1f68c6bffa2f936d52eae4dade672",
+      "class_hash": "0xa4f83395cddfdcf498fe6dbd936fdfdfb7a19500ef8bdc2a2f2e4790c448fb",
       "tag": "command_nexus-Scoreboard",
       "selector": "0x326279a2c9c84c216489294a19d3ca49a3ee9f429655b307ae142e6465af76f"
     },
     {
       "members": [],
-      "class_hash": "0x4efaf798f0a886fbb1a59ab887daafc23cdc4792e837534f1460b2ab68ab78b",
+      "class_hash": "0x3f6ea5d9fa4d1c31970ac8c70dcc012c6e337ba7868bb99ea49d463e1b83aa8",
       "tag": "command_nexus-Seaport",
       "selector": "0x5abe62545ce6e824fa545d7370c0b038507eade2765c0b8a057e75d2385f819"
     },
     {
       "members": [],
-      "class_hash": "0xc91db13dad9c003dff1d08655d5ea2eebf994a8d8c904998075123d2f6a429",
+      "class_hash": "0x1a60df39f9038462f0c5d166badfcb95e77e1871ab1380c90e88edce61da54",
       "tag": "command_nexus-Ship",
       "selector": "0x30a2d87a4fb25c69949367803d7cfe1144500b93f0cbae7099c5be29be822ae"
     },
     {
       "members": [],
-      "class_hash": "0x5bd5399e104ddbd585d6e7653a789fd3155e96708aecd656d7b85d77943a48c",
+      "class_hash": "0x4def3f8f43f13807b4187d193a95b497e86bafbe11fd4c2b2a51e4d57d00885",
       "tag": "command_nexus-SolarPowerPlant",
       "selector": "0x559d6c799ad8d6643d0d3c8a584453000561af315fe8455921dedc3308c810e"
     },
     {
       "members": [],
-      "class_hash": "0x484068c175e901bf73db4826938ec3b3dbd360f07ef7df1992be34eceb24825",
+      "class_hash": "0x2fbdb53b488335b9dffb8ba1e0eba4e072772a3a02efd2380404b4e649ee866",
       "tag": "command_nexus-SpyNetwork",
       "selector": "0x290f4bf56e5031dfd340da90d18fa33078addcbe2c96a421d8bff74b2a6f9c9"
     },
     {
       "members": [],
-      "class_hash": "0x5b94b1aa09f74a3de5b0f6acaf8078b25d1cb9d9f64dfe8016f522f92fc13bc",
+      "class_hash": "0x22e47c96ef91f894df48890197c4d6d25f71c430710b09ff56f5055daa9b713",
       "tag": "command_nexus-StockExchange",
       "selector": "0x44414ddc9df53226133eaa121189da9cedc857ffd161604472dcb76479dbbdf"
     },
     {
       "members": [],
-      "class_hash": "0x7d2cc316932c383b73f0a5b3be50f7ced0b95f43090be00930cf3f944157400",
+      "class_hash": "0x2961bf116fe521905263ee1573e2890a4d5fb9e00f9fe276df064626afc980f",
       "tag": "command_nexus-TestingGround",
       "selector": "0x176695602ca8c44577f2b0dbd041a14f3f2d8716a4a533071aff6429bb02098"
     },
     {
       "members": [],
-      "class_hash": "0x3fdedc949408aae1ac0b201a81c783c66e9e4db3cabf2707e040cb86a6ea13d",
+      "class_hash": "0x46670cc37af5f570176d8c6ccb432d76086c1056cf5d8f64ca9de7285113443",
       "tag": "command_nexus-TrainingFacility",
       "selector": "0x773194ad18a175c87ba11544f4e05aca2c01bf27b61a62e4513011c10bfb67"
     },
     {
       "members": [],
-      "class_hash": "0x51cf8c5423e0db42cfc1b87982ab63d1682210198f241ce5654b5a9fa7a98c0",
+      "class_hash": "0x195700a214befdc0b45b6addb4969eac84ea0ecdba414b9d30b81f7b8912239",
       "tag": "command_nexus-Transportation",
       "selector": "0x42dec38b4fe90ef9fd03395cd2f358466a7295ffcf89d914d2ec4b85503e29d"
     },
     {
       "members": [],
-      "class_hash": "0x40500adf3da6e9c785bf5628236972877a59024cb10a05afad5b400ead7b777",
+      "class_hash": "0x536a785a3ae1c651060a9c069851cfb9d1db3ee0340f8937480f63228135b8f",
       "tag": "command_nexus-Treasury",
       "selector": "0x8b109378a00eb635a81aff122e18d55698e0181f986b69d349f439513508dd"
     },
     {
       "members": [],
-      "class_hash": "0x786c3e25b270aa15d8696cfc8b117208b18bd246b1c905f07701e5aad9ebbdd",
+      "class_hash": "0x617e64c0242977c75b4f187678fbaa98413e6fc3a5d1748bd2205d0e3e40d7a",
       "tag": "command_nexus-UnitState",
       "selector": "0xed33b47bebe8fb56fb6b29ea9d95a8bc8a9fb2872825d0b44563bd91433fa2"
     },
     {
       "members": [],
-      "class_hash": "0x4c0586a727ddc3919c58a53830ae2865ca9eda4bfdcef42c1df7f8e76ccf7b4",
-      "tag": "command_nexus-UnitsSupply",
-      "selector": "0x2a66f618f16e320d88d9c9f1044afebb4f61416a9f21267c818188e02c0c033"
-    },
-    {
-      "members": [],
-      "class_hash": "0x1e086f3acabd6d3cf12115fd93170d69094436ed28424643fe0f48197f22faf",
+      "class_hash": "0x5f115b35d70460a131a22f176d93db462cf45c92b996958ea2cdf5f7113929f",
       "tag": "command_nexus-UrbanBattlefield",
       "selector": "0x458b8886103cba06b667071aafa44fc4e97ed46629ede16cb2628ad21032a1f"
     }

@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, PluginOption } from "vite";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
-
+import path from 'path'
 
 const fixRecastPlugin: PluginOption = {
     name: 'fix-recast',
@@ -25,5 +25,9 @@ export default defineConfig({
     },
     optimizeDeps: {
       exclude: ['@babylonjs/havok'],
+  },  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
   },
 });

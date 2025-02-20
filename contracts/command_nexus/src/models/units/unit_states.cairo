@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 use command_nexus::models::player::{UnitType};
 
 #[derive(Drop,Copy,Serde, PartialEq, Introspect)]
-enum UnitMode {
+pub enum UnitMode {
     Idle,
     Moving,
     Attacking,
@@ -20,7 +20,7 @@ enum UnitMode {
 
 
 #[derive(Copy, Drop, Serde, Introspect)]
-enum TerrainType {
+pub enum TerrainType {
     UrbanStreet,
     UrbanBuilding,
     UrbanPark,
@@ -29,30 +29,30 @@ enum TerrainType {
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct UnitState {
+pub struct UnitState {
     #[key]
-    game_id: u32,
+    pub game_id: u32,
     #[key]
-    player_id: u32,
-    #[key]
-    unit_id: u32,
-    x: u256,
-    y: u256,
-    z: u256,
-    mode: UnitMode,
-    environment: EnvironmentInfo,
+    pub player_id: u32,
+     #[key]
+   pub  unit_id: u32,
+   pub  x: u256,
+   pub  y: u256,
+   pub  z: u256,
+   pub  mode: UnitMode,
+   pub  environment: EnvironmentInfo,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct EnvironmentInfo {
-    terrain: TerrainType,
-    cover_level: u8,   // 0-100, where 0 is fully exposed and 100 is maximum cover
-    elevation: u8,     // 0-100, representing height within urban environment
+pub struct EnvironmentInfo {
+    pub terrain: TerrainType,
+    pub cover_level: u8,   // 0-100, where 0 is fully exposed and 100 is maximum cover
+    pub elevation: u8,     // 0-100, representing height within urban environment
 }
 
 
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
-enum AbilityType {
+pub enum AbilityType {
     Move,
     Attack,
     Defend,
@@ -67,41 +67,41 @@ enum AbilityType {
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
-struct UnitAbilities {
-    move_level: u8,
-    attack_level: u8,
-    defend_level: u8,
-    patrol_level: u8,
-    stealth_level: u8,
-    recon_level: u8,
-    hack_level: u8,
-    repair_level: u8,
-    airlift_level: u8,
-    bombard_level: u8,
-    submerge_level: u8,
+pub struct UnitAbilities {
+   pub  move_level: u8,
+   pub  attack_level: u8,
+   pub  defend_level: u8,
+   pub  patrol_level: u8,
+   pub  stealth_level: u8,
+   pub  recon_level: u8,
+   pub  hack_level: u8,
+   pub   repair_level: u8,
+   pub  airlift_level: u8,
+   pub  bombard_level: u8,
+   pub  submerge_level: u8,
 }
 
 #[derive(Copy, Drop, Serde, Introspect)]
 #[dojo::model]
-struct AbilityState {
+pub struct AbilityState {
     #[key]
-    game_id:u32,
+    pub game_id:u32,
     #[key]
-    unit_id: u32,
+    pub  unit_id: u32,
     #[key]
-    player_id: u32,
-    is_active: bool,
-    cooldown: u64,
-    effectiveness: u32,  // 0-100, representing percentage
-    unit: UnitType,
-    units_abilities_state: UnitAbilities,
+    pub player_id: u32,
+    pub is_active: bool,
+    pub cooldown: u64,
+    pub effectiveness: u32,  // 0-100, representing percentage
+    pub unit: UnitType,
+    pub units_abilities_state: UnitAbilities,
 }
 
-const MAX_ABILITY_LEVEL: u8 = 100;
+pub const MAX_ABILITY_LEVEL: u8 = 100;
 
 
 #[generate_trait]
-impl AbilityStateImpl of AbilityStateTrait {
+pub impl AbilityStateImpl of AbilityStateTrait {
 
     #[inline(always)]
     fn new(game_id: u32, unit_id: u32, unit_type: UnitType, player_id: u32) -> AbilityState{
@@ -236,14 +236,14 @@ impl AbilityStateImpl of AbilityStateTrait {
 
 
 #[generate_trait]
-impl UnitImpl of UnitTrait {
+pub impl UnitImpl of UnitTrait {
     #[inline(always)]
     fn initialize_unit_abilities(unit_type: UnitType) -> UnitAbilities {
         match unit_type {
             UnitType::Infantry => UnitAbilities {
                 move_level: 100, attack_level: 50, defend_level: 50,
                 patrol_level: 100, stealth_level: 20, recon_level: 40,
-                hack_level: 0, repair_level: 0, airlift_level: 0,
+                hack_level: 0, repair_level: 20, airlift_level: 0,
                 bombard_level: 0, submerge_level: 0
             },
             UnitType::Armored => UnitAbilities {
@@ -279,7 +279,7 @@ impl UnitImpl of UnitTrait {
 
 
 #[generate_trait]
-impl UnitStateImpl of UnitStateTrait {
+pub impl UnitStateImpl of UnitStateTrait {
     
     fn new(game_id: u32,player_id: u32,unit_id: u32, x: u256,y: u256,z: u256,environment:EnvironmentInfo) -> UnitState {
         UnitState {
@@ -364,7 +364,7 @@ impl UnitStateImpl of UnitStateTrait {
 
 
 #[generate_trait]
-impl TerrainTypeImpl of TerrainTypeTrait {
+pub impl TerrainTypeImpl of TerrainTypeTrait {
     fn from_u8(value: u8) -> Option<TerrainType> {
         match value {
             0 => Option::Some(TerrainType::UrbanStreet),

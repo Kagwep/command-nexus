@@ -1,5 +1,5 @@
 #[derive(Serde, Copy, Drop, PartialEq, Introspect)]
-enum BannerLevel {
+pub enum BannerLevel {
     Recruit,
     Soldier,
     Veteran,
@@ -12,11 +12,11 @@ enum BannerLevel {
 
 #[derive(Component, Copy, Drop, Serde, SerdeLen)]
 #[dojo::model]
-struct Banner {
+pub struct Banner {
     #[key]
-    id: u32,
-    design: u16,
-    color: u32,
-    level: BannerLevel,
-    required_player_level: u8,
+    pub id: u32,
+    pub design: u16,
+    pub color: u32,
+    pub level: BannerLevel,
+    pub required_player_level: u8,
 }

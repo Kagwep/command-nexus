@@ -1,5 +1,5 @@
 use starknet::{ContractAddress, get_block_timestamp, get_tx_info};
-use core::Zeroable;
+use core::num::traits::Zero;
 use core::pedersen;
 
 use core::hash::HashStateTrait;
@@ -12,65 +12,65 @@ const TURN_ADVANCE: u32 = 3;
 use command_nexus::models::battlefield::{BattlefieldName};
 
 #[derive(Drop, Copy, Serde, Introspect,Debug)]
-struct HomeBasesTuple {
-    base1: felt252,
-    base2: felt252,
-    base3: felt252,
-    base4: felt252,
+pub struct HomeBasesTuple {
+    pub base1: felt252,
+    pub base2: felt252,
+    pub base3: felt252,
+    pub base4: felt252,
 }
 
 
 #[derive(Copy, Drop, Serde, Debug)]
 #[dojo::model]
-struct Game {
+pub struct Game {
     #[key]
-    game_id: u32,
-    next_to_move: ContractAddress,
-    minimum_moves: u8,
-    over: bool,
-    player_count: u8,
-    unit_count: u32,
-    nonce: u32,
-    price: u256,
-    clock: u64,
-    penalty: u64,
-    limit: u32,
-    winner: ContractAddress,
-    arena_host: ContractAddress,
-    seed: felt252,
-    available_home_bases: HomeBasesTuple,
-    player_name: felt252,
+    pub game_id: u32,
+    pub next_to_move: ContractAddress,
+    pub minimum_moves: u8,
+    pub over: bool,
+    pub player_count: u8,
+    pub unit_count: u32,
+    pub nonce: u32,
+    pub  price: u256,
+    pub clock: u64,
+    pub penalty: u64,
+    pub limit: u32,
+    pub winner: ContractAddress,
+    pub arena_host: ContractAddress,
+    pub seed: felt252,
+    pub available_home_bases: HomeBasesTuple,
+    pub player_name: felt252,
 
 
 }
 
 
-mod errors {
-    const GAME_NOT_HOST: felt252 = 'Game: user is not the host';
-    const GAME_IS_HOST: felt252 = 'Game: user is the arena_host';
-    const GAME_TRANSFER_SAME_HOST: felt252 = 'Game: transfer to the same host';
-    const GAME_TOO_MANY_PLAYERS: felt252 = 'Game: too many players';
-    const GAME_TOO_FEW_PLAYERS: felt252 = 'Game: too few players';
-    const GAME_IS_FULL: felt252 = 'Game: is full';
-    const GAME_NOT_FULL: felt252 = 'Game: not full';
-    const GAME_IS_EMPTY: felt252 = 'Game: is empty';
-    const GAME_NOT_ONLY_ONE: felt252 = 'Game: not only one';
-    const GAME_IS_OVER: felt252 = 'Game: is over';
-    const GAME_NOT_OVER: felt252 = 'Game: not over';
-    const GAME_NOT_STARTED: felt252 = 'Game: not started';
-    const GAME_HAS_STARTED: felt252 = 'Game: has started';
-    const GAME_NOT_EXISTS: felt252 = 'Game: does not exist';
-    const GAME_DOES_EXIST: felt252 = 'Game: does exist';
-    const GAME_INVALID_HOST: felt252 = 'Game: invalid arena_host';
+pub mod errors {
+    pub const GAME_NOT_HOST: felt252 = 'Game: user is not the host';
+    pub  const GAME_IS_HOST: felt252 = 'Game: user is the arena_host';
+    pub  const GAME_TRANSFER_SAME_HOST: felt252 = 'Game: transfer to the same host';
+    pub const GAME_TOO_MANY_PLAYERS: felt252 = 'Game: too many players';
+    pub const GAME_TOO_FEW_PLAYERS: felt252 = 'Game: too few players';
+    pub const GAME_IS_FULL: felt252 = 'Game: is full';
+    pub const GAME_NOT_FULL: felt252 = 'Game: not full';
+    pub const GAME_IS_EMPTY: felt252 = 'Game: is empty';
+    pub const GAME_NOT_ONLY_ONE: felt252 = 'Game: not only one';
+    pub const GAME_IS_OVER: felt252 = 'Game: is over';
+    pub const GAME_NOT_OVER: felt252 = 'Game: not over';
+    pub const GAME_NOT_STARTED: felt252 = 'Game: not started';
+    pub const GAME_HAS_STARTED: felt252 = 'Game: has started';
+    pub const GAME_NOT_EXISTS: felt252 = 'Game: does not exist';
+    pub const GAME_DOES_EXIST: felt252 = 'Game: does exist';
+    pub const GAME_INVALID_HOST: felt252 = 'Game: invalid arena_host';
 }
 
 
 #[generate_trait]
-impl GameImpl of GameTrait {
+pub impl GameImpl of GameTrait {
     #[inline(always)]
     fn new(game_id: u32, arena_host: ContractAddress, price: u256, penalty: u64,player_name: felt252) -> Game {
         // [Check] Host is valid
-        assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
+        assert(arena_host != Zero::zero(), errors::GAME_INVALID_HOST);
 
         let home_bases = HomeBasesTuple {
             base1: 1,
@@ -81,7 +81,7 @@ impl GameImpl of GameTrait {
         // [Return] Default game
         Game {
             game_id: game_id,
-            next_to_move: Zeroable::zero(),
+            next_to_move: Zero::zero(),
             minimum_moves: 0,
             over: false,
             player_count: 0,
@@ -92,7 +92,7 @@ impl GameImpl of GameTrait {
             clock: 0,
             penalty,
             limit: 0,
-            winner: Zeroable::zero(),
+            winner: Zero::zero(),
             arena_host,
             available_home_bases: home_bases,
             player_name,
@@ -244,7 +244,7 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn transfer(ref self: Game, arena_host: ContractAddress) {
-        assert(arena_host != Zeroable::zero(), errors::GAME_INVALID_HOST);
+        assert(arena_host != Zero::zero(), errors::GAME_INVALID_HOST);
         self.assert_not_host(arena_host);
         self.arena_host = arena_host;
     }
@@ -287,7 +287,7 @@ impl GameImpl of GameTrait {
 
     #[inline(always)]
     fn nullify(ref self: Game) {
-        self.arena_host = Zeroable::zero();
+        self.arena_host = Zero::zero();
         self.over = false;
         self.seed = 0;
         self.player_count = 0;
@@ -301,7 +301,7 @@ impl GameImpl of GameTrait {
 
 
 #[generate_trait]
-impl GameAssert of AssertTrait {
+pub impl GameAssert of AssertTrait {
     #[inline(always)]
     fn assert_is_host(self: Game, address: ContractAddress) {
         assert(self.arena_host == address, errors::GAME_NOT_HOST);
@@ -369,7 +369,7 @@ impl GameAssert of AssertTrait {
     }
 }
 
-impl ZeroableGame of core::Zeroable<Game> {
+pub impl ZeroableGame of Zero<Game> {
     #[inline(always)]
     fn zero() -> Game {
         let home_bases = HomeBasesTuple {
@@ -380,7 +380,7 @@ impl ZeroableGame of core::Zeroable<Game> {
         };
         Game {
             game_id: 0,
-            next_to_move: Zeroable::zero(),
+            next_to_move: Zero::zero(),
             minimum_moves: 0,
             over: false,
             player_count: 0,
@@ -391,20 +391,20 @@ impl ZeroableGame of core::Zeroable<Game> {
             clock: 0,
             penalty: 0,
             limit: 0,
-            winner: Zeroable::zero(),
-            arena_host: Zeroable::zero(),
+            winner: Zero::zero(),
+            arena_host: Zero::zero(),
             available_home_bases: home_bases,
             player_name: '',
         }
     }
 
     #[inline(always)]
-    fn is_zero(self: Game) -> bool {
-        Zeroable::zero() == self.arena_host
+    fn is_zero(self: @Game) -> bool {
+        Zero::zero() == *self.arena_host
     }
 
     #[inline(always)]
-    fn is_non_zero(self: Game) -> bool {
+    fn is_non_zero(self: @Game) -> bool {
         !self.is_zero()
     }
 }

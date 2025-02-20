@@ -1,9 +1,7 @@
-// Dojo imports
-use dojo::world::IWorldDispatcher;
 
 
 #[starknet::interface]
-trait IArena<TContractState> {
+pub trait IArena<TContractState> {
     fn create( ref self: TContractState,
         player_name: felt252,
         price: u256,
@@ -27,8 +25,7 @@ mod arena {
     use super::{IArena};
 
     use starknet::{
-        ContractAddress, get_caller_address, get_contract_address, get_block_timestamp,
-        contract_address_try_from_felt252
+        ContractAddress, get_caller_address, get_contract_address, get_block_timestamp
     };
 
     use command_nexus::models::game::{Game, GameTrait, GameAssert};
@@ -39,20 +36,20 @@ mod arena {
     use dojo::model::{ModelStorage, ModelValueStorage};
     use dojo::event::EventStorage;
 
-    mod errors {
-        const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
-        const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
-        const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
-        const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
-        const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
-        const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
-        const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
-        const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
+    pub mod errors {
+        pub const ERC20_REWARD_FAILED: felt252 = 'ERC20: reward failed';
+        pub const ERC20_PAY_FAILED: felt252 = 'ERC20: pay failed';
+        pub const ERC20_REFUND_FAILED: felt252 = 'ERC20: refund failed';
+        pub const HOST_PLAYER_ALREADY_IN_LOBBY: felt252 = 'Host: player already in lobby';
+        pub const HOST_PLAYER_NOT_IN_LOBBY: felt252 = 'Host: player not in lobby';
+        pub const HOST_CALLER_IS_NOT_THE_HOST: felt252 = 'Host: caller is not the arena';
+        pub const HOST_MAX_NB_PLAYERS_IS_TOO_LOW: felt252 = 'Host: max player numbers is < 2';
+        pub const HOST_GAME_NOT_OVER: felt252 = 'Host: game not over';
     }
 
 
     #[abi(embed_v0)]
-    impl ArenaImpl of IArena<ContractState> {
+    pub impl ArenaImpl of IArena<ContractState> {
         fn create(
             ref self: ContractState,
             player_name: felt252,

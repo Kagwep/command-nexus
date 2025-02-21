@@ -10,10 +10,10 @@ import { useTurn } from '../../hooks/useTurn';
 import { useCommandNexusGui } from './useCommandNexusGui';
 import HavokPhysics from '@babylonjs/havok';
 
-import { Account, AccountInterface } from 'starknet';
+import { Account, AccountInterface, addAddressPadding } from 'starknet';
 import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
 import { useArmoredUnits } from '../../hooks/useGetArmoredUnits';
-import { Player } from '../../dojogen/models.gen';
+import { CommandNexusSchemaType, Player } from '../../dojogen/models.gen';
 import GameState from '../../utils/gamestate';
 
 
@@ -24,6 +24,8 @@ import { useAllEntities } from '../../utils/command';
 import { useGameState } from './GameState';
 import { removeLeadingZeros } from '../../utils/sanitizer';
 import { getGame } from '../../lib/utils';
+import { useDojoSDK } from '@dojoengine/sdk/react';
+import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
 
 
 const GRID_SIZE = 40;
@@ -39,6 +41,7 @@ const CommandNexus = () => {
   const sceneRef = useRef<Scene | null>(null);
   const engineRef = useRef<Engine | null>(null);
   const [isSceneReady, setIsSceneReady] = useState(false);
+  const { useDojoStore, client: dojoClient, sdk } = useDojoSDK();
   
   const {
     setup: {
@@ -71,11 +74,66 @@ const { state: nstate, refetch } = useAllEntities();
     return account
   }
 
+  const state = useDojoStore((state) => state);
+
   const getGameState = () => nexusGameState ? nexusGameState.getGameState() : null;
   
   const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn,game, players,client,getAccount,getGameState);
 
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
 
+    console.log(addAddressPadding(account.address))
+
+    const subscribe = async (account: AccountInterface) => {
+        const subscription = await sdk.subscribeEntityQuery({
+            query: new QueryBuilder<CommandNexusSchemaType>()
+                .namespace("command_nexus", (n) =>
+                    n
+                        .entity("Infantry", (e) =>
+                            e.eq(
+                                "game_id",
+                                game_id
+                            )
+                        )
+                        .entity("AbilityState", (e) =>
+                            e.is(
+                              "game_id",
+                              game_id
+                            )
+                        ).entity("UnitState", (e) =>
+                          e.is(
+                            "game_id",
+                            game_id
+                          )
+                      )
+                )
+                .build(),
+            callback: ({ error, data }) => {
+                if (error) {
+                    console.error("Error setting up entity sync:", error);
+                } else if (
+                    data &&
+                    (data[0] as ParsedEntity<CommandNexusSchemaType>).entityId !== "0x0"
+                ) {
+                    state.updateEntity(data[0] as ParsedEntity<CommandNexusSchemaType>);
+                }
+            },
+        });
+
+        unsubscribe = () => subscription.cancel();
+    };
+
+    if (account) {
+        subscribe(account);
+    }
+
+    return () => {
+        if (unsubscribe) {
+            unsubscribe();
+        }
+    };
+}, [sdk, account]);
 
   useEffect(() => {
       if (canvasRef.current && !engineRef.current && account) {

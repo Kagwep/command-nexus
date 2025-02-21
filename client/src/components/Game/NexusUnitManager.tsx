@@ -300,9 +300,9 @@ class NexusUnitManager {
         const startingPoint = this.getGroundPosition();
         const clickedRegion = this.getClickedRegion(startingPoint);
         // console.log(mesh.name, mesh.metadata)
-         console.log("******************************",this.selectedAgent,startingPoint,clickedRegion)
-        console.log(this.getGui()?.getDeploymentMode());
-        console.log(mesh.name.includes("ground"),this.getGui()?.getDeploymentMode());
+         //console.log("******************************",this.selectedAgent,startingPoint,clickedRegion)
+       // console.log(this.getGui()?.getDeploymentMode());
+        //console.log(mesh.name.includes("ground"),this.getGui()?.getDeploymentMode());
         if(!this.getGui()?.getDeploymentMode()){
             console.log("no mode found")
         }
@@ -593,6 +593,7 @@ class NexusUnitManager {
                    
                 } catch (error: any) {
                     this.getGui().showToast(error.message);
+                    this.getGui()?.handleDeployement();
                 }
     
                 

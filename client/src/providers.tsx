@@ -80,6 +80,12 @@ const policies: SessionPolicies = {
         {
           entrypoint: "force_end_player_turn",
         },
+        {
+          entrypoint: "capture_flag",
+        },
+        {
+          entrypoint: "boost",
+        },
       ],
     },
   },

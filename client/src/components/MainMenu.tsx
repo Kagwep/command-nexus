@@ -10,14 +10,14 @@ import WalletButton from './WalletButton';
 import { useNetworkAccount } from '../context/WalletContex';
 import { Account, AccountInterface, addAddressPadding } from 'starknet';
 import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
-import { CommandNexusSchemaType, Game } from '../dojogen/models.gen';
+import { CommandNexusSchemaType, Game, ModelsMapping } from '../dojogen/models.gen';
 import Navbar from './Navbar';
 import { useGameStore, usePlayerStore } from '../utils/entitityStore';
 import { useGamePolling, usePlayerPolling } from '../hooks/useEntityPolling ';
 import { useEntityStore } from '../hooks/useEntityStore';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useAllEntities } from '../utils/command';
-import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
+import { KeysClause, ParsedEntity,  QueryBuilder,  ToriiQueryBuilder } from '@dojoengine/sdk';
  
 
 const MainMenu: React.FC = () => {
@@ -58,102 +58,47 @@ const MainMenu: React.FC = () => {
 
 
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-
-    console.log(addAddressPadding(account.address))
-
-    const subscribe = async (account: AccountInterface) => {
-        const subscription = await sdk.subscribeEntityQuery({
-            query: new QueryBuilder<CommandNexusSchemaType>()
-                .namespace("command_nexus", (n) =>
-                    n
-                        .entity("Game", (e) =>
-                            e.eq(
-                                "arena_host",
-                                addAddressPadding(account.address)
-                            )
-                        )
-                        .entity("Player", (e) =>
-                            e.is(
-                                "address",
-                                addAddressPadding(account.address)
-                            )
-                        )
-                )
-                .build(),
-            callback: ({ error, data }) => {
-                if (error) {
-                    console.error("Error setting up entity sync:", error);
-                } else if (
-                    data &&
-                    (data[0] as ParsedEntity<CommandNexusSchemaType>).entityId !== "0x0"
-                ) {
-                    state.updateEntity(data[0] as ParsedEntity<CommandNexusSchemaType>);
-                }
-            },
-        });
-
-        unsubscribe = () => subscription.cancel();
-    };
-
-    if (account) {
-        subscribe(account);
-    }
-
-    return () => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
-    };
-}, []);
-
-
-const fetchEntities = async () => {
-  console.log("fetc ..............................",account)
-  try {
-    await sdk.getEntities({
-        query: new QueryBuilder<CommandNexusSchemaType>()
-            .namespace("command_nexus", (n) =>
-                n.entity("Game", (e) =>
-                    e.eq(
-                        "arena_host",
-                        addAddressPadding(account.address)
-                    )
-                ).entity("Player", (e) =>
-                  e.eq(
-                      "address",
-                      addAddressPadding(account.address)
-                  )
-              )
-            )
-            .build(),
-        callback: (resp) => {
-            if (resp.error) {
-                console.error(
-                    "resp.error.message:",
-                    resp.error.message
-                );
-                return;
-            }
-            if (resp.data) {
-                state.setEntities(
-                    resp.data as ParsedEntity<CommandNexusSchemaType>[]
-                );
-            }
-        },
-    });
-} catch (error) {
-      console.error("Polling error:", error);
-  }
-};
-
-
-
-// Use in useEffect
 useEffect(() => {
-  fetchEntities();
-}); // Empty dependency array means this only runs once on mount
+  let unsubscribe: (() => void) | undefined;
+
+  const subscribe = async (account: AccountInterface) => {
+      const [initialData, subscription] = await sdk.subscribeEntityQuery({
+          query: new ToriiQueryBuilder()
+              .withClause(
+                  // Querying Moves and Position models that has at least [account.address] as key
+                  KeysClause(
+                      [ModelsMapping.Game, ModelsMapping.Player, ModelsMapping.AbilityState, ModelsMapping.Infantry, ModelsMapping.UnitState],
+                      [],
+                      "VariableLen"
+                  ).build()
+              )
+              .includeHashedKeys(),
+          callback: ({ error, data }) => {
+              if (error) {
+                  console.error("Error setting up entity sync:", error);
+              } else if (data && data[0].entityId !== "0x0") {
+                  state.updateEntity(data[0]);
+              }
+          },
+      });
+
+      state.setEntities(initialData);
+
+      unsubscribe = () => subscription.cancel();
+  };
+
+  if (account) {
+      subscribe(account);
+  }
+
+  return () => {
+      if (unsubscribe) {
+          unsubscribe();
+      }
+  };
+}, [sdk, account, state]);
+
+
 
 
 const [messageIndex, setMessageIndex] = useState(0);
@@ -418,4 +363,3 @@ useEffect(() => {
   );
 };
 
-export default MainMenu;

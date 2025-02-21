@@ -28,7 +28,7 @@ async function main() {
     const sdk = await init<CommandNexusSchemaType>(
         {
             client: {
-                rpcUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_RPC_URL : dojoConfig.rpcUrl,
+               // rpcUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_RPC_URL : dojoConfig.rpcUrl,
                 toriiUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_URL : 'http://localhost:8080',
                 relayUrl: dojoConfig.relayUrl,
                 worldAddress: dojoConfig.manifest.world.address,
@@ -40,7 +40,6 @@ async function main() {
                 revision: "1",
             },
         },
-        schema
     );
 
     createRoot(document.getElementById("root")!).render(

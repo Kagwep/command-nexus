@@ -80,60 +80,6 @@ const { state: nstate, refetch } = useAllEntities();
   
   const {getGui, gui, isGuiReady } = useCommandNexusGui(sceneRef.current, player, isItMyTurn, turn,game, players,client,getAccount,getGameState);
 
-  useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-
-    console.log(addAddressPadding(account.address))
-
-    const subscribe = async (account: AccountInterface) => {
-        const subscription = await sdk.subscribeEntityQuery({
-            query: new QueryBuilder<CommandNexusSchemaType>()
-                .namespace("command_nexus", (n) =>
-                    n
-                        .entity("Infantry", (e) =>
-                            e.eq(
-                                "game_id",
-                                game_id
-                            )
-                        )
-                        .entity("AbilityState", (e) =>
-                            e.is(
-                              "game_id",
-                              game_id
-                            )
-                        ).entity("UnitState", (e) =>
-                          e.is(
-                            "game_id",
-                            game_id
-                          )
-                      )
-                )
-                .build(),
-            callback: ({ error, data }) => {
-                if (error) {
-                    console.error("Error setting up entity sync:", error);
-                } else if (
-                    data &&
-                    (data[0] as ParsedEntity<CommandNexusSchemaType>).entityId !== "0x0"
-                ) {
-                    state.updateEntity(data[0] as ParsedEntity<CommandNexusSchemaType>);
-                }
-            },
-        });
-
-        unsubscribe = () => subscription.cancel();
-    };
-
-    if (account) {
-        subscribe(account);
-    }
-
-    return () => {
-        if (unsubscribe) {
-            unsubscribe();
-        }
-    };
-}, [sdk, account]);
 
   useEffect(() => {
       if (canvasRef.current && !engineRef.current && account) {

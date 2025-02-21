@@ -363,3 +363,4 @@ useEffect(() => {
   );
 };
 
+export default MainMenu;

@@ -66,8 +66,8 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
 
     const result = await SceneLoader.ImportMeshAsync(
       '',  // mesh name (empty for all)
-      'https://cnexus.s3.eu-north-1.amazonaws.com/', // root URL
-      'unlikely.glb' // filename
+      '/models/', // root URL
+      'unlikely-v1.glb' // filename
     );
 
     function checkNameUsingIncludes(name: string): boolean {
@@ -151,7 +151,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
     
 
     const tankContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Tank.glb", scene);
-    const soldierContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Soldier.glb", scene);
+    const soldierContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/Soldier_r.glb", scene);
 
 
     const flagContainer = await SceneLoader.LoadAssetContainerAsync("", "/models/flag.glb", scene);

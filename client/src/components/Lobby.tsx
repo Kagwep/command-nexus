@@ -20,8 +20,9 @@ import Navbar from './Navbar';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useAllEntities } from '../utils/command';
 import { getGame } from '../lib/utils';
-import { CommandNexusSchemaType } from '@/dojogen/models.gen';
-import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
+import { CommandNexusSchemaType, ModelsMapping } from '@/dojogen/models.gen';
+import { KeysClause, ParsedEntity, QueryBuilder, ToriiQueryBuilder } from '@dojoengine/sdk';
+
 
 
 const Lobby: React.FC = () => {
@@ -38,9 +39,9 @@ const Lobby: React.FC = () => {
   const entities = useDojoStore((state) => state.entities);
 
   const { set_game_state, set_game_id, game_id, round_limit } = useElementStore((state) => state);
-  const { state: nstate, refetch } = useAllEntities()
+  const { state: nstate, refetch } = useAllEntities(5000)
 
-
+ 
 
  const game = getGame(game_id,nstate.games);
 
@@ -57,6 +58,50 @@ const Lobby: React.FC = () => {
   const [startLoading, setStartLoading] = useState(false);
   const [kickLoading, setKickLoading] = useState(false);
   const [transferLoading, setTransferLoading] = useState(false);
+
+
+
+
+  // useEffect(() => {
+  //   let unsubscribe: (() => void) | undefined;
+  
+  //   const subscribe = async (account: AccountInterface) => {
+  //       const [initialData, subscription] = await sdk.subscribeEntityQuery({
+  //           query: new ToriiQueryBuilder()
+  //               .withClause(
+  //                   // Querying Moves and Position models that has at least [account.address] as key
+  //                   KeysClause(
+  //                       [ModelsMapping.Game, ModelsMapping.Player, ModelsMapping.AbilityState, ModelsMapping.Infantry, ModelsMapping.UnitState],
+  //                       [],
+  //                       "VariableLen"
+  //                   ).build()
+  //               )
+  //               .includeHashedKeys(),
+  //           callback: ({ error, data }) => {
+  //               if (error) {
+  //                   console.error("Error setting up entity sync:", error);
+  //               } else if (data && data[0].entityId !== "0x0") {
+  //                   state.updateEntity(data[0]);
+  //               }
+  //           },
+  //       });
+  
+  //       state.setEntities(initialData);
+  
+  //       unsubscribe = () => subscription.cancel();
+  //   };
+  
+  //   if (account) {
+  //       subscribe(account);
+  //   }
+  
+  //   return () => {
+  //       if (unsubscribe) {
+  //           unsubscribe();
+  //       }
+  //   };
+  // }, [sdk, account, state]);
+  
 
   console.log("51456454464",game)
   console.log("51456454464",game_id)

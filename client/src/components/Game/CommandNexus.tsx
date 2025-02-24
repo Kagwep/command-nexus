@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { setupScene, updateScene } from './CommandNexusScene';
 import { ArcRotateCamera, Engine, HavokPlugin, PhysicsViewer, Scene, Tools, Vector3 } from '@babylonjs/core';
 import { useDojo } from '../../dojo/useDojo';
@@ -60,8 +60,10 @@ const { state: nstate, refetch } = useAllEntities();
 
   const armored = useArmoredUnits();
 
-  const game = useGame();
+  const game = getGame(game_id,nstate.games);
   const {players} = useGetPlayersForGame(game_id);
+
+  
 
   const [guiState, setGuiState] = useState({});
   const updateGuiState = useCallback((newState: {}) => {
@@ -145,31 +147,46 @@ const { state: nstate, refetch } = useAllEntities();
       }
   }, [player?.address]);
 
+//   const getGameSpecificData = useMemo(() => {
+//     if (!game_id) return null;
+    
+//     return {
+//         infantry: Object.values(nstate.infantry).filter(unit => Number(unit.game_id) === game_id),
+//         unitStates: Object.values(nstate.unitState).filter(state => Number(state.game_id) === game_id),
+//         abilityStates: Object.values(nstate.abilityState).filter(state => Number(state.game_id) === game_id),
+//         players: Object.values(nstate.players).filter(player => Number(player.game_id) === game_id)
+//     };
+// }, [game_id, nstate]);
+
 
   useEffect(() => {
     console.log(isSceneReady,nstate)
-    if (isSceneReady && sceneRef.current) {
+    if (isSceneReady && sceneRef.current ) {
+
+      const gameSpecificData = {
+        infantry: Object.values(nstate.infantry).filter(unit => 
+          Number(unit.game_id) === game_id && Number(unit.health.current) > 0
+        ),
+        unitStates: Object.values(nstate.unitState).filter(state => Number(state.game_id) === game_id),
+        abilityStates: Object.values(nstate.abilityState).filter(state => Number(state.game_id) === game_id),
+        players: Object.values(nstate.players).filter(player => Number(player.game_id) === game_id)
+    };
+
       console.log("Updating scene metadata with infantry units");
-      const found = Object.values(nstate.players).find((p) => {
+      const currentPlayer = Object.values(nstate.players).find((p) => {
         const cleanAddress = removeLeadingZeros(p.address);
-        console.log("Comparing:", {
-          playerAddress: p.address,
-          cleanAddress: cleanAddress,
-          accountAddress: account.address,
-          isMatch: cleanAddress === account.address
-        });
         return cleanAddress === account.address;
       });
-      const n_game = getGame(game_id,nstate.games);
+      const currentGame = getGame(game_id,nstate.games);
       sceneRef.current.metadata = {
         ...sceneRef.current.metadata,
-        infantryUnits:nstate.infantry,
+        infantryUnits:gameSpecificData.infantry,
         //armoredUnits: nstate.armored,
-        infantryStates: nstate.unitState,
-        infantryModes: nstate.abilityState,
-        playerInfo: found,
-        playersInfo: nstate.players,
-        gameInfo: n_game,
+        infantryStates: gameSpecificData.unitStates,
+        infantryModes: gameSpecificData.abilityStates,
+        playerInfo: currentPlayer,
+        playersInfo: gameSpecificData.players,
+        gameInfo: currentGame,
       };
     }
   }, [isSceneReady, infantry?.infantryUnits,game,armored?.armoredUnits]);

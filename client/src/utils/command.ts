@@ -1,11 +1,14 @@
-import { CommandNexusSchemaType } from '../dojogen/models.gen';
-import { ClauseBuilder, ParsedEntity, ToriiQueryBuilder } from '@dojoengine/sdk';
+import { CommandNexusSchemaType, ModelsMapping } from '../dojogen/models.gen';
+import { ClauseBuilder, KeysClause, ParsedEntity, ToriiQueryBuilder } from '@dojoengine/sdk';
 import { useDojoSDK } from '@dojoengine/sdk/react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGameStore } from './nexusstore';
 import { hexToUtf8 } from './unpack';
 import { abilityStringToEnum } from './nexus';
+import { AccountInterface } from 'starknet';
+import useNetworkAccount from '@/hooks/useNetworkAccount';
 
+let intervalId: NodeJS.Timeout | null = null; // Keep polling alive across components
 // Helper to extract primitive value
 const getPrimitiveValue = (field: any) => {
    
@@ -234,10 +237,14 @@ const transformEntities = (rawEntities: any[], transformFn: (data: any) => any) 
 };
 
 
+
 export const useAllEntities = (pollInterval = 5000) => {
     const { useDojoStore, client, sdk } = useDojoSDK();
     const state = useDojoStore((state) => state);
     const { setGame, setPlayer, setAbilityState, setInfantry,setUnitState} = useGameStore();
+    const { account, address, status, isConnected } = useNetworkAccount();
+    
+
 
     const fetchAllEntities = async () => {
         try {
@@ -308,31 +315,31 @@ export const useAllEntities = (pollInterval = 5000) => {
     };
 
     useEffect(() => {
-      let isMounted = true;
-      let intervalId: NodeJS.Timeout;
-
-      const startPolling = async () => {
-          if (!sdk?.client) return;
-          
-          // Initial fetch
-          await fetchAllEntities();
-
-          // Set up polling only if component is still mounted
-          if (isMounted) {
-              intervalId = setInterval(fetchAllEntities, pollInterval);
-          }
-      };
-
-      startPolling();
-
-      // Cleanup
-      return () => {
-          isMounted = false;
-          if (intervalId) {
-              clearInterval(intervalId);
-          }
-      };
-  }, [pollInterval]); // Only depend on sdk.client and pollInterval
+        let isMounted = true;
+        let intervalId: NodeJS.Timeout;
+  
+        const startPolling = async () => {
+            if (!sdk?.client) return;
+            
+            // Initial fetch
+            await fetchAllEntities();
+  
+            // Set up polling only if component is still mounted
+            if (isMounted) {
+                intervalId = setInterval(fetchAllEntities, pollInterval);
+            }
+        };
+  
+        startPolling();
+  
+        // Cleanup
+        return () => {
+            isMounted = false;
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [pollInterval]); // Only depend on sdk.client and pollInterval
 
     return {
       state: useGameStore(),

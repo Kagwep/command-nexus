@@ -17,8 +17,8 @@ import { useGamePolling, usePlayerPolling } from '../hooks/useEntityPolling ';
 import { useEntityStore } from '../hooks/useEntityStore';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useAllEntities } from '../utils/command';
-import { KeysClause, ParsedEntity,  QueryBuilder,  ToriiQueryBuilder } from '@dojoengine/sdk';
- 
+import { ClauseBuilder, KeysClause, ParsedEntity,  QueryBuilder,  ToriiQueryBuilder } from '@dojoengine/sdk';
+
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
@@ -28,6 +28,7 @@ const MainMenu: React.FC = () => {
 
   const [game, setGame] = useState<Game | null>(null);
   const [player, setPlayer] = useState(null);
+
 
   const {
     setup: {
@@ -45,6 +46,8 @@ const MainMenu: React.FC = () => {
   const playerpol = usePlayerPolling(sdk.client)
   const gamepol = useGamePolling(sdk.client)
 
+ 
+
   const { state: nstate, refetch } = useAllEntities();
 
   console.log(nstate.games,nstate.players,nstate.abilityState,nstate.infantry);
@@ -53,9 +56,22 @@ const MainMenu: React.FC = () => {
 
   const { entities: gameEntities, isLoading: gameIsLoading } = useGameStore()
 
-  // console.log(playerent)
-  // console.log(gameEntities)
 
+  useEffect(() => {
+    async function fetchToriiClause() {
+      const res = await sdk.client.getEntities(
+        new ToriiQueryBuilder()
+          .withClause(
+            new ClauseBuilder()
+              .keys([], [undefined], "VariableLen")
+              .build()
+          )
+          .build()
+      );
+      return res;
+    }
+    fetchToriiClause().then(console.log);
+  });
 
 
 useEffect(() => {
@@ -96,7 +112,7 @@ useEffect(() => {
           unsubscribe();
       }
   };
-}, [sdk, account, state]);
+}, [sdk, account]);
 
 
 

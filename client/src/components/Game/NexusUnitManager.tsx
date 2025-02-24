@@ -1,8 +1,8 @@
-import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer } from '@babylonjs/core';
+import { Scene, Mesh, Vector3, GroundMesh, TransformNode, PointerEventTypes, StandardMaterial, Color3, AnimationGroup, AssetContainer, Ray, AbstractMesh, Axis, Quaternion, Space, Tools, MeshBuilder, VertexBuffer, ActionManager, ExecuteCodeAction } from '@babylonjs/core';
 import { RecastJSPlugin } from '@babylonjs/core/Navigation/Plugins/recastJSPlugin';
 import CommandNexusGui from './CommandNexusGui';
 import { UnitType,UnitAssetContainers, Agent, AnimationMapping, AgentAnimations, UnitAnimations, AbilityType, Deploy, ToastType, Infantry, EncodedVector3, Armored } from '../../utils/types';
-import { regions, soldierAnimationMapping, tankAnimationMapping, positionEncoder, positionDecoder,unitTypeToInt,battlefieldTypeToInt, numberToUnitType } from '../../utils/nexus';
+import { regions, soldierAnimationMapping, tankAnimationMapping, positionEncoder, positionDecoder,unitTypeToInt,battlefieldTypeToInt, numberToUnitType, RegionColorSystem } from '../../utils/nexus';
 import { Weapon } from './BulletSystem';
 import { SoundManager } from './SoundManager';
 import { RayCaster } from './RayCaster';
@@ -166,7 +166,10 @@ class NexusUnitManager {
         matdebug.diffuseColor = new Color3(0.1, 0.2, 1);
         matdebug.alpha = 1;
         this.navmeshdebug.material = matdebug;
-        this.navmeshdebug.visibility = 0.15;
+        this.navmeshdebug.visibility = 0;
+
+        const actionManager = new ActionManager(this.scene);
+        this.navmeshdebug.actionManager = actionManager;
 
         const positions = this.navmeshdebug.getVerticesData(VertexBuffer.PositionKind);
         this.navMeshIndices =positions
@@ -237,6 +240,12 @@ class NexusUnitManager {
        
         const agentIndex = this.crowd.addAgent(agentPosition, agentParams, navAgent);
 
+        const commanderId = this.getGameState()?.player?.index;
+
+        const agentBattlefield = this.getGameState()?.player?.home_base;
+
+
+
         const animations: AgentAnimations   = this.mapAnimations(result.animationGroups, this.unitAnimations[unitType]);
 
         const agent: Agent = {
@@ -252,9 +261,24 @@ class NexusUnitManager {
             
          };
 
+
+
+         const actionManager = new ActionManager(this.scene);
+         rootMesh.actionManager = actionManager;
+
+
         rootMesh.metadata = { agentIndex: this.agents.length, UnitData: newUnitData };
         rootMesh.getChildMeshes().forEach(childMesh => {
             childMesh.metadata = { agentIndex: this.agents.length, UnitData: newUnitData };
+            childMesh.actionManager = actionManager;
+
+            if((unitData.player_id === commanderId) && childMesh.name.includes("Ribbon")){
+                const material = new StandardMaterial(name + "Material", this.scene);
+                material.diffuseColor = RegionColorSystem.getRegionColor(agentBattlefield as unknown as string);
+                material.specularColor = new Color3(0.2, 0.2, 0.2);
+                childMesh.material = material;
+            }
+
         });
 
         this.agents.push(agent);
@@ -291,6 +315,27 @@ class NexusUnitManager {
             if (pointerInfo.type === PointerEventTypes.POINTERTAP && pointerInfo.pickInfo?.hit) {
                 await this.handlePointerTap(pointerInfo.pickInfo.pickedMesh as Mesh);
             }
+            // Handle cursor changes
+            if (pointerInfo.pickInfo?.hit && pointerInfo.pickInfo.pickedMesh) {
+                if (pointerInfo.type === PointerEventTypes.POINTERMOVE) {
+                    if (pointerInfo.pickInfo.pickedMesh.metadata?.location !== undefined) {
+                        this.scene.getEngine().getInputElement().style.cursor = 'pointer';
+                    }
+                    
+                    if (pointerInfo.pickInfo.pickedMesh.metadata?.agentIndex !== undefined) {
+                        
+                        this.scene.getEngine().getInputElement().style.cursor = 'pointer';
+                    }
+
+                    if (pointerInfo.pickInfo.pickedMesh.name.includes("ground")) {
+                        
+                        this.scene.getEngine().getInputElement().style.cursor = 'crosshair';
+                    }
+                } else if (pointerInfo.type === PointerEventTypes.POINTERUP) {
+                    this.scene.getEngine().getInputElement().style.cursor = 'default';
+                }
+            }
+
         });
     }
 
@@ -308,6 +353,12 @@ class NexusUnitManager {
         }
         if (mesh.metadata && mesh.metadata.agentIndex !== undefined) {
             console.log(mesh.metadata)
+
+            	//ON MOUSE ENTER
+
+            
+
+                
             if (mesh.metadata.UnitData.unit_id){
                 
                 this.getGui()?.showInfantryInfo(mesh.metadata.UnitData);
@@ -470,6 +521,7 @@ class NexusUnitManager {
                     const errorMessage = StarknetErrorParser.parseError(result);
                     console.log(errorMessage)
                     this.getGui().showToastSide(errorMessage,ToastType.Error)
+                    this.getGui()?.handleAttack();
                    }
 
 
@@ -1161,8 +1213,9 @@ class NexusUnitManager {
             this.getGui().showToastSide(`Unit Deployed`, ToastType.Success);
            }else{
             const errorMessage = StarknetErrorParser.parseError(result);
-            console.log(errorMessage)
+            //console.log(errorMessage)
             this.getGui().showToastSide(errorMessage,ToastType.Error)
+            this.getGui()?.handleDeployement();
            }
 
         } catch (error: any) {
@@ -1230,7 +1283,7 @@ class NexusUnitManager {
                 Object.entries(this.scene.metadata.infantryUnits).forEach(([unitId, unitData]) => {
                     if (!this.infantryUnits.has((unitData as any).unit_id) ) {
                         // This is a new unit
-                       console.log('New infantry unit detected:', unitData);
+                       console.log('New infantry unit detected:', unitData,this.infantryUnits);
                         this.infantryUnits.set((unitData as any).unit_id, (unitData as any));
                         this.handleNewInfantryUnit((unitData as any));
                     } else {
@@ -1428,10 +1481,13 @@ class NexusUnitManager {
     private removeNonExistentUnits(): void {
         if (!this.scene.metadata?.infantryUnits) return;
         
-        const currentUnitIds = Object.keys(this.scene.metadata.infantryUnits);
+            // Get unit_ids from each Infantry record in the metadata
+        const currentUnitIds = Object.values(this.scene.metadata.infantryUnits)
+        .map((infantry: Infantry) => infantry.unit_id);
         for (const [id, unit] of this.infantryUnits) {
-            if (!currentUnitIds.includes(id.toString())) {
+            if (!currentUnitIds.includes(id as unknown as number)) {
                 this.infantryUnits.delete(id);
+                this.deleteAgentByUnitId(id as unknown as number);
                 console.log('Removed non-existent unit:', unit);
                 // Perform any cleanup operations for removed units here
             }
@@ -1519,6 +1575,69 @@ class NexusUnitManager {
         );
     }
 
+    private deleteAgentByUnitId(unitId: number): boolean {
+        // Find the agent with the matching unit ID
+        const agent = this.getAgentByUnitId(unitId);
+        
+        if (!agent) {
+            console.log(`No agent found with unit ID: ${unitId}`);
+            return false;
+        }
+        
+        // Find the index of the agent in the agents array
+        const agentIndex = this.agents.indexOf(agent);
+        
+        if (agentIndex > -1) {
+            // Remove the agent from crowd navigation system
+            if (this.crowd && agent.idx !== undefined) {
+                this.crowd.removeAgent(agent.idx);
+            }
+            
+            // Clean up the visual mesh and all its children
+            if (agent.visualMesh) {
+                // Remove action managers
+                if (agent.visualMesh.actionManager) {
+                    agent.visualMesh.actionManager.dispose();
+                }
+                
+                // Clean up all child meshes
+                agent.visualMesh.getChildMeshes().forEach(childMesh => {
+                    if (childMesh.material) {
+                        childMesh.material.dispose();
+                    }
+                    if (childMesh.actionManager) {
+                        childMesh.actionManager.dispose();
+                    }
+                    childMesh.dispose();
+                });
+                
+                // Dispose of the main mesh
+                agent.visualMesh.dispose();
+            }
+            
+            // Clean up animations
+            if (agent.animationGroups) {
+                agent.animationGroups.forEach(animGroup => {
+                    animGroup.stop();
+                    animGroup.dispose();
+                });
+            }
+            
+            // Clean up the navigation agent transform node
+            if (agent.navAgent) {
+                agent.navAgent.dispose();
+            }
+            
+            // Remove the agent from the array
+            this.agents.splice(agentIndex, 1);
+            
+            console.log(`Successfully deleted agent with unit ID: ${unitId} and cleaned up all resources`);
+            return true;
+        }
+        
+        return false;
+    }
+
         // Helper to check if position has changed
     private hasPositionChanged(oldData: any, newData: any): boolean {
         return oldData.position.coord.x !== newData.position.coord.x ||
@@ -1530,7 +1649,7 @@ class NexusUnitManager {
 private updateInfantryUnit(unitData: any) {
     const existingUnit = this.infantryUnits.get(unitData.unit_id);
     const agent = this.getAgentByUnitId(unitData.unit_id);
-    this.selectedAgentUpdated = agent;
+    
 
     if (!agent) {
         console.warn(`No agent found for unit ${unitData.unit_id}`);
@@ -1547,6 +1666,7 @@ private updateInfantryUnit(unitData: any) {
 
     // Check if position has changed
     if (existingUnit && this.hasPositionChanged(existingUnit, unitData)) {
+        this.selectedAgentUpdated = agent;
         // Convert position coordinates
         const x = bigintToU256(unitData.position.coord.x);
         const y = bigintToU256(unitData.position.coord.y);

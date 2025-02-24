@@ -2152,6 +2152,7 @@
       ]
     }
   ],
+  "libraries": [],
   "models": [
     {
       "members": [],
@@ -2406,5 +2407,6 @@
       "selector": "0x458b8886103cba06b667071aafa44fc4e97ed46629ede16cb2628ad21032a1f"
     }
   ],
-  "events": []
+  "events": [],
+  "external_contracts": []
 }

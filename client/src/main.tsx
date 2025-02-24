@@ -15,6 +15,8 @@ import { OnboardingProvider } from "./context/OnboardingContext.tsx";
 import AppInitializer from "./components/AppInitializer.tsx";
 import { TORII_RPC_URL, TORII_URL } from "./constants.ts";
 import { client } from "./dojogen/contracts.gen.ts";
+import { ApollClient } from "./utils/apollo/client.ts";
+import { ApolloProvider } from '@apollo/client';
 
 /**
  * Initializes and bootstraps the Dojo application.
@@ -44,6 +46,7 @@ async function main() {
 
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
+            <ApolloProvider client={ApollClient}>
             <StarknetProvider>
                 <OnboardingProvider>
                 <AppInitializer
@@ -53,6 +56,7 @@ async function main() {
                      />
                 </OnboardingProvider>
             </StarknetProvider>
+            </ApolloProvider>
         </StrictMode>
     );
 }

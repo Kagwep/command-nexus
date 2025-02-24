@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import GameState from './gamestate';
 import { AbilityType, AnimationMapping, BannerLevel, Battle, BattlefieldName, EncodedVector3, Region, UnitAbilities, UnitType } from './types';
-import { Vector3 } from '@babylonjs/core';
+import { Color3, Vector3 } from '@babylonjs/core';
 import { removeLeadingZeros } from './sanitizer';
 import { bigintToU256 } from "../lib/lib_utils/starknet";
 import { Uint256ToBigint } from '../lib/lib_utils/starknet';
@@ -440,3 +440,227 @@ export const positionDecoder = (encodedPosition: EncodedVector3): Vector3 => {
 
 //   return allGames
 // }
+// Color mapping system for military regions
+export const RegionColorSystem = {
+  // Color constants
+  COLORS: {
+      BRILLIANT_AZURE: new Color3(0.0, 0.7, 1.0),
+      POLISHED_SILVER: new Color3(0.8, 0.8, 0.8),
+      CRIMSON_RED: new Color3(1.0, 0.0, 0.0),
+      BRILLIANT_GOLD: new Color3(1.0, 0.8, 0.0),
+      EMERALD_GREEN: new Color3(0.0, 0.8, 0.0)
+  },
+
+  // Default mappings
+  DEFAULT_MAPPINGS: {
+      RadiantShores: 'BRILLIANT_AZURE',
+      Ironforge: 'POLISHED_SILVER',
+      Skullcrag: 'CRIMSON_RED',
+      NovaWarhound: 'BRILLIANT_GOLD',
+      SavageCoast: 'EMERALD_GREEN'
+  },
+
+  // Get color for a region
+  getRegionColor(regionName, customMappings = null) {
+      const mappings = customMappings || this.DEFAULT_MAPPINGS;
+      const colorKey = mappings[regionName];
+      return this.COLORS[colorKey] || this.COLORS.BRILLIANT_AZURE; // Default to azure if not found
+  },
+
+
+
+
+};
+
+
+export const guideContent = [
+  {
+      gType: 'section',
+      data: {
+          title: 'Welcome to Tutorial',
+          content: 'Learn how to control and manage your troops effectively in this guide.'
+      }
+  },
+  {
+      gType: 'image',
+      data: {
+          url: '/images/im1.PNG',
+          width: '400px',
+          height: '225px'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Basic Controls',
+          content: 'Your control panel contains several important buttons: Deploy (bottom), Heal and Boost (center), and an Info guide (top). Each serves a crucial function in managing your units.'
+      }
+  },
+  {
+      gType: 'image',
+      data: {
+          url: '/images/sec4.PNG',
+          width: '400px',
+          height: '225px'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Deploy Units',
+          content: 'The large green circle at the bottom is your Deploy button. Click it to place new units on the battlefield. This is your primary way of building your army.'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Unit Management',
+          content: 'In the center panel, you have two key abilities:\n\n• Heal (♥): Select an injured unit and press Heal to restore their health\n• Boost (⚡): Increases unit energy for special actions\n\nRemember: Every action consumes energy, so manage your resources wisely!'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Help & Information',
+          content: 'The "i" button at the top right will open this guide anytime you need to review the controls. Use it to refresh your memory about game mechanics and unit management.'
+      }
+  },
+  {
+      gType: 'image',
+      data: {
+          url: '/images/sec3.PNG', // The unit actions control panel image
+          width: '400px',
+          height: '100px'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Unit States',
+          content: 'Units can be assigned different states:\n\n• Attack: Click unit, select attack, then click target unit\n• Defend: Holds position and engages nearby enemies\n• Patrol: Guards an area in a repeated pattern\n• Stealth: Moves quietly, harder to detect'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Movement',
+          content: 'To move a unit:\n1. Select your unit\n2. Look for the crosshair cursor (+)\n3. Click the destination\n\nIMPORTANT: Each movement costs energy. Plan your moves carefully and avoid long distances in single moves.'
+      }
+  },
+  {
+      gType: 'image',
+      data: {
+          url: '/images/sec6.PNG',
+          width: '400px',
+          height: '225px'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Base Insignias',
+          content: ''
+      }
+  },
+  {
+      gType: 'image',
+      data: {
+          url: '/images/sec2.PNG', // Unit info panes image
+          width: '400px',
+          height: '225px'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Unit Information Display',
+          content: 'Click on any unit to view its detailed information. The info panes show crucial stats about your selected unit:'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Unit Stats',
+          content: '• Health: Current unit health points\n• Energy: Available energy for actions\n• Accuracy: Hit chance in combat\n• Range: Attack and visibility range\n• Unit ID: Unique identifier\n• Player: Owner of the unit\n• Mode: Current unit state (Attack/Defend/Patrol/Stealth/Move)'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Live Updates',
+          content: 'The information panes update in real-time as you select different units or when unit stats change during gameplay. Keep an eye on energy levels - they affect your unit\'s ability to perform actions!'
+      }
+  },
+  {
+      gType: 'image',
+      data: {
+          url: '/images/sec1.PNG', // Commander info bar image
+          width: '1200px',
+          height: '40px'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Commander Information',
+          content: 'The top bar shows your commander status. From left to right:\n\n• Commander Name\n• Home Base (with insignia)\n• Military Rank\n• Captured Flags Count\n• Available Boosts\n• Score\n• Available Commands\n• Turn Status Button'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Command System',
+          content: 'Commands are your action points for troop control:\n\n• Start with 8 commands in your first turn\n• Renewed to 3 commands in subsequent turns\n• Each action type (Attack/Defend/Patrol/Move) can only be used once before switching\n• Plan your actions carefully - commands are precious resources!'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Turn Management',
+          content: 'The End Turn button indicates your turn status:\n\n• Green: It\'s your turn - take your actions\n• Red: Opponent\'s turn - plan your next moves\n\nStrategic Tip: Always monitor your units\' health and energy levels when planning commands. Efficient command usage is key to victory!'
+      }
+  },    {
+      gType: 'section',
+      data: {
+          title: 'Combat Mechanics',
+          content: 'Unit states affect combat performance:\n\n• Attack Bonuses:\n  - Attacking mode: +10 attack\n  - Stealth mode: +15 attack (highest)\n  - Recon mode: +5 attack\n\n• Defense Bonuses:\n  - Defending mode: +15 defense (highest)\n  - Patrol mode: +5 defense\n  - Stealth mode: +10 defense'
+      }
+  },
+  {
+    gType: 'image',
+    data: {
+        url: '/images/sec5.PNG',
+        width: '400px',
+        height: '225px'
+    }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Victory Conditions',
+          content: 'Win the game by achieving either:\n\n• Capture 5 flags\n• Eliminate 5 enemy units\n\nStrategize your approach based on the battlefield situation!'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Points & Modes',
+          content: 'Points earned vary by unit states:\n\nHighest Reward Targets:\n• Stealthed units: 40 points\n• Defending units: 35 points\n• Attacking units: 30 points\n\nAttacking From:\n• Stealth: 40 points\n• Recon: 30 points\n• Idle: 25 points\n\nTip: Stealth operations offer the highest risk/reward ratio!'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Ranks & Progression',
+          content: 'Earn points to progress through ranks:\n\n• Recruit → Soldier → Veteran → Elite\n• Commander → Legend → Mythic\n\nEarn points through strategic combat and flag captures!'
+      }
+  },
+  {
+      gType: 'section',
+      data: {
+          title: 'Boost System',
+          content: 'Boost resource management:\n\n• Earn boost by:\n  - Eliminating enemy units\n  - Capturing flags\n\n• Spend boost on:\n  - Healing units (20 boost)\n  - Boosting unit energy (20 boost)\n\nStrategic tip: Save boosts for critical moments in battle!'
+      }
+  }
+];
+

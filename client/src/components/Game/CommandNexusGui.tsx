@@ -1,15 +1,17 @@
 import * as GUI from "@babylonjs/gui";
-import { Scene, Vector3,Animation } from '@babylonjs/core';
+import { Scene, Vector3,Animation, Mesh } from '@babylonjs/core';
 import {  UnitType,UnitAbilities, AbilityType, Agent, ToastType, Armored } from "../../utils/types";
 import { DeployInfo } from "../../utils/types";
-import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, positionEncoder, stringToUnitType } from "../../utils/nexus";
+import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, guideContent, positionEncoder, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
-import { Button, Control, Rectangle, StackPanel, TextBlock,Image } from "@babylonjs/gui";
+import { Button, Control, Rectangle, StackPanel, TextBlock,Image, ScrollViewer } from "@babylonjs/gui";
 import { AbilityState, Infantry, Player, TerrainType,UnitModeEnum, UnitState, UnitTypeEnum } from "../../dojogen/models.gen";
 import { useRef } from "react";
 import { Account, AccountInterface, encode } from "starknet";
 import { GameState } from "./GameState";
 import { StarknetErrorParser } from "./ErrorParser";
+import { ScanEye } from "lucide-react";
+import { TutorialUI } from "./TutorialUI";
 
 interface TopBarConfig {
     TEXT_COLOR: string;
@@ -45,6 +47,22 @@ export default class CommandNexusGui {
     private ACTIVE_COLOR = "#4CAF50";
     private COOLDOWN_COLOR = "#f44336";
     private INACTIVE_COLOR = "#808080";
+    private rect: GUI.Rectangle;
+    private text: GUI.TextBlock;
+    private tutorialContainer: Rectangle;
+    private scrollViewer: GUI.ScrollViewer;
+    private contentPanel: StackPanel;
+    private tutorialUI: TutorialUI;
+
+    // Default style values
+    private defaultStyles = {
+        rectBackground: "grey",
+        rectAlpha: 0.7,
+        textColor: "White",
+        textBackground: '#006994',
+        fontSize: 14
+    };
+
 
     private config: TopBarConfig = {
         TEXT_COLOR: "#E5E7EB",
@@ -70,7 +88,8 @@ export default class CommandNexusGui {
     private boostPanel: Rectangle = new Rectangle;
     private unitStatesPanel: Rectangle = new Rectangle;
     private textElements: Map<string, GUI.TextBlock> = new Map();
-
+    private animations: Animation[];
+    private infoButton: GUI.Ellipse = new GUI.Ellipse;
 
     // Color scheme
     private readonly PANEL_COLOR = "rgba(0, 40, 20, 0.8)";
@@ -78,7 +97,7 @@ export default class CommandNexusGui {
     private readonly HIGHLIGHT_COLOR = "rgba(0, 80, 0, 0.9)";
     private readonly TEXT_COLOR = "rgba(0, 255, 0, 0.9)";
     private currentY: number = -250;
-
+    private hideTimeout: number | null = null;
     private infoRows: Map<string, GUI.TextBlock> = new Map();
     private unitRows: Map<string, GUI.TextBlock> = new Map();
     private scoreRows: Map<string, GUI.TextBlock> = new Map();
@@ -95,6 +114,7 @@ export default class CommandNexusGui {
         this.createOpponentsPanel();
 
         this.createDeployButton();
+        this.createInfoButton();
         this.createUnitSelectionPanel();
 
         this.createArcs();
@@ -106,7 +126,8 @@ export default class CommandNexusGui {
         this.initializeUnitStatePanel();
         this.getGameState = getGameState;
         this.initializeBoostPanel();
-
+        this.initializeBoxInfo();
+        this.tutorialUI = new TutorialUI(scene);
        
     }
 
@@ -132,6 +153,59 @@ export default class CommandNexusGui {
         this.gui.addControl(this.innerArc);
     }
 
+    private initializeBoxInfo(): void {
+        if (!this.rect) {
+            this.rect = new GUI.Rectangle();
+            this.gui.addControl(this.rect);
+            this.rect.width = "300px";
+            this.rect.height = "200px";
+            this.rect.thickness = 2;
+            this.rect.linkOffsetX = "150px";
+            this.rect.linkOffsetY = "-100px";
+            this.rect.transformCenterX = 0;
+            this.rect.transformCenterY = 1;
+            this.rect.scaleX = 0;
+            this.rect.scaleY = 0;
+            this.rect.cornerRadius = 30;
+            this.rect.thickness = 0;
+    
+            this.text = new GUI.TextBlock();
+            this.text.textWrapping = true;
+            this.text.textVerticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+            this.rect.addControl(this.text);
+            this.text.paddingTop = "20px";
+            this.text.paddingBottom = "20px";
+            this.text.paddingLeft = "20px";
+            this.text.paddingRight = "20px";
+    
+            // Setup animations
+            const scaleXAnimation = new Animation(
+                "scaleXAnimation",
+                "scaleX",
+                30,
+                Animation.ANIMATIONTYPE_FLOAT,
+                Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
+    
+            const scaleYAnimation = new Animation(
+                "scaleYAnimation",
+                "scaleY",
+                30,
+                Animation.ANIMATIONTYPE_FLOAT,
+                Animation.ANIMATIONLOOPMODE_CONSTANT
+            );
+    
+            const keys = [
+                { frame: 0, value: 0 },
+                { frame: 10, value: 1 }
+            ];
+    
+            scaleXAnimation.setKeys(keys);
+            scaleYAnimation.setKeys(keys);
+            this.animations = [scaleXAnimation, scaleYAnimation];
+        }
+    }
+    
 
     private initializeInfoPanel (){
         this.infoPanel = new Rectangle("infoPanel");
@@ -1341,6 +1415,7 @@ export default class CommandNexusGui {
         innerCircle.height = 0.7;
         innerCircle.thickness = 0;
         innerCircle.background = "rgba(0, 80, 40, 0.9)";
+        innerCircle.hoverCursor = "pointer";
         middleCircle.addControl(innerCircle);
     
         // Text
@@ -1372,6 +1447,68 @@ export default class CommandNexusGui {
         });
     
         this.deployButton = outerCircle;
+    }
+
+    private createInfoButton(): void {
+        // Outer circle
+        const outerCircle = new GUI.Ellipse();
+        outerCircle.width = "40px";
+        outerCircle.height = "40px";
+        outerCircle.thickness = 2;
+        outerCircle.color = "green";  // Info blue color
+        outerCircle.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        outerCircle.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        outerCircle.top = "70px";
+        outerCircle.left = "-30px";
+        this.gui.addControl(outerCircle);
+    
+        // Middle circle
+        const middleCircle = new GUI.Ellipse();
+        middleCircle.width = 0.9;
+        middleCircle.height = 0.9;
+        middleCircle.background = "black";  // Dark blue-gray
+        middleCircle.thickness = 0;
+        outerCircle.addControl(middleCircle);
+    
+        // Inner circle
+        const innerCircle = new GUI.Ellipse();
+        innerCircle.width = 0.7;
+        innerCircle.height = 0.7;
+        innerCircle.thickness = 0;
+        innerCircle.background = "green";  // Lighter blue
+        innerCircle.hoverCursor = "pointer";
+        middleCircle.addControl(innerCircle);
+    
+        // "i" Text
+        const infoText = new GUI.TextBlock();
+        infoText.text = "i";
+        infoText.color = "white";
+        infoText.fontSize = 20;
+        infoText.fontStyle = "bold";
+        innerCircle.addControl(infoText);
+    
+        // Interactivity
+        outerCircle.isPointerBlocker = true;
+        outerCircle.onPointerUpObservable.add(() => {
+            this.tutorialUI.showInfo(guideContent as any);  // Call showInfo method when clicked
+            // Click feedback
+            innerCircle.background = "rgba(0, 40, 20, 0.8)";  // Darker blue on click
+            setTimeout(() => {
+                innerCircle.background = "green";
+            }, 100);
+        });
+    
+        // Hover effect
+        outerCircle.onPointerEnterObservable.add(() => {
+            outerCircle.scaleX = 1.1;
+            outerCircle.scaleY = 1.1;
+        });
+        outerCircle.onPointerOutObservable.add(() => {
+            outerCircle.scaleX = 1;
+            outerCircle.scaleY = 1;
+        });
+    
+        this.infoButton = outerCircle;
     }
 
     private createUnitSelectionPanel(): void {
@@ -1443,7 +1580,7 @@ export default class CommandNexusGui {
 
         const unit = stringToUnitType(unitType);
 
-        if (unit === UnitType.Air || unit === UnitType.Cyber || unit === UnitType.Naval){
+        if (unit === UnitType.Air || unit === UnitType.Cyber || unit === UnitType.Naval || unit === UnitType.Armored){
             button.isEnabled = false;
         }
     
@@ -1498,6 +1635,7 @@ export default class CommandNexusGui {
         this.isDeploymentMode = false;
         this.selectedUnit = null;
         this.deployPosition = null;
+        console.log("hgsdgsjfh")
     }
 
     public getDeploymentMode(): boolean{
@@ -1954,6 +2092,7 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         healButton.color = "white";
         healButton.background = "green";
         healButton.thickness = 0;
+        healButton.hoverCursor = "pointer";
         healButton.onPointerClickObservable.add(async () => {
             if (Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) > 0) {
                 //fn heal(ref self: TContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256);
@@ -1973,6 +2112,13 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
             
             }
         });
+        healButton.onPointerEnterObservable.add(() => {
+            healButton.background = "rgba(0, 120, 60, 0.9)";
+        });
+
+        healButton.onPointerOutObservable.add(() => {
+            healButton.background = "green";
+        });
         healButton.isEnabled = Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) ? true : false;
         buttonContainer.addControl(healButton);
 
@@ -1983,6 +2129,7 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         boostButton.color = "white";
         boostButton.background = "blue";
         boostButton.thickness = 0;
+        boostButton.hoverCursor = "pointer";
         boostButton.onPointerClickObservable.add(async () => {
             if (Number(player.booster) > 0 && Number(ability_state.units_abilities_state.repair_level) > 0) {
                 //fn boost(ref self: TContractState, game_id: u32, unit_id: u32, unit_type:u8,area_x: u256, area_y: u256, area_z: u256);
@@ -2443,5 +2590,232 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
         return this.selectedUnitInfo;
       }
 
+      public showBoxInfo(
+        text: string, 
+        styles?: {
+            rectColor?: string;     // Color of the rectangle
+            rectAlpha?: number;     // Transparency of rectangle (0-1)
+            textColor?: string;     // Color of the text
+            textBgColor?: string;   // Background color of text
+            fontSize?: number;      // Size of the text
+            autoHide?: boolean;     // Optional: automatically hide after delay
+            hideDelay?: number;     // Optional: time in milliseconds before hiding
+        },
+        mesh?: Mesh,
+        
+    ): void {
+        this.initializeBoxInfo();
+        
+        // Apply text and styles
+        this.text.text = text;
+        
+        // Apply custom styles or defaults
+        this.rect.background = styles?.rectColor || this.defaultStyles.rectBackground;
+        this.rect.alpha = styles?.rectAlpha || this.defaultStyles.rectAlpha;
+        this.text.color = styles?.textColor || this.defaultStyles.textColor;
+        //this.text.background = styles?.textBgColor || this.defaultStyles.textBackground;
+        this.text.fontSize = styles?.fontSize || this.defaultStyles.fontSize;
+        this.text.alpha = (1/this.text.parent.alpha);
+        
+        if (mesh) {
+            this.rect.linkWithMesh(mesh);
+        }
+        
+        const scene = this.gui.getScene();
+        if (scene) {
+            scene.beginDirectAnimation(
+                this.rect,
+                this.animations,
+                0,
+                10,
+                false
+            );
+        }
+    
+    
+
+        if (styles?.autoHide) {
+            const delay = styles?.hideDelay || 3000; // Default 3 seconds
+            this.hideTimeout = window.setTimeout(() => {
+                this.hideBoxInfo(scene);
+                this.hideTimeout = null;
+            }, delay);
+        }
+    }
+    
+    public hideBoxInfo(scene: Scene): void {
+        if (this.rect) {
+            if (this.hideTimeout !== null) {
+                clearTimeout(this.hideTimeout);
+                this.hideTimeout = null;
+            }
+            const scene = this.gui.getScene();
+            if (scene) {
+                scene.beginDirectAnimation(
+                    this.rect,
+                    this.animations,
+                    10,
+                    0,
+                    false
+                );
+            }
+        }
+    }
+
+    private createSection(title: string, content: string): StackPanel {
+        const section = new StackPanel("section");
+        section.width = "100%";
+        section.height = "300px";  // Fixed height
+        section.spacing = 5;
+        section.paddingBottom = "20px";
+        
+        // Title
+        const sectionTitle = new TextBlock("sectionTitle");
+        sectionTitle.text = title;
+        sectionTitle.color = "white";
+        sectionTitle.fontSize = 20;
+        sectionTitle.height = "30px";
+        sectionTitle.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        sectionTitle.paddingLeft = "20px";
+        section.addControl(sectionTitle);
+        
+        if (title === "Base Insignias") {
+            const introText = new TextBlock("introText");
+            introText.text = "Your troops will be marked with insignias based on your home base:";
+            introText.color = "#CCCCCC";
+            introText.fontSize = 16;
+            introText.height = "40px";
+            introText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+            introText.textWrapping = true;
+            introText.paddingLeft = "30px";
+            introText.paddingRight = "20px";
+            section.addControl(introText);
+            
+            const baseColors = [
+                { name: "RadiantShores", color: "#00B3FF" },
+                { name: "Ironforge", color: "#CCCCCC" },
+                { name: "Skullcrag", color: "#FF0000" },
+                { name: "NovaWarhound", color: "#FFD700" },
+                { name: "SavageCoast", color: "#00CC00" }
+            ];
+            
+            baseColors.forEach((base, index) => {
+                const baseText = new TextBlock(`base_${index}`);
+                baseText.text = `• ${base.name}`;
+                baseText.color = base.color;
+                baseText.fontSize = 16;
+                baseText.height = "25px";
+                baseText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+                baseText.paddingLeft = "40px";
+                section.addControl(baseText);
+            });
+        } else {
+            const sectionContent = new TextBlock("sectionContent");
+            sectionContent.text = content;
+            sectionContent.color = "#CCCCCC";
+            sectionContent.fontSize = 16;
+            sectionContent.height = "240px";  // Adjusted height
+            sectionContent.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+            sectionContent.textWrapping = true;
+            sectionContent.paddingLeft = "30px";
+            sectionContent.paddingRight = "20px";
+            section.addControl(sectionContent);
+        }
+        
+        return section;
+    }
+    
+    private createImage(imageUrl: string, width: string = "500px", height: string = "280px"): Rectangle {
+        const imageContainer = new Rectangle("imageContainer");
+        imageContainer.width = width;
+        imageContainer.height = height;
+        imageContainer.thickness = 0;
+        imageContainer.background = "transparent";
+        imageContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        
+        const image = new Image("tutorialImage", imageUrl);
+        image.stretch = Image.STRETCH_UNIFORM;
+        image.width = "100%";
+        image.height = "100%";
+        imageContainer.addControl(image);
+        
+        return imageContainer;
+    }
+    
+    public showInfo(content: Array<{gType: string, data: any}>): void {
+        // Main container
+        this.tutorialContainer = new Rectangle("guideContainer");
+        this.tutorialContainer.width = "800px";
+        this.tutorialContainer.height = "600px";
+        this.tutorialContainer.color = "white";
+        this.tutorialContainer.thickness = 0;
+        this.tutorialContainer.cornerRadius = 15;
+        this.tutorialContainer.background = "#333333F2";
+        this.tutorialContainer.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_CENTER;
+        this.tutorialContainer.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        this.gui.addControl(this.tutorialContainer);
+        
+        // Title bar
+        const titleBar = new Rectangle("titleBar");
+        titleBar.width = "100%";
+        titleBar.height = "50px";
+        titleBar.thickness = 0;
+        titleBar.background = "#444444";
+        titleBar.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+        titleBar.zIndex = 1;  // Ensure it stays on top
+        this.tutorialContainer.addControl(titleBar);
+        
+        const titleText = new TextBlock("titleText");
+        titleText.text = "Guide";
+        titleText.color = "white";
+        titleText.fontSize = 20;
+        titleText.paddingLeft = "20px";
+        titleText.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+        titleBar.addControl(titleText);
+        
+        // Close button
+        const closeBtn = Button.CreateSimpleButton("closeBtn", "X");
+        closeBtn.width = "40px";
+        closeBtn.height = "40px";
+        closeBtn.color = "white";
+        closeBtn.fontSize = 16;
+        closeBtn.thickness = 0;
+        closeBtn.background = "#666666";
+        closeBtn.cornerRadius = 15;
+        closeBtn.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        closeBtn.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
+        closeBtn.onPointerClickObservable.add(() => {
+            this.gui.removeControl(this.tutorialContainer);
+        });
+        titleBar.addControl(closeBtn);
+        
+        // Scroll viewer
+        this.scrollViewer = new ScrollViewer("scrollViewer");
+        this.scrollViewer.width = "780px";
+        this.scrollViewer.height = "540px";  // Container height - title bar height
+        this.scrollViewer.thickness = 0;
+        this.scrollViewer.background = "transparent";
+        this.scrollViewer.top = "50px";
+        this.tutorialContainer.addControl(this.scrollViewer);
+        
+        // Content panel
+        this.contentPanel = new StackPanel("contentPanel");
+        this.contentPanel.width = "100%";
+        this.contentPanel.spacing = 10;
+        this.scrollViewer.addControl(this.contentPanel);
+        
+        // Add content
+        content.forEach(item => {
+            if (item.gType === 'section') {
+                const { title, content } = item.data;
+                const section = this.createSection(title, content);
+                this.contentPanel.addControl(section);
+            } else if (item.gType === 'image') {
+                const { url, width, height } = item.data;
+                const image = this.createImage(url, width, height);
+                this.contentPanel.addControl(image);
+            }
+        });
+    }
 }
 

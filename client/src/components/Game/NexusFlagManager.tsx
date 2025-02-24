@@ -5,6 +5,7 @@ import CommandNexusGui from './CommandNexusGui';
 import { battlefieldTypeToInt, positionDecoder, positionEncoder, regions } from '@/utils/nexus';
 import { StarknetErrorParser } from './ErrorParser';
 import { bigintToU256 } from '@/lib/lib_utils/starknet';
+import { sceneUboDeclaration } from '@babylonjs/core/Shaders/ShadersInclude/sceneUboDeclaration';
 
 // Constants for positions
 export const RADIANT_SHORES_POSITION = new Vector3(-113.93625811395006, 0.2321734670549631, 219.11772991590624);
@@ -45,7 +46,7 @@ export class NexusFlagManager {
         this.client = client;
         this.getAccount = getAccount;
         this.getGui = getGui;
-        this.initialize();
+        this.initialize(getGui);
         this.getGameState = getGameState;
     }
 
@@ -57,7 +58,7 @@ export class NexusFlagManager {
         this.flagPositions.set(NexusLocation.SKULLCRAG, SKULLCRAG_POSITION);
     }
 
-    public async initialize(): Promise<void> {
+    public async initialize(getGui: () => CommandNexusGui): Promise<void> {
         try {
 
             // Create initial instance of each flag at its position
@@ -94,6 +95,15 @@ export class NexusFlagManager {
                                 async () => await this.handleFlagClick(mesh)
                             )
                         );
+                        mesh.actionManager.registerAction(new ExecuteCodeAction(ActionManager.OnPointerOverTrigger, function(ev){
+                            getGui().showBoxInfo(`${location}\n⚔ Click to Capture ⚔`, {
+                                rectColor: "rgb(76, 175, 80)",
+                                textColor: "rgb(255, 255, 255)",
+                                fontSize: 18,
+                                autoHide: true,
+                                hideDelay: 2000
+                            });
+                           }));
                     });
                 }
             });

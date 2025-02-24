@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronRight, Monitor, X, Shield, Users, Target, Map, Award } from 'lucide-react';
 import About from './About';  // Import your About component
+import IntroTutorial from './IntroTutorial';
+import { guideContent } from '@/utils/nexus';
 
 const LandingPage = ({ onStartGame }) => {
   const [showTutorial, setShowTutorial] = useState(false);
@@ -19,11 +21,10 @@ const LandingPage = ({ onStartGame }) => {
           </button>
         </div>
         <div className="space-y-4 text-green-400/80 font-mono">
-          <p>// Training modules initializing...</p>
-          <div className="bg-black/30 rounded p-4">
-            <p className="text-green-500/60">Tutorial content will be deployed here.</p>
-            <p className="text-green-500/40 text-sm mt-2">Status: In Development</p>
-          </div>
+        <IntroTutorial 
+          content={guideContent} 
+          onClose={() => setShowTutorial(false)}
+        />
         </div>
       </div>
     </div>

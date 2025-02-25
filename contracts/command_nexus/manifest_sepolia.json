@@ -1,7 +1,7 @@
 {
   "world": {
-    "class_hash": "0x2361c106e790c1d1bff8c9f73c9d84e9e3ac94b2d8df6db4ddd55e82c33a9b4",
-    "address": "0x49e84f48c814b6b9305a664e00b6e70048e7dabe11c58660b46f92da7e2a47b",
+    "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
+    "address": "0x29533c8a7680d99bf41b4f8be7be098eb6af1211f7d11c91f0f360a8bde4162",
     "seed": "command_nexus_3",
     "name": "Command Nexus",
     "entrypoints": [
@@ -11,6 +11,7 @@
       "register_event",
       "register_model",
       "register_contract",
+      "register_library",
       "init_contract",
       "upgrade_event",
       "upgrade_model",
@@ -78,6 +79,10 @@
           {
             "name": "Unregistered",
             "type": "()"
+          },
+          {
+            "name": "Library",
+            "type": "(core::starknet::class_hash::ClassHash, core::felt252)"
           }
         ]
       },
@@ -358,6 +363,34 @@
             "outputs": [
               {
                 "type": "core::starknet::contract_address::ContractAddress"
+              }
+            ],
+            "state_mutability": "external"
+          },
+          {
+            "type": "function",
+            "name": "register_library",
+            "inputs": [
+              {
+                "name": "namespace",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "class_hash",
+                "type": "core::starknet::class_hash::ClassHash"
+              },
+              {
+                "name": "name",
+                "type": "core::byte_array::ByteArray"
+              },
+              {
+                "name": "version",
+                "type": "core::byte_array::ByteArray"
+              }
+            ],
+            "outputs": [
+              {
+                "type": "core::starknet::class_hash::ClassHash"
               }
             ],
             "state_mutability": "external"
@@ -967,6 +1000,28 @@
       },
       {
         "type": "event",
+        "name": "dojo::world::world_contract::world::LibraryRegistered",
+        "kind": "struct",
+        "members": [
+          {
+            "name": "name",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "namespace",
+            "type": "core::byte_array::ByteArray",
+            "kind": "key"
+          },
+          {
+            "name": "class_hash",
+            "type": "core::starknet::class_hash::ClassHash",
+            "kind": "data"
+          }
+        ]
+      },
+      {
+        "type": "event",
         "name": "dojo::world::world_contract::world::EventEmitted",
         "kind": "struct",
         "members": [
@@ -1207,6 +1262,11 @@
             "kind": "nested"
           },
           {
+            "name": "LibraryRegistered",
+            "type": "dojo::world::world_contract::world::LibraryRegistered",
+            "kind": "nested"
+          },
+          {
             "name": "EventEmitted",
             "type": "dojo::world::world_contract::world::EventEmitted",
             "kind": "nested"
@@ -1252,7 +1312,7 @@
   },
   "contracts": [
     {
-      "address": "0x1e6b8c57f7df233de5c7bbe6d1951e7c41a233840b1eaa73bc581b5de945268",
+      "address": "0x664ccd0f877d1f8273c70ce4bb53f3eae89f5a86650cb247d1df3f04a1bdb56",
       "class_hash": "0x4f432e9dc5bd3bfea49990e7dbe9d8b973ef75579bc2cc8a1e85ec7225cd6c9",
       "abi": [
         {
@@ -1572,7 +1632,7 @@
       ]
     },
     {
-      "address": "0x195a792a25b5d96f553fae502aad6b8e399b6af8a38d5fa10d164bdb089d582",
+      "address": "0x6b8a63d94c433f18073d10fe66c2f9aca17965f5f870c4591a9920d1828623f",
       "class_hash": "0x57df753b663163384e005616f7ff8f52da379bdc6e77abb31accb89d19e21e5",
       "abi": [
         {
@@ -2152,6 +2212,7 @@
       ]
     }
   ],
+  "libraries": [],
   "models": [
     {
       "members": [],
@@ -2197,7 +2258,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x2130e34e24ac9ab8d33fcfa185e8aefbd40df60bf89271915a14ae3ff31fe7",
+      "class_hash": "0x8020baf555f315ebbe0578ec5148b241349fc842fbc0ad1d45d849bdcff2f6",
       "tag": "command_nexus-BattlefieldFlag",
       "selector": "0x7a70b37d76e6fe3d33357538c40875c0a74da1772b8e20bbd44969342402144"
     },
@@ -2245,7 +2306,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x7e58b2edfac99360ba82afd2540a6c0acbd573b2086ce35b68d4fc026a49f08",
+      "class_hash": "0x29c599aa742d62b9f3548d129edd0c8497fd2428d840cc48d55c74ec91ebef",
       "tag": "command_nexus-Game",
       "selector": "0x2331754b6f442d86620871c31486336970c9c7128417be4a6332263148bdd57"
     },
@@ -2311,7 +2372,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x3cae14aecc72f64696a40b838357af904276b1e5a6f997820ef5c272a2881",
+      "class_hash": "0x47d9ba96c7ccdd2142c6be426dffae0fa69ed58bbf22c9b9ae312f9d200c4ad",
       "tag": "command_nexus-Player",
       "selector": "0x3e08ab99f3e0e9f083466d3e3a82f9f2c63eb755ab9c506dcc0ab2af9421756"
     },
@@ -2406,5 +2467,6 @@
       "selector": "0x458b8886103cba06b667071aafa44fc4e97ed46629ede16cb2628ad21032a1f"
     }
   ],
-  "events": []
+  "events": [],
+  "external_contracts": []
 }

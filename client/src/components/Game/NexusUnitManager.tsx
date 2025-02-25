@@ -114,7 +114,6 @@ class NexusUnitManager {
         //     this.battlefieldCameraManager.setCameraForBattlefield(selectedBattlefield);
         //   }
 
-
     }
 
     initialize(): Promise<void> {
@@ -195,7 +194,12 @@ class NexusUnitManager {
             console.log("Agent reached destination:", agentInfos.agentIndex);
             this.pointNavPre.visibility = 0;
             this.soundManager?.stopSound("move")
-            this.getGui()?.showActionsMenu(this.activeUnitType!);
+
+            if (this.updatePlayerInfo && (Number(agentInfos.UnitData.player_id) === Number(this.updatePlayerInfo.index))){
+                this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
+             }  
+
+           // this.getGui()?.showActionsMenu(this.activeUnitType!);
             //const elevation = this.getElevationAtPosition(this.activePosition)
            // const coverPosition = this.getCoverLevel(this.activePosition)
            // console.log(elevation,coverPosition);
@@ -365,7 +369,7 @@ class NexusUnitManager {
 
                 const agent = this.agents[mesh.metadata.agentIndex];
 
-                if (this.updatePlayerInfo){
+                if (this.updatePlayerInfo && (Number(mesh.metadata.UnitData.player_id) === Number(this.updatePlayerInfo.index))){
                     this.getGui()?.showBooststOptions(agent,this.updatePlayerInfo, mesh.metadata.UnitMode);
                 }
 
@@ -533,7 +537,11 @@ class NexusUnitManager {
             console.log(this.getGui()?.getAbilityMode() ,AbilityType.Attack)
             if(this.getGui()?.getAbilityMode() !== AbilityType.Attack){
                  this.selectedAgent = this.agents[mesh.metadata.agentIndex];
-                 this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
+
+                 if (this.updatePlayerInfo && (Number(mesh.metadata.UnitData.player_id) === Number(this.updatePlayerInfo.index))){
+                    this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
+                 }  
+
                  this.getGui().setSelectedUnitInfo(this.selectedAgent);
                  this.getGui().showUnitStateInfo(this.selectedAgent.visualMesh.metadata.UnitState);
                  this.flagManager.setFlagData(this.agents[mesh.metadata.agentIndex])

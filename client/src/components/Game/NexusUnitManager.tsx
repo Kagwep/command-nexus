@@ -195,7 +195,7 @@ class NexusUnitManager {
             this.pointNavPre.visibility = 0;
             this.soundManager?.stopSound("move")
 
-            if (this.updatePlayerInfo && (Number(agentInfos.UnitData.player_id) === Number(this.updatePlayerInfo.index))){
+            if (this.updatePlayerInfo && (Number(this.selectedAgent?.visualMesh.metadata.UnitData.player_id) === Number(this.updatePlayerInfo.index))){
                 this.getGui()?.showActionsMenu(this.selectedAgent.cUnitType)
              }  
 
@@ -213,8 +213,14 @@ class NexusUnitManager {
            if (this.selectedAgentUpdated){
             console.log(this.selectedAgentUpdated)
             //this.scene.onBeforeRenderObservable.runCoroutineAsync(this.animationBlending(this.agents[this.selectedAgentUpdated.idx]?.animations.movement, 1.3, this.agents[this.selectedAgentUpdated.idx]?.animations.idle, 1.0, true, 0.05));
-            this.agents[this.selectedAgentUpdated.idx].animations.movement.stop()
-            this.agents[this.selectedAgentUpdated.idx].animations.idle.start(true)
+            this.agents[this.selectedAgentUpdated.idx].animations.movement.stop();
+            this.agents[this.selectedAgentUpdated.idx].animations.idle.start(true);
+
+
+            if (this.updatePlayerInfo && (Number(this.selectedAgentUpdated?.visualMesh.metadata.UnitData.player_id) === Number(this.updatePlayerInfo.index))){
+                this.getGui()?.showActionsMenu(this.selectedAgentUpdated.cUnitType)
+             }  
+
            }
 
         });

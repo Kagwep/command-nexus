@@ -8,7 +8,7 @@ import { useDojo } from '../dojo/useDojo';
 import { toast } from './UI/use-toast';
 import { DialogCreateJoin } from './DialogCreateJoin';
 import { useNetworkAccount } from '../context/WalletContex';
-import { bigIntAddressToString, removeLeadingZeros } from '../utils/sanitizer';
+import { bigIntAddressToString, removeLeadingZeros, shortAddress } from '../utils/sanitizer';
 import { Account } from 'starknet';
 import { Game,Player } from '@/dojogen/models.gen';
 
@@ -95,21 +95,41 @@ const GameRow: React.FC<GameRowProps> = ({ game, setPlayerName,nstates }) => {
       </TableCell>
       <TableCell>
         <div className="flex justify-end">
-          <DialogCreateJoin
-            onClick={() => joinGame(Number(game.game_id))}
-            playerName={player_name}
-            setPlayerName={setPlayerName}
-            dialogTitle={`JOIN OPERATION ${Number(game.game_id)}`}
-            buttonText="ENGAGE"
-            buttonTextDisplayed={
-              <div className="flex items-center space-x-2 text-green-400 hover:text-green-300">
+          {game.over ? (
+            <div className="flex items-center space-x-2 text-red-400">
               <span>〔</span>
-              <span>JOIN OPERATION</span>
+              <span>OPERATION COMPLETE</span>
+              <span>〕</span>
+              {game.winner !== "0x0" && (
+                <div className="ml-2 px-3 py-1 rounded bg-green-900/30 border border-green-500/30 font-mono text-green-400">
+                  VICTOR: {shortAddress(game.winner)}
+                </div>
+              )}
+              <span>{removeLeadingZeros(game.winner) === account?.address ? "YOU WON!" : ""}</span>
+            </div>
+          ) : game.seed !== undefined && Number(game.seed?.toString(16)) !== 0 ? (
+            <div className="flex items-center space-x-2 text-amber-400">
+              <span>〔</span>
+              <span>OPERATION IN PROGRESS</span>
               <span>〕</span>
             </div>
-            }
-            isCreating={false}
-          />
+          ) : (
+            <DialogCreateJoin
+              onClick={() => joinGame(Number(game.game_id))}
+              playerName={player_name}
+              setPlayerName={setPlayerName}
+              dialogTitle={`JOIN OPERATION ${Number(game.game_id)}`}
+              buttonText="ENGAGE"
+              buttonTextDisplayed={
+                <div className="flex items-center space-x-2 text-green-400 hover:text-green-300">
+                  <span>〔</span>
+                  <span>JOIN OPERATION</span>
+                  <span>〕</span>
+                </div>
+              }
+              isCreating={false}
+            />
+          )}
         </div>
       </TableCell>
     </TableRow>

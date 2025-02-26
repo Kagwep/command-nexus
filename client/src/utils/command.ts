@@ -4,7 +4,7 @@ import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useEffect, useRef } from 'react';
 import { useGameStore } from './nexusstore';
 import { hexToUtf8 } from './unpack';
-import { abilityStringToEnum } from './nexus';
+import { abilityStringToEnum, useElementStore } from './nexus';
 import { AccountInterface } from 'starknet';
 import useNetworkAccount from '@/hooks/useNetworkAccount';
 
@@ -243,20 +243,51 @@ export const useAllEntities = (pollInterval = 5000) => {
     const state = useDojoStore((state) => state);
     const { setGame, setPlayer, setAbilityState, setInfantry,setUnitState} = useGameStore();
     const { account, address, status, isConnected } = useNetworkAccount();
-    
+    const {  game_id } = useElementStore((state) => state);
 
 
     const fetchAllEntities = async () => {
         try {
-            const res = await sdk.client.getEntities(
-                new ToriiQueryBuilder()
-                    .withClause(
-                        new ClauseBuilder()
-                            .keys([], [undefined], "VariableLen")
-                            .build()
-                    )
-                    .build()
-            );
+
+            let queryBuilder;
+
+            const modelsToQuery = [
+                ModelsMapping.Game,
+                ModelsMapping.Player, 
+                ModelsMapping.Infantry,
+                ModelsMapping.AbilityState,
+                ModelsMapping.UnitState
+            ];
+                
+                if (game_id !== undefined && game_id >= 0) {
+                    // If we have a game_id, filter by it
+                    queryBuilder = new ToriiQueryBuilder()
+                        .withClause(
+                            new ClauseBuilder()
+                                .keys(modelsToQuery, [String(game_id)], "VariableLen")
+                                .build()
+                        );
+                } else {
+                    // Otherwise, get all entities
+                    queryBuilder = new ToriiQueryBuilder()
+                        .withClause(
+                            new ClauseBuilder()
+                                .keys([], [undefined], "VariableLen")
+                                .build()
+                        );
+                }
+                
+                const res = await sdk.client.getEntities(queryBuilder.build());
+                
+            // const res = await sdk.client.getEntities(
+            //     new ToriiQueryBuilder()
+            //         .withClause(
+            //             new ClauseBuilder()
+            //                 .keys([], [undefined], "VariableLen")
+            //                 .build()
+            //         )
+            //         .build()
+            // );
             
             console.log("Raw entities:", res);
 

@@ -22,7 +22,7 @@ import { ClauseBuilder, KeysClause, ParsedEntity,  QueryBuilder,  ToriiQueryBuil
 
 const MainMenu: React.FC = () => {
   const { toast } = useToast();
-  const { set_game_state, set_game_id, player_name, setPlayerName, round_limit, setRoundLimit } = useElementStore(
+  const { set_game_state, set_game_id, player_name,game_id, setPlayerName, round_limit, setRoundLimit } = useElementStore(
     (state) => state
   );
 
@@ -77,6 +77,8 @@ const MainMenu: React.FC = () => {
 useEffect(() => {
   let unsubscribe: (() => void) | undefined;
 
+  const keys = game_id >= 0 ? [String(game_id)] : []
+
   const subscribe = async (account: AccountInterface) => {
       const [initialData, subscription] = await sdk.subscribeEntityQuery({
           query: new ToriiQueryBuilder()
@@ -84,7 +86,7 @@ useEffect(() => {
                   // Querying Moves and Position models that has at least [account.address] as key
                   KeysClause(
                       [ModelsMapping.Game, ModelsMapping.Player, ModelsMapping.AbilityState, ModelsMapping.Infantry, ModelsMapping.UnitState],
-                      [],
+                      keys,
                       "VariableLen"
                   ).build()
               )
@@ -112,7 +114,7 @@ useEffect(() => {
           unsubscribe();
       }
   };
-}, [sdk, account]);
+}, [sdk, account,game_id]);
 
 
 
@@ -139,24 +141,24 @@ useEffect(() => {
 const prevGameRef = useRef(game);
 const prevPlayerRef = useRef(player);
 
-const updateGameState = useCallback((currentPlayer: any, currentGame: any) => {
-  console.log("Inside updateGameState callback with params:", currentPlayer);
+// const updateGameState = useCallback((currentPlayer: any, currentGame: any) => {
+//   console.log("Inside updateGameState callback with params:", currentPlayer);
 
-  // If either player or game exists, set the game state to Lobby
-  const newGameState = (currentPlayer || currentGame) ? GameState.Lobby : null;
+//   // If either player or game exists, set the game state to Lobby
+//   const newGameState = (currentPlayer || currentGame) ? GameState.Lobby : null;
 
-  console.log(currentPlayer?.game_id)
+//   console.log(currentPlayer?.game_id)
 
-  if (currentPlayer?.game_id >= 0) {
-    console.log("setting game state");
-    set_game_id(currentPlayer.game_id);
-  }
+//   if ((currentPlayer?.game_id >= 0) && !currentGame?.over) {
+//     console.log("setting game state");
+//     set_game_id(currentPlayer.game_id);
+//   }
 
-  if (newGameState !== null) {
-    set_game_state(newGameState);
-  }
-  console.log("executed")
-}, [set_game_id, set_game_state]);
+//   if ((newGameState !== null) &&  !currentGame?.over) {
+//     set_game_state(newGameState);
+//   }
+//   console.log("executed")
+// }, [set_game_id, set_game_state]);
 
 
 
@@ -165,13 +167,16 @@ const [minutes, setMinutes] = useState(5);
 
 const setStates = () => {
 
+  const gamesById = {};
 
   // Assuming games and players are Records
 Object.entries(nstate.games).forEach(([gameId, currentGame]) => {
-  console.log(removeLeadingZeros(currentGame.arena_host) === account?.address)
+  //console.log(removeLeadingZeros(currentGame.arena_host) === account?.address)
+  gamesById[Number(currentGame.game_id)] = currentGame;
   if (removeLeadingZeros(currentGame.arena_host) === account?.address) {
-    setGame(currentGame);
-    if (currentGame.game_id as number >= 0) {
+    
+    if ((currentGame.game_id as number >= 0) && (!currentGame.over)) {
+      setGame(currentGame);
       set_game_id(Number(currentGame.game_id));
     }
   }
@@ -179,8 +184,10 @@ Object.entries(nstate.games).forEach(([gameId, currentGame]) => {
 
 Object.entries(nstate.players).forEach(([playerId, currentPlayer]) => {
   if (removeLeadingZeros(currentPlayer.address) === account?.address) {
-    setPlayer(currentPlayer);
-    if (currentPlayer.game_id as number >= 0) {
+    
+    const playerGame = gamesById[Number(currentPlayer.game_id)];
+    if ((currentPlayer.game_id as number >= 0)&& playerGame && !playerGame.over) {
+      setPlayer(currentPlayer);
       set_game_id(Number(currentPlayer.game_id));
       console.log(".......................", currentPlayer.game_id);
       set_game_state(GameState.Lobby);
@@ -214,12 +221,12 @@ useEffect(() => {
     console.log('Changes detected:', { gameChanged, playerChanged }, player,game);
     
     // Pass the player and game to updateGameState explicitly
-    updateGameState(player, game);
+   // updateGameState(player, game);
 
     prevGameRef.current = game;
     prevPlayerRef.current = player;
   }
-}, [game, player, updateGameState]);
+}, [game, player]);
 
   const createNewGame = async () => {
     if (!player_name) {

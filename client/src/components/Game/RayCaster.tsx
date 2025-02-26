@@ -7,7 +7,7 @@ export class RayCaster {
         this.scene = scene;
     }
 
-    public castRay(originMesh: AbstractMesh,targetMesh: AbstractMesh): { hit: boolean } {
+    public castRay(originMesh: AbstractMesh,targetMesh: AbstractMesh): { block: boolean } {
         const originMeshPosition = originMesh.absolutePosition;
         const targetMeshPosition = targetMesh.absolutePosition;
         originMeshPosition.y +=2;
@@ -48,13 +48,7 @@ export class RayCaster {
         }
         
 
-        if (isLineOfSightBlocked) {
-            return { 
-                hit: true, 
-            };
-        } else {
-            return { hit: false};
-        }
+        return { block: isLineOfSightBlocked };
     }
 
     public visualizeRay(fromMesh: AbstractMesh, toMesh: AbstractMesh, hitPoint: Vector3 | null): Mesh {

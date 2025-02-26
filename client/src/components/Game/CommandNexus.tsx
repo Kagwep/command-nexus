@@ -13,7 +13,7 @@ import HavokPhysics from '@babylonjs/havok';
 import { Account, AccountInterface, addAddressPadding } from 'starknet';
 import { useInfantryUnits } from '../../hooks/useGetInfantryUnits';
 import { useArmoredUnits } from '../../hooks/useGetArmoredUnits';
-import { CommandNexusSchemaType, Player } from '../../dojogen/models.gen';
+import { CommandNexusSchemaType, Game, Player } from '../../dojogen/models.gen';
 import GameState from '../../utils/gamestate';
 
 
@@ -26,6 +26,8 @@ import { removeLeadingZeros } from '../../utils/sanitizer';
 import { getGame } from '../../lib/utils';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { ParsedEntity, QueryBuilder } from '@dojoengine/sdk';
+import { GameResultsUI } from '../GameResultsUI';
+
 
 
 const GRID_SIZE = 40;
@@ -54,7 +56,7 @@ const CommandNexus = () => {
 
 const { state: nstate, refetch } = useAllEntities();
 
-  const {  game_id} = useElementStore((state) => state);
+  const {  game_id,set_game_state} = useElementStore((state) => state);
   const { account, address, status, isConnected } = useNetworkAccount();
   const infantry = useInfantryUnits();
 
@@ -113,7 +115,7 @@ const { state: nstate, refetch } = useAllEntities();
               
               
               if (player){
-                await setupScene(sceneRef.current, camera, engineRef.current!,player, getGui,getGameState, nexusGameState?.gameState,client,getAccount);
+                await setupScene(sceneRef.current, camera, engineRef.current!,player, getGui,getGameState, nexusGameState?.gameState,client,getAccount,set_game_state);
               }
               setIsSceneReady(true);
               
@@ -178,6 +180,19 @@ const { state: nstate, refetch } = useAllEntities();
         return cleanAddress === account.address;
       });
       const currentGame = getGame(game_id,nstate.games);
+
+      const getGameOver = (gameId: number, nstate: Record<string, Game>): Game | undefined => {
+        if (gameId === undefined || gameId === null) return undefined;
+        return Object.values(nstate).find(game => game.game_id === gameId);
+      };
+      
+      const currentGameOver = getGameOver(game_id,nstate.games);
+
+      if (currentGameOver.over){
+        const winnerUI = new GameResultsUI(sceneRef.current,set_game_state);
+        winnerUI.showGameResults(currentGameOver, nstate.players);
+      }
+
       sceneRef.current.metadata = {
         ...sceneRef.current.metadata,
         infantryUnits:gameSpecificData.infantry,

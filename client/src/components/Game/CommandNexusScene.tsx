@@ -18,7 +18,7 @@ import { GameState } from './GameState';
 import { AccountInterface, Account } from 'starknet';
 import { Game,Player } from '../../dojogen/models.gen';
 
-
+import { default as MainGameState } from '@/utils/gamestate';
 
 interface MeshN extends Mesh {
   idx?: number;
@@ -37,7 +37,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
   turn: number,
   game: Game,
   players: Player[]
-},client:any,getAccount: () => AccountInterface | Account) => {
+},client:any,getAccount: () => AccountInterface | Account,set_game_state: (game_state: MainGameState) => void) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
 
@@ -294,7 +294,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
                       console.log("...............................................")
-          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount,flagContainer);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount,flagContainer,set_game_state);
           await multiAgentNav.initialize();
           console.log("........................................5143555555555556")
 

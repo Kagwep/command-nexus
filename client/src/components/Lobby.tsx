@@ -110,7 +110,7 @@ const Lobby: React.FC = () => {
 
   useEffect(() => {
     // console.log(game)
-    if (game && game.seed !== undefined && Number(game.seed?.toString(16)) !== 0) {
+    if (game && game.seed !== undefined && Number(game.seed?.toString(16)) !== 0 && !game.over) {
       // Game has started
       console.log(".......................",game.seed?.toString(16))
       set_game_state(GameState.Game);
@@ -352,7 +352,9 @@ const Lobby: React.FC = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-              {Object.values(nstate.players).map((player) => (
+              {Object.values(nstate.players)
+                .filter(player => Number(player.game_id) === Number(game.game_id)) // Filter players by game ID
+                .map((player) => (
                   <TableRow 
                     key={player.address} 
                     className="border-b border-green-500/10 hover:bg-green-900/10"
@@ -388,7 +390,7 @@ const Lobby: React.FC = () => {
                     </TableCell>
                   </TableRow>
                 ))}
-              </TableBody>
+            </TableBody>
             </Table>
           </div>
 

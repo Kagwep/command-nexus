@@ -132,7 +132,7 @@ export const parseEntity = <T>(modelName: string, rawEntity: RawEntity): T => {
 
 export   const getGame = (gameId: number, nstate: Record<string, Game>): Game | undefined => {
   if (gameId === undefined || gameId === null) return undefined;
-  return Object.values(nstate).find(game => game.game_id === gameId);
+  return Object.values(nstate).find(game => (game.game_id === gameId) && !game.over);
 };
 
 

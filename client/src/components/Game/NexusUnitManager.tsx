@@ -13,7 +13,8 @@ import { bigintToU256 } from '../../lib/lib_utils/starknet';
 import { AbilityState, BattlefieldName, EnvironmentInfo, Player, UnitAbilities, UnitMode, UnitModeEnum, UnitState } from '../../dojogen/models.gen';
 import { StarknetErrorParser } from './ErrorParser';
 import { NexusFlagManager } from './NexusFlagManager';
-
+import { default as MainGameState } from '@/utils/gamestate';
+import { GameResultsUI } from '../GameResultsUI';
 
 class NexusUnitManager {
     private scene: Scene;
@@ -56,6 +57,7 @@ class NexusUnitManager {
     private infantryUnitsModes: Map<string, AbilityState> = new Map();
     private flagManager: NexusFlagManager;
     private updatePlayerInfo: Player | undefined = undefined;
+    private winnerUI:GameResultsUI;
 
     constructor(
         scene: Scene, 
@@ -69,7 +71,8 @@ class NexusUnitManager {
         battlefieldCameraManager: BattlefieldCameraManager,
         client: any,
         getAccount: () => AccountInterface | Account,
-        flagContainer: AssetContainer
+        flagContainer: AssetContainer,
+        set_game_state: (game_state: MainGameState) => void
    
     ) {
         this.scene = scene;
@@ -99,7 +102,7 @@ class NexusUnitManager {
           
          // this.initializeCameraPosition();
          this.flagManager = new NexusFlagManager(scene,flagContainer,client,getAccount,getGui,getGameState);
-         
+         this.winnerUI = new GameResultsUI(scene,set_game_state);
         
     }
 
@@ -403,142 +406,152 @@ class NexusUnitManager {
                 // Get the target agent
                 const targetAgent = this.agents[mesh.metadata.agentIndex];
 
-                const { hit} = this.rayCaster.castRay(this.selectedAgent.visualMesh, targetAgent.visualMesh);
+                const { block} = this.rayCaster.castRay(this.selectedAgent.visualMesh, targetAgent.visualMesh);
 
-                if (hit) {
-                    console.log(`Ray hit at `);
-                    console.log(`Hit normal:`);
+                console.log(targetAgent.visualMesh.metadata.UnitData.player_id !== this.selectedAgent.visualMesh.metadata.UnitData.player_id)
+
+                if (block) {
+                    this.getGui().showToastSide("No line of sight",ToastType.Warning)
                 } else {
-                    console.log("Ray did not hit the target mesh");
-                }
-                            
-                if (targetAgent && targetAgent.navAgent) {
+                    //&& (targetAgent.visualMesh.metadata.UnitData.player_id !== this.selectedAgent.visualMesh.metadata.UnitData.player_id)
+                    if ((targetAgent && targetAgent.navAgent) && (targetAgent.visualMesh.metadata.UnitData.player_id !== this.selectedAgent.visualMesh.metadata.UnitData.player_id)) {
 
-                    const distanceBetweenMeshes = this.getDistanceBetweenMeshes(this.selectedAgent.visualMesh, targetAgent.visualMesh);
-
-                    console.log(distanceBetweenMeshes*2.5);
-
-                    // const obstructions = this.detectPlayerObstructions(this.selectedAgent.navAgent, 5, 360);
-                    // console.log("Blocked Regions:", obstructions);
-                    // Log positions for debugging
-                    // console.log("Selected Agent Position:", this.selectedAgent.navAgent.position);
-                    // console.log("Target Agent Position:", targetAgent.navAgent.position);
-
-                    const originalRotation = this.selectedAgent.navAgent.rotationQuaternion;
-                    const agentRotation  = this.selectedAgent.visualMesh.rotationQuaternion;
+                        const distanceBetweenMeshes = this.getDistanceBetweenMeshes(this.selectedAgent.visualMesh, targetAgent.visualMesh);
+    
+                        console.log(distanceBetweenMeshes*2.5);
+    
+                        // const obstructions = this.detectPlayerObstructions(this.selectedAgent.navAgent, 5, 360);
+                        // console.log("Blocked Regions:", obstructions);
+                        // Log positions for debugging
+                        // console.log("Selected Agent Position:", this.selectedAgent.navAgent.position);
+                        // console.log("Target Agent Position:", targetAgent.navAgent.position);
+    
+                        const originalRotation = this.selectedAgent.navAgent.rotationQuaternion;
+                        const agentRotation  = this.selectedAgent.visualMesh.rotationQuaternion;
+                
+                        // Calculate the direction vector from the selected agent to the target agent
+                        const direction = targetAgent.navAgent.position.subtract(this.selectedAgent.navAgent.position);
+                
+                        // Log direction for debugging
+                        // console.log("Direction Vector:", direction);
+                
+                        // Normalize the direction vector
+                        direction.normalize();
+                
+                        // Log normalized direction for debugging
+                        // console.log("Normalized Direction Vector:", direction);
+                
+                        // Calculate the angle between the world forward vector and the direction vector
+                        const worldForward = Vector3.Forward().negate();
+                        const angle = Math.atan2(direction.x, direction.z) - Math.atan2(worldForward.x, worldForward.z);
+                
+                        // Log angle for debugging
+                        // console.log("Rotation Angle (radians):", angle);
+                
+                        // Create a rotation quaternion based on the calculated angle
+                        const rotationQuaternion = Quaternion.RotationAxis(Axis.Y, angle);
+                
+                        // Apply the rotation to the selected agent's navAgent
+                        this.selectedAgent.navAgent.rotationQuaternion = rotationQuaternion;
+                
+                        // If visualMesh is parented to navAgent, we need to reset its local rotation
+                        if (this.selectedAgent.visualMesh) {
+                            this.selectedAgent.visualMesh.rotationQuaternion = Quaternion.Identity();
+                        }
+    
+                        //const nexus_attack = async (snAccount: Account, gameId: number, playerTargetId: number, attackerId: number, targetId: number, unitId: number, attackerUnitType: number, targetUnitType: number, x: number, y: number, z: number)
+                
+                        const encodedPosition= positionEncoder(startingPoint);
+                        const unitId = this.selectedAgent.visualMesh.metadata.UnitData.unit_id;
+                        const targetId  = targetAgent.visualMesh.metadata.UnitData.unit_id;
+                        const unitType = 1;
+                        const playerTargetId = targetAgent.visualMesh.metadata.UnitData.player_id;
+                        const attackerId = this.selectedAgent.visualMesh.metadata.UnitData.player_id;
             
-                    // Calculate the direction vector from the selected agent to the target agent
-                    const direction = targetAgent.navAgent.position.subtract(this.selectedAgent.navAgent.position);
+                        //gameId: number, unitId: number, unitType: number, destX: number, destY: number, destZ: number
+    
+                        console.log(this.getAccount(), this.getGameState().game.game_id,playerTargetId,unitId,targetId, unitId, unitType,unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z)
             
-                    // Log direction for debugging
-                    // console.log("Direction Vector:", direction);
-            
-                    // Normalize the direction vector
-                    direction.normalize();
-            
-                    // Log normalized direction for debugging
-                    // console.log("Normalized Direction Vector:", direction);
-            
-                    // Calculate the angle between the world forward vector and the direction vector
-                    const worldForward = Vector3.Forward().negate();
-                    const angle = Math.atan2(direction.x, direction.z) - Math.atan2(worldForward.x, worldForward.z);
-            
-                    // Log angle for debugging
-                    // console.log("Rotation Angle (radians):", angle);
-            
-                    // Create a rotation quaternion based on the calculated angle
-                    const rotationQuaternion = Quaternion.RotationAxis(Axis.Y, angle);
-            
-                    // Apply the rotation to the selected agent's navAgent
-                    this.selectedAgent.navAgent.rotationQuaternion = rotationQuaternion;
-            
-                    // If visualMesh is parented to navAgent, we need to reset its local rotation
-                    if (this.selectedAgent.visualMesh) {
-                        this.selectedAgent.visualMesh.rotationQuaternion = Quaternion.Identity();
-                    }
-
-                    //const nexus_attack = async (snAccount: Account, gameId: number, playerTargetId: number, attackerId: number, targetId: number, unitId: number, attackerUnitType: number, targetUnitType: number, x: number, y: number, z: number)
-            
-                    const encodedPosition= positionEncoder(startingPoint);
-                    const unitId = this.selectedAgent.visualMesh.metadata.UnitData.unit_id;
-                    const targetId  = targetAgent.visualMesh.metadata.UnitData.unit_id;
-                    const unitType = 1;
-                    const playerTargetId = targetAgent.visualMesh.metadata.UnitData.player_id;
-                    const attackerId = this.selectedAgent.visualMesh.metadata.UnitData.player_id;
-        
-                    //gameId: number, unitId: number, unitType: number, destX: number, destY: number, destZ: number
-
-                    console.log(this.getAccount(), this.getGameState().game.game_id,playerTargetId,unitId,targetId, unitId, unitType,unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z)
-        
-                    const result  = await (await this.client).nexus.attack(this.getAccount(), this.getGameState().game.game_id,playerTargetId,unitId,targetId, unitId, unitType,unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z);
-                   // console.log(result)
-
-                   if (result && result.transaction_hash){
-                    this.getGui().showToastSide(`Unit ${unitId}  attacking  Unit ${targetId}`, ToastType.Success);
-
-                    this.scene.onBeforeRenderObservable.runCoroutineAsync(
-                        this.animationBlending(
-                            this.selectedAgent.animations.idle,
-                            1.0,
-                            this.selectedAgent.animations.attack,
-                            1.3,
-                            true,
-                            0.05
-                        )
-                    );
-                    this.soundManager?.playSound("bulletFire");
-            
-                    console.log("Agent is now facing the target",this.selectedAgent.visualMesh);
-
-                    // Assuming this.selectedAgent.visualMesh is the parent mesh
-                    const nozzMesh = this.selectedAgent.visualMesh.getChildMeshes().find(mesh => mesh.name === "Clone of nozz");
-
-                    if (nozzMesh) {
-                        console.log("Found nozz mesh:", nozzMesh);
-                        // You can now use nozzMesh for further operations
-                        this.bulletSystem.triggerMuzzleFlash(nozzMesh as Mesh);
-                    } else {
-                        console.log("Nozz mesh not found");
-                    
-                    }
-
-
-                    setTimeout(() => {
-                        this.soundManager?.stopSound("bulletFire")
+                        const result  = await (await this.client).nexus.attack(this.getAccount(), this.getGameState().game.game_id,playerTargetId,unitId,targetId, unitId, unitType,unitType,encodedPosition.x,encodedPosition.y,encodedPosition.z);
+                       // console.log(result)
+    
+                       if (result && result.transaction_hash){
+                        this.getGui().showToastSide(`Unit ${unitId}  attacking  Unit ${targetId}`, ToastType.Success);
+    
                         this.scene.onBeforeRenderObservable.runCoroutineAsync(
                             this.animationBlending(
-                                this.selectedAgent?.animations.attack,
-                                1.3,
-                                this.selectedAgent?.animations.idle,
+                                this.selectedAgent.animations.idle,
                                 1.0,
+                                this.selectedAgent.animations.attack,
+                                1.3,
                                 true,
                                 0.05
                             )
                         );
-                        // this.selectedAgent.navAgent.rotate(Axis.Y, Math.PI, Space.LOCAL);
-                        // this.selectedAgent.visualMesh.rotate(Axis.Y, Math.PI, Space.LOCAL);
-                        if(this.selectedAgent){
-                            this.selectedAgent.navAgent.rotationQuaternion = originalRotation;
-                            this.selectedAgent.visualMesh.rotationQuaternion = agentRotation;
+                        this.soundManager?.playSound("bulletFire");
+                
+                        console.log("Agent is now facing the target",this.selectedAgent.visualMesh);
     
-                            this.getGui()?.handleAttack();
+                        // Assuming this.selectedAgent.visualMesh is the parent mesh
+                        const nozzMesh = this.selectedAgent.visualMesh.getChildMeshes().find(mesh => mesh.name === "Clone of nozz");
     
-                            console.log("Stopping attack animation and returning to idle");
+                        if (nozzMesh) {
+                            console.log("Found nozz mesh:", nozzMesh);
+                            // You can now use nozzMesh for further operations
+                            this.bulletSystem.triggerMuzzleFlash(nozzMesh as Mesh);
+                        } else {
+                            console.log("Nozz mesh not found");
+                        
                         }
+    
+    
+                        setTimeout(() => {
+                            this.soundManager?.stopSound("bulletFire")
+                            this.scene.onBeforeRenderObservable.runCoroutineAsync(
+                                this.animationBlending(
+                                    this.selectedAgent?.animations.attack,
+                                    1.3,
+                                    this.selectedAgent?.animations.idle,
+                                    1.0,
+                                    true,
+                                    0.05
+                                )
+                            );
+                            // this.selectedAgent.navAgent.rotate(Axis.Y, Math.PI, Space.LOCAL);
+                            // this.selectedAgent.visualMesh.rotate(Axis.Y, Math.PI, Space.LOCAL);
+                            if(this.selectedAgent){
+                                this.selectedAgent.navAgent.rotationQuaternion = originalRotation;
+                                this.selectedAgent.visualMesh.rotationQuaternion = agentRotation;
+        
+                                this.getGui()?.handleAttack();
+        
+                                console.log("Stopping attack animation and returning to idle");
+                            }
+    
+                        }, 3000); // 3000 milliseconds = 3 seconds
+                       }else{
 
-                    }, 3000); // 3000 milliseconds = 3 seconds
-                   }else{
-                    const errorMessage = StarknetErrorParser.parseError(result);
-                    console.log(errorMessage)
-                    this.getGui().showToastSide(errorMessage,ToastType.Error)
-                    this.getGui()?.handleAttack();
-                   }
+                   
+                            const errorMessage = StarknetErrorParser.parseError(result);
+                            console.log(errorMessage)
+                            this.getGui().showToastSide(errorMessage,ToastType.Error)
+                            this.getGui()?.handleAttack();                 
+                    
 
+                       }
+    
+    
+    
+                    } else {
+                        console.log("Target agent or its navAgent not found");
+                        if (targetAgent.visualMesh.metadata.UnitData.player_id === this.selectedAgent.visualMesh.metadata.UnitData.player_id){
+                            this.getGui().showToastSide("Friendly fire",ToastType.Warning)
 
-
-                } else {
-                    console.log("Target agent or its navAgent not found");
+                        }
+                    }
                 }
+                            
+
             }
             console.log(this.getGui()?.getAbilityMode() ,AbilityType.Attack)
             if(this.getGui()?.getAbilityMode() !== AbilityType.Attack){
@@ -1272,6 +1285,12 @@ class NexusUnitManager {
                         //this.getGui().updateTurnInfo('🔴');
                         this.getGui().updateText("turn-text", '🔴');
                     }
+                    console.log("jvsdhfvjdsvfdsfdksjfbsd.....................")
+
+                    if(this.scene.metadata.gameInfo.over){
+                        console.log("game_ended");
+                        this.winnerUI.showGameResults(this.scene.metadata.gameInfo, this.scene.metadata.playersInfo);
+                    }
                 }
 
 
@@ -1603,39 +1622,16 @@ class NexusUnitManager {
         
         if (agentIndex > -1) {
             // Remove the agent from crowd navigation system
-            if (this.crowd && agent.idx !== undefined) {
-                this.crowd.removeAgent(agent.idx);
-            }
+            // if (this.crowd && agent.idx !== undefined) {
+            //     this.crowd.removeAgent(agent.idx);
+            // }
             
             // Clean up the visual mesh and all its children
             if (agent.visualMesh) {
-                // Remove action managers
-                if (agent.visualMesh.actionManager) {
-                    agent.visualMesh.actionManager.dispose();
-                }
-                
-                // Clean up all child meshes
-                agent.visualMesh.getChildMeshes().forEach(childMesh => {
-                    if (childMesh.material) {
-                        childMesh.material.dispose();
-                    }
-                    if (childMesh.actionManager) {
-                        childMesh.actionManager.dispose();
-                    }
-                    childMesh.dispose();
-                });
-                
                 // Dispose of the main mesh
                 agent.visualMesh.dispose();
             }
             
-            // Clean up animations
-            if (agent.animationGroups) {
-                agent.animationGroups.forEach(animGroup => {
-                    animGroup.stop();
-                    animGroup.dispose();
-                });
-            }
             
             // Clean up the navigation agent transform node
             if (agent.navAgent) {
@@ -1643,7 +1639,7 @@ class NexusUnitManager {
             }
             
             // Remove the agent from the array
-            this.agents.splice(agentIndex, 1);
+           // this.agents.splice(agentIndex, 1);
             
             console.log(`Successfully deleted agent with unit ID: ${unitId} and cleaned up all resources`);
             return true;

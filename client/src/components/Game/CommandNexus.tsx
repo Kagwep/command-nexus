@@ -43,6 +43,7 @@ const CommandNexus = () => {
   const sceneRef = useRef<Scene | null>(null);
   const engineRef = useRef<Engine | null>(null);
   const [isSceneReady, setIsSceneReady] = useState(false);
+  const [isResultsShown, setIsResultsShown] = useState(false);
   const { useDojoStore, client: dojoClient, sdk } = useDojoSDK();
   
   const {
@@ -188,9 +189,10 @@ const { state: nstate, refetch } = useAllEntities();
       
       const currentGameOver = getGameOver(game_id,nstate.games);
 
-      if (currentGameOver.over){
+      if (currentGameOver.over && !isResultsShown){
         const winnerUI = new GameResultsUI(sceneRef.current,set_game_state);
         winnerUI.showGameResults(currentGameOver, nstate.players);
+       setIsResultsShown(true)
       }
 
       sceneRef.current.metadata = {

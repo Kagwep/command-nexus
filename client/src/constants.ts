@@ -8,5 +8,5 @@ export const TORII_URL = "https://api.cartridge.gg/x/command-nexus-9/torii"
 
 
 
-export const NEXUS_ADDRESS = "0x6b8a63d94c433f18073d10fe66c2f9aca17965f5f870c4591a9920d1828623f"
-export const ARENA_ADDRESS = "0x664ccd0f877d1f8273c70ce4bb53f3eae89f5a86650cb247d1df3f04a1bdb56"
+export const NEXUS_ADDRESS = "0x47bf71d0ba231be007cd1bdb887e0e25354090a90dae79e48dc9739e2edcf08"
+export const ARENA_ADDRESS = "0x70c6c627b8c540d14b159c2741e336b0726c70510eb3be62685be4003e035c"

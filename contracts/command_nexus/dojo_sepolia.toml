@@ -8,7 +8,7 @@ private_key = "0x038bfbdcc9e31a5fceadba808398316e543ded6ea2ffc044edeed04429f128b
 rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
 
 [world]
-seed = "command_nexus_3"
+seed = "command_nexus_4"
 name = "Command Nexus"
 description = "Become a commander"
 cover_uri = "file://assets/bg.webp"

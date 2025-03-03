@@ -14,6 +14,8 @@ pub mod models {
     pub mod player;
     pub mod position;
     pub mod battlefield;
+    pub mod commander;
+    pub mod banner;
 
 }
 

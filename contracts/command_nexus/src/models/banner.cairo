@@ -10,8 +10,7 @@ pub enum BannerLevel {
 }
 
 
-#[derive(Component, Copy, Drop, Serde, SerdeLen)]
-#[dojo::model]
+#[derive(Copy, Drop, Serde, Introspect)]
 pub struct Banner {
     #[key]
     pub id: u32,

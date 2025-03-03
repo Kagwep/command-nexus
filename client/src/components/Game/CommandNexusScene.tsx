@@ -37,7 +37,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
   turn: number,
   game: Game,
   players: Player[]
-},client:any,getAccount: () => AccountInterface | Account,set_game_state: (game_state: MainGameState) => void) => {
+},client:any,getAccount: () => AccountInterface | Account,set_game_state: (game_state: MainGameState) => void,set_game_id: (game_id: number) => void) => {
   
   scene.clearColor = new Color4(0.8, 0.8, 0.8);
 
@@ -294,7 +294,7 @@ export const setupScene = async (scene: Scene,camera:ArcRotateCamera , engine: E
             // Setup Player Navigation
                       // Assuming you have already set up your scene, navigation plugin, ground, and pointNavPre
                       console.log("...............................................")
-          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount,flagContainer,set_game_state);
+          const multiAgentNav = new NexusUnitManager(scene, navigationPlugin, landNavMesh, pointNavPre,getGui,getGameState,soldierContainer,tankContainer,battlefieldCameraManager,client,getAccount,flagContainer,set_game_state,set_game_id);
           await multiAgentNav.initialize();
           console.log("........................................5143555555555556")
 

@@ -123,8 +123,8 @@ const transformPlayer = (rawData: any) => {
         player_score: {
             fieldOrder: [],
             score: getPrimitiveValue(playerData.player_score.value.score),
-			kills: getPrimitiveValue(playerData.player_score.value.deaths),
-			deaths: getPrimitiveValue(playerData.player_score.value.kills),
+			kills: getPrimitiveValue(playerData.player_score.value.kills),
+			deaths: getPrimitiveValue(playerData.player_score.value.deaths),
 			assists: getPrimitiveValue(playerData.player_score.value.score),
         },
         home_base:getPrimitiveValue(playerData.home_base),

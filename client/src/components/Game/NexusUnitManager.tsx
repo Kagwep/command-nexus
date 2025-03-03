@@ -58,6 +58,7 @@ class NexusUnitManager {
     private flagManager: NexusFlagManager;
     private updatePlayerInfo: Player | undefined = undefined;
     private winnerUI:GameResultsUI;
+    
 
     constructor(
         scene: Scene, 
@@ -72,7 +73,8 @@ class NexusUnitManager {
         client: any,
         getAccount: () => AccountInterface | Account,
         flagContainer: AssetContainer,
-        set_game_state: (game_state: MainGameState) => void
+        set_game_state: (game_state: MainGameState) => void,
+        set_game_id: (game_id: number) => void
    
     ) {
         this.scene = scene;
@@ -102,7 +104,7 @@ class NexusUnitManager {
           
          // this.initializeCameraPosition();
          this.flagManager = new NexusFlagManager(scene,flagContainer,client,getAccount,getGui,getGameState);
-         this.winnerUI = new GameResultsUI(scene,set_game_state);
+         this.winnerUI = new GameResultsUI(scene,set_game_state,set_game_id);
         
     }
 
@@ -1271,6 +1273,9 @@ class NexusUnitManager {
                 this.getGui().updateText("commands-text", this.scene.metadata.playerInfo.commands_remaining);
                 this.getGui().updateText("flag-text", this.scene.metadata.playerInfo.flags_captured);
                 this.getGui().updateText("score-text", this.scene.metadata.playerInfo.player_score.score);
+                this.getGui().updateKills(Number(this.updatePlayerInfo.player_score.kills));
+                this.getGui().updateDeaths(Number(this.updatePlayerInfo.player_score.deaths));
+                
 
 
                 if (this.scene.metadata && this.scene.metadata.gameInfo){
@@ -1285,7 +1290,7 @@ class NexusUnitManager {
                         //this.getGui().updateTurnInfo('🔴');
                         this.getGui().updateText("turn-text", '🔴');
                     }
-                    console.log("jvsdhfvjdsvfdsfdksjfbsd.....................")
+                 //   console.log("jvsdhfvjdsvfdsfdksjfbsd.....................")
 
                     if(this.scene.metadata.gameInfo.over){
                         console.log("game_ended");
@@ -1296,10 +1301,18 @@ class NexusUnitManager {
 
 
                 if (this.scene.metadata.playersInfo){
-                    const remainingPlayers = Object.values(this.scene.metadata.playersInfo)
-                    .filter(player => (player as Player).address !== this.scene.metadata.playerInfo.address);
-                    
-                    this.getGui().updateOpponentsInfo(remainingPlayers);
+                    const remainingPlayersRecord: Record<string, Player> = {};
+
+                    Object.entries(this.scene.metadata.playersInfo).forEach(([address, player]) => {
+                        // Skip the current player
+                        
+                        if ((player as Player).address !== this.scene.metadata.playerInfo.address) {
+                            remainingPlayersRecord[address] = player as Player;
+                        }
+                    });
+
+                                        //this.getGui().updateOpponentsInfo(remainingPlayers);
+                    this.getGui().updateOpponents(remainingPlayersRecord);
                 }
             }
             

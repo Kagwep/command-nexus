@@ -138,6 +138,23 @@ pub impl NexusUnitImpl of NexusUnitTrait {
         }
     }
 
+    fn get_player_id(self: NexusUnit) -> u32 {
+        match self {
+            NexusUnit::Infantry(infantry) => {
+                infantry.player_id
+            },
+            NexusUnit::Armored(armored) => {
+                armored.player_id
+            },
+            NexusUnit::Air(air) => {
+                air.player_id
+            },
+            NexusUnit::Naval(naval) => {
+                naval.player_id
+            },
+        }
+    }
+
     fn take_damage(ref self: NexusUnit, amount: u32) -> NexusUnit {
         match self {
             NexusUnit::Infantry(mut infantry) => {

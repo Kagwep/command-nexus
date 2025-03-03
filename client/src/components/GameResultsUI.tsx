@@ -3,6 +3,7 @@ import { BattlefieldNameEnum, Game, Player } from '@/dojogen/models.gen';
 import { feltToStr, hexToUtf8 } from '../utils/unpack';
 import { BigNumberish } from 'starknet';
 import { default as MainGameState } from '@/utils/gamestate';
+import { ThinSprite } from "@babylonjs/core/Sprites/thinSprite";
 
 const COLORS = {
     BRILLIANT_AZURE: new Color3(0.0, 0.7, 1.0),
@@ -24,8 +25,9 @@ export class GameResultsUI {
     private container: HTMLDivElement;
     private scene: Scene;
     private set_game_state: (game_state: MainGameState) => void
+    private set_game_id: (game_id: number) => void
     
-    constructor(scene: Scene,set_game_state: (game_state: MainGameState) => void) {
+    constructor(scene: Scene,set_game_state: (game_state: MainGameState) => void,set_game_id: (game_id: number) => void) {
         this.scene = scene;
         this.container = document.createElement('div');
         this.container.id = "game-results-container-" + Date.now(); // Add unique ID
@@ -33,7 +35,8 @@ export class GameResultsUI {
         this.container.style.zIndex = '10';
         this.container.style.pointerEvents = 'none';
         document.body.appendChild(this.container);
-        this.set_game_state = set_game_state
+        this.set_game_state = set_game_state;
+        this.set_game_id = set_game_id
     }
     
     private colorToHex(color: Color3): string {
@@ -259,6 +262,7 @@ export class GameResultsUI {
         this.container = newContainer;
 
         this.set_game_state(MainGameState.MainMenu);
+        this.set_game_id(-1);
 
         this.dispose();
     }

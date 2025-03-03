@@ -75,6 +75,7 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
     </div>
   );
 
+
   // Rest of your component remains the same until the buttons...
 
   return (

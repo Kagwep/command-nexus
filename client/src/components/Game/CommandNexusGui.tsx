@@ -5,7 +5,7 @@ import { DeployInfo } from "../../utils/types";
 import { abilityStringToEnum, battlefieldTypeToString, getBannerLevelString, guideContent, positionEncoder, stringToUnitType } from "../../utils/nexus";
 import { getUnitAbilities } from "../../utils/nexus";
 import { Button, Control, Rectangle, StackPanel, TextBlock,Image, ScrollViewer } from "@babylonjs/gui";
-import { AbilityState, Infantry, Player, TerrainType,UnitModeEnum, UnitState, UnitTypeEnum } from "../../dojogen/models.gen";
+import { AbilityState, Infantry, Player, TerrainType,UnitModeEnum, UnitsSupply, UnitState, UnitTypeEnum } from "../../dojogen/models.gen";
 import { useRef } from "react";
 import { Account, AccountInterface, encode } from "starknet";
 import { GameState } from "./GameState";
@@ -53,6 +53,20 @@ export default class CommandNexusGui {
     private scrollViewer: GUI.ScrollViewer;
     private contentPanel: StackPanel;
     private tutorialUI: TutorialUI;
+    private scorePanel: GUI.Rectangle;
+    private killsText: GUI.TextBlock;
+    private deathsText: GUI.TextBlock;
+    private kills: number = 0;
+    private deaths: number = 0;
+    private opponentsData: Record<string, Player> = {};
+    private isVisible: boolean = false;
+    private opponentTextBlocks: { [address: string]: { 
+        nameText: GUI.TextBlock, 
+        scoreText: GUI.TextBlock,
+        killsText: GUI.TextBlock,
+        deathsText: GUI.TextBlock,
+        supplyText: GUI.TextBlock
+    } } = {};
 
     // Default style values
     private defaultStyles = {
@@ -90,7 +104,7 @@ export default class CommandNexusGui {
     private textElements: Map<string, GUI.TextBlock> = new Map();
     private animations: Animation[];
     private infoButton: GUI.Ellipse = new GUI.Ellipse;
-
+    private nexusOpponentsPanel: GUI.Rectangle;
     // Color scheme
     private readonly PANEL_COLOR = "rgba(0, 40, 20, 0.8)";
     private readonly BUTTON_COLOR = "rgba(0, 40, 0, 0.8)";
@@ -105,7 +119,7 @@ export default class CommandNexusGui {
     constructor(scene: Scene,client: any,game: any,player: Player, getAccount:  () => AccountInterface | Account ,getGameState: () => GameState) {
         this.gui = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene);
         this.createTopBar();
-        this.createMainMenuButton();
+        //this.createMainMenuButton();
         this.createMainMenuPanel();
         this.createUnitsPanel();
         this.createMarketplacePanel();
@@ -128,6 +142,9 @@ export default class CommandNexusGui {
         this.initializeBoostPanel();
         this.initializeBoxInfo();
         this.tutorialUI = new TutorialUI(scene);
+        this.showPlayerScores();
+        this.createOpponentsButton();
+        this.createNexusOpponentsPanel();
        
     }
 
@@ -254,6 +271,86 @@ export default class CommandNexusGui {
         this.gui.addControl(this.unitStatesPanel);
     }
 
+    private showPlayerScores(): void {
+        // Create main panel
+        this.scorePanel = new GUI.Rectangle("scorePanel");
+        this.scorePanel.width = "200px";
+        this.scorePanel.height = "100px";
+        this.scorePanel.cornerRadiusW = 10;
+        this.scorePanel.cornerRadiusZ = 10;
+        this.scorePanel.thickness = 0;
+        this.scorePanel.background = this.PANEL_COLOR;
+        this.scorePanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.scorePanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.scorePanel.left = "10px";
+        this.scorePanel.top = "60px";
+        
+        // Create kills panel (top half)
+        const killsPanel = new GUI.StackPanel("killsPanel");
+        killsPanel.height = "50px";
+        killsPanel.isVertical = false;
+        killsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        killsPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.scorePanel.addControl(killsPanel);
+
+        // Kills emoji
+        const killsEmoji = new GUI.TextBlock("killsEmoji");
+        killsEmoji.text = "💥";
+        killsEmoji.fontSize = 20;
+        killsEmoji.width = "40px";
+        killsEmoji.color = "white";
+        killsEmoji.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        killsPanel.addControl(killsEmoji);
+
+        // Kills text
+        this.killsText = new GUI.TextBlock("killsText");
+        this.killsText.text = "Kills: 0";
+        this.killsText.fontSize = 16;
+        this.killsText.width = "160px";
+        this.killsText.color = "yellow";
+        this.killsText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        killsPanel.addControl(this.killsText);
+
+        // Create deaths panel (bottom half)
+        const deathsPanel = new GUI.StackPanel("deathsPanel");
+        deathsPanel.height = "50px";
+        deathsPanel.isVertical = false;
+        deathsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        deathsPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+        this.scorePanel.addControl(deathsPanel);
+
+        // Deaths emoji
+        const deathsEmoji = new GUI.TextBlock("deathsEmoji");
+        deathsEmoji.text = "☠️";
+        deathsEmoji.fontSize = 20;
+        deathsEmoji.width = "40px";
+        deathsEmoji.color = "white";
+        deathsEmoji.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+        deathsPanel.addControl(deathsEmoji);
+
+        // Deaths text
+        this.deathsText = new GUI.TextBlock("deathsText");
+        this.deathsText.text = "Deaths: 0";
+        this.deathsText.fontSize = 16;
+        this.deathsText.width = "160px";
+        this.deathsText.color = "red";
+        this.deathsText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        deathsPanel.addControl(this.deathsText);
+
+        // Add to GUI
+        this.gui.addControl(this.scorePanel);
+        // Update with initial player data if available
+    }
+
+    public updateKills(kills: number): void {
+        this.kills = kills;
+        this.killsText.text = `Kills: ${this.kills}`;
+    }
+    
+    public updateDeaths(deaths: number): void {
+        this.deaths = deaths;
+        this.deathsText.text = `Deaths: ${this.deaths}`;
+    }
 
 
     private createButton(name: string, text: string): GUI.Button {
@@ -638,6 +735,8 @@ export default class CommandNexusGui {
     public updateRank(rank: string): void {
         this.rankText.text = rank;
     }
+
+    
 
     private createMainMenuButton(): void {
         const mainMenuBtn = this.createButton("mainMenu", "Main Menu");
@@ -2816,6 +2915,323 @@ public showToastSide(message: string, toastType: ToastType = ToastType.Info): vo
                 this.contentPanel.addControl(image);
             }
         });
+    }
+
+    private createNexusOpponentsPanel(): void {
+        // Create main panel
+        this.nexusOpponentsPanel = new GUI.Rectangle("nexusOpponentsPanel");
+        this.nexusOpponentsPanel.width = "300px";
+        this.nexusOpponentsPanel.height = "600px";
+        this.nexusOpponentsPanel.cornerRadius = 10;
+        this.nexusOpponentsPanel.color = this.PANEL_COLOR;
+        this.nexusOpponentsPanel.thickness = 0;
+        this.nexusOpponentsPanel.background = this.PANEL_COLOR;
+        this.nexusOpponentsPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        this.nexusOpponentsPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.nexusOpponentsPanel.top = "60px";
+        this.nexusOpponentsPanel.isVisible = false;
+        
+        // Create header panel
+        const headerPanel = new GUI.StackPanel("headerPanel");
+        headerPanel.height = "40px";
+        headerPanel.isVertical = false;
+        headerPanel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        headerPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.nexusOpponentsPanel.addControl(headerPanel);
+        
+        // Title
+        const titleText = new GUI.TextBlock("opponentsTitle");
+        titleText.text = "⚔️ Enemies";
+        titleText.fontSize = 18;
+        titleText.color = "white";
+        titleText.width = "250px";
+        titleText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        headerPanel.addControl(titleText);
+        
+        // Close button
+        const closeBtn = GUI.Button.CreateSimpleButton("closeOpponents", "✖");
+        closeBtn.width = "40px";
+        closeBtn.height = "20px";
+        closeBtn.color = "white";
+        closeBtn.cornerRadius = 5;
+        closeBtn.background = "#0f3d0f";
+        closeBtn.onPointerUpObservable.add(() => {
+            this.toggleVisibility();
+        });
+        headerPanel.addControl(closeBtn);
+        
+        // Create scrollable content container
+        const scrollViewer = new GUI.ScrollViewer("opponentsScrollViewer");
+        scrollViewer.width = "100%";
+        scrollViewer.height = "600px"; // Adjust to leave space for header
+        scrollViewer.barBackground = "#1aff1a22";
+        scrollViewer.barColor = "#1aff1a";
+        scrollViewer.thickness = 0;
+        scrollViewer.thumbLength = 0.5;
+        scrollViewer.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        scrollViewer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        scrollViewer.top = "40px"; // Position below header
+        this.nexusOpponentsPanel.addControl(scrollViewer);
+        
+        // Content panel inside scroll viewer
+        const contentPanel = new GUI.StackPanel("opponentsContent");
+        contentPanel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        contentPanel.width = "100%";
+        scrollViewer.height = "560px";
+        contentPanel.isVertical = true;
+        contentPanel.spacing = 5;
+        scrollViewer.addControl(contentPanel);
+        
+        // Divider
+        const divider = new GUI.Rectangle("divider");
+        divider.height = "2px";
+        divider.background = "#1aff1a";
+        divider.alpha = 0.5;
+        contentPanel.addControl(divider);
+        
+        // Add to GUI
+        this.gui.addControl(this.nexusOpponentsPanel);
+    }
+    
+    
+    private createOpponentsButton(): void {
+        const opponentsBtn =  GUI.Button.CreateSimpleButton("opponentsBtn", "👥 Opponents");
+        opponentsBtn.width = "150px";
+        opponentsBtn.height = "40px";
+        opponentsBtn.color = "white";
+        opponentsBtn.cornerRadius = 10;
+        opponentsBtn.background = "#0f3d0f";
+        opponentsBtn.hoverCursor = "pointer";
+        opponentsBtn.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+        opponentsBtn.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        //opponentsBtn.right = "10px";
+        opponentsBtn.top = "120px";
+        opponentsBtn.onPointerUpObservable.add(() => {
+            this.toggleVisibility();
+        });
+        this.gui.addControl(opponentsBtn);
+    }
+    
+    public toggleVisibility(): void {
+        this.isVisible = !this.isVisible;
+        this.nexusOpponentsPanel.isVisible = this.isVisible;
+    }
+    
+    public updateOpponents(players: Record<string, Player>): void {
+        // First initialization - create all UI elements
+        if (Object.keys(this.opponentTextBlocks).length === 0) {
+            this.initializeOpponentsUI(players);
+        } else {
+            // Just update the data for all players
+            Object.entries(players).forEach(([address, player]) => {
+                if (this.opponentTextBlocks[address]) {
+                    // Update existing player
+                    this.updatePlayerData(address, player);
+                } else {
+                    // Handle new player - need to rebuild UI
+                    this.initializeOpponentsUI(players);
+                    return; // Exit loop as we've rebuilt everything
+                }
+            });
+            
+            // Check if any players were removed
+            const currentAddresses = new Set(Object.keys(players));
+            if (Object.keys(this.opponentTextBlocks).some(addr => !currentAddresses.has(addr))) {
+                // Player was removed, need to rebuild UI
+                this.initializeOpponentsUI(players);
+            }
+        }
+        
+        // Update stored data
+        this.opponentsData = {...players};
+    }
+    
+    private initializeOpponentsUI(players: Record<string, Player>): void {
+        // Get scroll viewer and content panel
+        const scrollViewer = this.nexusOpponentsPanel.getChildByName("opponentsScrollViewer") as GUI.ScrollViewer;
+        const contentPanel = scrollViewer.children[0] as GUI.StackPanel;
+        
+        // Remove all opponent blocks (except divider)
+        const children = contentPanel.children.slice();
+        for (let i = 1; i < children.length; i++) {
+            contentPanel.removeControl(children[i]);
+        }
+        
+        this.opponentTextBlocks = {};
+        
+        // Add each opponent
+        Object.entries(players).forEach(([address, player], index) => {
+            if (!player) return;
+            
+            // Create opponent container with fixed height and proper padding
+            const opponentPanel = new GUI.Rectangle(`opponent_${index}`);
+            opponentPanel.height = "200px";
+            opponentPanel.thickness = 0;
+            opponentPanel.background = index % 2 === 0 ? "#0a290a" : this.PANEL_COLOR;
+            opponentPanel.paddingTop = "5px";
+            opponentPanel.paddingBottom = "5px";
+            contentPanel.addControl(opponentPanel);
+            
+            // Player info grid layout - added one more row for flag section
+            const infoGrid = new GUI.Grid("infoGrid_" + index);
+            infoGrid.addRowDefinition(0.2); // Name
+            infoGrid.addRowDefinition(0.2); // Score
+            infoGrid.addRowDefinition(0.2); // K/D
+            infoGrid.addRowDefinition(0.2); // Supply
+            infoGrid.addRowDefinition(0.2); // Flag - new row
+            infoGrid.addColumnDefinition(0.1); // Icon column
+            infoGrid.addColumnDefinition(0.9); // Text column
+            infoGrid.width = "100%";
+            infoGrid.height = "100%";
+            opponentPanel.addControl(infoGrid);
+            // Name row
+            const nameIcon = new GUI.TextBlock("nameIcon_" + index);
+            nameIcon.text = "👤";
+            nameIcon.fontSize = 16;
+            nameIcon.color = "white";
+            nameIcon.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            infoGrid.addControl(nameIcon, 0, 0);
+            
+            const nameText = new GUI.TextBlock("nameText_" + index);
+            nameText.text = `${player.name} `;
+            nameText.fontSize = 16;
+            nameText.color = "white";
+            nameText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            nameText.paddingLeft = "5px";
+            infoGrid.addControl(nameText, 0, 1);
+            
+            // Score row
+            const scoreIcon = new GUI.TextBlock("scoreIcon_" + index);
+            scoreIcon.text = "🏆";
+            scoreIcon.fontSize = 16;
+            scoreIcon.color = "white";
+            scoreIcon.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            infoGrid.addControl(scoreIcon, 1, 0);
+            
+            const scoreText = new GUI.TextBlock("scoreText_" + index);
+            scoreText.text = `Score: ${Number(player.player_score.score)}`;
+            scoreText.fontSize = 16;
+            scoreText.color = "white";
+            scoreText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            scoreText.paddingLeft = "5px";
+            infoGrid.addControl(scoreText, 1, 1);
+            
+            // K/D row
+            const killsDeathsPanel = new GUI.StackPanel("kdPanel_" + index);
+            killsDeathsPanel.isVertical = false;
+            killsDeathsPanel.width = "100%"
+            killsDeathsPanel.height = "100%";
+            infoGrid.addControl(killsDeathsPanel, 2, 1);
+            
+            // Kills
+            const killsText = new GUI.TextBlock("killsText_" + index);
+            killsText.text = `Kills: ${Number(player.player_score.kills)}`;
+            killsText.fontSize = 16;
+            killsText.color = "yellow";
+            killsText.width = "80px";
+            killsText.paddingLeft = "5px";
+            killsDeathsPanel.addControl(killsText);
+            
+            // Deaths
+            const deathsText = new GUI.TextBlock("deathsText_" + index);
+            deathsText.text = `Deaths: ${Number(player.player_score.deaths)}`;
+            deathsText.fontSize = 16;
+            deathsText.color = "red";
+            killsText.width = "80px";
+            deathsText.paddingLeft = "10px";
+            killsDeathsPanel.addControl(deathsText);
+
+                        // Flag section (NEW)
+            const flagIcon = new GUI.TextBlock("flagIcon_" + index);
+            flagIcon.text = "🏁";
+            flagIcon.fontSize = 16;
+            flagIcon.color = "white";
+            flagIcon.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            infoGrid.addControl(flagIcon, 3, 0);
+            
+            const flagText = new GUI.TextBlock("flagText_" + index);
+            // Check if the player has captured a flag
+            
+            flagText.text = `${Number(player.flags_captured)}`
+            flagText.fontSize = 16;
+            flagText.color = "#1aff1a", // Green text if flag is captured
+            flagText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            flagText.paddingLeft = "5px";
+            infoGrid.addControl(flagText, 3, 1);
+            
+            // Supply row
+            const supplyIcon = new GUI.TextBlock("supplyIcon_" + index);
+            supplyIcon.text = "";
+            supplyIcon.fontSize = 16;
+            supplyIcon.color = "white";
+            supplyIcon.width = "80px";
+            supplyIcon.paddingLeft = "5px";
+            supplyIcon.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
+            infoGrid.addControl(supplyIcon, 4, 0);
+            
+            const supplyText = new GUI.TextBlock("supplyText_" + index);
+            supplyText.text = this.formatSupply(player.supply);
+            supplyText.fontSize = 16;
+            supplyText.color = "white";
+            supplyText.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+            supplyText.paddingLeft = "5px";
+            infoGrid.addControl(supplyText, 4, 1);
+            
+            // Store references to text blocks for updates
+            this.opponentTextBlocks[address] = {
+                nameText,
+                scoreText,
+                killsText,
+                deathsText,
+                supplyText
+            };
+        });
+        
+        // Let the scroll viewer handle height automatically
+        // Just update the main panel height to match window size if needed
+        const playerCount = Object.keys(players).length;
+        const contentHeight = Math.min(500, playerCount * 100 + 40); // Header (40px) + player panels
+        this.nexusOpponentsPanel.height = `${Math.min(500, 40 + (Object.keys(players).length * 820))}px`;
+    }
+    
+    
+    // More efficient method for updating just the data
+    private updatePlayerData(address: string, player: Player): void {
+        const blocks = this.opponentTextBlocks[address];
+        if (blocks) {
+            blocks.nameText.text = `${player.name}`;
+            blocks.scoreText.text = `Score: ${Number(player.player_score.score)}`;
+            blocks.killsText.text = `Kills: ${Number(player.player_score.kills)}`;
+            blocks.deathsText.text = `Deaths: ${Number(player.player_score.deaths)}`;
+            blocks.supplyText.text = this.formatSupply(player.supply);
+        }
+    }
+    
+    public updateSingleOpponent(address: string, player: Player): void {
+        if (this.opponentTextBlocks[address]) {
+            const blocks = this.opponentTextBlocks[address];
+            blocks.nameText.text = `${player.name}`;
+            blocks.scoreText.text = `Score: ${Number(player.player_score.score)}`;
+            blocks.killsText.text = `Kills: ${Number(player.player_score.kills)}`;
+            blocks.deathsText.text = `Deaths: ${Number(player.player_score.deaths)}`;
+            blocks.supplyText.text = this.formatSupply(player.supply);
+        } else {
+            // If this opponent wasn't previously displayed, update the whole panel
+            // This ensures new opponents are added dynamically
+            this.updateOpponents({...this.opponentsData, [address]: player});
+        }
+    }
+    
+    private formatSupply(supply: UnitsSupply): string {
+        const infantry = Number(supply.infantry);
+        const armored = Number(supply.armored);
+        const air = Number(supply.air);
+        const naval = Number(supply.naval);
+        const cyber = Number(supply.cyber);
+
+        //👨🏽‍✈️${infantry} 🚜${armored} 🛩️${air} ⚓${naval} 💻${cyber}
+        
+        return `👨🏽‍✈️ ${infantry}`;
     }
 }
 

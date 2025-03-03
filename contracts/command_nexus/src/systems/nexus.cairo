@@ -970,13 +970,14 @@ mod nexus {
 
             assert(flag_exist.player != caller, 'Flag Already Captured');
 
+
             let flag: BattlefieldFlag = BattlefieldFlagTrait::capture(game_id,player.address,position,flag_id);
 
             player.flags_captured += 1;
 
             player.booster += BOOSTER;
 
-            if (player.flags_captured >= 5 ){
+            if (player.flags_captured >= 5 && player.player_score.kills >= 3){
                 let mut game: Game  =  world.read_model(game_id);
 
                 game.winner = player.address;
@@ -986,7 +987,17 @@ mod nexus {
 
             }
 
-            
+            match HelperTrait::find_player(world,game, flag_exist.player) {
+                Option::Some(mut flag_owner) => {
+
+                        if (flag_owner.turn_start_time > 0 && flag_owner.flags_captured > 0){
+                            flag_owner.flags_captured -= 1;
+                            world.write_model(@flag_owner);
+                        }
+                },
+                Option::None => {},
+            };
+
 
             world.write_model(@flag);
 
@@ -1267,6 +1278,8 @@ mod nexus {
             // 
             let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
 
+            assert(unit.get_player_id() == player_id, 'Not Your Unit');
+
              // Validate unit has energy
              unit.has_energy();
     
@@ -1449,6 +1462,8 @@ mod nexus {
 
             let mut unit_attacker = HelperTrait::get_unit(world, game_id, player_id, attacker_id, attacker);
 
+            assert(unit_attacker.get_player_id() == player_id, 'Not Your Unit');
+
             let mut unit_target = HelperTrait::get_unit(world, game_id,player_target_id, target_id, target);
 
             let is_in_range =  HelperTrait::is_in_range(unit_attacker.get_position(),unit_attacker.get_range(), x,y,z);
@@ -1608,6 +1623,8 @@ mod nexus {
             // 
             let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
 
+            assert(unit.get_player_id() == player_id, 'Not Your Unit');
+
             // Validate unit has energy
             unit.has_energy();
     
@@ -1675,6 +1692,8 @@ mod nexus {
 
         // 
         let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
+
+        assert(unit.get_player_id() == player_id, 'Not Your Unit');
 
         // Validate unit has energy
         unit.has_energy();
@@ -1744,6 +1763,8 @@ mod nexus {
         // 
         let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
 
+        assert(unit.get_player_id() == player_id, 'Not Your Unit');
+
         // Validate unit has energy
         unit.has_energy();
 
@@ -1811,6 +1832,8 @@ mod nexus {
 
         // 
         let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
+
+        assert(unit.get_player_id() == player_id, 'Not Your Unit');
 
         // Validate unit has energy
         unit.has_energy();
@@ -1882,6 +1905,8 @@ mod nexus {
 
         // 
         let mut unit = HelperTrait::get_unit(world, game_id, player_id, unit_id, unit_type);
+
+        assert(unit.get_player_id() == player_id, 'Not Your Unit');
 
         // Validate unit has energy
         unit.has_energy();

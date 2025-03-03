@@ -57,7 +57,7 @@ const CommandNexus = () => {
 
 const { state: nstate, refetch } = useAllEntities();
 
-  const {  game_id,set_game_state} = useElementStore((state) => state);
+  const {  game_id,set_game_state,set_game_id} = useElementStore((state) => state);
   const { account, address, status, isConnected } = useNetworkAccount();
   const infantry = useInfantryUnits();
 
@@ -116,7 +116,7 @@ const { state: nstate, refetch } = useAllEntities();
               
               
               if (player){
-                await setupScene(sceneRef.current, camera, engineRef.current!,player, getGui,getGameState, nexusGameState?.gameState,client,getAccount,set_game_state);
+                await setupScene(sceneRef.current, camera, engineRef.current!,player, getGui,getGameState, nexusGameState?.gameState,client,getAccount,set_game_state,set_game_id);
               }
               setIsSceneReady(true);
               
@@ -190,7 +190,7 @@ const { state: nstate, refetch } = useAllEntities();
       const currentGameOver = getGameOver(game_id,nstate.games);
 
       if (currentGameOver.over && !isResultsShown){
-        const winnerUI = new GameResultsUI(sceneRef.current,set_game_state);
+        const winnerUI = new GameResultsUI(sceneRef.current,set_game_state,set_game_id);
         winnerUI.showGameResults(currentGameOver, nstate.players);
        setIsResultsShown(true)
       }

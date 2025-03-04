@@ -58,7 +58,7 @@ class NexusUnitManager {
     private flagManager: NexusFlagManager;
     private updatePlayerInfo: Player | undefined = undefined;
     private winnerUI:GameResultsUI;
-    
+    private lastKnownRegion: string = "None";
 
     constructor(
         scene: Scene, 
@@ -759,6 +759,22 @@ class NexusUnitManager {
                     agent.navAgent.rotation.y = agent.navAgent.rotation.y + (desiredRotation - agent.navAgent.rotation.y);
                 }
             });
+            const currentPosition = this.scene.activeCamera.position.clone();
+            const currentRegion = this.getClickedRegion(currentPosition);
+            
+            // Only update region display if the region has changed
+            if (currentRegion !== this.lastKnownRegion) {
+              this.lastKnownRegion = currentRegion;
+
+              if (currentRegion !== "None"){
+                this.getGui().updateRegion(currentRegion);
+              }else{
+                this.getGui().updateRegion("FreeRoam");
+              }
+              
+            }
+
+
         });
     }
 

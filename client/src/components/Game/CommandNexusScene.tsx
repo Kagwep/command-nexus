@@ -619,6 +619,10 @@ scene.onBeforeRenderObservable.add(() => {
   if (keys['f']) camera.radius += ZOOM_SPEED;
 
   camera.radius = Math.max(camera.lowerRadiusLimit!, Math.min(camera.radius, camera.upperRadiusLimit!));
+
+
+
+
 });
 
 //camera.setTarget(activeUnit, true, false, false);

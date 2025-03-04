@@ -105,6 +105,11 @@ export default class CommandNexusGui {
     private animations: Animation[];
     private infoButton: GUI.Ellipse = new GUI.Ellipse;
     private nexusOpponentsPanel: GUI.Rectangle;
+
+    private regionContainer: GUI.Rectangle;
+    private regionText: GUI.TextBlock;
+    private regionEmoji: GUI.TextBlock;
+    private currentRegion: string = "FreeRoam"; // Default region
     // Color scheme
     private readonly PANEL_COLOR = "rgba(0, 40, 20, 0.8)";
     private readonly BUTTON_COLOR = "rgba(0, 40, 0, 0.8)";
@@ -145,6 +150,7 @@ export default class CommandNexusGui {
         this.showPlayerScores();
         this.createOpponentsButton();
         this.createNexusOpponentsPanel();
+        this.createRegionDisplay();
        
     }
 
@@ -342,6 +348,7 @@ export default class CommandNexusGui {
         // Update with initial player data if available
     }
 
+
     public updateKills(kills: number): void {
         this.kills = kills;
         this.killsText.text = `Kills: ${this.kills}`;
@@ -352,6 +359,77 @@ export default class CommandNexusGui {
         this.deathsText.text = `Deaths: ${this.deaths}`;
     }
 
+    private createRegionDisplay(): void {
+        // Create container rectangle
+        this.regionContainer = new GUI.Rectangle();
+        this.regionContainer.width = "200px";
+        this.regionContainer.height = "50px";
+        this.regionContainer.cornerRadiusW = 10;
+        this.regionContainer.cornerRadiusZ = 10;
+        this.regionContainer.color = "white";
+        this.regionContainer.thickness = 0;
+        this.regionContainer.background = this.PANEL_COLOR;
+        this.regionContainer.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.regionContainer.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_TOP;
+        this.regionContainer.top = "160px";
+        this.regionContainer.left = "10px";
+        this.gui.addControl(this.regionContainer);
+
+        // Create emoji display
+        this.regionEmoji = new GUI.TextBlock();
+        this.regionEmoji.text = "🌍"; // Default neutral emoji
+        this.regionEmoji.color = "white";
+        this.regionEmoji.fontSize = 24;
+        this.regionEmoji.width = "30px";
+        this.regionEmoji.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.regionEmoji.left = "10px";
+        this.regionContainer.addControl(this.regionEmoji);
+
+        // Create region text
+        this.regionText = new GUI.TextBlock();
+        this.regionText.text = this.currentRegion;
+        this.regionText.color = "rgb(0, 255, 255)"
+
+        this.regionText.fontSize = 18;
+        this.regionText.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
+        this.regionText.left = "20px";
+        this.regionContainer.addControl(this.regionText);
+
+        // Initialize with default region
+        this.updateRegion(this.currentRegion);
+    }
+
+
+    public updateRegion(regionName: string): void {
+        // Update current region
+        this.currentRegion = regionName;
+        
+        // Update text display
+        this.regionText.text = regionName;
+        
+        // Apply a simple animation effect for the update
+        const animation = new Animation(
+            "regionChangeAnimation",
+            "scaleX",
+            30,
+            Animation.ANIMATIONTYPE_FLOAT,
+            Animation.ANIMATIONLOOPMODE_CYCLE
+        );
+        
+        const keys = [
+            { frame: 0, value: 1 },
+            { frame: 15, value: 1.1 },
+            { frame: 30, value: 1 }
+        ];
+        
+        animation.setKeys(keys);
+        this.regionContainer.animations = [animation];
+        
+        // Start the animation
+        this.gui.getScene().beginAnimation(this.regionContainer, 0, 30, false);
+        
+        console.log(`Region updated to: ${regionName}`);
+    }
 
     private createButton(name: string, text: string): GUI.Button {
         const button = GUI.Button.CreateSimpleButton(name, text);

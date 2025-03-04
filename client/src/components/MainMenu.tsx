@@ -18,6 +18,7 @@ import { useEntityStore } from '../hooks/useEntityStore';
 import { useDojoSDK } from '@dojoengine/sdk/react';
 import { useAllEntities } from '../utils/command';
 import { ClauseBuilder, KeysClause, ParsedEntity,  QueryBuilder,  ToriiQueryBuilder } from '@dojoengine/sdk';
+import LeaderboardModal from './LeaderboardModal';
 
 
 const MainMenu: React.FC = () => {
@@ -45,6 +46,8 @@ const MainMenu: React.FC = () => {
 
   const playerpol = usePlayerPolling(sdk.client)
   const gamepol = useGamePolling(sdk.client)
+
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
  
 
@@ -265,6 +268,13 @@ useEffect(() => {
             </div>
           </header>
 
+          <button 
+            onClick={() => setShowLeaderboard(true)} 
+            className="bg-green-900/20 hover:bg-green-800/40 text-green-400 border border-green-500/30 font-mono px-4 py-2"
+          >
+            <span className="mr-2">◈</span> VIEW LEADERBOARD <span className="ml-2">◈</span>
+          </button>
+
           { Object.keys(nstate.games).length === 0 ? (
             <div className="text-center py-12 bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-2xl">
                   <div className="relative border border-green-500/30 bg-black/40 p-8 rounded-lg mb-2">
@@ -381,6 +391,14 @@ useEffect(() => {
           )}
         </div>
       </div>
+      {showLeaderboard && (
+    <LeaderboardModal 
+      isOpen={showLeaderboard} 
+      onClose={() => setShowLeaderboard(false)} 
+      players={nstate.players} 
+      gameId="12345" 
+    />
+  )}
     </div>
 
   );

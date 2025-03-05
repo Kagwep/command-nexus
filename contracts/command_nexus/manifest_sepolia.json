@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x7c9469d45a9cdbab775035afb48e1fa73fb35ab059fcb9dfb0a301aa973e783",
-    "address": "0xdc24b15afffddb7f8032289a80ad11d2c8b1aff1dbdab694b54b8aaad4413c",
-    "seed": "command_nexus_4",
+    "address": "0x35e09bc5d56bc8fb3200b31fabab36afaf63f1bb66461c57792fa4c8f79ade3",
+    "seed": "command_nexus_5",
     "name": "Command Nexus",
     "entrypoints": [
       "uuid",
@@ -1312,7 +1312,7 @@
   },
   "contracts": [
     {
-      "address": "0x70c6c627b8c540d14b159c2741e336b0726c70510eb3be62685be4003e035c",
+      "address": "0x1e822ce8ed4b685dc790e5a93b42f7a3158a741cb9558a64347bd68432a7174",
       "class_hash": "0x4f432e9dc5bd3bfea49990e7dbe9d8b973ef75579bc2cc8a1e85ec7225cd6c9",
       "abi": [
         {
@@ -1632,8 +1632,8 @@
       ]
     },
     {
-      "address": "0x47bf71d0ba231be007cd1bdb887e0e25354090a90dae79e48dc9739e2edcf08",
-      "class_hash": "0x57df753b663163384e005616f7ff8f52da379bdc6e77abb31accb89d19e21e5",
+      "address": "0x5c50a92b3a9608da4fddc267438f705860a8921b5d7d228d1a2bb722e854b6c",
+      "class_hash": "0x1d0e5997538f99717ad6968a150727e29b71f83b6b2662f1eb01fd320297a99",
       "abi": [
         {
           "type": "impl",
@@ -2273,6 +2273,12 @@
       "class_hash": "0x188f1763ce613f3741c6ca550c02dbfa2ada355b3ba0ce26e9584e85e61f70a",
       "tag": "command_nexus-CommandCenter",
       "selector": "0x1ea568c2d3d120845770d5aa8d5c0530ba2f0472fc8d3cd8edf495424cee42c"
+    },
+    {
+      "members": [],
+      "class_hash": "0x2e283ac934b76345bd198ac090b4bdee8975308646678dc40c7d4f28e645ebb",
+      "tag": "command_nexus-Commander",
+      "selector": "0xfe59291cb208b1c723b0f752370f4c35c37f0440cf64351b3d0aefbde67eaa"
     },
     {
       "members": [],

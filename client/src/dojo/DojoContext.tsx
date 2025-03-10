@@ -5,7 +5,6 @@ import {
     useBurnerManager,
 } from "@dojoengine/create-burner";
 import { Account } from "starknet";
-import { dojoConfig } from "../../dojoConfig";
 import { DojoProvider } from "@dojoengine/core";
 import { client } from "../dojogen/contracts.gen";
 import { contractComponents } from "./setup";
@@ -39,9 +38,11 @@ export const DojoContext = createContext<DojoContextType | null>(null);
 export const DojoContextProvider = ({
     children,
     burnerManager,
+    dojoConfig
 }: {
     children: ReactNode;
     burnerManager: BurnerManager;
+    dojoConfig: any
 }) => {
     const currentValue = useContext(DojoContext);
     if (currentValue) {

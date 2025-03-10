@@ -91,6 +91,8 @@ const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
             throw new Error("Environment configuration mismatch for Mainnet network");
         }
 
+        console.log(networkConstants)
+
 
         const initializeDojoConfig = async () => {
             const manifest = networkConstants.MANIFEST

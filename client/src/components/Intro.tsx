@@ -50,7 +50,8 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
   // Button text based on wallet status and network
   const getButtonContent = (network: Network) => {
     if (network === "katana") return "INITIATE";
-    if (status === "connected") return `INITIATE`;
+    if (network === "sepolia" && status === "connected") return `INITIATE`;
+    if (network === "mainnet" && status === "connected") return `INITIATE`;
     return "CONNECT WALLET";
   };
 
@@ -104,9 +105,10 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
               <div className="mt-auto flex flex-col gap-2">
                 <button
                   onClick={() => handleNetworkSelect("mainet" as Network)}
-                  className="w-full py-4 bg-gray-700 text-gray-300 font-mono tracking-wider 
-                    border border-gray-600/50 rounded-lg cursor-not-allowed
-                    flex items-center justify-center gap-2"
+                  className="mt-auto w-full py-4 bg-green-800 text-green-100 font-mono tracking-wider 
+                  border border-green-700/50 rounded-lg shadow-lg shadow-green-900/20
+                  transition-all duration-300 hover:bg-green-700 hover:border-green-600/50
+                  active:scale-95 disabled:bg-gray-700 disabled:cursor-not-allowed"
                 >
                   {getButtonContent("mainet" as Network)}
                 </button>

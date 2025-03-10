@@ -1,4 +1,4 @@
-import { createDojoConfig } from "@dojoengine/core";
+
 
 import manifest_dev from "../contracts/command_nexus/manifest_dev.json";
 import manifest_sepolia from "../contracts/command_nexus/manifest_sepolia.json";

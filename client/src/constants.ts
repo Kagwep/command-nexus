@@ -1,5 +1,5 @@
 import { Network } from './utils/nexus';
-import { MANIFEST_DEV, MANIFEST_MAINNET, MANIFEST_SEPOLIA } from 'dojoConfig';
+import { MANIFEST_DEV, MANIFEST_MAINNET, MANIFEST_SEPOLIA } from '../dojoConfig';
 
 
 // Sepolia network constants

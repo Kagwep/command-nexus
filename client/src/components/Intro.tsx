@@ -128,15 +128,15 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
               </p>
               <div className="mt-auto flex flex-col gap-2">
                 <button
-                  onClick={() => handleNetworkSelect("mainet" as Network)}
+                  onClick={() => handleNetworkSelect("mainnet" as Network)}
                   className="mt-auto w-full py-4 bg-green-800 text-green-100 font-mono tracking-wider 
                   border border-green-700/50 rounded-lg shadow-lg shadow-green-900/20
                   transition-all duration-300 hover:bg-green-700 hover:border-green-600/50
                   active:scale-95 disabled:bg-gray-700 disabled:cursor-not-allowed"
                 >
-                  {getButtonContent("mainet" as Network)}
+                  {getButtonContent("mainnet" as Network)}
                 </button>
-                <p className="text-xs text-green-400/70 text-center">Mainnet deployment in preparation</p>
+                <p className="text-xs text-green-400/70 text-center">available on Mainnet</p>
               </div>
             </div>
           </div>

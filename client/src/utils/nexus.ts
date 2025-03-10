@@ -664,3 +664,8 @@ export const guideContent = [
   }
 ];
 
+
+
+export const getElementStoreState = () => {
+    return useElementStore.getState();
+  };

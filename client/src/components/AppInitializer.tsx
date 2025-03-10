@@ -1,7 +1,6 @@
-import { SDK } from "@dojoengine/sdk";
+import { init, SDK } from "@dojoengine/sdk";
 import { DojoContextProvider } from "../dojo/DojoContext";
 import { BurnerManager, setupBurnerManager } from "@dojoengine/create-burner";
-import { dojoConfig } from "../../dojoConfig";
 import App from "../App";
 import Intro from "./Intro";
 import { useOnboarding } from "../context/OnboardingContext";
@@ -13,10 +12,10 @@ import { NetworkAccountProvider } from "../context/WalletContex";
 import { useElementStore } from "../utils/nexus";
 import { DojoSdkProvider } from "@dojoengine/sdk/react";
 import LandingPage from './LandingPage';
+import { getNetworkConstants } from "@/constants";
+import { createDojoConfig } from "@dojoengine/core";
 
 interface AppInitializerProps {
-    sdk: SDK<CommandNexusSchemaType>
-    dojoConfig:any,
     clientFn:any,
 }
 
@@ -61,7 +60,7 @@ const ErrorScreen: React.FC<{ error: InitializationError }> = ({ error }) => (
     </div>
 );
 
-const AppInitializer: React.FC<AppInitializerProps> = ({ sdk, dojoConfig, clientFn }) => {
+const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
     const { isOnboarded, completeOnboarding } = useOnboarding();
     const [burnerManager, setBurnerManager] = useState<BurnerManager | null>(null);
     const [isLoading, setIsLoading] = useState(false); // Start as false initially
@@ -70,10 +69,59 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk, dojoConfig, client
     const [showLanding, setShowLanding] = useState(true);  // New state for landing page
     const { network } = useElementStore(state => state);
 
+    const [sdk, setSdk] = useState<SDK<CommandNexusSchemaType>|null>(null);
+
+    const [dojoConfig, setDojoConfig] = useState<any>();
+
     useEffect(() => {
         // Only start initialization after network is set and user is onboarded
         if (!isOnboarded || !network) {
             return;
+        }
+
+        const networkConstants = getNetworkConstants(network);
+
+        if (network === "sepolia" && import.meta.env.VITE_SEPOLIA !== 'true') {
+            console.error("Network mismatch: Selected Sepolia but VITE_SEPOLIA is not set to true");
+            throw new Error("Environment configuration mismatch for Sepolia network");
+        }
+        
+        if (network === "mainnet" && import.meta.env.VITE_MAINNET !== 'true') {
+            console.error("Network mismatch: Selected Mainnet but VITE_MAINET is not set to true");
+            throw new Error("Environment configuration mismatch for Mainnet network");
+        }
+
+
+        const initializeDojoConfig = async () => {
+            const manifest = networkConstants.MANIFEST
+
+            const dojoConfig = createDojoConfig({
+                manifest,
+            });
+
+            setDojoConfig(dojoConfig);
+
+        }
+
+        const initializeSDK = async () => {
+            const sdk = await init<CommandNexusSchemaType>(
+                {
+                    client: {
+                        // rpcUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_RPC_URL : dojoConfig.rpcUrl,
+                        toriiUrl: networkConstants.TORII_URL,
+                        relayUrl: dojoConfig.relayUrl,
+                        worldAddress: dojoConfig.manifest.world.address,
+                    },
+                    domain: {
+                        name: "WORLD_NAME",
+                        version: "1.0",
+                        chainId: "KATANA",
+                        revision: "1",
+                    },
+                },
+            );
+            
+        setSdk(sdk);
         }
 
         const initializeGame = async () => {
@@ -125,6 +173,8 @@ const AppInitializer: React.FC<AppInitializerProps> = ({ sdk, dojoConfig, client
             }
         };
 
+        initializeDojoConfig();
+        initializeSDK();
         initializeGame();
     }, [isOnboarded, network]); // Add dependencies
 

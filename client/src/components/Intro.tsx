@@ -33,13 +33,13 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
       onOnboardComplete();
       setNetwork(selectedNetwork);
     } else {
+      setNetwork(selectedNetwork);
       // For mainnet/sepolia, check wallet connection
       if (status === "connected") {
         setScreen("start");
         handleOnboarded();
         onOnboardComplete();
         setLoginScreen(true);
-        setNetwork(selectedNetwork);
       } else {
         // Attempt to connect wallet
         connect({ connector: cartridgeConnector });
@@ -103,12 +103,12 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
               </p>
               <div className="mt-auto flex flex-col gap-2">
                 <button
-                  disabled
+                  onClick={() => handleNetworkSelect("mainet" as Network)}
                   className="w-full py-4 bg-gray-700 text-gray-300 font-mono tracking-wider 
                     border border-gray-600/50 rounded-lg cursor-not-allowed
                     flex items-center justify-center gap-2"
                 >
-                  COMING SOON
+                  {getButtonContent("mainet" as Network)}
                 </button>
                 <p className="text-xs text-green-400/70 text-center">Mainnet deployment in preparation</p>
               </div>

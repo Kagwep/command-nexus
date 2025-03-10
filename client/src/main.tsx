@@ -5,7 +5,6 @@ import App from "./App.tsx";
 
 import "./index.css";
 import { init } from "@dojoengine/sdk";
-import { dojoConfig } from "../dojoConfig.ts";
 import { DojoContextProvider } from "./dojo/DojoContext.tsx";
 import { setupBurnerManager } from "@dojoengine/create-burner";
 import { StarknetProvider } from "./providers.tsx";
@@ -13,10 +12,10 @@ import { SDKProvider } from './context/SDKContext.tsx';
 import { CommandNexusSchemaType,schema } from "./dojogen/models.gen.ts";
 import { OnboardingProvider } from "./context/OnboardingContext.tsx";
 import AppInitializer from "./components/AppInitializer.tsx";
-import { TORII_RPC_URL, TORII_URL } from "./constants.ts";
 import { client } from "./dojogen/contracts.gen.ts";
 import { ApollClient } from "./utils/apollo/client.ts";
 import { ApolloProvider } from '@apollo/client';
+
 
 /**
  * Initializes and bootstraps the Dojo application.
@@ -26,23 +25,6 @@ import { ApolloProvider } from '@apollo/client';
  */
 async function main() {
 
-    console.log( dojoConfig)
-    const sdk = await init<CommandNexusSchemaType>(
-        {
-            client: {
-               // rpcUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_RPC_URL : dojoConfig.rpcUrl,
-                toriiUrl: import.meta.env.VITE_SEPOLIA === 'true' ? TORII_URL : 'http://localhost:8080',
-                relayUrl: dojoConfig.relayUrl,
-                worldAddress: dojoConfig.manifest.world.address,
-            },
-            domain: {
-                name: "WORLD_NAME",
-                version: "1.0",
-                chainId: "KATANA",
-                revision: "1",
-            },
-        },
-    );
 
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
@@ -50,8 +32,6 @@ async function main() {
             <StarknetProvider>
                 <OnboardingProvider>
                 <AppInitializer
-                     sdk={sdk} 
-                     dojoConfig={dojoConfig}
                      clientFn={client}
                      />
                 </OnboardingProvider>

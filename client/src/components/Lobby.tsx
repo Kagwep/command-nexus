@@ -396,20 +396,28 @@ const Lobby: React.FC = () => {
 
           {/* Command Actions */}
           <div className="mt-6 flex justify-end">
-            {isHost(game.arena_host, account.address) ? (
-              <button
-              disabled={startLoading || (Object.keys(nstate.players).length < 2)}
-                onClick={startGame}
-                className="relative group px-6 py-2 font-mono"
-              >
-                <div className="absolute inset-0 bg-green-900/20 border border-green-500/30 
-                              group-hover:bg-green-900/30 transition-all duration-300" />
-                <span className="relative text-green-400 group-hover:text-green-300 flex items-center space-x-2">
-                  <span>◈</span>
-                  <span>INITIATE OPERATION</span>
-                  <span>◈</span>
-                </span>
-              </button>
+          {isHost(game.arena_host, account.address) ? (
+              <div className="flex flex-col items-center">
+                <button
+                  disabled={startLoading || (Object.keys(nstate.players).length < 2)}
+                  onClick={startGame}
+                  className="relative group px-6 py-2 font-mono"
+                >
+                  <div className="absolute inset-0 bg-green-900/20 border border-green-500/30 
+                                group-hover:bg-green-900/30 transition-all duration-300" />
+                  <span className="relative text-green-400 group-hover:text-green-300 flex items-center space-x-2">
+                    <span>◈</span>
+                    <span>INITIATE OPERATION</span>
+                    <span>◈</span>
+                  </span>
+                </button>
+                
+                {Object.keys(nstate.players).length < 2 && (
+                  <div className="mt-2 text-amber-400/90 text-sm font-mono">
+                    <span>◈ AWAITING ADDITIONAL OPERATIVES ◈</span>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="flex items-center space-x-3 text-green-400/70 font-mono">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />

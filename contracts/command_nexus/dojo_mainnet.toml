@@ -1,0 +1,19 @@
+
+[namespace]
+default = "command_nexus"
+
+[env]
+account_address = ""
+private_key = ""
+rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
+
+[world]
+seed = "command_nexus_1"
+name = "Command Nexus"
+description = "Become a commander"
+cover_uri = "file://assets/bg.webp"
+website = "https://command-nexus.astro-arch.com"
+
+
+[writers]
+"command_nexus" = ["command_nexus-arena","command_nexus-nexus"]

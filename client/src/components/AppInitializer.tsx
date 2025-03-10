@@ -67,17 +67,21 @@ const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
     const [error, setError] = useState<InitializationError | null>(null);
     const [initializationStep, setInitializationStep] = useState(0);
     const [showLanding, setShowLanding] = useState(true);  // New state for landing page
-    const { network } = useElementStore(state => state);
+    const { network,dojoConfig } = useElementStore(state => state);
 
     const [sdk, setSdk] = useState<SDK<CommandNexusSchemaType>|null>(null);
 
-    const [dojoConfig, setDojoConfig] = useState<any>();
+
+
+  
 
     useEffect(() => {
         // Only start initialization after network is set and user is onboarded
-        if (!isOnboarded || !network) {
+        if (!isOnboarded || !network ) {
             return;
         }
+
+        console.log(dojoConfig)
 
         const networkConstants = getNetworkConstants(network);
 
@@ -89,20 +93,6 @@ const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
         if (network === "mainnet" && import.meta.env.VITE_MAINNET !== 'true') {
             console.error("Network mismatch: Selected Mainnet but VITE_MAINET is not set to true");
             throw new Error("Environment configuration mismatch for Mainnet network");
-        }
-
-        console.log(networkConstants)
-
-
-        const initializeDojoConfig = async () => {
-            const manifest = networkConstants.MANIFEST
-
-            const dojoConfig = createDojoConfig({
-                manifest,
-            });
-
-            setDojoConfig(dojoConfig);
-
         }
 
         const initializeSDK = async () => {
@@ -175,10 +165,9 @@ const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
             }
         };
 
-        initializeDojoConfig();
         initializeSDK();
         initializeGame();
-    }, [isOnboarded, network]); // Add dependencies
+    }, [isOnboarded, network,dojoConfig?.manifest?.world.address]); // Add dependencies
 
     const getLoadingMessage = () => {
         switch (initializationStep) {

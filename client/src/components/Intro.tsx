@@ -1,6 +1,8 @@
 import { useAccount, useConnect, useDisconnect } from "@starknet-react/core";
 import { useUiSounds, soundSelector } from "../hooks/useUiSound";
 import { useElementStore, Network } from "../utils/nexus";
+import { getNetworkConstants } from "@/constants";
+import { createDojoConfig } from "@dojoengine/core";
 
 interface IntroProps {
   onOnboardComplete: () => void;
@@ -14,6 +16,7 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
     setNetwork,
     setIsMuted,
     isMuted,
+    setDojoConfig
   } = useElementStore();
 
   const { connect, connectors } = useConnect();
@@ -26,12 +29,25 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
   // Helper function to handle network selection with wallet check
   const handleNetworkSelect = (selectedNetwork: Network) => {
    
+    const networkConstants = getNetworkConstants(selectedNetwork);
+
+    const manifest = networkConstants.MANIFEST
+
+    const dojoConfig = createDojoConfig({
+        manifest,
+    });
+
+    setDojoConfig(dojoConfig)
+
     if (selectedNetwork === "katana") {
       // For testnet, proceed without wallet
       setScreen("start");
       handleOnboarded();
       onOnboardComplete();
       setNetwork(selectedNetwork);
+
+      
+      
     } else {
       setNetwork(selectedNetwork);
       // For mainnet/sepolia, check wallet connection
@@ -66,13 +82,21 @@ const Intro: React.FC<IntroProps> = ({ onOnboardComplete }) => {
           {type}
         </span>
       </div>
-      {(type === "mainnet" || type === "sepolia") && (
-        <div className={`px-2 py-1 rounded-full text-xs font-mono ${
-          connected ? "bg-green-900/50 text-green-300" : "bg-gray-800/50 text-gray-400"
-        }`}>
-          {connected ? "CONNECTED" : "WALLET REQUIRED"}
-        </div>
-      )}
+      {(type === "mainnet") && (
+          <div className={`px-2 py-1 rounded-full text-xs font-mono ${
+            connected ? "bg-green-900/50 text-green-300" : "bg-gray-800/50 text-gray-400"
+          }`}>
+            {connected ? "CONNECTED" : "WALLET REQUIRED"}
+          </div>
+        )}
+
+        {(type === "sepolia") && (
+          <div className={`px-2 py-1 rounded-full text-xs font-mono ${
+            connected ? "bg-green-900/50 text-green-300" : "bg-gray-800/50 text-gray-400"
+          }`}>
+            {connected ? "CONNECTED" : "WALLET REQUIRED"}
+          </div>
+        )}
     </div>
   );
 

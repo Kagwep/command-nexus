@@ -49,7 +49,6 @@ export const DojoContextProvider = ({
         throw new Error("DojoProvider can only be used once");
     }
 
-    console.log(dojoConfig)
 
     const dojoProvider = new DojoProvider(
         dojoConfig.manifest,

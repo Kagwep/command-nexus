@@ -74,6 +74,8 @@ interface State {
   isMuted: boolean;
   setIsMuted: (value: boolean) => void;
   loginScreen: boolean;
+  dojoConfig: any;
+  setDojoConfig: (value: any) => void;
   setLoginScreen: (value: boolean) => void;
   screen: ScreenPage;
   setScreen: (value: ScreenPage) => void;
@@ -133,6 +135,10 @@ export const useElementStore = create<State>((set) => ({
   isMuted: false,
   setIsMuted: (value) => set({ isMuted: value }),
   loginScreen: false,
+  dojoConfig: undefined,
+  setDojoConfig: (value) => {
+    set({ dojoConfig: value });
+  },
   setLoginScreen: (value) => set({ loginScreen: value }),
   screen: "start",
   setScreen: (value) => set({ screen: value }),

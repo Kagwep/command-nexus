@@ -231,7 +231,7 @@ const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
         dojoConfig={dojoConfig}
         clientFn={clientFn}
     >
-            <DojoContextProvider dojoConfig={{dojoConfig}} burnerManager={burnerManager}>
+            <DojoContextProvider dojoConfig={dojoConfig} burnerManager={burnerManager}>
                 <NetworkAccountProvider>
                     <App />
                 </NetworkAccountProvider>

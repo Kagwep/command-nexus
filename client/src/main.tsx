@@ -15,6 +15,8 @@ import AppInitializer from "./components/AppInitializer.tsx";
 import { client } from "./dojogen/contracts.gen.ts";
 import { ApollClient } from "./utils/apollo/client.ts";
 import { ApolloProvider } from '@apollo/client';
+import { NetworkProvider } from "./context/NetworkContext.tsx";
+import AppRoot from "./AppRoot.tsx";
 
 
 /**
@@ -29,13 +31,7 @@ async function main() {
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
             <ApolloProvider client={ApollClient}>
-            <StarknetProvider>
-                <OnboardingProvider>
-                <AppInitializer
-                     clientFn={client}
-                     />
-                </OnboardingProvider>
-            </StarknetProvider>
+               <AppRoot />
             </ApolloProvider>
         </StrictMode>
     );

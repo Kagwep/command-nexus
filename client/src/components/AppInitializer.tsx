@@ -14,9 +14,12 @@ import { DojoSdkProvider } from "@dojoengine/sdk/react";
 import LandingPage from './LandingPage';
 import { getNetworkConstants } from "@/constants";
 import { createDojoConfig } from "@dojoengine/core";
+import { useNetwork } from "@/context/NetworkContext";
+import NetworkSelector from "./NetworkSelector";
 
 interface AppInitializerProps {
     clientFn:any,
+    skipNetworkSelection?: boolean,
 }
 
 
@@ -60,28 +63,41 @@ const ErrorScreen: React.FC<{ error: InitializationError }> = ({ error }) => (
     </div>
 );
 
-const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
+const AppInitializer: React.FC<AppInitializerProps> = ({clientFn,skipNetworkSelection = false}) => {
     const { isOnboarded, completeOnboarding } = useOnboarding();
     const [burnerManager, setBurnerManager] = useState<BurnerManager | null>(null);
     const [isLoading, setIsLoading] = useState(false); // Start as false initially
     const [error, setError] = useState<InitializationError | null>(null);
     const [initializationStep, setInitializationStep] = useState(0);
     const [showLanding, setShowLanding] = useState(true);  // New state for landing page
-    const { network,dojoConfig } = useElementStore(state => state);
+    const [networkSelected, setNetworkSelected] = useState(skipNetworkSelection);
+    //const { dojoConfig } = useElementStore(state => state);
+
+    const { network,dojoConfig } = useNetwork();
 
     const [sdk, setSdk] = useState<SDK<CommandNexusSchemaType>|null>(null);
 
 
 
+    useEffect(() => {
+        // Sync dojoConfig with ElementStore if needed
+        if (dojoConfig) {
+            useElementStore.getState().setDojoConfig(dojoConfig);
+        }
+        
+        // Sync network with ElementStore if needed
+        if (network) {
+            useElementStore.getState().setNetwork(network);
+        }
+    }, [dojoConfig, network]);
   
 
     useEffect(() => {
         // Only start initialization after network is set and user is onboarded
-        if (!isOnboarded || !network ) {
+        if (!isOnboarded || !network || !dojoConfig) {
             return;
         }
 
-        console.log(dojoConfig)
 
         const networkConstants = getNetworkConstants(network);
 
@@ -182,10 +198,23 @@ const AppInitializer: React.FC<AppInitializerProps> = ({clientFn}) => {
         }
     };
 
-    // If showing landing page
-    if (showLanding) {
-        return <LandingPage onStartGame={() => setShowLanding(false)} />;
+  
+    //  (skipNetworkSelection=true), we skip these screens
+    if (!skipNetworkSelection) {
+        // If showing landing page
+        if (showLanding) {
+            return <LandingPage onStartGame={() => setShowLanding(false)} />;
+        }
+        
+        // Next, select network if not selected yet
+        if (!networkSelected) {
+            return <NetworkSelector onNetworkSelected={(selectedNetwork) => {
+                useNetwork().setNetwork(selectedNetwork);
+                setNetworkSelected(true);
+            }} />;
+        }
     }
+    
     
     // First, show Intro if not onboarded
     if (!isOnboarded) {

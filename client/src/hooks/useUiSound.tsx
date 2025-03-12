@@ -9,6 +9,7 @@ export const soundSelector = {
   jump: "jump.wav",
   slay: "slay.mp3",
   hit: "hurt.mp3",
+  bg: "nexus.mp3"
 };
 
 export const useUiSounds = (selector: string) => {

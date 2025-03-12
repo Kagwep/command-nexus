@@ -100,6 +100,7 @@ const colorMode: ColorMode = "dark";
 const theme = "";
 const namespace = "command_nexus";
 
+console.log(network);
 const getChainIdForNetwork = (network) => {
   switch (network) {
     case 'sepolia':

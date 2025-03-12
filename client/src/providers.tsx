@@ -104,7 +104,7 @@ const getChainIdForNetwork = (network) => {
   switch (network) {
     case 'sepolia':
       return constants.StarknetChainId.SN_SEPOLIA;
-    case 'mainet':
+    case 'mainnet':
       return constants.StarknetChainId.SN_MAIN;
     case 'katana':
     default:

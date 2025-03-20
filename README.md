@@ -1,6 +1,3 @@
-# Command Nexus: A Strategic Battle Game
-
-
 ## ⚠️ This Repo is Archived ⚠️
 
 This repository has been **archived** in favor of [Command Nexus](https://github.com/astro-archs/command-nexus). 
@@ -8,6 +5,10 @@ This repository has been **archived** in favor of [Command Nexus](https://github
 🚀 **Check out the new and improved version here:**  
 ➡️ [https://github.com/astro-archs/command-nexus](https://github.com/astro-archs/command-nexus)
 
+
+
+
+# Command Nexus: A Strategic Battle Game
 
 
 ![9u8bGKU9_400x400](https://github.com/user-attachments/assets/bef47ce5-faf6-4bc7-b638-a444defc40da)

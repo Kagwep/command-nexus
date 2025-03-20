@@ -139,7 +139,7 @@ Unit states affect combat performance:
 
 ## Victory Conditions
 Win the game by achieving either:
- - Capture 5 flags.
+ - Capture 5 flags plus 3 enemy kills.
  - Eliminate 5 enemy units.
 Strategize your approach based on the battlefield situation!
 
